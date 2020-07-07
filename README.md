@@ -1,14 +1,30 @@
-# wb_nlp
+# World Bank Knowledge for Change NLP Project
 
-Add a short description here!
+This repository contains all the codes and jupyter notebooks used to experiment and implement various NLP solutions to develop components for a document and data discovery application.
 
+## About the Knowledge for Change NLP Project
 
-## Description
+The project is broken down into the following components:
 
-A longer description of your project goes here...
-
+1. Web scraping and automation (/src/scraping)
+2. Metadata extraction (/src/extraction)
+3. Document preprocessing and cleaning (/src/cleaning)
+4. NLP modeling (/src/modeling)
+5. Application development (/wb_nlp/)
 
 ## Note
 
 This project has been set up using PyScaffold 3.2.3. For details and usage
 information on PyScaffold see https://pyscaffold.org/.
+
+> ##### PyScaffold includes a pre-commit config
+> ---
+> A `.pre-commit-config.yaml` file was generated inside your project but in order to make sure the hooks will run, please don't forget to install the `pre-commit` package:
+
+    $ cd wb_nlp
+    $ # it is a good idea to create and activate a virtualenv here
+    $ pip install pre-commit
+    $ pre-commit install
+    $ # another good idea is update the hooks to the latest version
+    $ # pre-commit autoupdate
+> ---
