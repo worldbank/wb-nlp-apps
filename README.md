@@ -6,11 +6,11 @@ This repository contains all the codes and jupyter notebooks used to experiment 
 
 The project is broken down into the following components:
 
-1. Web scraping and automation (/src/scraping)
-2. Metadata extraction (/src/extraction)
-3. Document preprocessing and cleaning (/src/cleaning)
-4. NLP modeling (/src/modeling)
-5. Application development (/wb_nlp/)
+1. Web scraping and automation (`/src/wb_nlp/scraping`)
+2. Metadata extraction (`/src/wb_nlp/extraction`)
+3. Document preprocessing and cleaning (`/src/wb_nlp/cleaning`)
+4. NLP modeling (`/src/wb_nlp/modeling`)
+5. Application development (`/src/wb_nlp/app`)
 
 ## Note
 
