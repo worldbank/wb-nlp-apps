@@ -25,12 +25,6 @@ class PDFDoc2Txt:
 
         pass
 
-    def tika_parse_buffer():
-        pass
-
-    def tika_parse_file():
-        pass
-
     def parse(self, source: Union[bytes, str], source_type: str='buffer') -> str:
         """Parse a PDF document to text from different source types.
 
@@ -86,9 +80,9 @@ class PDFDoc2Txt:
             else:
                 paragraphs.append(paragraph)
 
-#         for p in paragraphs:
-#             doc = self.nlp(p)
-#             self.sentences.extend(list(doc.sents))
+        # for p in paragraphs:
+        #     doc = self.nlp(p)
+        #     self.sentences.extend(list(doc.sents))
 
         paragraphs = '\n\n'.join(paragraphs)
         return paragraphs
@@ -123,8 +117,6 @@ class PDFDoc2Txt:
             len_prev_line = len(prev_line.split())
             len_line = len(line.split())
 
-            # prev_line_end = lines[-1][-1] if lines and lines[-1] else ''
-
             if line.lstrip().startswith('•'):
                 lines.append(line)
             elif len_prev_line <= min_fragment_len and len_line > min_fragment_len:
@@ -140,28 +132,6 @@ class PDFDoc2Txt:
                 lines[-1] = prev_line.rstrip('-').strip() + ' ' + line
             else:
                 lines.append(line)
-
-#         for line in re.findall(r'(.+)(?:$|\n)', text_paragraph):
-#             lines = line_groups[-1]
-#             prev_line = lines[-1] if lines else ''
-#             prev_line_end = prev_line[-1] if prev_line else ''
-
-#             if prev_line and len(line.split()) > (0.5 * len(prev_line.split())):
-#                 if prev_line_end in line_seps:
-#                     lines.append(line)
-#                     lines[-1] = lines[-1].rstrip('-') + line
-#                 elif re.search(r'[^\.\:]', prev_line_end):
-#                     lines[-1] = lines[-1].rstrip('-') + ' ' + line
-#                 else:
-#                     lines.append(line)
-#                     line_groups.append([])
-#             else:
-#                 lines.append(line)
-#                 # line_groups.append([])
-
-#         lines = []
-#         for lg in line_groups:
-#             lines.extend(lg)
 
         if lines:
             lines[-1] = lines[-1].strip()
@@ -235,8 +205,10 @@ class PDFDoc2Txt:
                     continue
                 unique_ps.append(p)
 
+        # # Consider removing duplicate paragraphs.
+        # # The pdf file below contains example of duplicated sections when the pdf is parsed.
+        # # Page 18: Better Loans or Better Borrowers?
+        # # https://openknowledge.worldbank.org/bitstream/handle/10986/34013/Designing-a-Credit-Facility-for-Women-Entrepreneurs-Lessons-from-the-Ethiopia-Women-Entrepreneurship-Development-Project.pdf
         #     if p in unique_ps:
         #         continue
         #     unique_ps.append(p)
-
-        pass
