@@ -38,11 +38,17 @@ An overview of the pipeline is as follows:
 - Apply spell check and try to recover misspelled words.
 - Normalize tokens by converting to lowercase.
 
-## NLP modeling
+### Phrase detection
 
-### N-gram detection
+Part of the preprocessing is also the inference of phrases in the documents. Phrases are logical grouping of tokens that represent an intrinsic meaning.
+
+We are primarily leveraging the [Gensim](https://radimrehurek.com/gensim/) NLP toolkit and Spacy to develop the phrase detection algorithms.
 
 ### Acronym detection
+
+
+## and NLP modeling
+
 
 ### Latent Dirichlet Allocation (LDA) topic model
 
@@ -50,6 +56,12 @@ An overview of the pipeline is as follows:
 
 
 ## Application development
+
+## Setting up the environment
+
+```
+$ python -m ipykernel install --user --name=wb_nlp
+```
 
 ## Note
 
