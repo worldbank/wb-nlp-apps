@@ -16,6 +16,7 @@ repos:
   - id: requirements-txt-fixer
   - id: mixed-line-ending
     args: ['--fix=no']
+    exclude: environment.yml
 
 # -   repo: https://gitlab.com/pycqa/flake8
 #     rev: 3.8.0
