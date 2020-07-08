@@ -13,10 +13,11 @@ repos:
   - id: check-yaml
   - id: debug-statements
   - id: end-of-file-fixer
+    exclude: environment.yml
   - id: requirements-txt-fixer
   - id: mixed-line-ending
     args: ['--fix=no']
-    exclude: environment.yml
+    # exclude: environment.yml
 
 # -   repo: https://gitlab.com/pycqa/flake8
 #     rev: 3.8.0

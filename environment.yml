@@ -6,11 +6,13 @@ dependencies:
   - _libgcc_mutex=0.1=main
   - attrs=19.3.0=py_0
   - backcall=0.2.0=py_0
+  - beautifulsoup4=4.9.1=py38_0
   - blas=1.0=mkl
   - bleach=3.1.5=py_0
   - brotlipy=0.7.0=py38h7b6447c_1000
-  - ca-certificates=2020.6.20=hecda079_0
-  - certifi=2020.6.20=py38h32f6830_0
+  - bs4=4.9.1=0
+  - ca-certificates=2020.6.24=0
+  - certifi=2020.6.20=py38_0
   - cffi=1.14.0=py38he30daa8_1
   - chardet=3.0.4=py38_1003
   - cryptography=2.9.2=py38h1ba5d50_0
@@ -69,7 +71,7 @@ dependencies:
   - notebook=6.0.3=py38_0
   - numpy=1.18.5=py38ha1c710e_0
   - numpy-base=1.18.5=py38hde5b4d6_0
-  - openssl=1.1.1g=h516909a_0
+  - openssl=1.1.1g=h7b6447c_0
   - packaging=20.4=py_0
   - pandas=1.0.5=py38h0573a6f_0
   - pandoc=2.9.2.1=0
@@ -105,6 +107,7 @@ dependencies:
   - setuptools=47.3.1=py38_0
   - sip=4.19.13=py38he6710b0_0
   - six=1.15.0=py_0
+  - soupsieve=2.0.1=py_0
   - sqlite=3.32.3=h62c20be_0
   - terminado=0.8.3=py38_0
   - testpath=0.4.4=py_0
