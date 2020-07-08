@@ -12,6 +12,24 @@ The project is broken down into the following components:
 4. NLP modeling (`/src/wb_nlp/modeling`)
 5. Application development (`/src/wb_nlp/app`)
 
+## Web scraping
+
+The objective of this project is to use NLP models to learn topics, embedding, and other representations that could be useful for improving discoverability of documents. A major requirement for this undertaking is the availability of data that can be used to train machine learning models. We aim to use web scraping and API access when possible to aggregate a large collection of documents. The document aggregation will focus on documents produced by international organizations and multilateral development banks to generate a specialized collection of economic and development centric corpus.
+
+Technologies such as [Scrapy](https://scrapy.org/) and [NiFi](https://nifi.apache.org/), as well as vanilla implementations of API access are used to implement the web scraping part of the project.
+
+## Metadata extraction
+
+
+## Document preprocessing and cleaning
+
+
+## NLP modeling
+
+
+## Application development
+
+
 ## Note
 
 This project has been set up using PyScaffold 3.2.3. For details and usage
