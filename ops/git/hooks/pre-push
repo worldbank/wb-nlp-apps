@@ -26,7 +26,7 @@ else
 fi
 
 # Check if new environment file is different from original
-grep -Fv -f exclude.env.mac.yml environment.mac.yml > environment.mac.yml
+grep -Fv -f exclude.env.mac.yml environment.mac.yml > environment.mac.yml.tmp && mv environment.mac.yml.tmp environment.mac.yml
 git diff --exit-code --quiet environment.mac.yml
 
 # If new environment file is different, commit it
@@ -38,11 +38,11 @@ else
     git add environment.mac.yml
     git commit -m "Updating mac conda environment"
     echo 'You need to push again to push additional "Updating mac conda environment" commit.'
-    EXIT = 1
+    EXIT=1
 fi
 
 # Check if new environment file is different from original
-grep -Fv -f exclude.env.win.yml environment.win.yml > environment.win.yml
+grep -Fv -f exclude.env.win.yml environment.win.yml > environment.win.yml.tmp && mv environment.win.yml.tmp environment.win.yml
 git diff --exit-code --quiet environment.win.yml
 
 # If new environment file is different, commit it
@@ -54,7 +54,7 @@ else
     git add environment.mac.yml
     git commit -m "Updating win conda environment"
     echo 'You need to push again to push additional "Updating win conda environment" commit.'
-    EXIT = 1
+    EXIT=1
 fi
 
 
