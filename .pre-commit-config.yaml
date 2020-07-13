@@ -13,7 +13,11 @@ repos:
   - id: check-yaml
   - id: debug-statements
   - id: end-of-file-fixer
-    exclude: environment.yml
+    exclude: |
+        (?x)(
+            environment.yml|
+            environment.mac.yml
+        )
   - id: requirements-txt-fixer
   - id: mixed-line-ending
     args: ['--fix=no']
