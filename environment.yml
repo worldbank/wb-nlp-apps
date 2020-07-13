@@ -167,5 +167,4 @@ dependencies:
     - sphinxcontrib-serializinghtml==1.1.4
     - toml==0.10.1
     - virtualenv==20.0.26
-prefix: /home/wb536061/anaconda3/envs/wb_nlp
 
