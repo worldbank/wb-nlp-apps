@@ -47,7 +47,7 @@ We are primarily leveraging the [Gensim](https://radimrehurek.com/gensim/) NLP t
 ### Acronym detection
 
 
-## and NLP modeling
+## NLP modeling
 
 
 ### Latent Dirichlet Allocation (LDA) topic model
@@ -58,6 +58,31 @@ We are primarily leveraging the [Gensim](https://radimrehurek.com/gensim/) NLP t
 ## Application development
 
 ## Setting up the environment
+
+The project environment can be easily replicated using conda. A linux environment is needed to maintain the packages across different platforms.
+
+A pre-push hook is available in `/ops/git/hooks/pre-push` that handles the automatic update of the environments. To use this, simply create a soft link to your git hooks: `ln -s <path-to-git hooks> /ops/git/hooks/pre-push`.
+
+A list of excluded packages that are not available on either mac or windows should be maintained. The excluded packages are maintained in:
+
+- `excluded.env.mac.yml`
+- `excluded.env.win.yml`
+
+#### For linux
+
+Run `conda env create -f environment.yml`
+
+#### For MacOS
+
+Run `conda env create -f environment.mac.yml`
+
+#### For Windows
+
+Run `conda env create -f environment.win.yml`
+
+Then, simply activate the environment using `conda activate wb_nlp`. To install the `wb_nlp` package, run this command: `python setup.py develop`. You can now import the package within the environment.
+
+#### Adding the environment as kernel to Jupyter/Lab
 
 ```bash
 $ python -m ipykernel install --user --name=wb_nlp
