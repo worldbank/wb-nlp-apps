@@ -59,7 +59,7 @@ We are primarily leveraging the [Gensim](https://radimrehurek.com/gensim/) NLP t
 
 ## Setting up the environment
 
-```
+```bash
 $ python -m ipykernel install --user --name=wb_nlp
 ```
 
