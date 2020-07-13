@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# https://stackoverflow.com/a/56787188
+
+echo "\n==================== pre-push hook ===================="
+
+# Export conda environment to yaml file
+~/anaconda3/bin/conda env export -n wb_nlp --no-builds > environment.yml
+~/anaconda3/bin/conda env export -n wb_nlp --no-builds | cut -f 1 -d '=' > environment.mac.yml
+cp environment.mac.yml environment.win.yml
+
+EXIT=0
+
+# Check if new environment file is different from original
+git diff --exit-code --quiet environment.yml
+
+# If new environment file is different, commit it
+if [[ $? -eq 0 ]]; then
+    echo "Conda environment not changed. No additional commit."
+else
+    # sed -i '$ d' environment.yml
+    echo "Conda environment changed. Commiting new environment.yml"
+    git add environment.yml
+    git commit -m "Updating conda environment"
+    echo 'You need to push again to push additional "Updating conda environment" commit.'
+    EXIT=1
+fi
+
+# Check if new environment file is different from original
+grep -Fv -f exclude.env.mac.yml environment.mac.yml > environment.mac.yml
+git diff --exit-code --quiet environment.mac.yml
+
+# If new environment file is different, commit it
+if [[ $? -eq 0 ]]; then
+    echo "Conda environment not changed. No additional commit."
+else
+    # sed -i '$ d' environment.yml
+    echo "Conda environment changed. Commiting new environment.mac.yml"
+    git add environment.mac.yml
+    git commit -m "Updating mac conda environment"
+    echo 'You need to push again to push additional "Updating mac conda environment" commit.'
+    EXIT = 1
+fi
+
+# Check if new environment file is different from original
+grep -Fv -f exclude.env.win.yml environment.win.yml > environment.win.yml
+git diff --exit-code --quiet environment.win.yml
+
+# If new environment file is different, commit it
+if [[ $? -eq 0 ]]; then
+    echo "Conda environment not changed. No additional commit."
+else
+    # sed -i '$ d' environment.yml
+    echo "Conda environment changed. Commiting new environment.win.yml"
+    git add environment.mac.yml
+    git commit -m "Updating win conda environment"
+    echo 'You need to push again to push additional "Updating win conda environment" commit.'
+    EXIT = 1
+fi
+
+
+exit $EXIT
