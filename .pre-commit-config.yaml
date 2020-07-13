@@ -16,7 +16,8 @@ repos:
     exclude: |
         (?x)(
             environment.yml|
-            environment.mac.yml
+            environment.mac.yml|
+            environment.win.yml
         )
   - id: requirements-txt-fixer
   - id: mixed-line-ending

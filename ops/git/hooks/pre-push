@@ -4,8 +4,8 @@
 echo "\n==================== pre-push hook ===================="
 
 # Export conda environment to yaml file
-~/anaconda3/bin/conda env export -n wb_nlp --no-builds > environment.yml
-~/anaconda3/bin/conda env export -n wb_nlp --no-builds | cut -f 1 -d '=' > environment.mac.yml
+~/anaconda3/bin/conda env export -n wb_nlp --no-builds | grep -v "prefix" > environment.yml
+less environment.yml | cut -f 1 -d '=' > environment.mac.yml
 cp environment.mac.yml environment.win.yml
 
 EXIT=0
@@ -51,7 +51,7 @@ if [[ $? -eq 0 ]]; then
 else
     # sed -i '$ d' environment.yml
     echo "Conda environment changed. Commiting new environment.win.yml"
-    git add environment.mac.yml
+    git add environment.win.yml
     git commit -m "Updating win conda environment"
     echo 'You need to push again to push additional "Updating win conda environment" commit.'
     EXIT=1
