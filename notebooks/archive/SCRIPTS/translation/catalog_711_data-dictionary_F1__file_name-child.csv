@@ -1,0 +1,235 @@
+var_code,var_name,translated
+chclno,Numero district,District Number
+chhhno,Numero m‚nage,"m,nage Number"
+chlnno,Numero ligne de l'enfant,Number of online child
+chctno,Num‚ro de ligne de la personne en charge,"Num,ro line the person in charge"
+br1aa,Sexe de l'enfant,Gender of child
+br2,Age de l'enfant,Age of the child
+br3d,Jour de naissance de l'enfant,child birth day
+br3m,Mois de naissance de l'enfant,Month of birth of the child
+br3y,Ann‚e de naissance de l'enfant,"Ann,e of childbirth"
+br4,A  t il / elle un certificat de naissance,At t he / she a birth certificate
+br5,Est ce que la naissance a ‚t‚ enregistr‚e,"Is the birth, t, enregistr,e"
+br6,Pourquoi la naissance n'a pas ‚t‚ enregistr‚e,"Why has not the birth, t, enregistr,e"
+br7,Savez vous comment l'enregistrer,Do you know how to save it
+br8,L'enfant frquente t il un programme d'education formelle,The child frquente t there a formal education program
+br9,Nombre d'heures de frequentation durant les 7 derniers jours,Number of hours of attendance during the last 7 days
+va1,L'enfant a t il re‡u une capsule de vitamine A,The child does it re ‡ u a vitamin A capsule
+va2,Depuis combien de mois a t il re‡u la derniere dose,How many months it has been re ‡ u the last dose
+va3,Ou a t il obtenu la derniere dose,Or does he get the last dose
+va3aa,Avez vu entendu des messages faisant promotion aliments,Have been heard making food promotional messages
+va3bb1,Feuilles vertes,Green leaves
+va3bb2,Carottes,carrots
+va3bb3,Mangues,mangoes
+va3bb4,Papaye,papaya
+va3bb5,Melons pasteque,watermelon Melons
+va3bb6,Lait maternel,breast milk
+va3bb7,Oeuf,egg
+va3bb8,Viande,meat
+va3bb9,Poisson,fish
+va3aa10,Huile de palme,Palm oil
+va3aa11,Autres,other
+va3cc1,Feuilles vertes,Green leaves
+va3cc2,Carottes,carrots
+va3cc3,Mangues,mangoes
+va3cc4,Papaye,papaya
+va3cc5,Melons pasteque,watermelon Melons
+va3cc6,Lait maternel,breast milk
+va3cc7,Oeuf,egg
+va3cc8,Viande,meat
+va3cc9,Poisson,fish
+va3cc10,Huile de palme,Palm oil
+ci1,A t il / elle eu la diarh‚e ces 2 derniers semaines,"At t he / she had the diarh,e past two weeks"
+ci2,Avait il / elle souffert d'une autre maladie,Had he / she suffered from another disease
+ci3a,Lait maternel,breast milk
+ci3b,Bouillie de cer‚ales,"Porridge cer,ales"
+ci3c,Jus de pain de singe,baobab fruit juice
+ci3d,Solution sal‚e sucr‚e,"Solution sal,e sucr,e"
+ci3e,Tisane decoction feuille de goyave nep nep,Herbal decoction guava leaf NEP NEP
+ci3f,Lait caille,Milk quail
+ci3g,SRO,SRO
+ci3h,Eau simple,single water
+ci3i,Autre,other
+ci3j,Rien,nothing
+ci4,Au cours de la maladie a t il bu beaucoup ou moins,During the illness does he drank a lot or less
+ci5,Au cours de la maladie a t il mang‚ beaucoup ou moins,During the disease has been eaten there many or less
+ci6,A t il eu la toux ces 2 dernieres semaines,At t he had cough in last 2 weeks
+ci7,A t il eu des difficultes de respirations,At t he had difficulties breaths
+ci8,Les symptomes etaient ils dus a iun problŠme dans la poitrin,they were the symptoms due to iun problŠme in poitrin
+ci9,Avez vous demande conseils,Did you request advice
+ci10a,Hospital,Hospital
+ci10b,Centre de sant‚,"Health Center,"
+ci10c,Dispensaire / poste de sant‚y,"Dispensary / sant,y station"
+ci10d,Case de sabte,Case sabte
+ci10e,Agent de sante du village,the village health worker
+ci10f,Clinique SMI,MCH Clinic
+ci10g,Clinique mobile,Mobile clinic
+ci10h,Medecin priv‚,"Private doctor,"
+ci10i,Pharmarcie  ou vendeur de m‚dicaments,"Pharmarcie or seller m,dicaments"
+ci10j,Autom‚dication,"Autom,dication"
+ci10k,Gu‚risseur traditionnel,"Traditional Gu,risseur"
+ci10l,Parent ou ami,Relative or friend
+ci10m,Autres,other
+ci11a,Enfant ne peut pas boire ou teter,Children can not drink or suck
+ci11b,Enfant devient plus malade,Child becomes sicker
+ci11c,Enfant developpe une fiŠvre,Child develops a fiŠvre
+ci11d,Enfant a une respiration rapide,Child has fast breathing
+ci11e,Enfant a des difficultes de respirer,Child has difficulty breathing
+ci11f,Enfant a du sang dans les selles,Child has blood in stool
+ci11g,Enfant boit difficilement,Drinking poorly
+ci11h,Autres symptomes,Other symptoms
+ci11i,Autres symptomes,Other symptoms
+ci11j,Autres Symptomes,Other Symptoms
+ml1,A t il eu la fiŠvre ces 2 dernieres semaines,At t he had fiŠvre in last 2 weeks
+ml2,A t il ete consulte dans une structure sanitaire,A t it been consulted at a facility
+ml3,A t il pris un m‚dicament contre le paludisme,"At t he took a m,dicament against malaria"
+ml4a,Paracetamol aspirine,Paracetamol Aspirin
+ml4b,Chloroquine / nivaquine,Chloroquine / nivaquine
+ml4c,Fansidar,Fansidar
+ml4d,Quinimax/paluget,Quinimax / paluget
+ml4e,Autres,other
+ml4z,NSP,DK
+ml5,A t on donn‚ un m‚dicament contre la fiŠvre ou la palu,"A t is given a m,dicament against the fiŠvre or malaria"
+ml6,A t on donn‚e une m‚dicament durant cette maladie,"A t is a donn,e m,dicament during this illness"
+ml7a,Paracetamol,Paracetamol
+ml7b,Chloroquine,chloroquine
+ml7c,Fansidar,Fansidar
+ml7d,Quinimax,Quinimax
+ml7e,Autres,other
+ml7z,NSP,DK
+ml8,A t il dormi sous une moustiquaire la nuit derniere,At t he slept under a mosquito net last night
+ml9,Cette moustiquaire a t elle trait‚e par un produit anti-mous,"This screen has been trait,e it with an anti-soft products"
+ml10,Depuis combien de temps a elle etait trait‚e la dern. fois,"How long has it trait,e was the last recorded. time"
+ml10aa,Comment l'enfant est il prot‚g‚ contre les moustriques,"How the child is there prot,g against the moustriques"
+weight,Poids de l'enfant (Kilogrammes),Child's weight (kilograms)
+an2a,Taille de l'enfant,Child Size
+height,Taille de l'enfant,Child Size
+an3,Code d'identification de l'op‚rateur,"Identification code of op,rateur"
+an4,R‚sultat de l'enfant,"R,sultat child"
+hap,Height-for-age: percentile,Height-for-age: percentile
+haz,Height-for-age: z-score,Height-for-age z-score
+ham,Height-for-age: %median,Height-for-age: median%
+wap,Weight-for-age: percentile,Weight-for-age: percentile
+waz,Emaciation,Wasting
+wam,Weight-for-age: %median,Weight-for-age: median%
+whp,Weight-for-height: percentile,Weight-for-height: percentile
+whz,Insufisance pond‚rale,"pond,rale Insufisance"
+whm,Weight-for-height: %median,Weight-for-height: median%
+flag,Flag for z-scores,Flag for z-scores
+hi6,Milieu de r‚sidence,"Middle of r,sidence"
+hl3,Sexe,sex
+hl3aam,Mois de naissance,Month of birth
+hl3aaa,Annee de naissance,Year of Birth
+hl4,Age,Age
+hl5,Numero de ligne de la femme eligible,Line number of eligible women
+hl6,Numero ligne mere qui a la charge,Number mainline which is responsible
+hl7,Numero ligne mere qui a la charge de la sante de l'enfant,Number mainline which is responsible for the health of the child
+hl8,Peut lire facilement un journal ou une lettre,Can easily read a newspaper or a letter
+hl9,Etat matrimonial,marital status
+hl10,La mere est elle en vie,The mother is she alive
+hl11,La mere vit elle dans le menage,The mother saw it in the household
+hl12,Le pere est il en vie,The father is he alive
+hl13,Le pere vit il dans le m‚nage,"The father saw it in m,nage"
+ed14,Numero de ligne,Line number
+cl1,Numer de ligne,Numer line
+hi3d,Jour de l'interview,Day of interview
+hi3m,Mois de l'interview,Month of interview
+hi3y,Ann‚e de l'interview,"Ann,e interview"
+hi4,Numero de l'enqu‚teur,"Number of enqu,teur"
+hi7,Region,Region
+hi7aa,Code du Departement,Code Department
+hi8,Mat‚riau du sol du logement,"Mat,riau ground housing"
+hi9,Nombre de chambres pour dormir,Number of rooms for sleeping
+hi10,R‚sultat de l'interview,"R,sultat interview"
+hi10ad,Jour du prochain rendez vous,Day next appointment
+hi10am,Mois du prochain rendez vous,Month next appointment
+hi10aa,Ann‚e du prochain rendez vous,"Ann,e the next appointment"
+hi10ab,Nombre total de visites,Total visits
+hi11,Total femmes ‚ligibles,Total women eligible
+hi12,Nbre questionnaires femmes entier. remplis,No. questionnaires around women. filled
+hi13,Nombre d'enfants de moins de 5 ans,Number of children under 5 years
+hi14,Nbre de quest. enfants remplis,No. quest. Children filled
+himem,Nombre de membres du m‚nage,"Number of members m,nage"
+hiehm,Nombre enfants vivants hors du menage,Number children living outside the household
+hi17d,,
+hi17m,Jour de saisie,Entry Day
+hi15aa,Numero du r‚pondant,"Number of r,pondant"
+hi15bb,Entendu parl‚ des droits de l'enfant,"Heard talked, the children's rights"
+hi15cc1,Radio ou Television,Radio or Television
+hi15cc2,Lecture journaux,Reading newspapers
+hi15cc3,Conversation entre amis,Conversation with friends
+hi15cc4,Minitere femme enfant et famille,MINITERE woman Child and Family
+hi15cc5,UNICEF,UNICEF
+hi15cc6,Autres,other
+hi15dd1,Sant‚,Sant
+hi15dd2,Education et loisirs,Education and Leisure
+hi15dd3,Survie et developpement,Survival and Development
+hi15dd4,Protection,protection
+hi15dd5,Paix,peace
+hi15dd6,Famille nom et nationalit‚,"Family name and nationality,"
+hi15dd7,Egalit‚,"Equalities,"
+hi15dd8,Environnement sain,Healthy Environment
+hi15dd9,Libert‚ d'expression d'association,"Freedom, expression Association"
+hi15dd66,Autres,other
+hi15ee,Profession du chef de m‚nage,"m,nage manager Occupation"
+hi15ffa,Telephone,Phone
+hi15ffb,"Frigidaire, cong‚lateur","Refrigerator, cong,lateur"
+hi15ffc,Televiseur,Tv
+hi15ffd,Radio,radio
+hi15ffe,Charrette,Charette
+fi15ffe,Charrue,plow
+hi15ffg,Cuisiniere,stove
+hi15ffh,Machine … coudre,Sewing machine ...
+hi15ffi,Climatisseur,climatisseur
+hi15ffj,Tracteur,tractor
+hi15ffk,Maison / terrain,House / Field
+hi15ffl,Terrain cultivable,arable land
+hi15ffm,,
+hi15gg,Principale mode d'eclairage,Main lighting fashion
+hi15hh,Principal combustible,Fuel Main
+ws1,Source d'eau pour boire,Source of water for drinking
+ws1aa,Distance … parcourir pour chercher de l'eau,Distance ... go to fetch water
+ws2,Temps mis pour aller labas,Time taken to go labas
+ws2aa,Ou conservez cette boisson,Or keep this drink
+ws2bb1,Nombre de fois vous lavez vos recipients,Number of times you wash your containers
+ws2bb2,P‚riodicite pour laver ces recipients,"P,riodicite to wash these containers"
+ws3,Type de toilette,toilet Type
+ws4,Ou se trouvent ces toilettes,Or are these toilets
+ws5,Que faites vous avec les selles des enfants de 0 … 3 ans,What do you do with the stool of children from 0 ... 3 years
+ws5aa,Comments les eaux menageres sont evacuees,Comments housewives waters are evacuated
+ws5bb,Dans la maison ou sont conservez vos ordures,In the home or keep your garbage are
+ws5cc,Comment vous debarrassez vous de ces ordures,How do you cast away these waste
+si1,Test du sel iode,Test the salt iodine
+memage,,
+med,Plus haut niveau atteint,Highest grade
+melevel,Niveau d'instruction de la mère,the mother's education level
+cmcdoi,Date of interview (CMC),Date of interview (CMC)
+cdob,Date of birth (CMC),Date of birth (CMC)
+cage,Age (months),Age (months)
+audob,,
+aldob,,
+dudob,,
+dldob,,
+ldob,,
+udob,,
+cage_6,Age,Age
+diarrhea,Had diarrhea in last two weeks,Had diarrhea in last two weeks
+ari,Had acute respitory infection,Had acute respitory infection
+fever,Had a fever in last two weeks,Had a fever in last two weeks
+mnais1,,
+mois1,,
+mnais2,,
+mois2,,
+nbmois,Age de l'enfant en mois,Child's age in months
+nbremois,Age de l'enfant en mois,Child's age in months
+chweight,,
+wlthscor,REGR factor score   1 for analysis    1,REGR factor score 1 for analysis 1
+wlthind5,Wealth Index Quintiles,Wealth Index Quintiles
+ident1,,
+ident2,,
+ident3,,
+enfant,,
+diff,,
+enf,,
+hid,Household identification,Household identification
+hhmid,Household members identification,Household members identification

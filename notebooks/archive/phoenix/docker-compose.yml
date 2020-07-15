@@ -1,0 +1,64 @@
+version: '3.6'
+services:
+  wb-nlp-redis:
+    image: redis:alpine
+    ports:
+      - $WB_NLP_REDIS_PORT:6379
+    # volumes:
+    #   - $BASE_DIR/$WB_NLP_REDIS_DATADIR:/data
+    #   - $BASE_DIR/$WB_NLP_REDIS_CONF:/usr/local/etc/redis/redis.conf
+    # command: redis-server /usr/local/etc/redis/redis.conf
+    env_file:
+      - .env
+
+  wb-nlp-mongodb:
+    image: mongo:latest
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    # volumes:
+    #   - $BASE_DIR/$WB_NLP_MONGODB_DATADIR:/data/db
+    ports:
+      - $WB_NLP_MONGODB_PORT:27017
+    # command: mongod --smallfiles  # --auth
+    env_file:
+      - .env
+
+  # tika_server:
+  #   image: logicalspark/docker-tikaserver
+  #   container_name: tika_server
+  #   networks:
+  #     wb-nlp-net:
+  #       aliases:
+  #         - tika_server
+  #   ports:
+  #     - 9998:9998
+
+  wb-nlp-base:
+    build:
+      context: ./base
+    image: wb-nlp-base:latest
+
+  wb-nlp-phoenix:
+    build: .
+    image: wb-nlp-phoenix:latest
+    depends_on:
+      - wb-nlp-base
+
+  celery_worker:
+    restart: always
+    image: wb-nlp-phoenix:latest
+    command: /wait-for-it/wait-for-it.sh wb-nlp-redis:$WB_NLP_REDIS_PORT -- celery worker -B --loglevel=info --concurrency=16 -A phoenix
+    working_dir: "/phoenix"
+    depends_on:
+      - wb-nlp-redis
+      - wb-nlp-mongodb
+      - wb-nlp-phoenix
+    # volumes:
+    #   - $BASE_DIR/$DOCS_DATADIR:/raw_files
+    env_file:
+      - .env
+
+networks:
+  wb-nlp-net:
+    external: false
