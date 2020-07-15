@@ -88,6 +88,10 @@ Then, simply activate the environment using `conda activate wb_nlp`. To install 
 $ python -m ipykernel install --user --name=wb_nlp
 ```
 
+## Instruction for contributors
+
+Please read the [DEVELOPERS.md](/DEVELOPERS.md) for more details about the development workflow.
+
 ## Note
 
 This project has been set up using PyScaffold 3.2.3. For details and usage
