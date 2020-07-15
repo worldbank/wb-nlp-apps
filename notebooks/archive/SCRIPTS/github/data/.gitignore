@@ -1,0 +1,6 @@
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
+!most_popular_python_imports.csv
+!python_module_imports_in_repos.csv
