@@ -16,7 +16,7 @@ The scripts, codebase, and guidelines are also intended to be used as training m
 
 An environment economist is tasked to write a report on the impact of climate change on poverty. To address the “cold start” problem, s/he searches the World Bank document repository by setting thresholds on this specific combination of topics. The output of the topic models tells us that the share of topic 27 “climate change” in the available documents  ranges from 0 to 95%, and that the share of topic 12 “poverty” ranges from 0 to 52%. Setting a threshold on each topic (e.g., respectively 30% and 20%) will identify documents that cover both significantly (documents that are “at least” 30% about climate change and 20% about poverty). This approach returns more relevant documents, and a more relevant ranking of these documents, than what a keyword-based search, or filtering based on documents tags , would return. Additional filters (by country, year, others) could be applied as relevant.
 
-[!search-by-topic-composition](/docs/_static/img/search-by-topic-composition.png)
+![search-by-topic-composition](/docs/_static/img/search-by-topic-composition.png)
 
 ## Project components
 
