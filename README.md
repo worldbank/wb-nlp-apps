@@ -62,65 +62,24 @@ We are primarily leveraging the [Gensim](https://radimrehurek.com/gensim/) NLP t
 
 #### Acronym detection
 
+Acronyms are fairly common in documents from development organizations and multilateral development banks. In this project, we include in our pipeline an acronym detector and expander. The idea is to detect acronyms in a document and replace all of the acronyms with the appropriate expansion.
+
+We also keep track of multiple instances of an acronym and generate prototypes for each that encodes the information of the acronym, e.g., PPP -> private-public partnership or purchasing power parity.
 
 ### NLP modeling
 
+The above processes are precursor to generate inputs to the different NLP models. The NLP models are trained to generate derived data that could be used in downstream use-cases. Primarily, the models are unsupervised which are classified into two categories: topic models and embedding models.
 
 #### Latent Dirichlet Allocation (LDA) topic model
 
+The topic model employed in this project is an LDA implementation under the [Mallet](http://mallet.cs.umass.edu/topics.php) language toolkit. A Gensim wrapper is used as interface to interact with the original Java implementation.
+
+The resulting topics learned by the model are used to characterize documents. With this, we build a search tool
+
 #### Embedding models (word2vec)
 
-
-## Application development
-
-## Setting up the environment
-
-The project environment can be easily replicated using conda. A linux environment is needed to maintain the packages across different platforms.
-
-A pre-push hook is available in `/ops/git/hooks/pre-push` that handles the automatic update of the environments. To use this, simply create a soft link to your git hooks: `ln -s <path-to-git hooks> /ops/git/hooks/pre-push`.
-
-A list of excluded packages that are not available on either mac or windows should be maintained. The excluded packages are maintained in:
-
-- `excluded.env.mac.yml`
-- `excluded.env.win.yml`
-
-#### For linux
-
-Run `conda env create -f environment.yml`
-
-#### For MacOS
-
-Run `conda env create -f environment.mac.yml`
-
-#### For Windows
-
-Run `conda env create -f environment.win.yml`
-
-Then, simply activate the environment using `conda activate wb_nlp`. To install the `wb_nlp` package, run this command: `python setup.py develop`. You can now import the package within the environment.
-
-#### Adding the environment as kernel to Jupyter/Lab
-
-```bash
-$ python -m ipykernel install --user --name=wb_nlp
-```
+The Gensim implementation for the word2vec model is used in this project. We extract the learned word embeddings and use them to represent documents by taking the mean of the word vectors in the document. This simple strategy allows us to have a semantic based search of documents using keywords or full document inputs.
 
 ## Instruction for contributors
 
 Please read the [DEVELOPERS.md](/DEVELOPERS.md) for more details about the development workflow.
-
-## Note
-
-This project has been set up using PyScaffold 3.2.3. For details and usage
-information on PyScaffold see https://pyscaffold.org/.
-
-> ##### PyScaffold includes a pre-commit config
-> ---
-> A `.pre-commit-config.yaml` file was generated inside your project but in order to make sure the hooks will run, please don't forget to install the `pre-commit` package:
-
-    $ cd wb_nlp
-    $ # it is a good idea to create and activate a virtualenv here
-    $ pip install pre-commit
-    $ pre-commit install
-    $ # another good idea is update the hooks to the latest version
-    $ # pre-commit autoupdate
-> ---
