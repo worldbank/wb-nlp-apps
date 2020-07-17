@@ -53,7 +53,7 @@ class PDFDoc2Txt:
         else:
             raise ValueError(f'Unknown source_type: `{source_type}`')
 
-        soup = BeautifulSoup(pdf_text['content'])
+        soup = BeautifulSoup(pdf_text['content'], features="html.parser")
         pages = soup.find_all('div', {'class':'page'})
 
         text_pages = []
