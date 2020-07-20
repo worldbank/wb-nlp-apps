@@ -56,6 +56,17 @@ class BaseExtractor:
 
 class CountryExtractor(BaseExtractor):
 
-    def __init__(self, nlp, entities: tuple, label: str='COUNTRY', extractor_id: str='COUNTRY'):
+    def __init__(self, nlp, label: str='COUNTRY', extractor_id: str='COUNTRY'):
         self.country_mapping = mappings.get_countries_mapping()
+        entities = tuple(list(self.country_mapping))
+
         super(CountryExtractor, self).__init__(nlp, entities, label, extractor_id, None, self.country_mapping)
+
+
+class WBPresidentsExtractor(BaseExtractor):
+
+    def __init__(self, nlp, label: str='WB_PRESIDENT', extractor_id: str='WB_PRESIDENT'):
+        self.wb_president_mapping = mappings.get_wb_presidents_mapping()
+        entities = tuple(list(self.wb_president_mapping))
+
+        super(WBPresidentsExtractor, self).__init__(nlp, entities, label, extractor_id, None, self.wb_president_mapping)
