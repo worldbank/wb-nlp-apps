@@ -60,6 +60,7 @@ class BaseExtractor:
 
 
 class CountryExtractor(BaseExtractor):
+    name = 'country_extractor'
 
     def __init__(self, nlp, label: str='COUNTRY', extractor_id: str='COUNTRY'):
         self.country_mapping = mappings.get_countries_mapping()
@@ -69,6 +70,7 @@ class CountryExtractor(BaseExtractor):
 
 
 class WBPresidentsExtractor(BaseExtractor):
+    name = 'wb_presidents_extractor'
 
     def __init__(self, nlp, label: str='WB_PRESIDENT', extractor_id: str='WB_PRESIDENT'):
         self.wb_president_mapping = mappings.get_wb_presidents_mapping()
