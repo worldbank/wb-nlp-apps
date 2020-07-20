@@ -8,7 +8,6 @@ from spacy.tokens import Doc, Span, Token
 
 
 class BaseExtractor:
-    # Derived from: https://github.com/explosion/spaCy/blob/master/examples/pipeline/custom_component_entities.py
     name = 'base_extractor'
 
     def __init__(self, nlp, entities: tuple, label: str, extractor_id: str, callback=None, mapping=None):
@@ -22,10 +21,10 @@ class BaseExtractor:
         self.extractor = PhraseMatcher(nlp.vocab)
         self.extractor.add(extractor_id, callback, *patterns)
 
-        Token.set_extension(f'is_{self.attribute_id}', default=False)
+        Token.set_extension(f'is_{self.attribute_id}', default=False, force=True)
 
         if self.mapping is not None:
-            Token.set_extension(f'normalized', default='')
+            Token.set_extension(f'normalized', default='', force=True)
 
         # Register and implement attribute and getter in subclasses.
 
@@ -34,17 +33,15 @@ class BaseExtractor:
         spans = []
         with doc.retokenize() as retokenizer:
             for id, start, end in extracted:
-                entity = Span(doc, start, end, label=self.label_id)
-                spans.append(entity)
+                entity = doc[start:end]  # Span(doc, start, end, label=self.label_id)
+                # spans.append(entity)
 
-                # for token in entity:
-                #     token._.set(f'is_{self.extractor_id.lower()}', True)
+                for token in entity:
+                    token._.set('normalized', self.mapping.get(entity.text, entity.text))
+                    token._.set(f'is_{self.attribute_id}', True)
+                    token.ent_type_ = self.label
 
-                retokenizer.merge(doc[start:end])
-                token = doc[start]
-                token._.set('normalized', self.mapping.get(entity.text, entity.text))
-                token._.set(f'is_{self.attribute_id}', True)
-                token.ent_type_ = self.label
+                retokenizer.merge(entity)
 
         return doc
 
