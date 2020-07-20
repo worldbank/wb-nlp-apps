@@ -23,8 +23,13 @@ class BaseExtractor:
         self.extractor.add(extractor_id, callback, *patterns)
 
         Token.set_extension(self.type_id, default=False, force=True)
-        Token.set_extension(f'normalized', default='', force=True)
-        Token.set_extension(f'code', default='', force=True)
+
+        extensions = ['code', 'normalized']
+        for ext in extensions:
+            try:
+                Token.set_extension(ext, default='')
+            except ValueError:
+                pass
 
         # Register and implement attribute and getter in subclasses.
 
