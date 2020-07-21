@@ -62,8 +62,14 @@ class BaseExtractor:
 class CountryExtractor(BaseExtractor):
     name = 'country_extractor'
 
-    def __init__(self, nlp, label: str='COUNTRY', extractor_id: str='COUNTRY'):
-        self.country_mapping = mappings.get_countries_mapping()
+    def __init__(self, nlp, label: str='COUNTRY', extractor_id: str='COUNTRY', lower: bool=False):
+        mapping = mappings.get_countries_mapping()
+
+        if lower:
+            self.country_mapping = {k.lower(): v for k, v in mapping.items()}
+        else:
+            self.country_mapping = mapping
+
         entities = tuple(list(self.country_mapping))
 
         super(CountryExtractor, self).__init__(nlp, entities, label, extractor_id, None, self.country_mapping)
@@ -72,8 +78,14 @@ class CountryExtractor(BaseExtractor):
 class WBPresidentsExtractor(BaseExtractor):
     name = 'wb_presidents_extractor'
 
-    def __init__(self, nlp, label: str='WB_PRESIDENT', extractor_id: str='WB_PRESIDENT'):
-        self.wb_president_mapping = mappings.get_wb_presidents_mapping()
+    def __init__(self, nlp, label: str='WB_PRESIDENT', extractor_id: str='WB_PRESIDENT', lower: bool=False):
+        mapping = mappings.get_wb_presidents_mapping()
+
+        if lower:
+            self.wb_president_mapping = {k.lower(): v for k, v in mapping.items()}
+        else:
+            self.wb_president_mapping = mapping
+
         entities = tuple(list(self.wb_president_mapping))
 
         super(WBPresidentsExtractor, self).__init__(nlp, entities, label, extractor_id, None, self.wb_president_mapping)
