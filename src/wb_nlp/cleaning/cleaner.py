@@ -13,7 +13,7 @@ en = SpellChecker("en_US")
 
 class BaseCleaner:
 
-    def __init__(self, include_pos: tuple, exclude_entities: tuple, min_token_length: int=2, extractors: Optional[list]) -> None:
+    def __init__(self, include_pos: tuple, exclude_entities: tuple, min_token_length: int=2, extractors: Optional[list]=None) -> None:
         self.include_pos = include_pos
         self.exclude_entities = exclude_entities
         self.min_token_length = min_token_length
@@ -50,7 +50,9 @@ class BaseCleaner:
 
 class LDACleaner(BaseCleaner):
     LDA_INCLUDE_POS_TAGS = [
-        'ADJ', 'NOUN', 'PROPN', 'VERB'
+        'ADJ', 'NOUN',
+        # 'VERB',
+        # 'PROPN',
     ]
 
     LDA_EXCLUDE_ENT_TYPE = [
@@ -60,7 +62,7 @@ class LDACleaner(BaseCleaner):
         'CARDINAL',
     ]
 
-    def __init__(self, min_token_length: int=2, extractors: Optional[list]) -> None:
+    def __init__(self, min_token_length: int=2, extractors: Optional[list]=None) -> None:
 
         super(LDACleaner, self).__init__(
             LDACleaner.LDA_INCLUDE_POS_TAGS,
@@ -72,19 +74,20 @@ class LDACleaner(BaseCleaner):
 class Word2VecCleaner(BaseCleaner):
 
     EMBEDDING_INCLUDE_POS_TAGS = [
-        # 'ADJ',
-        'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ',
-        'NUM', 'PART',
-        # 'NOUN', 'PROPN', 'VERB'
+        'ADJ', 'NOUN', 'VERB',
+        # 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ',
+        # 'NUM', 'PART',
+        'PROPN',
     ]
 
-    EMBEDDING_EXCLUDE_ENT_TYPE = [
-        'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY',
+    EMBEDDING_INVALID_ENT_TYPE = [
+        'CARDINAL', 'TIME', 'PERCENT', 'MONEY',
+        # 'DATE',
+        # 'QUANTITY',
         # 'ORDINAL',
-        'CARDINAL',
     ]
 
-    def __init__(self, min_token_length: int=2, extractors: Optional[list]) -> None:
+    def __init__(self, min_token_length: int=2, extractors: Optional[list]=None) -> None:
 
         super(Word2VecCleaner, self).__init__(
             Word2VecCleaner.EMBEDDING_INCLUDE_POS_TAGS,
