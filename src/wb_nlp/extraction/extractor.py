@@ -18,7 +18,8 @@ class BaseExtractor:
         self.type_id = f'is_{extractor_id.lower()}'
         self.mapping = mapping
 
-        patterns = [nlp(ent) for ent in entities]
+        # patterns = [nlp(ent) for ent in entities]
+        patterns = list(nlp.tokenizer.pipe(entities))
         self.extractor = PhraseMatcher(nlp.vocab)
         self.extractor.add(extractor_id, callback, *patterns)
 
