@@ -34,7 +34,7 @@ class BaseCleaner:
         for extractor in self.extractors:
             doc = extractor(doc)
 
-        tokens = [token.lemma_ for token in doc if self._is_valid_token(token)]
+        tokens = [token.lemma_ if token.lower_ != 'data' else 'data' for token in doc if self._is_valid_token(token)]
         # print((t.text, t.lemma_, t.pos_, t.ent_type_, t.ent_iob_, t._.normalized))
 
         return tokens
