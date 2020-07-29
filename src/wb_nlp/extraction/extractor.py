@@ -36,9 +36,9 @@ class BaseExtractor:
 
     def __call__(self, doc):
         extracted = self.extractor(doc)
-        spans = []
+
         with doc.retokenize() as retokenizer:
-            for id, start, end in extracted:
+            for _, start, end in extracted:
                 entity = doc[start:end]
 
                 normed = self.mapping.get(entity.text)
