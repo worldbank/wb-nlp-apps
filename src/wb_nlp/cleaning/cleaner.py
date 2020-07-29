@@ -1,6 +1,9 @@
+import os
 import re
+import glob
 import spacy
-from typing import Optional
+import warnings
+from typing import Optional, Generator
 from enchant.checker import SpellChecker
 import wb_nlp.extraction.extractor as extractor
 
@@ -28,7 +31,7 @@ class BaseCleaner:
             .replace('”', '"')
         )
 
-        text = re.sub('\s+', ' ', text).strip().lower()
+        text = re.sub(r'\s+', ' ', text).strip().lower()
         doc = nlp(text)
 
         for extractor in self.extractors:
@@ -80,7 +83,7 @@ class Word2VecCleaner(BaseCleaner):
         'PROPN',
     ]
 
-    EMBEDDING_INVALID_ENT_TYPE = [
+    EMBEDDING_EXCLUDE_ENT_TYPE = [
         'CARDINAL', 'TIME', 'PERCENT', 'MONEY',
         # 'DATE',
         # 'QUANTITY',
@@ -94,3 +97,43 @@ class Word2VecCleaner(BaseCleaner):
             Word2VecCleaner.EMBEDDING_EXCLUDE_ENT_TYPE,
             min_token_length,
             extractors)
+
+
+class CorpusCleaner:
+
+    def __init__(self):
+        self.clean_doc_cache = {}
+        self.clean_doc_hash2id = {}
+
+    def cleaned_doc_generator(
+        self, dir: str, cleaner: callable,
+        id_pattern: Optional[str]=None,
+        extension: str='txt') -> Generator[list, None, None]:
+        '''A generator that loads files from a directory and returns a cleaned document.
+        This also caches the cleaned data.
+        '''
+        doc_idx = 0
+
+        for fpath in glob.glob(os.path.join(dir, f'*.{extension}')):
+            fname = fpath.split('/')[-1]
+
+            if id_pattern is None:
+                file_hash = hash(fname)
+            else:
+                match = re.search(id_pattern, fname)
+                if match:
+                    file_hash = match.group(0)
+                else:
+                    warnings.warn(f'No valid id found in file {fname}. Skipping...')
+                    continue
+
+            if file_hash not in self.clean_doc_cache:
+                with open(fpath, 'rb') as fl:
+                    doc = fl.read().decode('utf-8', errors='ignore')
+                    text = cleaner(doc)
+                    self.clean_doc_cache[file_hash] = text
+
+            self.clean_doc_hash2id[file_hash] = doc_idx
+            doc_idx += 1
+
+            yield self.clean_doc_cache[file_hash]
