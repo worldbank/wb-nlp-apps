@@ -100,6 +100,13 @@ class Word2VecCleaner(BaseCleaner):
 
 
 class CorpusCleaner:
+    '''This class manages the cleaning of files in a specified directory.
+
+    Cleaned files are cached in the object to speed-up tasks the require the re-use
+    of the cleaned data, e.g., phrase detection using gensim.
+
+    A custom cleaner function can be used to handle the cleaning.
+    '''
 
     def __init__(self,
         dir: str, cleaner: Callable[[str], str],
@@ -119,7 +126,15 @@ class CorpusCleaner:
             dir, cleaner, id_pattern, extension
         )
 
+        self.fully_trained = False
+
+    def check_train_state(self):
+        if not self.fully_trained:
+            raise ValueError('Corpus not fully processed!')
+
     def reset(self):
+        self.check_train_state()
+
         if self.clean_doc_id2hash is None:
             self.clean_doc_id2hash = {j: i for i, j in self.clean_doc_hash2id.items()}
 
@@ -131,7 +146,7 @@ class CorpusCleaner:
         return self
 
     def __next__(self):
-        return next(self.clean_doc_cache)
+        return next(self.clean_doc_generator)
 
     def cleaned_doc_generator(
         self, dir: str, cleaner: Callable[[str], str],
@@ -165,3 +180,16 @@ class CorpusCleaner:
             doc_idx += 1
 
             yield self.clean_doc_cache[file_hash]
+
+        self.fully_trained = True
+
+    def stream_gensim_transformer(self, transformer, cache=True):
+        '''This function takes a suitable gensim transformer that takes a list of tokens as input.
+
+        An example of this transformer is the Phraser transformer in gensim.
+        '''
+        self.check_train_state()
+        self.reset()
+
+        for cleaned_doc in self.__iter__():
+            yield [text for text in transformer[cleaned_doc]]
