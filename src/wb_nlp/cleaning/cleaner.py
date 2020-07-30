@@ -2,6 +2,7 @@ import os
 import re
 import glob
 import spacy
+import pickle
 import warnings
 from typing import Optional, Generator, Callable
 from enchant.checker import SpellChecker
@@ -156,6 +157,7 @@ class CorpusCleaner:
         )
 
         self.fully_trained = False
+        self.frozen = False
 
     def check_train_state(self):
         if not self.fully_trained:
@@ -163,9 +165,6 @@ class CorpusCleaner:
 
     def reset(self):
         self.check_train_state()
-
-        if self.clean_doc_id2hash is None:
-            self.clean_doc_id2hash = {j: i for i, j in self.clean_doc_hash2id.items()}
 
         self.clean_doc_generator = iter([
             self.clean_doc_cache[
@@ -176,6 +175,26 @@ class CorpusCleaner:
 
     def __next__(self):
         return next(self.clean_doc_generator)
+
+    def save(self, fname):
+        self.check_train_state()
+
+        valid_docs = [
+            'dir', 'id_pattern', 'extension', 'frozen',
+            'clean_doc_cache', 'clean_doc_hash2id',
+            'clean_doc_id2hash', 'fully_trained']
+
+        payload = {key: self.__dict__[key] for key in valid_docs}
+
+        with open(fname, 'wb') as fl:
+            pickle.dump(payload, fl)
+
+    def load(self, fname):
+        with open(fname, 'rb') as fl:
+            self.__dict__ = pickle.load(fl)
+
+        self.frozen = True
+        self.reset()
 
     def cleaned_doc_generator(
         self, dir: str, cleaner: Callable[[str], str],
@@ -210,6 +229,7 @@ class CorpusCleaner:
 
             yield self.clean_doc_cache[file_hash]
 
+        self.clean_doc_id2hash = {j: i for i, j in self.clean_doc_hash2id.items()}
         self.fully_trained = True
 
     def stream_gensim_transformer(self, transformer, cache=True):
