@@ -3,7 +3,7 @@ import re
 import glob
 import spacy
 import warnings
-from typing import Optional, Generator
+from typing import Optional, Generator, Callable
 from enchant.checker import SpellChecker
 import wb_nlp.extraction.extractor as extractor
 
@@ -101,12 +101,40 @@ class Word2VecCleaner(BaseCleaner):
 
 class CorpusCleaner:
 
-    def __init__(self):
+    def __init__(self,
+        dir: str, cleaner: Callable[[str], str],
+        id_pattern: Optional[str]=None,
+        extension: str='txt'):
+
+        self.dir = dir
+        self.cleaner = cleaner
+        self.id_pattern = id_pattern
+        self.extension = extension
+
         self.clean_doc_cache = {}
         self.clean_doc_hash2id = {}
+        self.clean_doc_id2hash = None
+
+        self.clean_doc_generator = self.cleaned_doc_generator(
+            dir, cleaner, id_pattern, extension
+        )
+
+    def reset(self):
+        if self.clean_doc_id2hash is None:
+            self.clean_doc_id2hash = {j: i for i, j in self.clean_doc_hash2id.items()}
+
+        self.clean_doc_generator = iter([
+            self.clean_doc_cache[
+                self.clean_doc_id2hash[id]] for id in sorted(self.clean_doc_id2hash)])
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return next(self.clean_doc_cache)
 
     def cleaned_doc_generator(
-        self, dir: str, cleaner: callable,
+        self, dir: str, cleaner: Callable[[str], str],
         id_pattern: Optional[str]=None,
         extension: str='txt') -> Generator[list, None, None]:
         '''A generator that loads files from a directory and returns a cleaned document.
