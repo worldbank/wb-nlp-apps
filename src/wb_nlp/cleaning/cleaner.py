@@ -1,14 +1,15 @@
-import os
-import re
 import glob
-import spacy
+import numpy as np
+import os
 import pickle
+import re
+import spacy
 import warnings
-from typing import Optional, Generator, Callable
 from enchant.checker import SpellChecker
 from gensim.utils import simple_preprocess
+from typing import Callable, Generator, Optional
 
-import wb_nlp.extraction.extractor as extractor
+from wb_nlp.extraction import extractor as extractor
 
 # https://spacy.io/api/annotation
 POS_TAGS = ['POS', 'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ', 'NOUN', 'NUM', 'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X', 'SPACE']
@@ -141,12 +142,15 @@ class CorpusCleaner:
     def __init__(self,
         dir: str, cleaner: Callable[[str], str],
         id_pattern: Optional[str]=None,
-        extension: str='txt'):
+        extension: str='txt', process_prob: float=1,
+        seed: float=1029):
 
         self.dir = dir
         self.cleaner = cleaner
         self.id_pattern = id_pattern
         self.extension = extension
+        self.process_prob = process_prob
+        self.seed = seed
 
         self.clean_doc_cache = {}
         self.clean_doc_hash2id = {}
@@ -170,6 +174,24 @@ class CorpusCleaner:
             self.clean_doc_cache[
                 self.clean_doc_id2hash[id]] for id in sorted(self.clean_doc_id2hash)])
 
+    def clear_docs(self):
+        clear_keys = {
+            'clean_doc_cache': {},
+            'clean_doc_hash2id': {},
+            'clean_doc_id2hash': None,
+            'fully_trained': False,
+            'frozen': False,
+        }
+
+        for k in list(self.__dict__):
+            if k in clear_keys:
+                del(self.__dict__[k])
+                self.__dict__[k] = clear_keys[k]
+
+        self.clean_doc_generator = self.cleaned_doc_generator(
+            self.dir, self.cleaner, self.id_pattern, self.extension
+        )
+
     def __iter__(self):
         return self
 
@@ -182,7 +204,8 @@ class CorpusCleaner:
         valid_docs = [
             'dir', 'id_pattern', 'extension', 'frozen',
             'clean_doc_cache', 'clean_doc_hash2id',
-            'clean_doc_id2hash', 'fully_trained']
+            'clean_doc_id2hash', 'fully_trained',
+            'process_prob', 'seed']
 
         payload = {key: self.__dict__[key] for key in valid_docs}
 
@@ -203,9 +226,16 @@ class CorpusCleaner:
         '''A generator that loads files from a directory and returns a cleaned document.
         This also caches the cleaned data.
         '''
+        np.random.seed(self.seed)
+        rands = np.random.random(10000000)
+
         doc_idx = 0
 
-        for fpath in glob.glob(os.path.join(dir, f'*.{extension}')):
+        for ix, fpath in enumerate(glob.glob(os.path.join(dir, f'*.{extension}'))):
+
+            if self.process_prob < rands[ix]:
+                continue
+
             fname = fpath.split('/')[-1]
 
             if id_pattern is None:
@@ -232,13 +262,21 @@ class CorpusCleaner:
         self.clean_doc_id2hash = {j: i for i, j in self.clean_doc_hash2id.items()}
         self.fully_trained = True
 
-    def stream_gensim_transformer(self, transformer, cache=True):
+    def stream_gensim_transformer(self, transformer, dictionary=None, cache=True):
         '''This function takes a suitable gensim transformer that takes a list of tokens as input.
 
         An example of this transformer is the Phraser transformer in gensim.
+
+        If a dictionary is provided, it will automatically transform the document into a bag-of-word
+        representation.
         '''
         self.check_train_state()
         self.reset()
 
         for cleaned_doc in self.__iter__():
-            yield [text for text in transformer[cleaned_doc]]
+            doc = [text for text in transformer[cleaned_doc]]
+
+            if dictionary is not None:
+                doc = dictionary.doc2bow(doc)
+
+            yield doc
