@@ -1,5 +1,6 @@
 name: wb_nlp
 channels:
+  - judowill
   - conda-forge
   - anaconda
   - defaults
@@ -28,6 +29,7 @@ dependencies:
   - expat
   - fontconfig
   - freetype
+  - gitflow
   - glib
   - gst-plugins-base
   - gstreamer
@@ -76,7 +78,6 @@ dependencies:
   - numpy-base
   - openssl
   - packaging
-  - pandas
   - pandoc
   - pandocfilters
   - parso
@@ -139,19 +140,31 @@ dependencies:
     - alabaster
     - appdirs
     - babel
+    - boto
+    - boto3
+    - botocore
     - cfgv
+    - cmdstanpy
     - commonmark
+    - cython
     - distlib
     - docutils
     - filelock
+    - gensim
     - identify
     - imagesize
+    - ipython-autotime
+    - jmespath
     - nodeenv
+    - pandas
     - pre-commit
+    - pyenchant
     - pyscaffoldext-dsproject
     - pyscaffoldext-markdown
     - pyyaml
     - recommonmark
+    - s3transfer
+    - smart-open
     - snowballstemmer
     - sphinx
     - sphinxcontrib-applehelp
@@ -161,5 +174,6 @@ dependencies:
     - sphinxcontrib-qthelp
     - sphinxcontrib-serializinghtml
     - toml
+    - tscv
     - virtualenv
 
