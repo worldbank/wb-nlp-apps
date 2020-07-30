@@ -5,6 +5,8 @@ import spacy
 import warnings
 from typing import Optional, Generator, Callable
 from enchant.checker import SpellChecker
+from gensim.utils import simple_preprocess
+
 import wb_nlp.extraction.extractor as extractor
 
 # https://spacy.io/api/annotation
@@ -16,10 +18,15 @@ en = SpellChecker("en_US")
 
 class BaseCleaner:
 
-    def __init__(self, include_pos: tuple, exclude_entities: tuple, min_token_length: int=2, extractors: Optional[list]=None) -> None:
+    def __init__(
+        self, include_pos: tuple, exclude_entities: tuple,
+        min_token_length: int=2, max_token_length: int=50,
+        extractors: Optional[list]=None) -> None:
+
         self.include_pos = include_pos
         self.exclude_entities = exclude_entities
         self.min_token_length = min_token_length
+        self.max_token_length = max_token_length
         self.extractors = extractors or []  # extractor.CountryExtractor(nlp, lower=True)
 
     def clean_text(self, text: str) -> list:
@@ -46,6 +53,7 @@ class BaseCleaner:
         is_valid = token.ent_type_ not in self.exclude_entities
         is_valid = is_valid and token.pos_ in self.include_pos
         is_valid = is_valid and len(token) >= self.min_token_length
+        is_valid = is_valid and len(token) <= self.max_token_length
         is_valid = is_valid and token.is_alpha
 
         return is_valid
@@ -65,12 +73,16 @@ class LDACleaner(BaseCleaner):
         'CARDINAL',
     ]
 
-    def __init__(self, min_token_length: int=2, extractors: Optional[list]=None) -> None:
+    def __init__(
+        self, min_token_length: int=2,
+        max_token_length: int=50,
+        extractors: Optional[list]=None) -> None:
 
         super(LDACleaner, self).__init__(
             LDACleaner.LDA_INCLUDE_POS_TAGS,
             LDACleaner.LDA_EXCLUDE_ENT_TYPE,
             min_token_length,
+            max_token_length,
             extractors)
 
 
@@ -90,13 +102,30 @@ class Word2VecCleaner(BaseCleaner):
         # 'ORDINAL',
     ]
 
-    def __init__(self, min_token_length: int=2, extractors: Optional[list]=None) -> None:
+    def __init__(
+        self, min_token_length: int=2,
+        max_token_length: int=50,
+        extractors: Optional[list]=None) -> None:
 
         super(Word2VecCleaner, self).__init__(
             Word2VecCleaner.EMBEDDING_INCLUDE_POS_TAGS,
             Word2VecCleaner.EMBEDDING_EXCLUDE_ENT_TYPE,
             min_token_length,
+            max_token_length,
             extractors)
+
+
+class SimpleCleaner(BaseCleaner):
+
+    def __init__(self, min_token_length: int=2, max_token_length: int=50, extractors: Optional[list]=None) -> None:
+        self.min_token_length = min_token_length
+        self.max_token_length = max_token_length
+
+    def clean_text(self, text: str) -> list:
+        return simple_preprocess(
+            text, deacc=True,
+            min_len=self.min_token_length,
+            max_len=self.max_token_length)
 
 
 class CorpusCleaner:
