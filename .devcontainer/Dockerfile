@@ -94,3 +94,14 @@ RUN apt-get update \
 
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=dialog
+
+
+ENV PROJECT_USER=$USERNAME
+ENV PROJECT_ID=wb_nlp
+
+RUN su - ${PROJECT_USER} -c "conda init bash"
+
+COPY environment.yml /tmp/conda-tmp/
+RUN conda env create -f /tmp/conda-tmp/environment.yml
+
+RUN chown -R ${PROJECT_USER}:${PROJECT_USER} /opt/conda/envs/${PROJECT_ID}
