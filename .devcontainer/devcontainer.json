@@ -5,7 +5,7 @@
 		"dockerfile": "Dockerfile",
 		// Update 'VARIANT' to pick a Python version. Rebuild the container
 		// if it already exists to update. Available variants: 3, 3.6, 3.7, 3.8
-		"args": { "VARIANT": "3.7" }
+		"args": { "VARIANT": "3.7", "PYTHON_PACKAGE": "python3.7  python3-pip python3-venv" }
 	},
 
 	// Set *default* container specific settings.json values on container create.
@@ -34,7 +34,8 @@
 	"forwardPorts": [8000],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip3 install -r requirements.txt",
+    // "postCreateCommand": "pip3 install -r requirements.txt",
+    "postCreateCommand": "sudo chown -R 1000:1000 /opt/conda && conda env create -f environment.yml && /opt/conda/envs/wb_nlp/bin/python -m ipykernel install --user --name=wb_nlp",
 
 	// Comment out to connect as root instead.
 	"remoteUser": "vscode"

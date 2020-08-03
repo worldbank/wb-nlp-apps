@@ -1,4 +1,30 @@
+#-------------------------------------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
+#-------------------------------------------------------------------------------------------------------------
+
+# Update the VARIANT arg in devcontainer.json to pick a Python version: 3, 3.8, 3.7, 3.6
+ARG VARIANT=3
+# FROM python:${VARIANT}
 FROM continuumio/miniconda3:latest
+
+ARG PYTHON_PACKAGE="python3.7 python3-pip python3-venv"
+ENV PATH /usr/local/bin:$PATH
+
+RUN apt-get update && apt-get install --no-install-recommends -yq software-properties-common \
+    && apt-get update \
+    && apt-get install -yq --no-install-recommends ${PYTHON_PACKAGE} \
+    && pip3 install --no-cache-dir --upgrade pip setuptools wheel
+
+# If you would prefer to have multiple Python versions in your container,
+# replace the FROM statement above with the following:
+#
+# FROM ubuntu:bionic
+# ARG PYTHON_PACKAGES="python3.5 python3.6 python3.7 python3.8 python3 python3-pip python3-venv"
+# RUN apt-get update && apt-get install --no-install-recommends -yq software-properties-common \
+#     && add-apt-repository ppa:deadsnakes/ppa && apt-get update \
+#     && apt-get install -yq --no-install-recommends ${PYTHON_PACKAGES} \
+#     && pip3 install --no-cache-dir --upgrade pip setuptools wheel
 
 # This Dockerfile adds a non-root user with sudo access. Use the "remoteUser"
 # property in devcontainer.json to use it. On Linux, the container user's GID/UIDs
