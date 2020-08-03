@@ -105,3 +105,10 @@ COPY environment.yml /tmp/conda-tmp/
 RUN conda env create -f /tmp/conda-tmp/environment.yml
 
 RUN chown -R ${PROJECT_USER}:${PROJECT_USER} /opt/conda/envs/${PROJECT_ID}
+
+# Install enchant libraries for pyenchant
+RUN apt-get update -y && apt-get install -y enchant 2>&1 \
+    # Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
