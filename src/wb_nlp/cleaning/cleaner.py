@@ -10,6 +10,7 @@ from gensim.utils import simple_preprocess
 from typing import Callable, Generator, Optional
 
 from wb_nlp.extraction import extractor as extractor
+from wb_nlp.extraction import phrase as phrase
 
 # https://spacy.io/api/annotation
 POS_TAGS = ['POS', 'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ', 'NOUN', 'NUM', 'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X', 'SPACE']
@@ -31,7 +32,8 @@ class BaseCleaner:
         self.max_token_length = max_token_length
         self.extractors = extractors or []  # extractor.CountryExtractor(nlp, lower=True)
 
-    def clean_text(self, text: str) -> list:
+    @staticmethod
+    def text_to_doc(text: str) -> spacy.tokens.doc.Doc:
         text = (
             text
             .replace('\n', ' ')
@@ -43,13 +45,39 @@ class BaseCleaner:
         text = re.sub(r'\s+', ' ', text).strip().lower()
         doc = nlp(text)
 
+        return doc
+
+    def _apply_extractors(self, doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
         for extractor in self.extractors:
             doc = extractor(doc)
 
+        return doc
+
+    def _tokenize(self, doc: spacy.tokens.doc.Doc) -> list:
         tokens = [token.lemma_ if token.lower_ != 'data' else 'data' for token in doc if self._is_valid_token(token)]
-        # print((t.text, t.lemma_, t.pos_, t.ent_type_, t.ent_iob_, t._.normalized))
 
         return tokens
+
+    def get_tokens(self, text: str) -> list:
+        doc = BaseCleaner.text_to_doc(text)
+        doc = self._apply_extractors(doc)
+
+        return self._tokenize(doc)
+
+    def get_tokens_and_phrases(self, text: str) -> dict:
+        doc = BaseCleaner.text_to_doc(text)
+        doc = self._apply_extractors(doc)
+        tokens = []
+
+        # tokens = self._tokenize(doc)
+        phrases = phrase.get_phrases(
+            doc, min_token_length=self.min_token_length,
+            token_func=self._is_valid_token, token_container=tokens)
+
+        return dict(
+            tokens=tokens,
+            phrases=phrases,
+        )
 
     def _is_valid_token(self, token: spacy.tokens.token.Token) -> bool:
         is_valid = token.ent_type_ not in self.exclude_entities
