@@ -1,5 +1,7 @@
 {
-	"name": "KCP/JDC Project",
+    "name": "KCP/JDC Project",
+
+    // https://code.visualstudio.com/docs/remote/devcontainerjson-reference
 	"dockerComposeFile": ["../docker-compose.yml"],
 	"service": "dev",
 	"runServices": ["dev", "web", "php"],
