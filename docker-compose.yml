@@ -1,0 +1,42 @@
+version: '3.6'
+services:
+  dev:
+    build:
+      context: ./.devcontainer
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
+        VARIANT: "3.7"
+        PYTHON_PACKAGE: "python3.7  python3-pip python3-venv"
+    volumes:
+      - ./:/workspace
+
+  web:
+    image: nginx:latest
+    ports:
+    - "80:80"
+    volumes:
+        - ./app/frontend:/frontend/nlp
+        - ./app/site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - php
+    depends_on:
+      - php
+
+  php:
+      image: php:7-fpm
+      volumes:
+        - ./app/frontend:/frontend/nlp
+
+  # nlp-app-mongodb:
+  #   image: mongo:latest
+  #   environment:
+  #     - MONGO_DATA_DIR=/data/db
+  #     - MONGO_LOG_DIR=/dev/null
+  #   volumes:
+  #     - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
+  #   ports:
+  #     - $NLP_APP_MONGODB_PORT:27017
+  #   # command: mongod --smallfiles  # --auth
+  #   env_file:
+  #     - .env

@@ -1,12 +1,9 @@
 {
 	"name": "KCP/JDC Project",
-	"context": "..",
-	"build": {
-		"dockerfile": "Dockerfile",
-		// Update 'VARIANT' to pick a Python version. Rebuild the container
-		// if it already exists to update. Available variants: 3, 3.6, 3.7, 3.8
-		"args": { "VARIANT": "3.7", "PYTHON_PACKAGE": "python3.7  python3-pip python3-venv" }
-	},
+	"dockerComposeFile": ["../docker-compose.yml"],
+	"service": "dev",
+	"runServices": ["dev", "web", "php"],
+	"workspaceFolder": "/workspace",
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
@@ -34,10 +31,7 @@
 	"forwardPorts": [8000],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-    // "postCreateCommand": "sudo chown -R ${PROJECT_USER}:${PROJECT_USER} /opt/conda && conda env create -f environment.yml && sudo su - vscode -c \"conda init bash\" && /opt/conda/envs/wb_nlp/bin/python -m ipykernel install --user --name=wb_nlp && /opt/conda/envs/wb_nlp/bin/python setup.py develop",
     "postCreateCommand": "/opt/conda/envs/${PROJECT_ID}/bin/python -m ipykernel install --user --name=${PROJECT_ID} && /opt/conda/envs/${PROJECT_ID}/bin/python setup.py develop",
-
-    // "postCreateCommand": "sudo chown -R 1000:1000 /opt/conda && conda env create -f environment.yml && /opt/conda/envs/wb_nlp/bin/python -m ipykernel install --user --name=wb_nlp && /opt/conda/envs/wb_nlp/bin/python setup.py develop",
 
 	// Comment out to connect as root instead.
 	"remoteUser": "vscode"

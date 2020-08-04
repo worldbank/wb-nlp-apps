@@ -112,3 +112,6 @@ RUN apt-get update -y && apt-get install -y enchant 2>&1 \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
+
+# Add this so that the container doesn't exit prematurely
+CMD ["tail", "-f", "/dev/null"]
