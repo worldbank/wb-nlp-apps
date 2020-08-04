@@ -2,12 +2,13 @@ version: '3.6'
 services:
   dev:
     build:
-      context: ./.devcontainer
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: .devcontainer/Dockerfile
       args:
         buildno: 1
         VARIANT: "3.7"
         PYTHON_PACKAGE: "python3.7  python3-pip python3-venv"
+        ENV_FILE: "environment.dev.yml"
     volumes:
       - ./:/workspace
 

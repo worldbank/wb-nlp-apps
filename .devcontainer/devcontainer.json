@@ -13,15 +13,15 @@
 		"python.pythonPath": "/opt/conda/envs/wb_nlp/bin/python",
 		"python.linting.enabled": true,
 		"python.linting.pylintEnabled": true,
-		"python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
-		"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
-		"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
-		"python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
-		"python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
-		"python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
-		"python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
-		"python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
-		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint"
+		"python.formatting.autopep8Path": "/opt/conda/envs/wb_nlp/bin/autopep8",
+		"python.formatting.blackPath": "/opt/conda/envs/wb_nlp/bin/black",
+		"python.formatting.yapfPath": "/opt/conda/envs/wb_nlp/bin/yapf",
+		"python.linting.banditPath": "/opt/conda/envs/wb_nlp/bin/bandit",
+		"python.linting.flake8Path": "/opt/conda/envs/wb_nlp/bin/flake8",
+		"python.linting.mypyPath": "/opt/conda/envs/wb_nlp/bin/mypy",
+		"python.linting.pycodestylePath": "/opt/conda/envs/wb_nlp/bin/pycodestyle",
+		"python.linting.pydocstylePath": "/opt/conda/envs/wb_nlp/bin/pydocstyle",
+		"python.linting.pylintPath": "/opt/conda/envs/wb_nlp/bin/pylint" //"/usr/local/py-utils/bin/pylint"
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.

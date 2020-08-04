@@ -77,11 +77,11 @@ RUN apt-get update \
     && rm /tmp/common-setup.sh \
     #
     # Setup default python tools in venv'd OS version of python to avoid conflicts
-    && mkdir -p ${PIPX_BIN_DIR} \
-    && chown -R ${USER_UID}:${USER_GID} ${PIPX_HOME} \
-    && PYTHONUSERBASE=/tmp/pip-tmp pip3 install --disable-pip-version-check --no-warn-script-location --no-cache-dir --user pipx \
-    && echo "${DEFAULT_UTILS}" | PYTHONUSERBASE=/tmp/pip-tmp xargs -n 1 /tmp/pip-tmp/bin/pipx install --pip-args=--no-cache-dir \
-    && rm -rf /tmp/pip-tmp \
+    # && mkdir -p ${PIPX_BIN_DIR} \
+    # && chown -R ${USER_UID}:${USER_GID} ${PIPX_HOME} \
+    # && PYTHONUSERBASE=/tmp/pip-tmp pip3 install --disable-pip-version-check --no-warn-script-location --no-cache-dir --user pipx \
+    # && echo "${DEFAULT_UTILS}" | PYTHONUSERBASE=/tmp/pip-tmp xargs -n 1 /tmp/pip-tmp/bin/pipx install --pip-args=--no-cache-dir \
+    # && rm -rf /tmp/pip-tmp \
     #
     # Update Python environment based on requirements.txt
     # && pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
@@ -95,14 +95,14 @@ RUN apt-get update \
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=dialog
 
-
+ARG ENV_FILE=environment.dev.yml
 ENV PROJECT_USER=$USERNAME
 ENV PROJECT_ID=wb_nlp
 
 RUN su - ${PROJECT_USER} -c "conda init bash"
 
-COPY environment.yml /tmp/conda-tmp/
-RUN conda env create -f /tmp/conda-tmp/environment.yml
+COPY ${ENV_FILE} /tmp/conda-tmp/
+RUN conda env create -f /tmp/conda-tmp/${ENV_FILE}
 
 RUN chown -R ${PROJECT_USER}:${PROJECT_USER} /opt/conda/envs/${PROJECT_ID}
 
