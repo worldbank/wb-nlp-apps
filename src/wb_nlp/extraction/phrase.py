@@ -2,13 +2,17 @@ import spacy
 from typing import Callable, Optional
 
 
-phrase_fillers = ['of', 'the', 'in']  # Not used if
-
+PHRASE_FILLERS = ['of', 'the', 'in']  # Not used if
+PHRASE_POS = ['ADJ', 'NOUN']
 
 def generate_phrase(phrase_tokens):
+    '''This function generates a valid phrase from a list of tokens.
+
+    Additionally, the function removes dangling PHRASE_FILLERS if present.
+    '''
 
     while True:
-        if phrase_tokens[-1] in phrase_fillers:
+        if phrase_tokens[-1] in PHRASE_FILLERS:
             phrase_tokens.pop()
         else:
             break
@@ -20,6 +24,13 @@ def get_phrases(
     doc: spacy.tokens.doc.Doc, min_token_length: int=3,
     token_func: Optional[Callable]=None,
     token_container: Optional[list]=None) -> list:
+    '''This function extracts phrases from a text based on the part-of-speech tag.
+
+    Contiguous tokens with POS tag of NOUN/ADJ and optionally "fillers" in between
+    are considered as phrases.
+
+    The output of this can then be used with Gensim's Phrases model to filter valid phrases.
+    '''
 
     phrases = []
     curr_phrase = []
@@ -43,11 +54,11 @@ def get_phrases(
             curr_phrase = []
             continue
 
-        if len(curr_phrase) > 0 and token.lower_ in phrase_fillers:
+        if len(curr_phrase) > 0 and token.lower_ in PHRASE_FILLERS:
             # This will not really work if we only use 'ADJ' and 'NOUN'.
             # But leaving this here in case we want to capture compound 'PROPN'.
             curr_phrase.append(token.lemma_)
-        elif token.pos_ in ['ADJ', 'NOUN']:
+        elif token.pos_ in PHRASE_POS:
             curr_phrase.append(token.lemma_ if token.lower_ != 'data' else 'data')
         else:
             if len(curr_phrase) > 1:
