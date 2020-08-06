@@ -11,7 +11,7 @@ def generate_phrase(phrase_tokens):
     Additionally, the function removes dangling PHRASE_FILLERS if present.
     '''
 
-    while True:
+    while True and phrase_tokens:
         if phrase_tokens[-1] in PHRASE_FILLERS:
             phrase_tokens.pop()
         else:

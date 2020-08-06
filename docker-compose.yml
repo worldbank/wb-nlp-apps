@@ -11,6 +11,14 @@ services:
         ENV_FILE: "environment.dev.yml"
     volumes:
       - ./:/workspace
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '4'
+    #       memory: 4G
+    #     reservations:
+    #       cpus: '3'
+    #       memory: 3G
 
   web:
     image: nginx:latest
