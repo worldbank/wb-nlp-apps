@@ -1,0 +1,4 @@
+corpus_similarities.*
+sim_out.*
+dask-worker-space
+__pycache__
