@@ -1,4 +1,4 @@
-name: wb_nlp
+name: dev
 channels:
   - judowill
   - anaconda

@@ -1,16 +1,31 @@
 version: '3.6'
 services:
-  dev:
+
+  base:
+    image: dev-container-base
     build:
       context: ./
-      dockerfile: .devcontainer/Dockerfile
+      dockerfile: .devcontainer/Dockerfile.dev.base
       args:
         buildno: 1
         VARIANT: "3.7"
         PYTHON_PACKAGE: "python3.7  python3-pip python3-venv"
-        ENV_FILE: "environment.dev.yml"
+        USERNAME: vscode
+        ENV_ID: dev
+        ENV_DEV_BASE_FILE: "environment.dev.base.yml"
+
+  dev:
+    build:
+      context: ./
+      dockerfile: .devcontainer/Dockerfile.dev
+      args:
+        ENV_DEV_FILE: "environment.dev.yml"
+        PROJECT_ID: wb_nlp
     volumes:
       - ./:/workspace
+    depends_on:
+      - base
+
     # deploy:
     #   resources:
     #     limits:
