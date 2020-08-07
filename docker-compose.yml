@@ -48,9 +48,12 @@ services:
       - php
 
   php:
-      image: php:7-fpm
-      volumes:
-        - ./app/frontend:/frontend/nlp
+    image: php:7-fpm
+    volumes:
+      - ./app/frontend:/frontend/nlp
+
+  tika:
+    image: apache/tika:latest
 
   # nlp-app-mongodb:
   #   image: mongo:latest

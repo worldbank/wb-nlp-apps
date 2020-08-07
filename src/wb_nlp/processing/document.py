@@ -7,6 +7,11 @@ from bs4 import BeautifulSoup
 from tika import parser
 from typing import Union
 
+# Make sure that a Tika service is running
+# If tika is installed on a local machine, then just replace
+# this with `http://localhost:9998`
+TIKA_SERVER_ENDPOINT = 'http://tika:9998'
+
 
 class PDFDoc2Txt:
     """
@@ -25,6 +30,9 @@ class PDFDoc2Txt:
 
         pass
 
+    def _parse(self, parser, content):
+        return parser(content, xmlContent=True, serverEndpoint=TIKA_SERVER_ENDPOINT)
+
     def parse(self, source: Union[bytes, str], source_type: str='buffer') -> str:
         """Parse a PDF document to text from different source types.
 
@@ -42,13 +50,13 @@ class PDFDoc2Txt:
         """
         if source_type == 'url':
             buf = requests.get(source)
-            pdf_text = parser.from_buffer(buf.content, xmlContent=True)
+            pdf_text = self._parse(parser.from_buffer, buf.content)
 
         elif source_type == 'file':
-            pdf_text = parser.from_file(source, xmlContent=True)
+            pdf_text = self._parse(parser.from_file, source)
 
         elif source_type == 'buffer':
-            pdf_text = parser.from_buffer(source, xmlContent=True)
+            pdf_text = self._parse(parser.from_buffer, source)
 
         else:
             raise ValueError(f'Unknown source_type: `{source_type}`')
