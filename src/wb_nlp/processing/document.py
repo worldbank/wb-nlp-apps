@@ -113,7 +113,6 @@ class PDFDoc2Txt:
         """
         replace_chars = {'’': "'", '“': '"', '”': '"'}
         line_seps = set([' ', '-'])
-        line_groups = [[]]
 
         text_paragraph = text_paragraph.replace('\r', '')
 
@@ -153,7 +152,7 @@ class PDFDoc2Txt:
 
     @staticmethod
     def normalize_footnote_citations(text: str) -> str:
-        """This method tries to detect footnotes and normalizes them.
+        r"""This method tries to detect footnotes and normalizes them.
 
         This is essential to improve the accuracy of SpaCy's sentence
         detector. Sometimes footnote citations are connected with sentence
@@ -188,7 +187,8 @@ class PDFDoc2Txt:
 
         return re.sub(footnote_patterns, r'\1 _\2\3', text)
 
-    def combine_paragraphs(self):
+    def combine_paragraphs(self, content):
+        soup = BeautifulSoup(content, features="html.parser")
 
         ps = soup.find_all('p')
         unique_ps = []
