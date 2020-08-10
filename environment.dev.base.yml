@@ -1,9 +1,7 @@
 name: dev
 channels:
-  - judowill
   - conda-forge
   - defaults
-  - plotly
 dependencies:
   - python>=3.7
   - altair
@@ -14,19 +12,25 @@ dependencies:
   - dash-core-components
   - dask
   - gensim
+  - htop
   - ipython
   - matplotlib
   - numpy
+  - openpyxl
   - pandas
   - pip
   - plotly
   - scikit-learn
   - scipy
   - seaborn
+  - spacy
+  - spacy-model-en_core_web_sm
   - statsmodels
   - tqdm
+  - xlrd
   - pip:
      # add here only pip-packages that are not available in conda/conda-forge! E.g.:
+    - dash-bootstrap-components
     - pipx
     - pyenchant
     - streamlit

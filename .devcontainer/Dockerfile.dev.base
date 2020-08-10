@@ -1,30 +1,10 @@
-#-------------------------------------------------------------------------------------------------------------
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
-#-------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------
+# Modified version of Microsoft's VS Code Dockerfile (https://github.com/microsoft/vscode-dev-containers)
+# Licensed under the MIT License.
+# See https://github.com/avsolatorio/pyscaffoldext-dsproject-vscode/blob/master/LICENSE.txt for license information.
+#-------------------------------------------------------------------------------------------------------------------
 
-# Update the VARIANT arg in devcontainer.json to pick a Python version: 3, 3.8, 3.7, 3.6
-ARG VARIANT=3
-# FROM python:${VARIANT}
 FROM continuumio/miniconda3:latest
-
-ARG PYTHON_PACKAGE="python3.7 python3-pip python3-venv"
-ENV PATH /usr/local/bin:$PATH
-
-RUN apt-get update && apt-get install --no-install-recommends -yq software-properties-common \
-    && apt-get update \
-    && apt-get install -yq --no-install-recommends ${PYTHON_PACKAGE} \
-    && pip3 install --no-cache-dir --upgrade pip setuptools wheel
-
-# If you would prefer to have multiple Python versions in your container,
-# replace the FROM statement above with the following:
-#
-# FROM ubuntu:bionic
-# ARG PYTHON_PACKAGES="python3.5 python3.6 python3.7 python3.8 python3 python3-pip python3-venv"
-# RUN apt-get update && apt-get install --no-install-recommends -yq software-properties-common \
-#     && add-apt-repository ppa:deadsnakes/ppa && apt-get update \
-#     && apt-get install -yq --no-install-recommends ${PYTHON_PACKAGES} \
-#     && pip3 install --no-cache-dir --upgrade pip setuptools wheel
 
 # This Dockerfile adds a non-root user with sudo access. Use the "remoteUser"
 # property in devcontainer.json to use it. On Linux, the container user's GID/UIDs
@@ -33,10 +13,6 @@ RUN apt-get update && apt-get install --no-install-recommends -yq software-prope
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-
-# Uncomment the following COPY line and the corresponding lines in the `RUN` command if you wish to
-# include your requirements in the image itself. Only do this if your requirements rarely change.
-# COPY requirements.txt /tmp/pip-tmp/
 
 # Set to false to skip installing zsh and Oh My ZSH!
 ARG INSTALL_ZSH="true"
@@ -50,13 +26,17 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Configure apt and install packages
 RUN apt-get update \
-    && apt-get -y install --no-install-recommends apt-utils dialog wget ca-certificates 2>&1 \
+    && apt-get -y install --no-install-recommends software-properties-common apt-utils dialog wget ca-certificates 2>&1 \
+    && apt-get update \
     #
     # Verify git, common tools / libs installed, add/modify non-root user, optionally install zsh
     && wget -q -O /tmp/common-setup.sh $COMMON_SCRIPT_SOURCE \
     && if [ "$COMMON_SCRIPT_SHA" != "dev-mode" ]; then echo "$COMMON_SCRIPT_SHA /tmp/common-setup.sh" | sha256sum -c - ; fi \
     && /bin/bash /tmp/common-setup.sh "$INSTALL_ZSH" "$USERNAME" "$USER_UID" "$USER_GID" \
     && rm /tmp/common-setup.sh \
+    #
+    # Install enchant libraries for pyenchant
+    && apt-get install -y enchant 2>&1 \
     #
     # Clean up
     && apt-get autoremove -y \
@@ -66,26 +46,37 @@ RUN apt-get update \
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=dialog
 
-ARG ENV_DEV_BASE_FILE=environment.dev.base.yml
+# Adapted for custom setup of conda environment
+# The `ENV_DEV_BASE_FILE` contains the common DS libraries
+# Additional libraries can be exported in the generated `ENV_DEV_FILE` below
 ARG ENV_ID=dev
+ARG ENV_DEV_BASE_FILE=environment.dev.base.yml
 
 ENV PROJECT_USER=$USERNAME
 ENV ENV_ID=$ENV_ID
 ENV ENV_DEV_BASE_FILE=$ENV_DEV_BASE_FILE
 
-RUN su - ${PROJECT_USER} -c "conda init bash"
-
 COPY ${ENV_DEV_BASE_FILE} /tmp/conda-tmp/
-RUN conda env create -f /tmp/conda-tmp/${ENV_DEV_BASE_FILE}
+RUN chown -R ${PROJECT_USER}:${PROJECT_USER} /opt/conda && chown -R ${PROJECT_USER}:${PROJECT_USER} /tmp/conda-tmp
 
-RUN chown -R ${PROJECT_USER}:${PROJECT_USER} /opt/conda/envs/${ENV_ID}
+USER 1000
+RUN conda init bash && conda env create -f /tmp/conda-tmp/${ENV_DEV_BASE_FILE}
 
-# Install enchant libraries for pyenchant
-RUN apt-get update -y && apt-get install -y enchant 2>&1 \
-    # Clean up
-    && apt-get autoremove -y \
-    && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/*
+ARG PROJECT_ID=wb_nlp
+ARG ENV_DEV_FILE=environment.dev.yml
+
+ENV PROJECT_ID=$PROJECT_ID
+ENV ENV_DEV_FILE=$ENV_DEV_FILE
+
+COPY ${ENV_DEV_BASE_FILE} ${ENV_DEV_FILE}* /tmp/conda-tmp/
+
+# If the dev env file doesn't exist, create a new file.
+RUN [ ! -f /tmp/conda-tmp/${ENV_DEV_FILE} ] && conda env export -n ${ENV_ID} --no-builds | grep -v "prefix" > /tmp/conda-tmp/${ENV_DEV_FILE} || echo 0
+
+# Always try to install the latest dev env file.
+# This is useful when you installed new packages and updated the env file with
+# conda env export -n ${ENV_ID} --no-builds | grep -v "prefix" > /workspace/${ENV_DEV_FILE}
+RUN conda env update -n ${ENV_ID} --file /tmp/conda-tmp/${ENV_DEV_FILE}  --prune && rm -rf /opt/conda/pkg/*
 
 # Add this so that the container doesn't exit prematurely
-CMD ["/bin/bash"]
+CMD ["tail", "-f", "/dev/null"]
