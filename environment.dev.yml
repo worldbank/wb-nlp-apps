@@ -7,54 +7,103 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1
   - _openmp_mutex=4.5
+  - alabaster=0.7.12
+  - altair=4.1.0
+  - argon2-cffi=20.1.0
+  - astroid=2.4.2
   - attrs=19.3.0
+  - autopep8=1.5.4
+  - babel=2.8.0
   - backcall=0.2.0
   - backports=1.0
   - backports.functools_lru_cache=1.6.1
+  - bandit=1.6.2
   - beautifulsoup4=4.9.1
+  - black=19.10b0
   - blas=1.0
   - bleach=3.1.5
   - bokeh=2.1.1
+  - boto=2.49.0
   - brotlipy=0.7.0
   - bs4=4.9.1
+  - bz2file=0.98
+  - c-ares=1.16.1
   - ca-certificates=2020.6.24
+  - cachetools=4.1.1
   - catalogue=1.0.0
   - certifi=2020.6.20
   - cffi=1.14.0
   - chardet=3.0.4
   - click=7.1.2
   - cloudpickle=1.5.0
+  - colorama=0.4.3
+  - commonmark=0.9.1
+  - coverage=5.2.1
   - cryptography=2.9.2
   - cycler=0.10.0
   - cymem=2.0.3
+  - cython=0.29.21
   - cython-blis=0.4.1
   - cytoolz=0.10.1
+  - dash=1.14.0
+  - dash-core-components=1.10.2
+  - dash-html-components=1.0.3
+  - dash-renderer=1.6.0
+  - dash-table=4.9.0
   - dask=2.20.0
   - dask-core=2.20.0
   - dbus=1.13.16
   - decorator=4.4.2
   - defusedxml=0.6.0
+  - distlib=0.3.1
   - distributed=2.20.0
+  - docutils=0.15.2
+  - editdistance=0.5.3
   - entrypoints=0.3
+  - et_xmlfile=1.0.1
   - expat=2.2.9
+  - filelock=3.0.12
+  - flake8=3.8.3
+  - flask=1.1.2
+  - flask-compress=1.5.0
   - fontconfig=2.13.0
   - freetype=2.10.2
   - fsspec=0.7.4
+  - future=0.18.2
+  - gensim=3.8.3
+  - gitdb=4.0.5
   - gitflow=0.4.1
+  - gitpython=3.1.7
   - glib=2.65.0
+  - google-api-core=1.22.0
+  - google-auth=1.20.1
+  - google-cloud-core=1.4.1
+  - google-cloud-storage=1.30.0
+  - google-crc32c=1.0.0
+  - google-resumable-media=0.7.0
+  - googleapis-common-protos=1.51.0
+  - grpcio=1.31.0
   - gst-plugins-base=1.14.0
   - gstreamer=1.14.0
   - heapdict=1.0.1
+  - htop=2.2.0
   - icu=58.2
   - idna=2.10
+  - imagesize=1.2.0
   - importlib-metadata=1.7.0
   - importlib_metadata=1.7.0
+  - iniconfig=1.0.1
   - intel-openmp=2020.1
   - ipykernel=5.3.0
   - ipython=7.16.1
+  - ipython-autotime=0.1
   - ipython_genutils=0.2.0
+  - isort=4.3.21
+  - itsdangerous=1.1.0
+  - jdcal=1.4.1
   - jedi=0.17.1
   - jinja2=2.11.2
+  - jmespath=0.10.0
   - joblib=0.15.1
   - jpeg=9b
   - json5=0.9.5
@@ -64,21 +113,26 @@ dependencies:
   - jupyterlab=2.1.5
   - jupyterlab_server=1.1.5
   - kiwisolver=1.2.0
+  - lazy-object-proxy=1.4.3
   - lcms2=2.11
   - ld_impl_linux-64=2.33.1
   - libblas=3.8.0
   - libcblas=3.8.0
+  - libcrc32c=1.1.1
   - libedit=3.1.20191231
   - libffi=3.3
   - libgcc-ng=9.1.0
   - libgfortran-ng=7.3.0
   - libgomp=9.3.0
   - liblapack=3.8.0
+  - libopenblas=0.3.10
   - libpng=1.6.37
+  - libprotobuf=3.12.4
   - libsodium=1.0.18
   - libstdcxx-ng=9.1.0
   - libtiff=4.1.0
   - libuuid=1.0.3
+  - libwebp-base=1.1.0
   - libxcb=1.14
   - libxml2=2.9.10
   - llvm-openmp=10.0.1
@@ -87,54 +141,84 @@ dependencies:
   - markupsafe=1.1.1
   - matplotlib=3.2.2
   - matplotlib-base=3.2.2
+  - mccabe=0.6.1
   - mistune=0.8.4
   - mkl=2020.1
   - mkl-service=2.3.0
   - mkl_fft=1.1.0
   - mkl_random=1.1.1
+  - more-itertools=8.4.0
   - msgpack-python=1.0.0
   - murmurhash=1.0.0
+  - mypy=0.782
+  - mypy_extensions=0.4.3
   - nbconvert=5.6.1
+  - nbdime=2.0.0
   - nbformat=5.0.7
+  - nbstripout=0.3.9
   - ncurses=6.2
+  - nodeenv=1.4.0
   - notebook=6.0.3
   - numpy=1.18.5
   - numpy-base=1.18.5
   - olefile=0.46
+  - openpyxl=3.0.4
   - openssl=1.1.1g
   - packaging=20.4
   - pandoc=2.9.2.1
   - pandocfilters=1.4.2
   - parso=0.7.0
   - partd=1.1.0
+  - pathspec=0.8.0
   - patsy=0.5.1
+  - pbr=5.4.5
   - pcre=8.44
   - pexpect=4.8.0
   - pickleshare=0.7.5
   - pillow=7.2.0
   - pip=20.1.1
   - plac=0.9.6
+  - plotly=4.9.0
+  - pluggy=0.13.1
+  - pre-commit=2.6.0
+  - pre_commit=2.6.0
   - preshed=3.0.2
   - prometheus_client=0.8.0
   - prompt-toolkit=3.0.5
+  - protobuf=3.12.4
   - psutil=5.7.0
   - ptyprocess=0.6.0
+  - py=1.9.0
+  - pyasn1=0.4.8
+  - pyasn1-modules=0.2.7
+  - pycodestyle=2.6.0
   - pycparser=2.20
+  - pydocstyle=5.0.2
+  - pyflakes=2.2.0
   - pygments=2.6.1
+  - pylint=2.5.3
   - pyopenssl=19.1.0
   - pyparsing=2.4.7
   - pyqt=5.9.2
   - pyrsistent=0.16.0
   - pyscaffold=3.2.3
   - pysocks=1.7.1
+  - pytest=6.0.1
+  - pytest-cov=2.10.0
   - python=3.8.3
   - python-dateutil=2.8.1
   - python_abi=3.8
   - pytz=2020.1
+  - pyyaml=5.3.1
   - pyzmq=19.0.1
   - qt=5.9.7
   - readline=8.0
+  - recommonmark=0.6.0
+  - regex=2020.7.14
   - requests=2.24.0
+  - retrying=1.3.3
+  - rsa=4.6
+  - s3transfer=0.3.3
   - scikit-learn=0.23.1
   - scipy=1.5.0
   - seaborn=0.10.1
@@ -143,13 +227,23 @@ dependencies:
   - setuptools=47.3.1
   - sip=4.19.13
   - six=1.15.0
+  - smart_open=2.1.0
+  - smmap=3.0.4
+  - snowballstemmer=2.0.0
   - sortedcontainers=2.2.2
   - soupsieve=2.0.1
   - spacy=2.3.2
   - spacy-model-en_core_web_sm=2.3.0
+  - sphinxcontrib-applehelp=1.0.2
+  - sphinxcontrib-devhelp=1.0.2
+  - sphinxcontrib-htmlhelp=1.0.3
+  - sphinxcontrib-jsmath=1.0.1
+  - sphinxcontrib-qthelp=1.0.3
+  - sphinxcontrib-serializinghtml=1.1.4
   - sqlite=3.32.3
   - srsly=1.0.2
   - statsmodels=0.11.1
+  - stevedore=3.2.0
   - tblib=1.6.0
   - terminado=0.8.3
   - testpath=0.4.4
@@ -157,94 +251,61 @@ dependencies:
   - threadpoolctl=2.1.0
   - tika=1.24
   - tk=8.6.10
+  - toml=0.10.1
   - toolz=0.10.0
   - tornado=6.0.4
+  - tox=3.19.0
   - tqdm=4.47.0
   - traitlets=4.3.3
+  - typed-ast=1.4.1
   - typing_extensions=3.7.4.2
   - urllib3=1.25.9
   - wasabi=0.7.0
   - wcwidth=0.2.5
   - webencodings=0.5.1
+  - werkzeug=1.0.1
   - wheel=0.34.2
+  - xlrd=1.2.0
   - xz=5.2.5
   - yaml=0.2.5
+  - yapf=0.30.0
   - zeromq=4.3.2
   - zict=2.0.0
   - zipp=3.1.0
   - zlib=1.2.11
   - zstd=1.4.5
   - pip:
-    - alabaster==0.7.12
     - appdirs==1.4.4
     - argcomplete==1.12.0
-    - astroid==2.4.2
-    - autopep8==1.5.4
-    - babel==2.8.0
-    - bandit==1.6.2
-    - black==19.10b0
-    - boto==2.49.0
+    - astor==0.8.1
+    - base58==2.0.1
+    - blinker==1.4
     - boto3==1.14.25
     - botocore==1.17.25
+    - brotli==1.0.7
     - cfgv==3.1.0
     - cmdstanpy==0.4.0
-    - commonmark==0.9.1
-    - cython==0.29.21
-    - distlib==0.3.1
+    - dash-bootstrap-components==0.10.3
     - distro==1.5.0
-    - docutils==0.15.2
-    - filelock==3.0.12
-    - flake8==3.8.3
-    - gensim==3.8.3
-    - gitdb==4.0.5
-    - gitpython==3.1.7
+    - enum-compat==0.0.3
     - identify==1.4.21
-    - imagesize==1.2.0
-    - iniconfig==1.0.1
-    - ipython-autotime==0.1
-    - isort==4.3.21
-    - jmespath==0.10.0
-    - lazy-object-proxy==1.4.3
-    - mccabe==0.6.1
-    - more-itertools==8.4.0
-    - mypy==0.782
-    - mypy-extensions==0.4.3
-    - nodeenv==1.4.0
+    - ipywidgets==7.5.1
     - pandas==0.25.3
-    - pathspec==0.8.0
-    - pbr==5.4.5
+    - pathtools==0.1.2
     - pipx==0.15.4.0
-    - pluggy==0.13.1
-    - pre-commit==2.6.0
-    - py==1.9.0
-    - pycodestyle==2.6.0
-    - pydocstyle==5.0.2
+    - pyarrow==1.0.0
+    - pydeck==0.4.1
     - pyenchant==3.1.1
-    - pyflakes==2.2.0
-    - pylint==2.5.3
     - pyscaffoldext-dsproject==0.4
     - pyscaffoldext-markdown==0.3.2
-    - pytest==6.0.1
-    - pyyaml==5.3.1
-    - recommonmark==0.6.0
-    - regex==2020.7.14
-    - s3transfer==0.3.3
-    - smart-open==2.1.0
-    - smmap==3.0.4
-    - snowballstemmer==2.0.0
     - sphinx==3.1.2
-    - sphinxcontrib-applehelp==1.0.2
-    - sphinxcontrib-devhelp==1.0.2
-    - sphinxcontrib-htmlhelp==1.0.3
-    - sphinxcontrib-jsmath==1.0.1
-    - sphinxcontrib-qthelp==1.0.3
-    - sphinxcontrib-serializinghtml==1.1.4
-    - stevedore==3.2.0
-    - toml==0.10.1
+    - streamlit==0.64.0
     - tscv==0.0.4
-    - typed-ast==1.4.1
+    - tzlocal==2.1
     - userpath==1.4.1
+    - validators==0.17.1
     - virtualenv==20.0.26
+    - watchdog==0.10.3
+    - widgetsnbextension==3.5.1
     - wrapt==1.12.1
-    - yapf==0.30.0
 
