@@ -6,7 +6,7 @@ import re
 import spacy
 import warnings
 import wordninja
-from enchant.checker import SpellChecker
+from enchant import Dict
 from gensim.utils import simple_preprocess
 from typing import Callable, Generator, Optional
 
@@ -17,7 +17,26 @@ from wb_nlp.extraction import phrase as phrase
 POS_TAGS = ['POS', 'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ', 'NOUN', 'NUM', 'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X', 'SPACE']
 
 nlp = spacy.load('en_core_web_sm')
-en = SpellChecker("en_US")
+en_dict = Dict('en_US')
+
+def expand_acronyms(text: str) -> str:
+    # Parse acronyms here and replace instances.
+    # Apply intelligent matching.
+    return text
+
+
+def clean_text(text: str, clean_tokenize: Callable, segmented_max_len=5) -> str:
+    # Fix not properly parsed tokens.
+    text = recover_segmented_words(text, max_len=segmented_max_len)
+
+    # Expand acronyms
+    text = expand_acronyms(text)
+
+    text = clean_tokenize(text)
+
+    text = ' ' .join([token for token in text.split() if en_dict.check(token)])
+
+    return text
 
 
 class BaseCleaner:
@@ -35,6 +54,13 @@ class BaseCleaner:
 
     @staticmethod
     def text_to_doc(text: str) -> spacy.tokens.doc.Doc:
+        '''Performs basic normalization and converts text to spacy document.
+
+        NOTE:
+            Don't make the text here in lower case since we need to preserve
+            the case for the extractors.
+
+        '''
         text = (
             text
             .replace('\n', ' ')
@@ -43,12 +69,14 @@ class BaseCleaner:
             .replace('”', '"')
         )
 
-        text = re.sub(r'\s+', ' ', text).strip().lower()
+        text = re.sub(r'\s+', ' ', text).strip()
         doc = nlp(text)
 
         return doc
 
     def _apply_extractors(self, doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
+        '''This updates the document to integrate information on tokens, e.g., names of countries.
+        '''
         for extractor in self.extractors:
             doc = extractor(doc)
 
