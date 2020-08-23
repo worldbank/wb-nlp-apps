@@ -12,6 +12,7 @@ from typing import Callable, Generator, Optional
 
 from wb_nlp.extraction import extractor as extractor
 from wb_nlp.extraction import phrase as phrase
+from wb_nlp.cleaning import stopwords
 
 # https://spacy.io/api/annotation
 POS_TAGS = ['POS', 'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ', 'NOUN', 'NUM', 'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X', 'SPACE']
@@ -114,6 +115,7 @@ class BaseCleaner:
         is_valid = is_valid and len(token) >= self.min_token_length
         is_valid = is_valid and len(token) <= self.max_token_length
         is_valid = is_valid and token.is_alpha
+        is_valid = is_valid and token.lower_ not in stopwords.stopwords
 
         return is_valid
 
@@ -121,8 +123,13 @@ class BaseCleaner:
 class LDACleaner(BaseCleaner):
     LDA_INCLUDE_POS_TAGS = [
         'ADJ', 'NOUN',
-        # 'VERB',
         # 'PROPN',
+
+        'VERB',
+
+        # Which is better? Add this by default or simply create
+        # a whitelist of relevant adverbs?
+        'ADV'
     ]
 
     LDA_EXCLUDE_ENT_TYPE = [
@@ -149,9 +156,14 @@ class Word2VecCleaner(BaseCleaner):
 
     EMBEDDING_INCLUDE_POS_TAGS = [
         'ADJ', 'NOUN', 'VERB',
+        # 'PROPN',
+
+        # Which is better? Add this by default or simply create
+        # a whitelist of relevant adverbs?
+        'ADV'
+
         # 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ',
         # 'NUM', 'PART',
-        'PROPN',
     ]
 
     EMBEDDING_EXCLUDE_ENT_TYPE = [
