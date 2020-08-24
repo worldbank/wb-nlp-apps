@@ -33,7 +33,7 @@ en_dict = Dict('en_US')
 
 
 @cache_decorator
-def get_suggestions(word):
+def get_suggestions(word, **kwargs):
     return en_dict.suggest(word)
 
 
@@ -45,7 +45,8 @@ def get_suggestions(word):
 
 def morph_word(word, **kwargs):
     # word = word.replace(' ', '')  # Check if compound word suggestion matches the misspelled word
-    m_word = word + ''.join(sorted(word)) # Perform this opperation to add more robustness to the matching
+    # Perform this opperation to add more robustness to the matching
+    m_word = word + ''.join(sorted(word))
 
     return m_word
 
@@ -81,7 +82,8 @@ def cached_infer_correct_word(word, sim_thresh=0.0, print_log=False, min_len=3, 
             candX = tfidf.fit_transform(m_candidates)
             wordX = tfidf.transform([m_word])
 
-            r = 1.0 / rankdata([edit_distance(m_word, x) for x in m_candidates])
+            r = 1.0 / rankdata([edit_distance(m_word, x)
+                                for x in m_candidates])
 
             sim = cosine_similarity(candX, wordX)
             sim_r = sim * r.reshape(-1, 1) * suggest_score.reshape(-1, 1)
@@ -132,7 +134,7 @@ class Respeller:
         '''
 
         if (self.dictionary_file is not None) and os.path.isfile(self.dictionary_file):
-                self.spell_cache = pd.read_csv(self.dictionary_file)
+            self.spell_cache = pd.read_csv(self.dictionary_file)
 
     def save_spell_cache(self):
         pd.Series(self.spell_cache).to_csv(self.dictionary_file)
