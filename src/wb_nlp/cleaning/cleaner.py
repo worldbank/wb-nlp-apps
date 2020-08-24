@@ -1,41 +1,25 @@
+"""Main cleaner module.
+"""
+
 import glob
-import numpy as np
 import os
 import pickle
 import re
-import spacy
 import warnings
-from gensim.utils import simple_preprocess
 from typing import Callable, Generator, Optional
+from gensim.utils import simple_preprocess
 
+import spacy
+import numpy as np
+
+import wb_nlp.config as conf
 from wb_nlp.cleaning import stopwords, respelling
-from wb_nlp import config
-from wb_nlp.extraction import extractor as extractor
-from wb_nlp.extraction import phrase as phrase
+from wb_nlp.extraction import phrase
+# from wb_nlp.extraction import extractor
 
 # https://spacy.io/api/annotation
-POS_TAGS = [
-    "POS",
-    "ADJ",
-    "ADP",
-    "ADV",
-    "AUX",
-    "CONJ",
-    "CCONJ",
-    "DET",
-    "INTJ",
-    "NOUN",
-    "NUM",
-    "PART",
-    "PRON",
-    "PROPN",
-    "PUNCT",
-    "SCONJ",
-    "SYM",
-    "VERB",
-    "X",
-    "SPACE",
-]
+POS_TAGS = ["POS", "ADJ", "ADP", "ADV", "AUX", "CONJ", "CCONJ", "DET", "INTJ", "NOUN",
+            "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X", "SPACE", ]
 
 nlp = spacy.load("en_core_web_sm")
 
@@ -47,15 +31,9 @@ def expand_acronyms(text: str) -> str:
 
 
 class BaseCleaner:
-    def __init__(
-        self,
-        config: dict,
-        include_pos: tuple,
-        exclude_entities: tuple,
-        min_token_length: int = 2,
-        max_token_length: int = 50,
-        extractors: Optional[list] = None,
-    ) -> None:
+    def __init__(self, config: dict, include_pos: tuple, exclude_entities: tuple,
+                 min_token_length: int = 2, max_token_length: int = 50,
+                 extractors: Optional[list] = None) -> None:
 
         self.include_pos = include_pos
         self.exclude_entities = exclude_entities
@@ -149,7 +127,7 @@ class BaseCleaner:
             token_container=tokens,
         )
 
-        return dict(tokens=tokens, phrases=phrases,)
+        return dict(tokens=tokens, phrases=phrases)
 
     def _is_valid_token(self, token: spacy.tokens.token.Token) -> bool:
         is_valid = token.is_alpha
@@ -183,26 +161,17 @@ class LDACleaner(BaseCleaner):
     ]
 
     LDA_EXCLUDE_ENT_TYPE = [
-        "GPE",
-        "COUNTRY",  # Countries, cities, states
-        "PERSON",
-        "ORG",  # Persons and organizations
-        "DATE",
-        "TIME",  # Tomorrow, today, 10am, etc.
-        "PERCENT",
-        "MONEY",
-        "QUANTITY",  # Words related to amounts and money
+        "GPE", "COUNTRY",  # Countries, cities, states
+        "PERSON", "ORG",  # Persons and organizations
+        "DATE", "TIME",  # Tomorrow, today, 10am, etc.
+        "PERCENT", "MONEY", "QUANTITY",  # Words related to amounts and money
         "ORDINAL",  # first, second, etc.
         "CARDINAL",  # Other numerals
     ]
 
-    def __init__(
-        self,
-        config: dict,
-        min_token_length: int = 2,
-        max_token_length: int = 50,
-        extractors: Optional[list] = None,
-    ) -> None:
+    def __init__(self, config: dict,
+                 min_token_length: int = 2, max_token_length: int = 50,
+                 extractors: Optional[list] = None) -> None:
 
         super(LDACleaner, self).__init__(
             config,
@@ -238,13 +207,9 @@ class Word2VecCleaner(BaseCleaner):
         # 'ORDINAL',
     ]
 
-    def __init__(
-        self,
-        config: dict,
-        min_token_length: int = 2,
-        max_token_length: int = 50,
-        extractors: Optional[list] = None,
-    ) -> None:
+    def __init__(self, config: dict,
+                 min_token_length: int = 2, max_token_length: int = 50,
+                 extractors: Optional[list] = None) -> None:
 
         super(Word2VecCleaner, self).__init__(
             config,
@@ -257,12 +222,8 @@ class Word2VecCleaner(BaseCleaner):
 
 
 class SimpleCleaner(BaseCleaner):
-    def __init__(
-        self,
-        min_token_length: int = 2,
-        max_token_length: int = 50,
-        extractors: Optional[list] = None,
-    ) -> None:
+    def __init__(self, min_token_length: int = 2, max_token_length: int = 50,
+                 extractors: Optional[list] = None) -> None:
         self.min_token_length = min_token_length
         self.max_token_length = max_token_length
 
@@ -284,15 +245,9 @@ class CorpusCleaner:
     A custom cleaner function can be used to handle the cleaning.
     """
 
-    def __init__(
-        self,
-        dir: str,
-        cleaner: Callable[[str], str],
-        id_pattern: Optional[str] = None,
-        extension: str = "txt",
-        process_prob: float = 1,
-        seed: float = 1029,
-    ):
+    def __init__(self, dir: str, cleaner: Callable[[str], str],
+                 id_pattern: Optional[str] = None, extension: str = "txt",
+                 process_prob: float = 1, seed: float = 1029) -> None:
 
         self.dir = dir
         self.cleaner = cleaner
@@ -378,13 +333,8 @@ class CorpusCleaner:
         self.frozen = True
         self.reset()
 
-    def cleaned_doc_generator(
-        self,
-        dir: str,
-        cleaner: Callable[[str], str],
-        id_pattern: Optional[str] = None,
-        extension: str = "txt",
-    ) -> Generator[list, None, None]:
+    def cleaned_doc_generator(self, dir: str, cleaner: Callable[[str], str],
+                              id_pattern: Optional[str] = None, extension: str = "txt") -> Generator[list, None, None]:
         """A generator that loads files from a directory and returns a cleaned document.
         This also caches the cleaned data.
         """
@@ -407,7 +357,8 @@ class CorpusCleaner:
                 if match:
                     file_hash = match.group(0)
                 else:
-                    warnings.warn(f"No valid id found in file {fname}. Skipping...")
+                    warnings.warn(
+                        f"No valid id found in file {fname}. Skipping...")
                     continue
 
             if file_hash not in self.clean_doc_cache:
@@ -421,7 +372,8 @@ class CorpusCleaner:
 
             yield self.clean_doc_cache[file_hash]
 
-        self.clean_doc_id2hash = {j: i for i, j in self.clean_doc_hash2id.items()}
+        self.clean_doc_id2hash = {j: i for i,
+                                  j in self.clean_doc_hash2id.items()}
         self.fully_trained = True
 
     def stream_gensim_transformer(self, transformer, dictionary=None, cache=True):
@@ -445,7 +397,7 @@ class CorpusCleaner:
 
 
 if __name__ == "__main__":
-    bc = LDACleaner(config.get_config(config.default_config))
+    bc = LDACleaner(conf.get_config(conf.default_config))
 
     t = bc.get_clean_tokens(
         """Hello world, why are you all here at the World Bank?
