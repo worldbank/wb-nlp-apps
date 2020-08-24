@@ -1,0 +1,33 @@
+default_cleaner_config = dict(
+    # options for cleaning.corrector.recover_segmented_words
+    fix_fragmented_tokens=dict(
+        use=True,
+        params=dict(
+            max_len=5,
+        )
+    ),
+    expand_acronyms=dict(
+        use=True,
+        params=dict()
+    ),
+    tag_whitelisted_entities=dict(
+        use=True,
+        params=dict()
+    ),
+    filter_by_pos=dict(
+        use=True,
+        params=dict()
+    ),
+    filter_by_entities=dict(
+        use=True,
+        params=dict()
+    ),
+    check_spelling=dict(
+        use=True,
+        params=dict()
+    ),
+    filter_stopwords=dict(
+        use=True,
+        params=dict()
+    ),
+)

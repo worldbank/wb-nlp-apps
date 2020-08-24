@@ -10,9 +10,10 @@ from enchant import Dict
 from gensim.utils import simple_preprocess
 from typing import Callable, Generator, Optional
 
+from wb_nlp.cleaning import stopwords, corrector
+from wb_nlp.config import default_cleaner_config
 from wb_nlp.extraction import extractor as extractor
 from wb_nlp.extraction import phrase as phrase
-from wb_nlp.cleaning import stopwords
 
 # https://spacy.io/api/annotation
 POS_TAGS = ['POS', 'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ', 'NOUN', 'NUM', 'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X', 'SPACE']
@@ -26,32 +27,21 @@ def expand_acronyms(text: str) -> str:
     return text
 
 
-def clean_text(text: str, clean_tokenize: Callable, segmented_max_len=5) -> str:
-    # Fix not properly parsed tokens.
-    text = recover_segmented_words(text, max_len=segmented_max_len)
-
-    # Expand acronyms
-    text = expand_acronyms(text)
-
-    text = clean_tokenize(text)
-
-    text = ' ' .join([token for token in text.split() if en_dict.check(token)])
-
-    return text
-
-
 class BaseCleaner:
 
     def __init__(
         self, include_pos: tuple, exclude_entities: tuple,
         min_token_length: int=2, max_token_length: int=50,
-        extractors: Optional[list]=None) -> None:
+        extractors: Optional[list]=None,
+        config: Optional[dict]=None) -> None:
 
         self.include_pos = include_pos
         self.exclude_entities = exclude_entities
         self.min_token_length = min_token_length
         self.max_token_length = max_token_length
         self.extractors = extractors or []  # extractor.CountryExtractor(nlp, lower=True)
+
+        self.set_config(default_cleaner_config if config is None else config)
 
     @staticmethod
     def text_to_doc(text: str) -> spacy.tokens.doc.Doc:
@@ -75,6 +65,9 @@ class BaseCleaner:
 
         return doc
 
+    def set_config(self, config):
+        self.config = config
+
     def _apply_extractors(self, doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
         '''This updates the document to integrate information on tokens, e.g., names of countries.
         '''
@@ -89,10 +82,21 @@ class BaseCleaner:
         return tokens
 
     def get_tokens(self, text: str) -> list:
+        # Fix not properly parsed tokens.
+        if self.config['fix_fragmented_tokens']['use']:
+            text = corrector.recover_segmented_words(text, **self.config['fix_fragmented_tokens']['params'])
+
+        # Expand acronyms
+        text = expand_acronyms(text)
+
         doc = BaseCleaner.text_to_doc(text)
         doc = self._apply_extractors(doc)
 
-        return self._tokenize(doc)
+        token = self._tokenize(doc)
+
+        text = ' ' .join([token for token in text.split() if en_dict.check(token)])
+
+        return token
 
     def get_tokens_and_phrases(self, text: str) -> dict:
         doc = BaseCleaner.text_to_doc(text)
@@ -110,12 +114,21 @@ class BaseCleaner:
         )
 
     def _is_valid_token(self, token: spacy.tokens.token.Token) -> bool:
-        is_valid = token.ent_type_ not in self.exclude_entities
-        is_valid = is_valid and token.pos_ in self.include_pos
+        is_valid = token.is_alpha
         is_valid = is_valid and len(token) >= self.min_token_length
         is_valid = is_valid and len(token) <= self.max_token_length
-        is_valid = is_valid and token.is_alpha
-        is_valid = is_valid and token.lower_ not in stopwords.stopwords
+
+        # Check only for complex filters once the token passed the basic filters.
+        if is_valid:
+
+            if self.config['filter_by_pos']['use']:
+                is_valid = is_valid and token.pos_ in self.include_pos
+
+            if self.config['filter_by_entities']['use']:
+                is_valid = token.ent_type_ not in self.exclude_entities
+
+            if self.config['filter_stopwords']['use']:
+                is_valid = is_valid and token.lower_ not in stopwords.stopwords
 
         return is_valid
 
@@ -349,56 +362,3 @@ class CorpusCleaner:
                 doc = dictionary.doc2bow(doc)
 
             yield doc
-
-# General Text Processors
-
-def recover_segmented_words(raw_input: str, max_len: int=5) -> str:
-    '''This algorithm processes and input text to detect and fix any malformed words.
-
-    Example:
-        input: "million p rote c te d   by u n h c r Of the world's displaced"
-        output: "million protected by unhcr Of the world's displaced"
-
-    '''
-    MAX_LEN = max_len
-
-    alpha_streak = 0
-    word_streak = 0
-    val_span = ''
-    temp_span = ''
-    ends_space = False
-    spaces = {' ', '\n', '\t'}
-
-    # Handle plural form of acronyms, e.g., IDPs -> IDP
-    ss = re.sub(r'(\W[A-Z]{2,})(s)(\W)', r'\1\3', raw_input)
-
-    text = ''
-
-    for i in ss:
-        if i.isalpha():
-            alpha_streak += 1
-            temp_span += i
-            ends_space = False
-        else:
-            if (alpha_streak and alpha_streak <= MAX_LEN) or (val_span and ends_space):
-                if i in spaces:
-                    val_span += temp_span + i
-                    word_streak += 1
-                    temp_span = ''
-                    ends_space = True  # Speeds up processing vs. using val_span[-1].isspace()!
-                    alpha_streak = 0
-                    continue
-
-            if word_streak >= 2:
-                text += ' '.join(wordninja.split(''.join(val_span.split())))
-                text += ' ' + temp_span + i
-            else:
-                text += val_span + temp_span + i
-
-            word_streak = 0
-            temp_span = ''
-            val_span = ''
-            ends_space = False
-            alpha_streak = 0
-
-    return text
