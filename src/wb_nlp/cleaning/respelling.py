@@ -1,29 +1,30 @@
 # Actual service dependencies
-from enchant.checker import SpellChecker
-from enchant import Dict
 import itertools
-
 import os
-import numpy as np
-import pandas as pd
 import re
 import wordninja
+import numpy as np
+import pandas as pd
 
-from wb_nlp.cleaning.stopwords import stopwords
+from enchant.checker import SpellChecker
+from enchant import Dict
+from joblib import Memory
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.metrics.distance import edit_distance
 from scipy.stats import rankdata
 
-# Setup caching mechanism for speedup. Take note that `get_suggestions` using enchant is quite slow (~75% of the `cached_infer_correct_word` function).
+from wb_nlp.cleaning.stopwords import stopwords
 from wb_nlp.ops.cache_utils import redis_cacher
-from joblib import Memory
+
+# Setup caching mechanism for speedup. Take note that `get_suggestions` using enchant is quite slow (~75% of the `cached_infer_correct_word` function).
 
 USE_JOBLIB_MEMORY = False
 
 if USE_JOBLIB_MEMORY:
-    respeller_cache_location = "/dev/shm/respeller-cachedir"
-    respeller_cache = Memory(respeller_cache_location, verbose=0)
+    RESPELLER_CACHE_LOCATION = "/dev/shm/respeller-cachedir"
+    respeller_cache = Memory(RESPELLER_CACHE_LOCATION, verbose=0)
 
     cache_decorator = respeller_cache.cache
 else:
@@ -37,7 +38,7 @@ en_dict = Dict("en_US")
 
 @cache_decorator
 def get_suggestions(word, **kwargs):
-    return en_dict.suggest(word)
+    return en_dict.suggest(word, **kwargs)
 
 
 # @cache_decorator
@@ -46,7 +47,7 @@ def get_suggestions(word, **kwargs):
 #     return en_dict.check(word)
 
 
-def morph_word(word, **kwargs):
+def morph_word(word):
     # word = word.replace(' ', '')  # Check if compound word suggestion matches the misspelled word
     # Perform this opperation to add more robustness to the matching
     m_word = word + "".join(sorted(word))
@@ -89,12 +90,12 @@ def cached_infer_correct_word(
             m_candidates = [morph_word(c.lower()) for c in candidates]
 
             tfidf = TfidfVectorizer(analyzer="char", ngram_range=(2, 4))
-            candX = tfidf.fit_transform(m_candidates)
-            wordX = tfidf.transform([m_word])
+            cand_X = tfidf.fit_transform(m_candidates)
+            word_X = tfidf.transform([m_word])
 
             r = 1.0 / rankdata([edit_distance(m_word, x) for x in m_candidates])
 
-            sim = cosine_similarity(candX, wordX)
+            sim = cosine_similarity(cand_X, word_X)
             sim_r = sim * r.reshape(-1, 1) * suggest_score.reshape(-1, 1)
 
             sim_ind = sim_r.argmax()
