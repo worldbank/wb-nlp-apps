@@ -6,7 +6,7 @@ from wb_nlp.cleaning.respelling import Respeller, OptimizedSpellChecker
 
 # General Text Processors
 spell_checker = OptimizedSpellChecker('en_US')
-respeller = Respeller()
+respeller = Respeller(dictionary_file=None, spell_threshold=0.25, allow_proper=True, spell_cache=None)
 
 
 def fix_spellings(tokens: list) -> list:

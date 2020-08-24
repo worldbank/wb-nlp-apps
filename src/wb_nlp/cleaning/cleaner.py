@@ -78,7 +78,7 @@ class BaseCleaner:
 
         return tokens
 
-    def get_tokens(self, text: str) -> list:
+    def get_clean_tokens(self, text: str) -> list:
         # Fix not properly parsed tokens.
         if self.config['fix_fragmented_tokens']['use']:
             text = corrector.recover_segmented_words(text, **self.config['fix_fragmented_tokens']['params'])
@@ -98,6 +98,9 @@ class BaseCleaner:
             tokens = corrector.fix_spellings(tokens)
 
         return tokens
+
+    def get_clean_text(self, text: str) -> str:
+        return ' '.join(self.get_clean_tokens(text))
 
     def get_tokens_and_phrases(self, text: str) -> dict:
         doc = BaseCleaner.text_to_doc(text)
@@ -147,10 +150,12 @@ class LDACleaner(BaseCleaner):
     ]
 
     LDA_EXCLUDE_ENT_TYPE = [
-        'GPE', 'COUNTRY', 'PERSON','ORG',
-        'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY',
-        'ORDINAL',
-        'CARDINAL',
+        'GPE', 'COUNTRY',  # Countries, cities, states
+        'PERSON','ORG',  # Persons and organizations
+        'DATE', 'TIME',  # Tomorrow, today, 10am, etc.
+        'PERCENT', 'MONEY', 'QUANTITY',  # Words related to amounts and money
+        'ORDINAL',  # first, second, etc.
+        'CARDINAL',  # Other numerals
     ]
 
     def __init__(

@@ -112,10 +112,19 @@ class Respeller:
     to efficiently cache data for parallel computing.
     '''
 
-    def __init__(self, dictionary_file=None, spell_threshold=0.25, spell_cache=None):
+    def __init__(self, dictionary_file=None, spell_threshold=0.25, allow_proper=False, spell_cache=None):
+        '''This respelling module tries to recover some misspelled words using enchant and text mining methods.
+
+        Args:
+            allow_proper:
+                If set to True, this option allows suggestions that are proper nouns (first letter is capitalized).
+                This seems ok to use if entity-based and pos-tag-based filters have already been applied prior to the respelling.
+
+        '''
         self.spell_cache = spell_cache if spell_cache is not None else {}  # pd.Series()
         self.dictionary_file = dictionary_file
         self.spell_threshold = spell_threshold
+        self.allow_proper = allow_proper
         self.stopwords = set(stopwords)
 
         '''
@@ -131,7 +140,11 @@ class Respeller:
     def infer_correct_word(self, word, sim_thresh=0.0, print_log=False, min_len=3, use_suggest_score=True):
         if word not in self.spell_cache:
             # Implement internal caching as well since Memory is still slow due to its utilization of disk.
-            payload = cached_infer_correct_word(word, sim_thresh=sim_thresh, print_log=print_log, min_len=min_len, use_suggest_score=use_suggest_score, argument_hash=word)
+            payload = cached_infer_correct_word(
+                word, sim_thresh=sim_thresh, print_log=print_log,
+                min_len=min_len, use_suggest_score=use_suggest_score,
+                argument_hash=word)
+
             self.spell_cache[word] = payload
 
         return self.spell_cache[word]
@@ -139,7 +152,7 @@ class Respeller:
     def qualified_word(self, word: str) -> bool:
         is_valid = (
             (word not in stopwords) and
-            (not word[0].isupper()) and
+            ((not word[0].isupper()) or self.allow_proper) and
             len(word) > 2
         )
 
@@ -157,13 +170,13 @@ class Respeller:
             score = res['score']
 
             if correct_word and score > self.spell_threshold:
-                if correct_word.istitle():
+                if correct_word.istitle() and not self.allow_proper:
                     # If the respelling results to a `Title` word
                     # it implies that the word is a proper noun, therefore, omit.
                     unfixed_words.add(word)
                 else:
                     # Split and filter since some words are compound terms.
-                    respelled_set[word] = [i for i in correct_word.split() if self.qualified_word(i)]
+                    respelled_set[word] = [i.lower() for i in correct_word.split() if self.qualified_word(i)]
 
                     if not return_tokens_as_list:
                         respelled_set[word] = ' '.join(respelled_set[word])
