@@ -82,7 +82,7 @@ class BaseCleaner:
     def get_clean_tokens(self, text: str) -> list:
         # Fix not properly parsed tokens.
         if self.config['cleaner']['fix_fragmented_tokens']['use']:
-            text = corrector.recover_segmented_words(text, **self.config['cleaner']['fix_fragmented_tokens']['params'])
+            text = self.spelling_model.recover_segmented_words(text, **self.config['cleaner']['fix_fragmented_tokens']['params'])
 
         if self.config['cleaner']['expand_acronyms']['use']:
             # Expand acronyms

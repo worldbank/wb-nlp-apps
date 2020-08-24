@@ -33,7 +33,7 @@ en_dict = Dict('en_US')
 
 
 @cache_decorator
-def get_suggestions(word, **kwargs):
+def get_suggestions(word):
     return en_dict.suggest(word)
 
 
@@ -176,7 +176,9 @@ class Respeller:
                     unfixed_words.add(word)
                 else:
                     # Split and filter since some words are compound terms.
-                    respelled_set[word] = [i.lower() for i in correct_word.split() if self.qualified_word(i)]
+                    respelled_set[word] = [
+                        i.lower() for i in correct_word.split()
+                        if self.qualified_word(i)]
 
                     if not return_tokens_as_list:
                         respelled_set[word] = ' '.join(respelled_set[word])
