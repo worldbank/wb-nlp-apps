@@ -4,7 +4,7 @@
     // https://code.visualstudio.com/docs/remote/devcontainerjson-reference
 	"dockerComposeFile": ["../docker-compose.yml"],
 	"service": "dev",
-	"runServices": ["dev", "web", "php", "tika"],
+	"runServices": ["dev", "web", "php", "tika", "redis"],
 	"workspaceFolder": "/workspace",
 
 	// Set *default* container specific settings.json values on container create.

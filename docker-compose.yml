@@ -45,6 +45,9 @@ services:
   tika:
     image: apache/tika:latest
 
+  redis:
+    image: redis:latest
+
   # nlp-app-mongodb:
   #   image: mongo:latest
   #   environment:

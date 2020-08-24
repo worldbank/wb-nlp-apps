@@ -8,7 +8,7 @@ dependencies:
   - _libgcc_mutex=0.1
   - _openmp_mutex=4.5
   - alabaster=0.7.12
-  - altair=4.1.0
+  - altair=3.2.0
   - argon2-cffi=20.1.0
   - astroid=2.4.2
   - attrs=19.3.0
@@ -26,13 +26,11 @@ dependencies:
   - boto=2.49.0
   - brotlipy=0.7.0
   - bs4=4.9.1
-  - bz2file=0.98
-  - c-ares=1.16.1
   - ca-certificates=2020.6.24
   - cachetools=4.1.1
   - catalogue=1.0.0
   - certifi=2020.6.20
-  - cffi=1.14.0
+  - cffi=1.14.1
   - chardet=3.0.4
   - click=7.1.2
   - cloudpickle=1.5.0
@@ -45,11 +43,11 @@ dependencies:
   - cython=0.29.21
   - cython-blis=0.4.1
   - cytoolz=0.10.1
-  - dash=1.14.0
-  - dash-core-components=1.10.2
-  - dash-html-components=1.0.3
-  - dash-renderer=1.6.0
-  - dash-table=4.9.0
+  - dash=1.4.1
+  - dash-core-components=1.3.1
+  - dash-html-components=1.0.1
+  - dash-renderer=1.1.2
+  - dash-table=4.4.1
   - dask=2.20.0
   - dask-core=2.20.0
   - dbus=1.13.16
@@ -68,21 +66,19 @@ dependencies:
   - flask-compress=1.5.0
   - fontconfig=2.13.0
   - freetype=2.10.2
-  - fsspec=0.7.4
+  - fsspec=0.8.0
   - future=0.18.2
   - gensim=3.8.3
   - gitdb=4.0.5
   - gitflow=0.4.1
-  - gitpython=3.1.7
+  - gitpython=3.1.3
   - glib=2.65.0
-  - google-api-core=1.22.0
+  - google-api-core=1.17.0
   - google-auth=1.20.1
-  - google-cloud-core=1.4.1
-  - google-cloud-storage=1.30.0
-  - google-crc32c=1.0.0
-  - google-resumable-media=0.7.0
+  - google-cloud-core=1.3.0
+  - google-cloud-storage=1.28.1
+  - google-resumable-media=0.5.1
   - googleapis-common-protos=1.51.0
-  - grpcio=1.31.0
   - gst-plugins-base=1.14.0
   - gstreamer=1.14.0
   - heapdict=1.0.1
@@ -94,7 +90,7 @@ dependencies:
   - importlib_metadata=1.7.0
   - iniconfig=1.0.1
   - intel-openmp=2020.1
-  - ipykernel=5.3.0
+  - ipykernel=5.3.4
   - ipython=7.16.1
   - ipython-autotime=0.1
   - ipython_genutils=0.2.0
@@ -104,43 +100,40 @@ dependencies:
   - jedi=0.17.1
   - jinja2=2.11.2
   - jmespath=0.10.0
-  - joblib=0.15.1
+  - joblib=0.16.0
   - jpeg=9b
   - json5=0.9.5
-  - jsonschema=3.2.0
-  - jupyter_client=6.1.3
+  - jsonschema=3.0.2
+  - jupyter_client=6.1.6
   - jupyter_core=4.6.3
   - jupyterlab=2.1.5
-  - jupyterlab_server=1.1.5
+  - jupyterlab_server=1.2.0
   - kiwisolver=1.2.0
   - lazy-object-proxy=1.4.3
   - lcms2=2.11
   - ld_impl_linux-64=2.33.1
   - libblas=3.8.0
   - libcblas=3.8.0
-  - libcrc32c=1.1.1
   - libedit=3.1.20191231
   - libffi=3.3
   - libgcc-ng=9.1.0
   - libgfortran-ng=7.3.0
   - libgomp=9.3.0
   - liblapack=3.8.0
-  - libopenblas=0.3.10
   - libpng=1.6.37
   - libprotobuf=3.12.4
   - libsodium=1.0.18
   - libstdcxx-ng=9.1.0
   - libtiff=4.1.0
   - libuuid=1.0.3
-  - libwebp-base=1.1.0
   - libxcb=1.14
   - libxml2=2.9.10
   - llvm-openmp=10.0.1
   - locket=0.2.0
   - lz4-c=1.9.2
   - markupsafe=1.1.1
-  - matplotlib=3.2.2
-  - matplotlib-base=3.2.2
+  - matplotlib=3.3.1
+  - matplotlib-base=3.3.1
   - mccabe=0.6.1
   - mistune=0.8.4
   - mkl=2020.1
@@ -149,7 +142,7 @@ dependencies:
   - mkl_random=1.1.1
   - more-itertools=8.4.0
   - msgpack-python=1.0.0
-  - murmurhash=1.0.0
+  - murmurhash=1.0.2
   - mypy=0.782
   - mypy_extensions=0.4.3
   - nbconvert=5.6.1
@@ -158,25 +151,25 @@ dependencies:
   - nbstripout=0.3.9
   - ncurses=6.2
   - nodeenv=1.4.0
-  - notebook=6.0.3
-  - numpy=1.18.5
-  - numpy-base=1.18.5
+  - notebook=6.1.1
+  - numpy=1.19.1
+  - numpy-base=1.19.1
   - olefile=0.46
   - openpyxl=3.0.4
   - openssl=1.1.1g
   - packaging=20.4
-  - pandoc=2.9.2.1
+  - pandoc=2.10.1
   - pandocfilters=1.4.2
   - parso=0.7.0
   - partd=1.1.0
-  - pathspec=0.8.0
+  - pathspec=0.7.0
   - patsy=0.5.1
   - pbr=5.4.5
   - pcre=8.44
   - pexpect=4.8.0
   - pickleshare=0.7.5
   - pillow=7.2.0
-  - pip=20.1.1
+  - pip=20.2.2
   - plac=0.9.6
   - plotly=4.9.0
   - pluggy=0.13.1
@@ -204,8 +197,8 @@ dependencies:
   - pyscaffold=3.2.3
   - pysocks=1.7.1
   - pytest=6.0.1
-  - pytest-cov=2.10.0
-  - python=3.8.3
+  - pytest-cov=2.10.1
+  - python=3.8.5
   - python-dateutil=2.8.1
   - python_abi=3.8
   - pytz=2020.1
@@ -214,17 +207,18 @@ dependencies:
   - qt=5.9.7
   - readline=8.0
   - recommonmark=0.6.0
+  - redis-py=3.5.3
   - regex=2020.7.14
   - requests=2.24.0
   - retrying=1.3.3
   - rsa=4.6
   - s3transfer=0.3.3
   - scikit-learn=0.23.1
-  - scipy=1.5.0
+  - scipy=1.5.2
   - seaborn=0.10.1
   - seaborn-base=0.10.1
   - send2trash=1.5.0
-  - setuptools=47.3.1
+  - setuptools=49.6.0
   - sip=4.19.13
   - six=1.15.0
   - smart_open=2.1.0
@@ -232,7 +226,7 @@ dependencies:
   - snowballstemmer=2.0.0
   - sortedcontainers=2.2.2
   - soupsieve=2.0.1
-  - spacy=2.3.2
+  - spacy=2.3.1
   - spacy-model-en_core_web_sm=2.3.0
   - sphinxcontrib-applehelp=1.0.2
   - sphinxcontrib-devhelp=1.0.2
@@ -240,11 +234,11 @@ dependencies:
   - sphinxcontrib-jsmath=1.0.1
   - sphinxcontrib-qthelp=1.0.3
   - sphinxcontrib-serializinghtml=1.1.4
-  - sqlite=3.32.3
+  - sqlite=3.33.0
   - srsly=1.0.2
   - statsmodels=0.11.1
   - stevedore=3.2.0
-  - tblib=1.6.0
+  - tblib=1.7.0
   - terminado=0.8.3
   - testpath=0.4.4
   - thinc=7.4.1
@@ -255,12 +249,12 @@ dependencies:
   - toolz=0.10.0
   - tornado=6.0.4
   - tox=3.19.0
-  - tqdm=4.47.0
+  - tqdm=4.48.2
   - traitlets=4.3.3
   - typed-ast=1.4.1
   - typing_extensions=3.7.4.2
-  - urllib3=1.25.9
-  - wasabi=0.7.0
+  - urllib3=1.25.10
+  - wasabi=0.7.1
   - wcwidth=0.2.5
   - webencodings=0.5.1
   - werkzeug=1.0.1
@@ -290,6 +284,7 @@ dependencies:
     - enum-compat==0.0.3
     - identify==1.4.21
     - ipywidgets==7.5.1
+    - nltk==3.5
     - pandas==0.25.3
     - pathtools==0.1.2
     - pipx==0.15.4.0
@@ -307,5 +302,5 @@ dependencies:
     - virtualenv==20.0.26
     - watchdog==0.10.3
     - widgetsnbextension==3.5.1
+    - wordninja==2.0.0
     - wrapt==1.12.1
-
