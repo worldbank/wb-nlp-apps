@@ -158,12 +158,12 @@ class Respeller:
 
         return is_valid
 
-    def infer_correct_words(self, words: list, return_tokens_as_list: bool) -> [set, dict]:
+    def infer_correct_words(self, words: list, return_tokens_as_list: bool, infer_correct_word_params: dict) -> [set, dict]:
         respelled_set = {}
         unfixed_words = set([])
 
         for ew in words:
-            res = self.infer_correct_word(ew)
+            res = self.infer_correct_word(ew, **infer_correct_word_params)
 
             word = res['word']
             correct_word = res['correct_word']

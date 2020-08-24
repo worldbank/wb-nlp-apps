@@ -9,7 +9,7 @@ from gensim.utils import simple_preprocess
 from typing import Callable, Generator, Optional
 
 from wb_nlp.cleaning import stopwords, corrector
-from wb_nlp.config import default_cleaner_config
+from wb_nlp import config
 from wb_nlp.extraction import extractor as extractor
 from wb_nlp.extraction import phrase as phrase
 
@@ -27,10 +27,9 @@ def expand_acronyms(text: str) -> str:
 class BaseCleaner:
 
     def __init__(
-        self, include_pos: tuple, exclude_entities: tuple,
+        self, config: dict, include_pos: tuple, exclude_entities: tuple,
         min_token_length: int=2, max_token_length: int=50,
-        extractors: Optional[list]=None,
-        config: Optional[dict]=None) -> None:
+        extractors: Optional[list]=None) -> None:
 
         self.include_pos = include_pos
         self.exclude_entities = exclude_entities
@@ -38,7 +37,9 @@ class BaseCleaner:
         self.max_token_length = max_token_length
         self.extractors = extractors or []  # extractor.CountryExtractor(nlp, lower=True)
 
-        self.set_config(default_cleaner_config if config is None else config)
+        self.set_config(config)
+
+        self.spelling_model = corrector.SpellingModels(config)
 
     @staticmethod
     def text_to_doc(text: str) -> spacy.tokens.doc.Doc:
@@ -80,22 +81,22 @@ class BaseCleaner:
 
     def get_clean_tokens(self, text: str) -> list:
         # Fix not properly parsed tokens.
-        if self.config['fix_fragmented_tokens']['use']:
-            text = corrector.recover_segmented_words(text, **self.config['fix_fragmented_tokens']['params'])
+        if self.config['cleaner']['fix_fragmented_tokens']['use']:
+            text = corrector.recover_segmented_words(text, **self.config['cleaner']['fix_fragmented_tokens']['params'])
 
-        if self.config['expand_acronyms']['use']:
+        if self.config['cleaner']['expand_acronyms']['use']:
             # Expand acronyms
             text = expand_acronyms(text)
 
         doc = BaseCleaner.text_to_doc(text)
 
-        if self.config['tag_whitelisted_entities']['use']:
+        if self.config['cleaner']['tag_whitelisted_entities']['use']:
             doc = self._apply_extractors(doc)
 
         tokens = self._tokenize(doc)
 
-        if self.config['correct_misspelling']['use']:
-            tokens = corrector.fix_spellings(tokens)
+        if self.config['cleaner']['correct_misspelling']['use']:
+            tokens = self.spelling_model.fix_spellings(tokens)
 
         return tokens
 
@@ -125,13 +126,13 @@ class BaseCleaner:
         # Check only for complex filters once the token passed the basic filters.
         if is_valid:
 
-            if self.config['filter_by_pos']['use']:
+            if self.config['cleaner']['filter_by_pos']['use']:
                 is_valid = is_valid and token.pos_ in self.include_pos
 
-            if self.config['filter_by_entities']['use']:
+            if self.config['cleaner']['filter_by_entities']['use']:
                 is_valid = token.ent_type_ not in self.exclude_entities
 
-            if self.config['filter_stopwords']['use']:
+            if self.config['cleaner']['filter_stopwords']['use']:
                 is_valid = is_valid and token.lower_ not in stopwords.stopwords
 
         return is_valid
@@ -159,11 +160,12 @@ class LDACleaner(BaseCleaner):
     ]
 
     def __init__(
-        self, min_token_length: int=2,
+        self, config: dict, min_token_length: int=2,
         max_token_length: int=50,
         extractors: Optional[list]=None) -> None:
 
         super(LDACleaner, self).__init__(
+            config,
             LDACleaner.LDA_INCLUDE_POS_TAGS,
             LDACleaner.LDA_EXCLUDE_ENT_TYPE,
             min_token_length,
@@ -193,11 +195,12 @@ class Word2VecCleaner(BaseCleaner):
     ]
 
     def __init__(
-        self, min_token_length: int=2,
+        self, config: dict, min_token_length: int=2,
         max_token_length: int=50,
         extractors: Optional[list]=None) -> None:
 
         super(Word2VecCleaner, self).__init__(
+            config,
             Word2VecCleaner.EMBEDDING_INCLUDE_POS_TAGS,
             Word2VecCleaner.EMBEDDING_EXCLUDE_ENT_TYPE,
             min_token_length,

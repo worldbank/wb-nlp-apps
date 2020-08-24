@@ -5,21 +5,27 @@ from enchant import Dict
 from wb_nlp.cleaning.respelling import Respeller, OptimizedSpellChecker
 
 # General Text Processors
-spell_checker = OptimizedSpellChecker('en_US')
-respeller = Respeller(dictionary_file=None, spell_threshold=0.25, allow_proper=True, spell_cache=None)
+class SpellingModels:
 
+    def __init__(self, config: dict):
+        self.config = config
 
-def fix_spellings(tokens: list) -> list:
-    spell_checker.set_tokens(tokens)
+        self.spell_checker = OptimizedSpellChecker(**self.config['spell_checker']['__init__'])
+        self.respeller = Respeller(**self.config['respeller']['__init__'])
 
-    unfixed_tokens, fixed_tokens_map = respeller.infer_correct_words(
-        [err_word.word for err_word in spell_checker],
-        return_tokens_as_list=True)
+    def fix_spellings(self, tokens: list) -> list:
+        self.spell_checker.set_tokens(tokens)
 
-    tokens = list(itertools.chain.from_iterable(
-        [fixed_tokens_map.get(token, [token]) for token in tokens if token not in unfixed_tokens]))
+        unfixed_tokens, fixed_tokens_map = self.respeller.infer_correct_words(
+            [err_word.word for err_word in self.spell_checker],
+            infer_correct_word_params=self.config['respeller']['infer_correct_word'],
+            **self.config['respeller']['infer_correct_words'],
+        )
 
-    return tokens
+        tokens = list(itertools.chain.from_iterable(
+            [fixed_tokens_map.get(token, [token]) for token in tokens if token not in unfixed_tokens]))
+
+        return tokens
 
 
 def recover_segmented_words(raw_input: str, max_len: int=5) -> str:
