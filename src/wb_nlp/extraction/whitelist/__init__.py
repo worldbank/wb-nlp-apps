@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
+from wb_nlp.dir_manager import get_data_dir
 
-WHITELIST_PATH = os.path.dirname(os.path.abspath(__file__))
+WHITELIST_PATH = get_data_dir('whitelists', 'extraction')
 
 
 def get_country_csv():
