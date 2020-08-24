@@ -5,8 +5,6 @@ import pickle
 import re
 import spacy
 import warnings
-import wordninja
-from enchant import Dict
 from gensim.utils import simple_preprocess
 from typing import Callable, Generator, Optional
 
@@ -19,7 +17,6 @@ from wb_nlp.extraction import phrase as phrase
 POS_TAGS = ['POS', 'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ', 'NOUN', 'NUM', 'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X', 'SPACE']
 
 nlp = spacy.load('en_core_web_sm')
-en_dict = Dict('en_US')
 
 def expand_acronyms(text: str) -> str:
     # Parse acronyms here and replace instances.
@@ -86,17 +83,22 @@ class BaseCleaner:
         if self.config['fix_fragmented_tokens']['use']:
             text = corrector.recover_segmented_words(text, **self.config['fix_fragmented_tokens']['params'])
 
-        # Expand acronyms
-        text = expand_acronyms(text)
+        if self.config['expand_acronyms']['use']:
+            # Expand acronyms
+            text = expand_acronyms(text)
 
         doc = BaseCleaner.text_to_doc(text)
-        doc = self._apply_extractors(doc)
 
-        token = self._tokenize(doc)
+        if self.config['tag_whitelisted_entities']['use']:
+            doc = self._apply_extractors(doc)
 
-        text = ' ' .join([token for token in text.split() if en_dict.check(token)])
+        tokens = self._tokenize(doc)
 
-        return token
+        if self.config['correct_misspelling']['use']:
+
+            tokens = [corrector.fix_spelling(token) for token in tokens]
+
+        return tokens
 
     def get_tokens_and_phrases(self, text: str) -> dict:
         doc = BaseCleaner.text_to_doc(text)

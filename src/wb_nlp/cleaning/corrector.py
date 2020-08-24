@@ -1,8 +1,14 @@
 import re
 import wordninja
+from enchant import Dict
 
 
 # General Text Processors
+en_dict = Dict('en_US')
+
+def fix_spelling(token: str) -> str:
+    return token
+
 
 def recover_segmented_words(raw_input: str, max_len: int=5) -> str:
     '''This algorithm processes and input text to detect and fix any malformed words.
