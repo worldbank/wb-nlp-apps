@@ -1,13 +1,25 @@
+import itertools
 import re
 import wordninja
 from enchant import Dict
-
+from wb_nlp.cleaning.respelling import Respeller, OptimizedSpellChecker
 
 # General Text Processors
-en_dict = Dict('en_US')
+spell_checker = OptimizedSpellChecker('en_US')
+respeller = Respeller()
 
-def fix_spelling(token: str) -> str:
-    return token
+
+def fix_spellings(tokens: list) -> list:
+    spell_checker.set_tokens(tokens)
+
+    unfixed_tokens, fixed_tokens_map = respeller.infer_correct_words(
+        [err_word.word for err_word in spell_checker],
+        return_tokens_as_list=True)
+
+    tokens = list(itertools.chain.from_iterable(
+        [fixed_tokens_map.get(token, [token]) for token in tokens if token not in unfixed_tokens]))
+
+    return tokens
 
 
 def recover_segmented_words(raw_input: str, max_len: int=5) -> str:

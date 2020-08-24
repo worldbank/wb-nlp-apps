@@ -111,14 +111,12 @@ class Respeller:
     Use https://joblib.readthedocs.io/en/latest/auto_examples/memory_basic_usage.html#sphx-glr-auto-examples-memory-basic-usage-py
     to efficiently cache data for parallel computing.
     '''
-    WORKERS = os.cpu_count() - 1
-    spell_cache = {}
 
     def __init__(self, dictionary_file=None, spell_threshold=0.25, spell_cache=None):
         self.spell_cache = spell_cache if spell_cache is not None else {}  # pd.Series()
         self.dictionary_file = dictionary_file
         self.spell_threshold = spell_threshold
-        self.stopwords = stopwords
+        self.stopwords = set(stopwords)
 
         '''
         TODO: Find a way to use an adaptive spell_threshold based on the length of the word.
@@ -131,19 +129,14 @@ class Respeller:
         pd.Series(self.spell_cache).to_csv(self.dictionary_file)
 
     def infer_correct_word(self, word, sim_thresh=0.0, print_log=False, min_len=3, use_suggest_score=True):
-        # if word not in self.spell_cache:
-        #     # Implement internal caching as well since Memory is still slow due to its utilization of disk.
-        #     payload = cached_infer_correct_word(word, sim_thresh=0.0, print_log=False, min_len=3, use_suggest_score=True, argument_hash=word)
-        #     self.spell_cache[word] = payload
+        if word not in self.spell_cache:
+            # Implement internal caching as well since Memory is still slow due to its utilization of disk.
+            payload = cached_infer_correct_word(word, sim_thresh=sim_thresh, print_log=print_log, min_len=min_len, use_suggest_score=use_suggest_score, argument_hash=word)
+            self.spell_cache[word] = payload
 
-        # return self.spell_cache[word]
+        return self.spell_cache[word]
 
-        payload = cached_infer_correct_word(word, sim_thresh=0.0, print_log=False, min_len=3, use_suggest_score=True, argument_hash=word)
-
-        return payload
-
-    def qualified_word(self, word):
-        stopwords = set(self.stopwords)
+    def qualified_word(self, word: str) -> bool:
         is_valid = (
             (word not in stopwords) and
             (not word[0].isupper()) and
@@ -152,14 +145,13 @@ class Respeller:
 
         return is_valid
 
-    def parallel_infer_correct_word(self, words, num_workers):
+    def infer_correct_words(self, words: list, return_tokens_as_list: bool) -> [set, dict]:
         respelled_set = {}
+        unfixed_words = set([])
 
-        respell_results = [self.infer_correct_word(ew) for ew in words]
+        for ew in words:
+            res = self.infer_correct_word(ew)
 
-        words = set([])
-
-        for res in respell_results:
             word = res['word']
             correct_word = res['correct_word']
             score = res['score']
@@ -168,14 +160,18 @@ class Respeller:
                 if correct_word.istitle():
                     # If the respelling results to a `Title` word
                     # it implies that the word is a proper noun, therefore, omit.
-                    words.add(word)
+                    unfixed_words.add(word)
                 else:
                     # Split and filter since some words are compound terms.
                     respelled_set[word] = [i for i in correct_word.split() if self.qualified_word(i)]
-            else:
-                words.add(word)
 
-        return words, respelled_set
+                    if not return_tokens_as_list:
+                        respelled_set[word] = ' '.join(respelled_set[word])
+
+            else:
+                unfixed_words.add(word)
+
+        return unfixed_words, respelled_set
 
 
 class OptimizedSpellChecker(SpellChecker):

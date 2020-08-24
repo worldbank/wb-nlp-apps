@@ -95,8 +95,7 @@ class BaseCleaner:
         tokens = self._tokenize(doc)
 
         if self.config['correct_misspelling']['use']:
-
-            tokens = [corrector.fix_spelling(token) for token in tokens]
+            tokens = corrector.fix_spellings(tokens)
 
         return tokens
 
