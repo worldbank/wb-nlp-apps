@@ -343,9 +343,9 @@ class CorpusCleaner:
 
         doc_idx = 0
 
-        for ix, fpath in enumerate(glob.glob(os.path.join(dir, f"*.{extension}"))):
+        for index, fpath in enumerate(glob.glob(os.path.join(dir, f"*.{extension}"))):
 
-            if self.process_prob < rands[ix]:
+            if self.process_prob < rands[index]:
                 continue
 
             fname = fpath.split("/")[-1]
@@ -362,8 +362,8 @@ class CorpusCleaner:
                     continue
 
             if file_hash not in self.clean_doc_cache:
-                with open(fpath, "rb") as fl:
-                    doc = fl.read().decode("utf-8", errors="ignore")
+                with open(fpath, "rb") as fl_rb:
+                    doc = fl_rb.read().decode("utf-8", errors="ignore")
                     text = cleaner(doc)
                     self.clean_doc_cache[file_hash] = text
 
@@ -388,7 +388,7 @@ class CorpusCleaner:
         self.reset()
 
         for cleaned_doc in self.__iter__():
-            doc = [text for text in transformer[cleaned_doc]]
+            doc = list(transformer[cleaned_doc])
 
             if dictionary is not None:
                 doc = dictionary.doc2bow(doc)
