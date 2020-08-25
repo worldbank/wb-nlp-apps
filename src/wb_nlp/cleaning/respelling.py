@@ -1,3 +1,5 @@
+"""This module handles the recovery of words that may have been misparsed or misspelled.
+"""
 # Actual service dependencies
 import itertools
 import os
@@ -18,7 +20,9 @@ from scipy.stats import rankdata
 from wb_nlp.cleaning.stopwords import stopwords
 from wb_nlp.ops.cache_utils import redis_cacher
 
-# Setup caching mechanism for speedup. Take note that `get_suggestions` using enchant is quite slow (~75% of the `cached_infer_correct_word` function).
+# Setup caching mechanism for speedup.
+# Take note that `get_suggestions` using enchant is
+# quite slow (~75% of the `cached_infer_correct_word` function).
 
 USE_JOBLIB_MEMORY = False
 
@@ -37,7 +41,17 @@ en_dict = Dict("en_US")
 
 
 @cache_decorator
-def get_suggestions(word, **kwargs):
+def get_suggestions(word: str, **kwargs) -> list:
+    """Wrapper the caches the result of enchant's suggest method.
+
+    Args:
+        word:
+            Word to check for suggestions.
+
+    Returns:
+        A list containing the most likely correct words based on enchant's dictionary.
+
+    """
     return en_dict.suggest(word, **kwargs)
 
 
@@ -47,7 +61,19 @@ def get_suggestions(word, **kwargs):
 #     return en_dict.check(word)
 
 
-def morph_word(word):
+def morph_word(word: str) -> str:
+    """Apply simple morphing of the word to improve robustness for checking similarity.
+
+    A derived token is created by concatenating the word and the sorted version of the word.
+
+    Args:
+        word:
+            Word to be morphed.
+
+    Returns:
+        The morphed word.
+
+    """
     # word = word.replace(' ', '')  # Check if compound word suggestion matches the misspelled word
     # Perform this opperation to add more robustness to the matching
     m_word = word + "".join(sorted(word))
@@ -57,8 +83,33 @@ def morph_word(word):
 
 @cache_decorator
 def cached_infer_correct_word(
-    word, sim_thresh=0.0, print_log=False, min_len=3, use_suggest_score=True, **kwargs
-):
+        word: str, sim_thresh: float = 0.0, print_log: bool = False,
+        min_len: int = 3, use_suggest_score: bool = True, **kwargs) -> dict:
+    """This method computes the inference score for the input word.
+
+    Args:
+        word:
+            This is the misspelled word that requires checking for fix.
+        sim_thresh:
+            Similarity threshold to use to check if the candidate is
+            acceptable.
+            The similarity is derived based on character similarity
+            and rank based on enchant's suggestions.
+        print_log:
+            Option to print the payload.
+        min_len:
+            Minimum length of token to check.
+            If less than the `min_len`, don't attempt to fix.
+        use_suggest_score:
+            Flag whether to use the rank of enchant's suggestion in
+            computing for the similarity score.
+        **kwargs:
+            Needed for caching (`argument_hash`)
+
+    Returns:
+        A dictionary containing the information of the inference.
+
+    """
     # To collect cached data, execute the line below.
     # redis.hgetall('cleaner/respelling/cached_infer_correct_word')
     correct_word = None
@@ -90,13 +141,15 @@ def cached_infer_correct_word(
             m_candidates = [morph_word(c.lower()) for c in candidates]
 
             tfidf = TfidfVectorizer(analyzer="char", ngram_range=(2, 4))
-            cand_X = tfidf.fit_transform(m_candidates)
-            word_X = tfidf.transform([m_word])
+            cand_vecs = tfidf.fit_transform(m_candidates)
+            word_vec = tfidf.transform([m_word])
 
-            r = 1.0 / rankdata([edit_distance(m_word, x) for x in m_candidates])
+            rank_score = 1.0 / rankdata([edit_distance(m_word, x)
+                                         for x in m_candidates])
 
-            sim = cosine_similarity(cand_X, word_X)
-            sim_r = sim * r.reshape(-1, 1) * suggest_score.reshape(-1, 1)
+            sim = cosine_similarity(cand_vecs, word_vec)
+            sim_r = sim * \
+                rank_score.reshape(-1, 1) * suggest_score.reshape(-1, 1)
 
             sim_ind = sim_r.argmax()
             score = sim_r[sim_ind]
@@ -107,7 +160,7 @@ def cached_infer_correct_word(
 
     if print_log:
         print(sim_r)
-        print(r)
+        print(rank_score)
         print(word)
         print(candidates)
         print(candidates[sim_ind])
@@ -124,19 +177,18 @@ class Respeller:
     to efficiently cache data for parallel computing.
     """
 
-    def __init__(
-        self,
-        dictionary_file=None,
-        spell_threshold=0.25,
-        allow_proper=False,
-        spell_cache=None,
-    ):
-        """This respelling module tries to recover some misspelled words using enchant and text mining methods.
+    def __init__(self, dictionary_file=None, spell_threshold=0.25,
+                 allow_proper=False, spell_cache=None):
+        """This respelling module tries to recover some misspelled words.
+        This is done using enchant and text mining methods.
 
         Args:
             allow_proper:
-                If set to True, this option allows suggestions that are proper nouns (first letter is capitalized).
-                This seems ok to use if entity-based and pos-tag-based filters have already been applied prior to the respelling.
+                If set to True, this option allows suggestions that are
+                proper nouns (first letter is capitalized).
+
+                This seems ok to use if entity-based and pos-tag-based filters
+                have already been applied prior to the respelling.
 
         """
         self.spell_cache = spell_cache if spell_cache is not None else {}  # pd.Series()
@@ -153,13 +205,43 @@ class Respeller:
             self.spell_cache = pd.read_csv(self.dictionary_file)
 
     def save_spell_cache(self):
+        """Option to save the local cache to a file.
+
+        Make sure that the target file is not None (default).
+
+        """
+        assert self.dictionary_file is not None
         pd.Series(self.spell_cache).to_csv(self.dictionary_file)
 
     def infer_correct_word(
-        self, word, sim_thresh=0.0, print_log=False, min_len=3, use_suggest_score=True
-    ):
+            self, word, sim_thresh=0.0, print_log=False,
+            min_len=3, use_suggest_score=True):
+        """Try to infer the correct word for a single misspelled word.
+
+        Args:
+            word:
+                This is the misspelled word that requires checking for fix.
+            sim_thresh:
+                Similarity threshold to use to check if the candidate is
+                acceptable.
+                The similarity is derived based on character similarity
+                and rank based on enchant's suggestions.
+            print_log:
+                Option to print the payload.
+            min_len:
+                Minimum length of token to check.
+                If less than the `min_len`, don't attempt to fix.
+            use_suggest_score:
+                Flag whether to use the rank of enchant's suggestion in
+                computing for the similarity score.
+
+        Returns:
+            A dictionary containing the payload for the word.
+
+        """
         if word not in self.spell_cache:
-            # Implement internal caching as well since Memory is still slow due to its utilization of disk.
+            # Implement internal caching as well since Memory is still slow
+            # due to its utilization of disk.
             payload = cached_infer_correct_word(
                 word,
                 sim_thresh=sim_thresh,
@@ -174,6 +256,19 @@ class Respeller:
         return self.spell_cache[word]
 
     def qualified_word(self, word: str) -> bool:
+        """Checks for the validity of the word.
+
+        Filters such as stopwords, title case, and length are applied
+        to check of the candidate word is actually valid.
+
+        Args:
+            word:
+                Word to be tested for validity.
+
+        Returns:
+            The validity of the word.
+
+        """
         is_valid = (
             (word not in stopwords)
             and ((not word[0].isupper()) or self.allow_proper)
@@ -183,13 +278,34 @@ class Respeller:
         return is_valid
 
     def infer_correct_words(
-        self, words: list, return_tokens_as_list: bool, infer_correct_word_params: dict
-    ) -> [set, dict]:
+            self, words: list, return_tokens_as_list: bool,
+            infer_correct_word_params: dict) -> [set, dict]:
+        """Applies the inference of correct words to a list of input words.
+
+        Args:
+            words:
+                List of misspelled tokens found using the spell checker.
+            return_tokens_as_list:
+                Option whether to return a list of list or list of strings.
+                list of list handles the case for compound word suggestions.
+                The value for this option is dependent on the use-case.
+            infer_correct_word_params:
+                This contains the parameters that controls how the
+                `infer_correct_word` method behaves.
+                Ideally, this should be defined in the config files.
+
+        Returns:
+            - A set object containing the misspelled words that were not fixed.
+            - A dictionary with key corresponding to the misspelled word
+                and value the fixed word.
+
+        """
         respelled_set = {}
         unfixed_words = set([])
 
-        for ew in words:
-            res = self.infer_correct_word(ew, **infer_correct_word_params)
+        for error_words in words:
+            res = self.infer_correct_word(
+                error_words, **infer_correct_word_params)
 
             word = res["word"]
             correct_word = res["correct_word"]
@@ -225,17 +341,18 @@ class OptimizedSpellChecker(SpellChecker):
 
     dict_words = set()
 
-    def __init__(
-        self, lang=None, text=None, tokenize=None, chunkers=None, filters=None
-    ):
+    def __init__(self, lang=None, text=None,
+                 tokenize=None, chunkers=None, filters=None):
         super().__init__(
             lang=lang, text=text, tokenize=tokenize, chunkers=chunkers, filters=filters
         )
 
     def set_tokens(self, tokens):
         """Set the text to be spell-checked.
+
         This method must be called, or the 'text' argument supplied
         to the constructor, before calling the 'next()' method.
+
         """
         self._tokens = enumerate(tokens)
 
@@ -276,6 +393,11 @@ class OptimizedSpellChecker(SpellChecker):
 
 # General Text Processors
 class SpellingModels:
+    """
+    This class holds the needed methods to abstract the fixing of
+    misspelled and fragmented words.
+    """
+
     def __init__(self, config: dict):
         self.config = config
 
@@ -285,6 +407,17 @@ class SpellingModels:
         self.respeller = Respeller(**self.config["respeller"]["__init__"])
 
     def fix_spellings(self, tokens: list) -> list:
+        """This is the main method that handles the fixing of misspelled words.
+
+        Args:
+            tokens:
+                Input tokens that have already been filtered and tokenized.
+
+        Returns:
+            A list of tokens with unrecoverable misspelled words removed.
+            Misspelled words having a viable fix are replaced.
+
+        """
         self.spell_checker.set_tokens(tokens)
 
         unfixed_tokens, fixed_tokens_map = self.respeller.infer_correct_words(
@@ -333,14 +466,13 @@ class SpellingModels:
                 temp_span += i
                 ends_space = False
             else:
-                if (alpha_streak and alpha_streak <= max_len) or (
-                    val_span and ends_space
-                ):
+                if (alpha_streak and alpha_streak <= max_len) or (val_span and ends_space):
                     if i in spaces:
                         val_span += temp_span + i
                         word_streak += 1
                         temp_span = ""
-                        ends_space = True  # Speeds up processing vs. using val_span[-1].isspace()!
+                        # Speeds up processing vs. using val_span[-1].isspace()!
+                        ends_space = True
                         alpha_streak = 0
                         continue
 
