@@ -22,6 +22,7 @@ POS_TAGS = ["POS", "ADJ", "ADP", "ADV", "AUX", "CONJ", "CCONJ", "DET", "INTJ", "
             "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X", "SPACE", ]
 
 nlp = spacy.load("en_core_web_sm")
+nlp.Defaults.stop_words |= set(stopwords.stopwords)
 
 
 def expand_acronyms(text: str) -> str:
@@ -144,7 +145,7 @@ class BaseCleaner:
                 is_valid = token.ent_type_ not in self.exclude_entities
 
             if self.config["cleaner"]["filter_stopwords"]["use"]:
-                is_valid = is_valid and token.lower_ not in stopwords.stopwords
+                is_valid = is_valid and not token.is_stop
 
         return is_valid
 
@@ -404,12 +405,12 @@ if __name__ == "__main__":
         We need to do something about the linear regresion.
         The bayesian information is not liot here."""
     )
+    print(t)
 
     assert t == [
         "hello",
         "world",
         "need",
-        "something",
         "linear",
         "regression",
         "bayesian",
