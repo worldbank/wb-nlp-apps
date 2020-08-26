@@ -21,7 +21,7 @@ from wb_nlp.extraction import phrase
 POS_TAGS = ["POS", "ADJ", "ADP", "ADV", "AUX", "CONJ", "CCONJ", "DET", "INTJ", "NOUN",
             "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X", "SPACE", ]
 
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_sm", disable=["parser"])
 nlp.Defaults.stop_words |= set(stopwords.stopwords)
 
 
@@ -82,7 +82,7 @@ class BaseCleaner:
 
     def _tokenize(self, doc: spacy.tokens.doc.Doc) -> list:
         tokens = [
-            token.lemma_ if token.lower_ != "data" else "data"
+            token.lemma_.lower() if token.lower_ != "data" else "data"
             for token in doc
             if self._is_valid_token(token)
         ]
@@ -139,10 +139,11 @@ class BaseCleaner:
         if is_valid:
 
             if self.config["cleaner"]["filter_by_pos"]["use"]:
-                is_valid = is_valid and token.pos_ in self.include_pos
+                is_valid = is_valid and (token.pos_ in self.include_pos)
 
             if self.config["cleaner"]["filter_by_entities"]["use"]:
-                is_valid = token.ent_type_ not in self.exclude_entities
+                is_valid = is_valid and (
+                    token.ent_type_ not in self.exclude_entities)
 
             if self.config["cleaner"]["filter_stopwords"]["use"]:
                 is_valid = is_valid and not token.is_stop
