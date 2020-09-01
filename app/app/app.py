@@ -274,5 +274,6 @@ All code (except scrapers) in GitHub. See Methods and Tools.""")
 # def monitory_system_content(children):
 #     return dcc.Markdown(children)
 if __name__ == '__main__':
+    # https://community.plotly.com/t/dash-callbacks-are-not-async-handling-multiple-requests-and-callbacks-in-parallel/5848/3
     # gunicorn -b :8000 -w 2 --worker-class gevent --threads 8 app:server
     app.run_server(host='0.0.0.0', port=8000, debug=True)
