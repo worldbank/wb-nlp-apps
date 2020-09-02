@@ -44,17 +44,16 @@ nav = dbc.NavbarSimple(
     # , horizontal='end'
 )
 
+nav_link_style = {"padding-top": "5px", "padding-bottom": "5px"}
+
 vertical_nav = dbc.Nav(
     [
         dbc.NavItem(dbc.NavLink("INTRODUCTION", active=True,
-                                href="/intro", id='intro')),
+                                href="/intro", id='intro', style=nav_link_style)),
         dbc.NavItem(children=[
             dbc.NavLink(children=[
                 "CORPUS"
-                # dbc.Button(children=[
-                #     "CORPUS"
-                # ], id="collapse-button", className="mb-3")
-            ], href="/corpus", id='corpus'),
+            ], href="/corpus", id='corpus', style=nav_link_style),
             dbc.Collapse(
                 dbc.NavItem([
                     dbc.NavLink(children=[
@@ -74,19 +73,19 @@ vertical_nav = dbc.Nav(
             )
         ]),
         dbc.NavItem(dbc.NavLink("TOPIC COMPOSITION",
-                                href="/topic-composition", id='topic-composition')),
+                                href="/topic-composition", id='topic-composition', style=nav_link_style)),
         dbc.NavItem(dbc.NavLink("TOPIC PROFILES",
-                                href="/topic-profiles", id='topic-profiles')),
+                                href="/topic-profiles", id='topic-profiles', style=nav_link_style)),
         dbc.NavItem(dbc.NavLink("TOPIC TAXONOMY",
-                                href="/topic-taxonomy", id='topic-taxonomy')),
+                                href="/topic-taxonomy", id='topic-taxonomy', style=nav_link_style)),
         dbc.NavItem(dbc.NavLink("TOPIC RELATIONSHIPS",
-                                href="/topic-relationships", id='topic-relationships')),
+                                href="/topic-relationships", id='topic-relationships', style=nav_link_style)),
         dbc.NavItem(dbc.NavLink("WORD EMBEDDINGS",
-                                href="/word-embeddings", id='word-embeddings')),
+                                href="/word-embeddings", id='word-embeddings', style=nav_link_style)),
         dbc.NavItem(dbc.NavLink("SIMILARITY",
-                                href="/similarity", id='similarity')),
+                                href="/similarity", id='similarity', style=nav_link_style)),
         dbc.NavItem(dbc.NavLink("MONITORING SYSTEM",
-                                href="/monitory-system", id='monitory-system')),
+                                href="/monitory-system", id='monitory-system', style=nav_link_style)),
     ], pills=True,
     vertical=True,
 )
@@ -182,9 +181,11 @@ nav_ids = [
 
 # Nav callbacks
 @ app.callback(
-    [Output("content-panel", "children"), Output("collapse", "is_open")
-     ] + [Output(f"{i}", "active") for i in nav_ids],
-    [Input(i, 'n_clicks') for i in nav_ids] + [Input("url", "pathname")],
+    [
+        Output("content-panel", "children"),
+        Output("collapse", "is_open")
+    ] + [Output(f"{i}", "active") for i in nav_ids],
+    [Input("url", "pathname")],
     # [State("collapse", "is_open")],
 )
 def intro_content(
@@ -193,25 +194,27 @@ def intro_content(
     element = ""
     # https://dash.plotly.com/advanced-callbacks
     ctx = dash.callback_context
-    try:
-        nav_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    except IndexError:
-        nav_id = 'intro'
-
-    ctx_msg = json.dumps({
-        'states': ctx.states,
-        'triggered': ctx.triggered,
-        'inputs': ctx.inputs,
-    }, indent=2)
     pathname = ctx.inputs['url.pathname']
-    nav_id = pathname.split('/')[-1]
+    if pathname is None:
+        pathname = '/'
 
-    print(ctx_msg)
+    # try:
+    #     nav_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    # except IndexError:
+    #     nav_id = 'intro'
 
-    if nav_id == "topic-composition":
+    # ctx_msg = json.dumps({
+    #     'states': ctx.states,
+    #     'triggered': ctx.triggered,
+    #     'inputs': ctx.inputs,
+    # }, indent=2)
+
+    # print(ctx_msg)
+
+    if pathname == "/topic-composition":
         element = html.Iframe(
-            src=f'https://mahalla.avsolatorio.com', height="800px", width="100%")
-    elif nav_id == "corpus":
+            src='https://mahalla.avsolatorio.com', height="800px", width="100%")
+    elif pathname == "/corpus":
         element = dcc.Markdown("# This is a corpus page...")
     else:
         element = dcc.Markdown("""# Introduction
@@ -227,7 +230,7 @@ Explain purpose and main components of the “EXPLORE” section of the site.
 
 All code (except scrapers) in GitHub. See Methods and Tools.""")
 
-    is_corpus_open = nav_id == "corpus"
+    is_corpus_open = pathname.startswith("/corpus")
 
     outputs = [element, is_corpus_open] + \
         [pathname == f"/{i}" for i in nav_ids]
