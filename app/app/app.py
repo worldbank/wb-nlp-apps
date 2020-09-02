@@ -19,7 +19,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 
 import pandas as pd
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 
 app = dash.Dash(__name__, external_stylesheets=[
@@ -50,22 +50,28 @@ vertical_nav = dbc.Nav(
                                 href="/intro", id='intro')),
         dbc.NavItem(children=[
             dbc.NavLink(children=[
-                "CORPUS",
+                "CORPUS"
+                # dbc.Button(children=[
+                #     "CORPUS"
+                # ], id="collapse-button", className="mb-3")
             ], href="/corpus", id='corpus'),
-            dbc.NavItem([
-                dbc.NavLink(children=[
-                    "Sources and volume"
-                ], href="/corpus/sources-and-volume"),
-                dbc.NavLink(children=[
-                    "Geographic coverage"
-                ], href="/corpus/geographic-coverage"),
-                dbc.NavLink(children=[
-                    "Metadata and API"
-                ], href="/corpus/metadata-and-api"),
-                dbc.NavLink(children=[
-                    "Test corpus"
-                ], href="/corpus/test-corpus")
-            ], style=dict(float="right"))
+            dbc.Collapse(
+                dbc.NavItem([
+                    dbc.NavLink(children=[
+                        "Sources and volume"
+                    ], href="/corpus/sources-and-volume"),
+                    dbc.NavLink(children=[
+                        "Geographic coverage"
+                    ], href="/corpus/geographic-coverage"),
+                    dbc.NavLink(children=[
+                        "Metadata and API"
+                    ], href="/corpus/metadata-and-api"),
+                    dbc.NavLink(children=[
+                        "Test corpus"
+                    ], href="/corpus/test-corpus")
+                ], style=dict(float="right")),
+                id="collapse",
+            )
         ]),
         dbc.NavItem(dbc.NavLink("TOPIC COMPOSITION",
                                 href="/topic-composition", id='topic-composition')),
@@ -154,8 +160,20 @@ nav_ids = [
 ]
 
 
+@app.callback(
+    Output("collapse", "is_open"),
+    [Input("corpus", "n_clicks")],
+    [State("collapse", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
 # this callback uses the current pathname to set the active state of the
 # corresponding nav link to true, allowing users to tell see page they are on
+
+
 @app.callback(
     [Output(f"{i}", "active") for i in nav_ids],
     [Input("url", "pathname")],
@@ -199,7 +217,11 @@ def intro_content(
     element = ""
     # https://dash.plotly.com/advanced-callbacks
     ctx = dash.callback_context
-    nav_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    try:
+        nav_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    except IndexError:
+        nav_id = 'intro'
+
     # print(ctx)
 
     ctx_msg = json.dumps({
@@ -213,6 +235,8 @@ def intro_content(
     if nav_id == "topic-composition":
         element = html.Iframe(
             src=f'https://mahalla.avsolatorio.com', height="800px", width="100%")
+    elif nav_id == "corpus":
+        element = dcc.Markdown("# This is a corpus page...")
     else:
         element = dcc.Markdown(f"""# Introduction
 
