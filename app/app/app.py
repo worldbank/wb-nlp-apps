@@ -48,8 +48,25 @@ vertical_nav = dbc.Nav(
     [
         dbc.NavItem(dbc.NavLink("INTRODUCTION", active=True,
                                 href="/intro", id='intro')),
-        dbc.NavItem(dbc.NavLink("CORPUS",
-                                href="/corpus", id='corpus')),
+        dbc.NavItem(children=[
+            dbc.NavLink(children=[
+                "CORPUS",
+            ], href="/corpus", id='corpus'),
+            dbc.NavItem([
+                dbc.NavLink(children=[
+                    "Sources and volume"
+                ], href="/corpus/sources-and-volume"),
+                dbc.NavLink(children=[
+                    "Geographic coverage"
+                ], href="/corpus/geographic-coverage"),
+                dbc.NavLink(children=[
+                    "Metadata and API"
+                ], href="/corpus/metadata-and-api"),
+                dbc.NavLink(children=[
+                    "Test corpus"
+                ], href="/corpus/test-corpus")
+            ], style=dict(float="right"))
+        ]),
         dbc.NavItem(dbc.NavLink("TOPIC COMPOSITION",
                                 href="/topic-composition", id='topic-composition')),
         dbc.NavItem(dbc.NavLink("TOPIC PROFILES",
@@ -102,7 +119,7 @@ app.layout = html.Div(children=[
                 html.Br(),
                 html.Br(),
                 vertical_nav
-            ], width=2),
+            ], width=2.5),
             dbc.Col(children=[
             ], width=1),
             dbc.Col(children=[
@@ -118,7 +135,7 @@ app.layout = html.Div(children=[
                 ], id="content-panel")
             ], width=8),
             dbc.Col(children=[
-            ], width=1),
+            ], width=0.5),
         ])
     ], fluid=True)
 ])
@@ -191,8 +208,13 @@ def intro_content(
         'inputs': ctx.inputs,
         # 'ctx': ctx
     }, indent=2)
+    print(ctx_msg)
 
-    element = dcc.Markdown(f"""# Introduction
+    if nav_id == "topic-composition":
+        element = html.Iframe(
+            src=f'https://mahalla.avsolatorio.com', height="800px", width="100%")
+    else:
+        element = dcc.Markdown(f"""# Introduction
 
 Explain purpose and main components of the “EXPLORE” section of the site.
 
@@ -273,7 +295,12 @@ All code (except scrapers) in GitHub. See Methods and Tools.""")
 # )
 # def monitory_system_content(children):
 #     return dcc.Markdown(children)
+
+
 if __name__ == '__main__':
     # https://community.plotly.com/t/dash-callbacks-are-not-async-handling-multiple-requests-and-callbacks-in-parallel/5848/3
     # gunicorn -b :8000 -w 2 --worker-class gevent --threads 8 app:server
-    app.run_server(host='0.0.0.0', port=8000, debug=True)
+    app.run_server(host='0.0.0.0', port=8000, debug=True,
+                   threaded=False, processes=1)
+
+    # app.run_server(host='0.0.0.0', port=8000, debug=True)
