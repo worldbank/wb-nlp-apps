@@ -160,16 +160,6 @@ nav_ids = [
 ]
 
 
-@app.callback(
-    Output("collapse", "is_open"),
-    [Input("corpus", "n_clicks")],
-    [State("collapse", "is_open")],
-)
-def toggle_collapse(n, is_open):
-    if n:
-        return not is_open
-    return is_open
-
 # this callback uses the current pathname to set the active state of the
 # corresponding nav link to true, allowing users to tell see page they are on
 
@@ -192,16 +182,9 @@ def toggle_active_links(pathname):
 
 # Nav callbacks
 @ app.callback(
-    Output("content-panel", "children"),
-    [Input("intro", "n_clicks"),
-     Input("corpus", "n_clicks"),
-     Input("topic-composition", "n_clicks"),
-     Input("topic-profiles", "n_clicks"),
-     Input("topic-taxonomy", "n_clicks"),
-     Input("topic-relationships", "n_clicks"),
-     Input("word-embeddings", "n_clicks"),
-     Input("similarity", "n_clicks"),
-     Input("monitory-system", "n_clicks")],
+    [Output("content-panel", "children"), Output("collapse", "is_open")],
+    [Input(i, 'n_clicks') for i in nav_ids],
+    [State("collapse", "is_open")],
 )
 def intro_content(
         n_clicks1,
@@ -213,6 +196,7 @@ def intro_content(
         n_clicks7,
         n_clicks8,
         n_clicks9,
+        is_open,
 ):
     element = ""
     # https://dash.plotly.com/advanced-callbacks
@@ -251,7 +235,9 @@ Explain purpose and main components of the “EXPLORE” section of the site.
 
 All code (except scrapers) in GitHub. See Methods and Tools.""")
 
-    return element
+    is_corpus_open = nav_id == "corpus"
+
+    return element, is_corpus_open
 
 
 # nav_id = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -324,7 +310,7 @@ All code (except scrapers) in GitHub. See Methods and Tools.""")
 if __name__ == '__main__':
     # https://community.plotly.com/t/dash-callbacks-are-not-async-handling-multiple-requests-and-callbacks-in-parallel/5848/3
     # gunicorn -b :8000 -w 2 --worker-class gevent --threads 8 app:server
-    app.run_server(host='0.0.0.0', port=8000, debug=True,
-                   threaded=False, processes=1)
+    # app.run_server(host='0.0.0.0', port=8000, debug=True,
+    #                threaded=False, processes=1)
 
-    # app.run_server(host='0.0.0.0', port=8000, debug=True)
+    app.run_server(host='0.0.0.0', port=8000, debug=True)
