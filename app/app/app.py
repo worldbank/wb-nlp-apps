@@ -4,6 +4,7 @@
 # visit http://127.0.0.1:8050/ in your web browser.
 
 import dash
+import dash_dangerously_set_inner_html
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
@@ -238,8 +239,11 @@ def intro_content(
     # print(ctx_msg)
 
     if pathname == "/topic-composition":
-        element = html.Iframe(
-            src='https://mahalla.avsolatorio.com', height="800px", width="100%")
+        # element = html.Iframe(
+        #     src='https://mahalla.avsolatorio.com', height="800px", width="100%")
+        element = dash_dangerously_set_inner_html.DangerouslySetInnerHTML('''
+                <iframe src="https://mahalla.avsolatorio.com" frameborder="0" height="800px" width="100%" >Header</h1>
+            ''')
     elif pathname == "/corpus":
         element = dcc.Markdown("# This is a corpus page...")
     else:
