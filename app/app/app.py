@@ -46,6 +46,31 @@ nav = dbc.NavbarSimple(
 
 nav_link_style = {"padding-top": "5px", "padding-bottom": "5px"}
 
+sidebar_items = [
+    dict(
+        link_children=["INTRODUCTION"],
+        href="/intro",
+        id="intro",
+        style=nav_link_style,
+    ),
+    dict(
+        link_children=["INTRODUCTION"],
+        href="/intro",
+        id="intro",
+        style=nav_link_style,
+    ),
+
+]
+
+vertical_nav_items = [dbc.NavItem(
+    dbc.NavLink(
+        children=item["link_children"],
+        href=item["href"],
+        id=item["id"],
+        style=item["style"],
+    )
+) for item in sidebar_items]
+
 vertical_nav = dbc.Nav(
     [
         dbc.NavItem(dbc.NavLink("INTRODUCTION", active=True,
@@ -86,7 +111,8 @@ vertical_nav = dbc.Nav(
                                 href="/similarity", id='similarity', style=nav_link_style)),
         dbc.NavItem(dbc.NavLink("MONITORING SYSTEM",
                                 href="/monitory-system", id='monitory-system', style=nav_link_style)),
-    ], pills=True,
+    ],
+    pills=True,
     vertical=True,
 )
 
