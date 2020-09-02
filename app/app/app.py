@@ -164,39 +164,31 @@ nav_ids = [
 # corresponding nav link to true, allowing users to tell see page they are on
 
 
-@app.callback(
-    [Output(f"{i}", "active") for i in nav_ids],
-    [Input("url", "pathname")],
-)
-def toggle_active_links(pathname):
-    print(pathname)
-    if pathname == "/":
-        # Treat page 1 as the homepage / index
-        home = [True] + [False] * (len(nav_ids) - 1)
-        return home
+# @app.callback(
+#     [Output(f"{i}", "active") for i in nav_ids],
+#     [Input("url", "pathname")],
+# )
+# def toggle_active_links(pathname):
+#     print(pathname)
+#     if pathname == "/":
+#         # Treat page 1 as the homepage / index
+#         home = [True] + [False] * (len(nav_ids) - 1)
+#         return home
 
-    print(pathname)
+#     print(pathname)
 
-    return [pathname == f"/{i}" for i in nav_ids]
+#     return [pathname == f"/{i}" for i in nav_ids]
 
 
 # Nav callbacks
 @ app.callback(
-    [Output("content-panel", "children"), Output("collapse", "is_open")],
-    [Input(i, 'n_clicks') for i in nav_ids],
-    [State("collapse", "is_open")],
+    [Output("content-panel", "children"), Output("collapse", "is_open")
+     ] + [Output(f"{i}", "active") for i in nav_ids],
+    [Input(i, 'n_clicks') for i in nav_ids] + [Input("url", "pathname")],
+    # [State("collapse", "is_open")],
 )
 def intro_content(
-        n_clicks1,
-        n_clicks2,
-        n_clicks3,
-        n_clicks4,
-        n_clicks5,
-        n_clicks6,
-        n_clicks7,
-        n_clicks8,
-        n_clicks9,
-        is_open,
+        *args, **kwargs
 ):
     element = ""
     # https://dash.plotly.com/advanced-callbacks
@@ -206,14 +198,14 @@ def intro_content(
     except IndexError:
         nav_id = 'intro'
 
-    # print(ctx)
-
     ctx_msg = json.dumps({
         'states': ctx.states,
         'triggered': ctx.triggered,
         'inputs': ctx.inputs,
-        # 'ctx': ctx
     }, indent=2)
+    pathname = ctx.inputs['url.pathname']
+    nav_id = pathname.split('/')[-1]
+
     print(ctx_msg)
 
     if nav_id == "topic-composition":
@@ -222,7 +214,7 @@ def intro_content(
     elif nav_id == "corpus":
         element = dcc.Markdown("# This is a corpus page...")
     else:
-        element = dcc.Markdown(f"""# Introduction
+        element = dcc.Markdown("""# Introduction
 
 Explain purpose and main components of the “EXPLORE” section of the site.
 
@@ -237,8 +229,10 @@ All code (except scrapers) in GitHub. See Methods and Tools.""")
 
     is_corpus_open = nav_id == "corpus"
 
-    return element, is_corpus_open
+    outputs = [element, is_corpus_open] + \
+        [pathname == f"/{i}" for i in nav_ids]
 
+    return outputs
 
 # nav_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
