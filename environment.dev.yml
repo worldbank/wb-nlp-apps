@@ -26,7 +26,9 @@ dependencies:
   - boto=2.49.0
   - brotlipy=0.7.0
   - bs4=4.9.1
-  - ca-certificates=2020.6.24
+  - bz2file=0.98
+  - c-ares=1.16.1
+  - ca-certificates=2020.7.22
   - cachetools=4.1.1
   - catalogue=1.0.0
   - certifi=2020.6.20
@@ -43,11 +45,6 @@ dependencies:
   - cython=0.29.21
   - cython-blis=0.4.1
   - cytoolz=0.10.1
-  - dash=1.4.1
-  - dash-core-components=1.3.1
-  - dash-html-components=1.0.1
-  - dash-renderer=1.1.2
-  - dash-table=4.4.1
   - dask=2.20.0
   - dask-core=2.20.0
   - dbus=1.13.16
@@ -69,6 +66,7 @@ dependencies:
   - fsspec=0.8.0
   - future=0.18.2
   - gensim=3.8.3
+  - gevent=20.6.2
   - gitdb=4.0.5
   - gitflow=0.4.1
   - gitpython=3.1.3
@@ -77,10 +75,14 @@ dependencies:
   - google-auth=1.20.1
   - google-cloud-core=1.3.0
   - google-cloud-storage=1.28.1
+  - google-crc32c=1.0.0
   - google-resumable-media=0.5.1
   - googleapis-common-protos=1.51.0
+  - greenlet=0.4.16
+  - grpcio=1.31.0
   - gst-plugins-base=1.14.0
   - gstreamer=1.14.0
+  - gunicorn=20.0.4
   - heapdict=1.0.1
   - htop=2.2.0
   - icu=58.2
@@ -114,18 +116,21 @@ dependencies:
   - ld_impl_linux-64=2.33.1
   - libblas=3.8.0
   - libcblas=3.8.0
+  - libcrc32c=1.1.1
   - libedit=3.1.20191231
   - libffi=3.3
   - libgcc-ng=9.1.0
   - libgfortran-ng=7.3.0
   - libgomp=9.3.0
   - liblapack=3.8.0
+  - libopenblas=0.3.10
   - libpng=1.6.37
   - libprotobuf=3.12.4
   - libsodium=1.0.18
   - libstdcxx-ng=9.1.0
   - libtiff=4.1.0
   - libuuid=1.0.3
+  - libwebp-base=1.1.0
   - libxcb=1.14
   - libxml2=2.9.10
   - llvm-openmp=10.0.1
@@ -267,6 +272,9 @@ dependencies:
   - zict=2.0.0
   - zipp=3.1.0
   - zlib=1.2.11
+  - zope=1.0
+  - zope.event=4.4
+  - zope.interface=5.1.0
   - zstd=1.4.5
   - pip:
     - appdirs==1.4.4
@@ -279,7 +287,13 @@ dependencies:
     - brotli==1.0.7
     - cfgv==3.1.0
     - cmdstanpy==0.4.0
+    - dash==1.14.0
     - dash-bootstrap-components==0.10.3
+    - dash-core-components==1.10.2
+    - dash-dangerously-set-inner-html==0.0.2
+    - dash-html-components==1.0.3
+    - dash-renderer==1.6.0
+    - dash-table==4.9.0
     - distro==1.5.0
     - enum-compat==0.0.3
     - identify==1.4.21
