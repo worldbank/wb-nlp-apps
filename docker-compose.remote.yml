@@ -49,6 +49,13 @@ services:
   redis:
     image: redis:latest
 
+  selenium:
+    image: selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20200907
+    ports:
+      - "4444:4444"
+    volumes:
+      - /dev/shm:/dev/shm
+
   # nlp-app-mongodb:
   #   image: mongo:latest
   #   environment:
