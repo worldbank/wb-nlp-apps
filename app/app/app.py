@@ -60,8 +60,30 @@ sidebar_items = [
         id="intro",
         style=nav_link_style,
     ),
-
 ]
+
+sub_apps = dict(
+    word_embeddings=dcc.Markdown("""# Word embeddings""")
+)
+
+CONTENT = dict(
+    topic_composition=dash_dangerously_set_inner_html.DangerouslySetInnerHTML('''
+                <iframe src="https://agoldst.github.io/dfr-browser/demo/" frameborder="0" height="800px" width="100%" >Header</h1>
+            '''),
+    corpus__sources_and_volume=dcc.Markdown("""# Corpus - Metadata and API
+
+Description of metadata collected and augmented;
+
+Access to CSV and API (MongoDB)"""),
+    corpus__test_corpus=dcc.Markdown("""# Corpus - Test corpus
+
+Provide a test corpus of ~50,000 WB docs with related metadata, source and clean txt files
+
+Purpose: training
+
+Collection of selected scripts for modeling, analysis"""),
+    word_embeddings=sub_apps.get("word_embeddings"),
+)
 
 vertical_nav_items = [dbc.NavItem(
     dbc.NavLink(
@@ -84,16 +106,16 @@ vertical_nav = dbc.Nav(
                 dbc.NavItem([
                     dbc.NavLink(children=[
                         "Sources and volume"
-                    ], href="/corpus/sources-and-volume"),
+                    ], href="/corpus/sources-and-volume", id="corpus__sources_and_volume"),
                     dbc.NavLink(children=[
                         "Geographic coverage"
-                    ], href="/corpus/geographic-coverage"),
+                    ], href="/corpus/geographic-coverage", id="corpus__geographic_coverage"),
                     dbc.NavLink(children=[
                         "Metadata and API"
-                    ], href="/corpus/metadata-and-api"),
+                    ], href="/corpus/metadata-and-api", id="corpus__metadata_and_api"),
                     dbc.NavLink(children=[
                         "Test corpus"
-                    ], href="/corpus/test-corpus")
+                    ], href="/corpus/test-corpus", id="corpus__test_corpus")
                 ], style=dict(float="right")),
                 id="collapse",
             )
@@ -238,16 +260,7 @@ def intro_content(
 
     # print(ctx_msg)
 
-    if pathname == "/topic-composition":
-        # element = html.Iframe(
-        #     src='https://mahalla.avsolatorio.com', height="800px", width="100%")
-        element = dash_dangerously_set_inner_html.DangerouslySetInnerHTML('''
-                <iframe src="https://mahalla.avsolatorio.com" frameborder="0" height="800px" width="100%" >Header</h1>
-            ''')
-    elif pathname == "/corpus":
-        element = dcc.Markdown("# This is a corpus page...")
-    else:
-        element = dcc.Markdown("""# Introduction
+    default_element = dcc.Markdown("""# Introduction
 
 Explain purpose and main components of the “EXPLORE” section of the site.
 
@@ -259,6 +272,22 @@ Explain purpose and main components of the “EXPLORE” section of the site.
 - Similarity: select or load a document, find closest based on different measures of similarity
 
 All code (except scrapers) in GitHub. See Methods and Tools.""")
+
+    content_id = pathname.lstrip("/").replace("/", "__").replace("-", "_")
+    print(content_id)
+
+    element = CONTENT.get(content_id, default_element)
+
+    # if pathname == "/topic-composition":
+    #     # element = html.Iframe(
+    #     #     src="https://agoldst.github.io/dfr-browser/demo/#", height="800px", width="100%")
+    #     element = dash_dangerously_set_inner_html.DangerouslySetInnerHTML('''
+    #             <iframe src="https://agoldst.github.io/dfr-browser/demo/" frameborder="0" height="800px" width="100%" >Header</h1>
+    #         ''')
+    # elif pathname == "/corpus":
+    #     element = dcc.Markdown("# This is a corpus page...")
+    # else:
+    #     content.
 
     is_corpus_open = pathname.startswith("/corpus")
 
