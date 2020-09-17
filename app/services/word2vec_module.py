@@ -45,8 +45,10 @@ class Word2VecModel:
         self.model_path = model_path
 
         self.model_data_id = f'{self.corpus_id.lower()}-w2vec_{self.model_id}'
-        self.vecs_path = os.path.join(self.model_path, f'{self.model_data_id}.hdf')
-        self.model_path = os.path.join(self.model_path, f'{self.model_data_id}.mm')
+        self.vecs_path = os.path.join(
+            self.model_path, f'{self.model_data_id}.hdf')
+        self.model_path = os.path.join(
+            self.model_path, f'{self.model_data_id}.mm')
 
         self.vecs = None
         self.docs = doc_df.copy() if doc_df is not None else doc_df
@@ -72,7 +74,8 @@ class Word2VecModel:
 
         # Make sure that the dimensionality uses the one in the trained model.
         if self.dim != self.model.wv.vector_size:
-            print('Warning: dimension declared is not aligned with loaded model. Using loaded model dim.')
+            print(
+                'Warning: dimension declared is not aligned with loaded model. Using loaded model dim.')
             self.dim = self.model.wv.vector_size
 
     def save_vecs(self):
@@ -153,7 +156,8 @@ class Word2VecModel:
 
         payload = []
         for rank, top_sim_ix in enumerate(sim.argsort()[-topn:][::-1], 1):
-            payload.append({'id': self.vecs.iloc[top_sim_ix][return_data], 'score': np.round(sim[top_sim_ix], decimals=5), 'rank': rank})
+            payload.append({'id': self.vecs.iloc[top_sim_ix][return_data], 'score': np.round(
+                sim[top_sim_ix], decimals=5), 'rank': rank})
 
         payload = sorted(payload, key=lambda x: x['rank'])
         if serialize:
@@ -168,7 +172,8 @@ class Word2VecModel:
 
         payload = []
         for rank, top_sim_ix in enumerate(sim.argsort()[-topn:][::-1], 1):
-            payload.append({'word': self.model.wv.index2word[top_sim_ix], 'score': np.round(sim[top_sim_ix], decimals=5), 'rank': rank})
+            payload.append({'word': self.model.wv.index2word[top_sim_ix], 'score': np.round(
+                sim[top_sim_ix], decimals=5), 'rank': rank})
 
         payload = sorted(payload, key=lambda x: x['rank'])
         if serialize:
@@ -178,7 +183,8 @@ class Word2VecModel:
 
     def get_similar_docs_by_id(self, doc_id, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False):
         self.check_wvecs()
-        doc_vec = np.array(self.vecs[self.vecs['id'] == doc_id]['wvecs'].iloc[0]).reshape(1, -1)
+        doc_vec = np.array(
+            self.vecs[self.vecs['id'] == doc_id]['wvecs'].iloc[0]).reshape(1, -1)
 
         sim = cosine_similarity(doc_vec, np.vstack(self.vecs.wvecs)).flatten()
 
@@ -187,7 +193,8 @@ class Word2VecModel:
 
         payload = []
         for rank, top_sim_ix in enumerate(sim.argsort()[-topn:][::-1], 1):
-            payload.append({'id': self.vecs.iloc[top_sim_ix][return_data], 'score': np.round(sim[top_sim_ix], decimals=5), 'rank': rank})
+            payload.append({'id': self.vecs.iloc[top_sim_ix][return_data], 'score': np.round(
+                sim[top_sim_ix], decimals=5), 'rank': rank})
 
         payload = sorted(payload, key=lambda x: x['rank'])
         if serialize:
@@ -197,13 +204,15 @@ class Word2VecModel:
 
     def get_similar_words_by_id(self, doc_id, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False):
         self.check_wvecs()
-        doc_vec = np.array(self.vecs[self.vecs['id'] == doc_id]['wvecs'].iloc[0]).reshape(1, -1)
+        doc_vec = np.array(
+            self.vecs[self.vecs['id'] == doc_id]['wvecs'].iloc[0]).reshape(1, -1)
 
         sim = cosine_similarity(doc_vec, self.model.wv.vectors).flatten()
 
         payload = []
         for rank, top_sim_ix in enumerate(sim.argsort()[-topn:][::-1], 1):
-            payload.append({'word': self.model.wv.index2word[top_sim_ix], 'score': np.round(sim[top_sim_ix], decimals=5), 'rank': rank})
+            payload.append({'word': self.model.wv.index2word[top_sim_ix], 'score': np.round(
+                sim[top_sim_ix], decimals=5), 'rank': rank})
 
         payload = sorted(payload, key=lambda x: x['rank'])
         if serialize:
@@ -222,12 +231,15 @@ class Word2VecModel:
     def rescue_code(self, function):
         # http://blog.rtwilson.com/how-to-rescue-lost-code-from-a-jupyteripython-notebook/
         import inspect
-        get_ipython().set_next_input("".join(inspect.getsourcelines(function)[0]))
+        get_ipython().set_next_input(
+            "".join(inspect.getsourcelines(function)[0]))
 
 # In[ ]:
 
+
 def print_result_links(docs, id, similarity):
-    doc = docs.doclist[docs.doclist['id'] == id][['id', 'title', 'txt_url', 'pdf_url']].iloc[0]
+    doc = docs.doclist[docs.doclist['id'] == id][[
+        'id', 'title', 'txt_url', 'pdf_url']].iloc[0]
     p = f'id: {doc["id"]} \ntitle: {doc.title} \nurl: {doc.txt_url} \npdf_url: {doc.pdf_url}\n'
     sim = f'similarity: {100 * similarity:0.2f}%\n' if similarity is not None else ''
 
