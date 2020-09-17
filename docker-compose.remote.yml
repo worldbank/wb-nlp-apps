@@ -9,9 +9,9 @@ services:
         USERNAME: vscode
         USER_UID: 1000
         ENV_ID: dev
-        ENV_DEV_BASE_FILE: "environment.dev.base.yml"
+        ENV_DEV_BASE_FILE: "environment.dev.base.remote.yml"
         PROJECT_ID: wb_nlp
-        ENV_DEV_FILE: "environment.dev.yml"
+        ENV_DEV_FILE: "environment.dev.remote.yml"
     volumes:
       # - ./:/workspace
       - /home/avsolatorio/WBG/wb_nlp:/workspace:cached

@@ -45,6 +45,11 @@ dependencies:
   - cython=0.29.21
   - cython-blis=0.4.1
   - cytoolz=0.10.1
+  - dash=1.14.0
+  - dash-core-components=1.10.2
+  - dash-html-components=1.0.3
+  - dash-renderer=1.6.0
+  - dash-table=4.9.0
   - dask=2.20.0
   - dask-core=2.20.0
   - dbus=1.13.16
@@ -287,13 +292,8 @@ dependencies:
     - brotli==1.0.7
     - cfgv==3.1.0
     - cmdstanpy==0.4.0
-    - dash==1.14.0
     - dash-bootstrap-components==0.10.3
-    - dash-core-components==1.10.2
     - dash-dangerously-set-inner-html==0.0.2
-    - dash-html-components==1.0.3
-    - dash-renderer==1.6.0
-    - dash-table==4.9.0
     - distro==1.5.0
     - enum-compat==0.0.3
     - identify==1.4.21
