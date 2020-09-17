@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # # <div style="text-align:center">World Bank Documents and Reports Cleaner</div>
-# 
+#
 # This notebook implements the cleaner classes for the data from the **Documents and Reports API**. This cleaner module provides respelling functionality as well.
 
 # In[ ]:
@@ -17,20 +17,37 @@
 
 # ### Installing pattern as alternative to pyenchant
 # #### Note, the pattern module's spell checking function is quite slow!
-# 
-# 
+#
+#
 # Clone first the development repo ([pypi version is outdated](https://github.com/clips/pattern/issues/217
 # ))
 # - `git clone -b development https://github.com/clips/pattern`
 # - `cd pattern/`
 # - Commenting out `"mysqlclient"` inside the `setup.py` file may be necessary if errors are encountered in the next step.
 # - `pip install .`
-# 
+#
 # Make sure that the `pip` that you use corresponds to the python installation that you will use to run the notebook.
 
 # In[1]:
 
 
+from sklearn.feature_extraction import stop_words
+from contexttimer import Timer
+import spacy
+from scipy.stats import rankdata
+from nltk.metrics.distance import edit_distance
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+from collections import Counter
+import multiprocessing
+import multiprocessing as mp
+from joblib import Parallel, delayed
+from langdetect import detect, detect_langs
+from nltk import word_tokenize, pos_tag
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import PlaintextCorpusReader, wordnet
+from nltk.corpus import stopwords as nltk_stopwords
+from nltk.corpus import words
 import import_ipynb
 from services.acronyms.AcronymModule import AcronymMapper
 
@@ -45,18 +62,6 @@ import pandas as pd
 import nltk
 
 nltk.data.path.append("/R/nltk_data")
-
-from nltk.corpus import words
-from nltk.corpus import stopwords as nltk_stopwords
-from nltk.corpus import PlaintextCorpusReader, wordnet
-from nltk.stem import WordNetLemmatizer
-from nltk import word_tokenize, pos_tag
-
-from langdetect import detect, detect_langs
-
-from joblib import Parallel, delayed
-import multiprocessing as mp
-import multiprocessing
 
 
 # Spelling correction
@@ -73,24 +78,8 @@ except:
     ENCHANT_INSTALLED = False
 
 
-from collections import Counter
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from nltk.metrics.distance import edit_distance
-
-from scipy.stats import rankdata
-
-import spacy
-
-from contexttimer import Timer
-
-
 # In[3]:
 
-
-from nltk.corpus import stopwords as nltk_stopwords
-from sklearn.feature_extraction import stop_words
 
 roman_nums = set([
     'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi',
@@ -124,6 +113,7 @@ stopwords = list(stopwords)
 
 respell_error = []
 
+
 class Respeller:
 
     en_dict = Dict('en_US') if ENCHANT_INSTALLED else pattern.en
@@ -134,16 +124,17 @@ class Respeller:
         self.dictionary_file = dictionary_file
         self.spell_threshold = spell_threshold
         self.stopwords = stopwords
-        
+
         if (self.dictionary_file is not None) and os.path.isfile(self.dictionary_file):
-                self.spell_cache = pd.read_csv(self.dictionary_file)
+            self.spell_cache = pd.read_csv(self.dictionary_file)
 
     def save_spell_cache(self):
         pd.Series(self.spell_cache).to_csv(self.dictionary_file)
 
     def morph_word(self, word):
         # word = word.replace(' ', '')  # Check if compound word suggestion matches the misspelled word
-        m_word = word + ''.join(sorted(word)) # Perform this opperation to add more robustness to the matching
+        # Perform this opperation to add more robustness to the matching
+        m_word = word + ''.join(sorted(word))
 
         return m_word
 
@@ -152,8 +143,8 @@ class Respeller:
             correct_word = None
             score = -1
 
-            payload = dict(word=word,correct_word=correct_word, score=score)
-            
+            payload = dict(word=word, correct_word=correct_word, score=score)
+
             self.spell_cache[word] = payload
 
             if len(word) <= min_len:
@@ -168,20 +159,24 @@ class Respeller:
                 suggest_score = 1 / rankdata(range(len(candidates)))**0.5
             else:
                 suggest_score = np.ones(len(candidates))
-            
+
             if candidates:
                 try:
                     m_word = self.morph_word(word)
-                    m_candidates = [self.morph_word(c.lower()) for c in candidates]
+                    m_candidates = [self.morph_word(
+                        c.lower()) for c in candidates]
 
-                    tfidf = TfidfVectorizer(analyzer='char', ngram_range=(2, 4))
+                    tfidf = TfidfVectorizer(
+                        analyzer='char', ngram_range=(2, 4))
                     candX = tfidf.fit_transform(m_candidates)
                     wordX = tfidf.transform([m_word])
 
-                    r = 1.0 / rankdata([edit_distance(m_word, x) for x in m_candidates])
+                    r = 1.0 / rankdata([edit_distance(m_word, x)
+                                        for x in m_candidates])
 
                     sim = cosine_similarity(candX, wordX)
-                    sim_r = sim * r.reshape(-1, 1) * suggest_score.reshape(-1, 1)
+                    sim_r = sim * r.reshape(-1, 1) * \
+                        suggest_score.reshape(-1, 1)
 
                     sim_ind = sim_r.argmax()
                     score = sim_r[sim_ind]
@@ -200,11 +195,11 @@ class Respeller:
 
             payload['correct_word'] = correct_word
             payload['score'] = float(score)
-            
+
             self.spell_cache[word] = payload
 
         return self.spell_cache[word]
-    
+
     def qualified_word(self, word):
         stopwords = set(self.stopwords)
         is_valid = (
@@ -212,12 +207,12 @@ class Respeller:
             (not word[0].isupper()) and
             len(word) > 2
         )
-        
+
         return is_valid
-    
+
     def parallel_infer_correct_word(self, words, num_workers):
         respelled_set = {}
-        
+
         respell_results = [self.infer_correct_word(ew) for ew in words]
 
         words = set([])
@@ -234,7 +229,8 @@ class Respeller:
                     words.add(word)
                 else:
                     # Split and filter since some words are compound terms.
-                    respelled_set[word] = [i for i in correct_word.split() if self.qualified_word(i)]
+                    respelled_set[word] = [
+                        i for i in correct_word.split() if self.qualified_word(i)]
             else:
                 words.add(word)
 
@@ -247,9 +243,9 @@ class Respeller:
 
 
 class Cleaner:
-    
+
     from enchant.checker import SpellChecker
-    
+
     input_folder = ''
     output_folder = ''
     custom_stopwords = []
@@ -264,7 +260,7 @@ class Cleaner:
 
     spell_cache_manager = multiprocessing.Manager()
     spell_cache_dict = spell_cache_manager.dict()
-    
+
     def __init__(
         self, use_spellchecker=False, use_respeller=False,
         use_lemmatizer=False, num_workers=None,
@@ -276,12 +272,13 @@ class Cleaner:
         logger=None,
         check_language=True
     ):
-        self.data=[]
+        self.data = []
         self.check_language = check_language
         self.use_spellchecker = use_spellchecker
         self.use_lemmatizer = use_lemmatizer
         self.use_respeller = use_respeller
-        self.num_workers = (os.cpu_count() - 1) if num_workers is None else num_workers
+        self.num_workers = (
+            os.cpu_count() - 1) if num_workers is None else num_workers
         self.patterns = []
         self.lemma_cache = {}
         self.respelled_set = {}
@@ -292,32 +289,35 @@ class Cleaner:
         self.acronyms_file = acronyms_file
         self.min_en_lang_prob = min_en_lang_prob
         self.supported_lang = supported_lang
-        
+
         if logger:
             self.logger = logger.error
         else:
             self.logger = print
-        
+
         self.plural_singular_map = {}
-        
+
         if self.replacements_plurals_to_singular_file is not None:
             self.build_plurals_to_singular_map()
 
         if self.use_spellchecker:
-            self.spellchecker = SpellChecker("en_US") if ENCHANT_INSTALLED else pattern.en
-        
+            self.spellchecker = SpellChecker(
+                "en_US") if ENCHANT_INSTALLED else pattern.en
+
         if self.use_lemmatizer:
             self.lmtzr_spacy = None  # spacy.load('en')
             self.lmtzr_wordnet = None if self.use_spacy_lemmatizer else WordNetLemmatizer()
 
         if self.use_respeller:
-            self.respeller = Respeller(spell_threshold=0.7, spell_cache=self.spell_cache_dict)
-            
+            self.respeller = Respeller(
+                spell_threshold=0.7, spell_cache=self.spell_cache_dict)
+
         if self.acronyms_file is not None:
-            self.acronym_mapper = AcronymMapper(whitelist_file=self.acronyms_file, sim_thresh=0.8)
-            
+            self.acronym_mapper = AcronymMapper(
+                whitelist_file=self.acronyms_file, sim_thresh=0.8)
+
         self.stopwords = stopwords
-        
+
         # initialize clean_text
         self.clean_text('initialize cleaner')
 
@@ -326,13 +326,14 @@ class Cleaner:
         Assume that the whitelist is a two column excel file without a header: first col - plural, second col - singular.
         Don't catch exception such that any errors will be apparent.
         '''
-        plural_singular_map = pd.read_csv(self.replacements_plurals_to_singular_file, header=None, index_col=0).dropna()[1]
+        plural_singular_map = pd.read_csv(
+            self.replacements_plurals_to_singular_file, header=None, index_col=0).dropna()[1]
         self.plural_singular_map = dict(plural_singular_map)
 
-    def set_input_folder(self,input_folder):
+    def set_input_folder(self, input_folder):
         self.input_folder = input_folder
 
-    def set_output_folder(self,output_folder):
+    def set_output_folder(self, output_folder):
         self.output_folder = output_folder
         if not os.path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
@@ -347,18 +348,18 @@ class Cleaner:
         text = ' '.join(self.short_valid_tokens_pattern.findall(text))
 
         return text
-    
+
     def get_lemma(self, word, word_pos):
         stopwords = set(self.stopwords)
         if word in stopwords:
             return None
-        
+
         key = (word, word_pos)
-        
+
         if key not in self.lemma_cache:
             lemma = self.lmtzr_wordnet.lemmatize(word, word_pos)
             self.lemma_cache[key] = lemma
-            
+
         return self.lemma_cache[key]
 
     def lemmatize_text_wordnet(self, text):
@@ -367,14 +368,14 @@ class Cleaner:
         txt_out = ''
 
         # Before lemmatizing, we tag words (part-of-speech tagging)
-        tagged_tokens = pos_tag(tokens)    
+        tagged_tokens = pos_tag(tokens)
 
         # We now lemmatize based on a simplified list of POS tags
         for tagged_token in tagged_tokens:
             word = tagged_token[0]
             word_pos = tagged_token[1]
 
-            # We recode NLTK tagging for consistency with wordnet 
+            # We recode NLTK tagging for consistency with wordnet
             if tagged_token[1].startswith('J'):
                 word_pos = wordnet.ADJ
             elif tagged_token[1].startswith('V'):
@@ -384,38 +385,40 @@ class Cleaner:
             elif tagged_token[1].startswith('R'):
                 word_pos = wordnet.ADV
             else:
-                word_pos = wordnet.NOUN # Assume noun if other  
-            
+                word_pos = wordnet.NOUN  # Assume noun if other
+
             # We now lemmatize, taking the POS tag into account
             lemma = self.get_lemma(word, word_pos)
-            
+
             if lemma is not None:
                 txt_out = txt_out + lemma + ' '
 
-        return txt_out  
+        return txt_out
 
     def lemmatize_text_spacy(self, text):
         stopwords = set(self.stopwords)
         try:
-            lmtzr_spacy = spacy.load('en', disable=['parser', 'ner', 'textcat'])
+            lmtzr_spacy = spacy.load(
+                'en', disable=['parser', 'ner', 'textcat'])
         except OSError:
-            lmtzr_spacy = spacy.load('/R/spacy_data/en_core_web_sm/en_core_web_sm-2.0.0', disable=['parser', 'ner', 'textcat'])
+            lmtzr_spacy = spacy.load(
+                '/R/spacy_data/en_core_web_sm/en_core_web_sm-2.0.0', disable=['parser', 'ner', 'textcat'])
 
         doc = lmtzr_spacy(text.lower())
-            # ' '.join(re.findall('[a-z0-9]+', text.lower())))
-        
+        # ' '.join(re.findall('[a-z0-9]+', text.lower())))
+
         txt_out = ''
-        
+
         for token in doc:
             if token.lemma_ in stopwords:
                 continue
-                
+
             txt_out = txt_out + token.lemma_ + ' '
-            
+
         txt_out = txt_out.replace('-PRON-', '')
 
         return txt_out.strip()
-    
+
     def space_normalize_text(self, text):
         text = self.space_normalize_text_pattern.sub(' . ', text.lower())
         text = self.noise_normalize_text_pattern.sub(' ', text)
@@ -430,13 +433,13 @@ class Cleaner:
             txt_out = self.lemmatize_text_spacy(text)
         else:
             txt_out = self.lemmatize_text_wordnet(text)
-            
+
         return txt_out
-    
+
     def get_misspelled_tokens(self, text):
         if self.spellchecker is None:
             raise ValueError('Spellchecker is not enabled')
-        
+
         errors = set([])
 
         if ENCHANT_INSTALLED:
@@ -452,7 +455,7 @@ class Cleaner:
             text_tokens = set(text)
             for token in text_tokens:
                 suggestions = self.spellchecker.suggest(token)
-                
+
                 # If suggestions are available, make sure that the first
                 # suggestion is similar to the token to make sure
                 # that the token being testing is a legit word.
@@ -464,21 +467,23 @@ class Cleaner:
 
     # Run spell checker on text to keep words found in dictionary only
     def spellcheck_text(self, text):
-        text_tokens=word_tokenize(text)
-        errors = self.get_misspelled_tokens(text if ENCHANT_INSTALLED else text_tokens)
+        text_tokens = word_tokenize(text)
+        errors = self.get_misspelled_tokens(
+            text if ENCHANT_INSTALLED else text_tokens)
 
         if errors and self.respeller:
-            errors, respelled_set = self.respeller.parallel_infer_correct_word(errors, self.num_workers * 2)  # max((self.num_workers // 2), 1))
+            errors, respelled_set = self.respeller.parallel_infer_correct_word(
+                errors, self.num_workers * 2)  # max((self.num_workers // 2), 1))
             # print(respelled_set)
             self.respelled_set.update(respelled_set)
 
-        errors_set=set(errors)
+        errors_set = set(errors)
         cleaned_text = []
-        
+
         for x in text_tokens:
             if (x in errors_set):
                 continue
-            
+
             elif x in self.respelled_set:
                 for x in self.respelled_set[x]:
                     x = self.plural_singular_map.get(x, x)
@@ -491,21 +496,21 @@ class Cleaner:
                 x = self.plural_singular_map.get(x, x)
                 cleaned_text.append(x)
 
-        output={}
-        output['text']=" ".join(cleaned_text)
-        output['errors']=errors
-   
+        output = {}
+        output['text'] = " ".join(cleaned_text)
+        output['errors'] = errors
+
         return output
 
     def load_existing_and_extract_metadata(self, fileid, filepath, save_docs, process_output_dict=None):
         proc_fileid = fileid
-        
+
         filename = filepath.split('/')[-1]
         fileid = filename.strip('.txt')
-        
+
         with open(filepath) as fl:
             text = fl.read()
-        
+
         lang_log = ('ERROR', 0)
         token_log = 0
         skipped_log = ''
@@ -531,7 +536,8 @@ class Cleaner:
         )
 
         # log statistics
-        lang_log = {}  # lang info per document - uses the format - lang_log[fileid]={'score','lang'}
+        # lang info per document - uses the format - lang_log[fileid]={'score','lang'}
+        lang_log = {}
         spell_errors = {}
         token_log = {}  # Tokens count per document
         text_errors = {}
@@ -547,7 +553,7 @@ class Cleaner:
         spell_errors[fileid] = cleaning_output['spell_errors']
         exception_log[fileid] = cleaning_output['exception']
         write_status_log[fileid] = cleaning_output['write_status']
-        
+
         # return logs
         output_log = {}
         output_log['lang'] = lang_log
@@ -557,10 +563,10 @@ class Cleaner:
         output_log['skipped'] = skipped_log
         output_log['exception'] = exception_log
         output_log['write_status'] = write_status_log
-        
+
         if process_output_dict is not None:
             process_output_dict[proc_fileid] = output_log
-        else: 
+        else:
             return output_log
 
     def clean_text(self, text, filen=None):
@@ -571,15 +577,15 @@ class Cleaner:
         spell_errors = []
         exp = None
         write_status = False
-        
+
         if self.acronym_mapper is not None:
             text = self.acronym_mapper.expand_doc_acronyms(text)
 
         text = text.lower()
         len_text = len(text)
-        
+
         if len_text > self.ignore_length:
-            
+
             if self.use_lemmatizer:
                 # Apply lemmatizer
                 try:
@@ -593,15 +599,16 @@ class Cleaner:
                 text = self.remove_noise(text)
 
                 # Skip documents with no content
-                if len(text) > 0:      
-                    # Detect majority language of the document 
+                if len(text) > 0:
+                    # Detect majority language of the document
                     try:
                         predict_lang = detect_langs(text)[0]
 
                         lang_log = (predict_lang.lang, predict_lang.prob)
 
                         if self.check_language:
-                            if (any([predict_lang.lang == lg for lg in self.supported_lang])) and (predict_lang.prob >= self.min_en_lang_prob):   # Only process documents in English                            
+                            # Only process documents in English
+                            if (any([predict_lang.lang == lg for lg in self.supported_lang])) and (predict_lang.prob >= self.min_en_lang_prob):
                                 if self.use_spellchecker:
                                     # Run spell check and keep only the words found in dictionary
                                     spell_data = self.spellcheck_text(text)
@@ -612,7 +619,7 @@ class Cleaner:
                                 token_log = len(word_tokenize(text))
                                 write_status = True
                             else:
-                                #not in english
+                                # not in english
                                 skipped_log = f'Not in english | {predict_lang}'
                         else:
                             if self.use_spellchecker:
@@ -620,7 +627,7 @@ class Cleaner:
                                 spell_data = self.spellcheck_text(text)
                                 spell_errors = spell_data['errors']
                                 text = spell_data['text']
-                                
+
                             # Log tokens count
                             token_log = len(word_tokenize(text))
                             write_status = True
@@ -651,7 +658,8 @@ class Cleaner:
             write_status=write_status,
         )
 
-        payload = {k: v if not isinstance(v, set) else list(v) for k, v in payload.items()}
+        payload = {k: v if not isinstance(v, set) else list(
+            v) for k, v in payload.items()}
         return payload
 
 
@@ -667,18 +675,19 @@ class CorpusCleaner(Cleaner):
             batch_size = default_docs_per_worker * self.num_workers
 
         file_counter_x = 0
-        input_folder  = self.input_folder
+        input_folder = self.input_folder
         output_folder = self.output_folder
-        
-        #log statistics
-        lang_log = {} # Lang info per document - uses the format - lang_log[fileid]=('lang', 'score')
-        text_log = {} # Errors count per document
-        token_log = {} # Tokens count per document
-        skipped_log = {} # Documents not processed
+
+        # log statistics
+        # Lang info per document - uses the format - lang_log[fileid]=('lang', 'score')
+        lang_log = {}
+        text_log = {}  # Errors count per document
+        token_log = {}  # Tokens count per document
+        skipped_log = {}  # Documents not processed
         spell_errors = {}
         exception_log = {}
         write_status_log = {}
-        
+
         log_interval = batch_size
 
         with Parallel(n_jobs=self.num_workers, backend='multiprocessing') as pool:
@@ -689,11 +698,12 @@ class CorpusCleaner(Cleaner):
                     self.logger(f'Docset {ix}')
 
                 file_counter_x += 1
-                if fileid.endswith('.txt'):    # text files only 
+                if fileid.endswith('.txt'):    # text files only
 
-                    filen = os.path.join(input_folder, fileid)     # input file 
-                    newfile = os.path.join(output_folder, fileid)   # output file
-                    
+                    filen = os.path.join(input_folder, fileid)     # input file
+                    newfile = os.path.join(
+                        output_folder, fileid)   # output file
+
                     if not os.path.isfile(filen):
                         self.logger(f"No input file: {fileid}")
                         continue
@@ -708,7 +718,8 @@ class CorpusCleaner(Cleaner):
 
                     else:
                         with Timer() as timer:
-                            doc_outputs = pool((delayed(self.clean_doc)(fln, save_doc=save_docs) for fln in batch))
+                            doc_outputs = pool((delayed(self.clean_doc)(
+                                fln, save_doc=save_docs) for fln in batch))
                             # doc_outputs = Parallel(n_jobs=self.num_workers, backend='multiprocessing')(delayed(self.clean_doc)(fln, save_doc=save_docs) for fln in batch)
                             # doc_outputs = pool.map(self.clean_doc, [(fln, save_docs) for fln in batch], chunksize=batch_size)
 
@@ -716,22 +727,26 @@ class CorpusCleaner(Cleaner):
 
                                 lang_log.update(doc_output['lang'])
                                 token_log.update(doc_output['tokens'])
-                                skipped_log.update(doc_output['skipped'])  
+                                skipped_log.update(doc_output['skipped'])
                                 exception_log.update(doc_output['exception'])
-                                write_status_log.update(doc_output['write_status'])
+                                write_status_log.update(
+                                    doc_output['write_status'])
 
                                 if collect_text_log:
                                     # Don't do this if you're processing a lot of docs
                                     text_log.update(doc_output['text'])
                                 if collect_spell_errors:
-                                    spell_errors.update(doc_output['spell_errors'])
+                                    spell_errors.update(
+                                        doc_output['spell_errors'])
 
                             batch = []
-                            
-                        self.logger(f'Set {ix}: {log_interval} items for {timer.elapsed:.2f} seconds.')
+
+                        self.logger(
+                            f'Set {ix}: {log_interval} items for {timer.elapsed:.2f} seconds.')
 
             if batch:
-                doc_outputs = pool((delayed(self.clean_doc)(fln, save_doc=save_docs) for fln in batch))
+                doc_outputs = pool((delayed(self.clean_doc)(
+                    fln, save_doc=save_docs) for fln in batch))
                 # doc_outputs = Parallel(n_jobs=self.num_workers, backend='multiprocessing')(delayed(self.clean_doc)(fln, save_doc=save_docs) for fln in batch)
                 # doc_outputs = pool.map(self.clean_doc, [(fln, save_docs) for fln in batch], chunksize=batch_size)
 
@@ -739,7 +754,7 @@ class CorpusCleaner(Cleaner):
 
                     lang_log.update(doc_output['lang'])
                     token_log.update(doc_output['tokens'])
-                    skipped_log.update(doc_output['skipped']) 
+                    skipped_log.update(doc_output['skipped'])
                     exception_log.update(doc_output['exception'])
                     write_status_log.update(doc_output['write_status'])
 
@@ -760,7 +775,7 @@ class CorpusCleaner(Cleaner):
 
         return output_log
 
-    # Clean a single document using spell checker    
+    # Clean a single document using spell checker
     def clean_doc(self, filepath, save_doc=False):  # args):
         # filepath, *save_doc = args
 
@@ -768,7 +783,8 @@ class CorpusCleaner(Cleaner):
             save_doc = False
 
         # log statistics
-        lang_log = {}  # lang info per document - uses the format - lang_log[fileid]={'score','lang'}
+        # lang info per document - uses the format - lang_log[fileid]={'score','lang'}
+        lang_log = {}
         spell_errors = {}
         token_log = {}  # Tokens count per document
         text_errors = {}
@@ -778,17 +794,17 @@ class CorpusCleaner(Cleaner):
         write_status_log = {}
 
         filename = filepath.split('/')[-1]
-    
+
         fileid = filename.strip('.txt')
-        
+
         with open(filepath, 'rb') as fl:
             # Use context so that the file will be closed automatically upon exit from the context.
             text = fl.read()
             text = text.decode('utf-8', errors='ignore')
-        
+
         cleaning_output = self.clean_text(text, filen=fileid)
         text = cleaning_output['text']
-        
+
         lang_log[fileid] = cleaning_output['lang']
         token_log[fileid] = cleaning_output['token']
         skipped_log[fileid] = cleaning_output['skipped']
@@ -796,7 +812,7 @@ class CorpusCleaner(Cleaner):
         spell_errors[fileid] = cleaning_output['spell_errors']
         exception_log[fileid] = cleaning_output['exception']
         write_status_log[fileid] = cleaning_output['write_status']
-        
+
         if save_doc and cleaning_output['write_status']:
             with open(os.path.join(self.output_folder, filename), 'w') as fl:
                 fl.write(text)
@@ -819,27 +835,28 @@ class CorpusCleaner(Cleaner):
 
 class ParallelCorpusCleaner(Cleaner):
 
-    # Clean documents using spell checker    
+    # Clean documents using spell checker
     def batch_clean_docs(self, doclist, batch_size=None, save_docs=False, collect_text_log=False, collect_spell_errors=False, skip_existing=True):
         if batch_size is None:
             # Use a multiplier for efficient usage of workers
             batch_size = 4 * self.num_workers
 
         file_counter_x = 0
-        input_folder  = self.input_folder
+        input_folder = self.input_folder
         output_folder = self.output_folder
-        
-        #log statistics
-        lang_log = {} # Lang info per document - uses the format - lang_log[fileid]=('lang', 'score')
-        text_log = {} # Errors count per document
-        token_log = {} # Tokens count per document
-        skipped_log = {} # Documents not processed
+
+        # log statistics
+        # Lang info per document - uses the format - lang_log[fileid]=('lang', 'score')
+        lang_log = {}
+        text_log = {}  # Errors count per document
+        token_log = {}  # Tokens count per document
+        skipped_log = {}  # Documents not processed
         spell_errors = {}
         exception_log = {}
         write_status_log = {}
-        
+
         log_interval = batch_size
-        
+
         process_output_manager = multiprocessing.Manager()
         process_output_dict = process_output_manager.dict()
 
@@ -855,9 +872,11 @@ class ParallelCorpusCleaner(Cleaner):
                     if ix % log_interval == 0:
                         self.logger(f'Docset {ix}')
 
-                    if fileid.endswith('.txt'):    # text files only 
-                        filen = os.path.join(input_folder, fileid)     # input file 
-                        newfile = os.path.join(output_folder, fileid)   # output file
+                    if fileid.endswith('.txt'):    # text files only
+                        filen = os.path.join(
+                            input_folder, fileid)     # input file
+                        newfile = os.path.join(
+                            output_folder, fileid)   # output file
 
                         if not os.path.isfile(filen):
                             self.logger(f"No input file: {fileid}")
@@ -865,14 +884,16 @@ class ParallelCorpusCleaner(Cleaner):
 
                         # Skip if output file already exists
                         if os.path.isfile(newfile) and skip_existing:
-                            p = multiprocessing.Process(target=self.load_existing_and_extract_metadata, args=(fileid, newfile, save_docs, process_output_dict))  # , kwargs=kwargs)
+                            p = multiprocessing.Process(target=self.load_existing_and_extract_metadata, args=(
+                                fileid, newfile, save_docs, process_output_dict))  # , kwargs=kwargs)
                             batch[fileid] = p
                             p.start()
                             # self.logger(f"Output file exists: {fileid}. Skipping...")
                             continue
 
-                        # kwargs = {'process_output_dict': process_output_dict, 'save_doc': save_docs}                    
-                        p = multiprocessing.Process(target=self.clean_doc, args=(fileid, filen, save_docs, process_output_dict))  # , kwargs=kwargs)
+                        # kwargs = {'process_output_dict': process_output_dict, 'save_doc': save_docs}
+                        p = multiprocessing.Process(target=self.clean_doc, args=(
+                            fileid, filen, save_docs, process_output_dict))  # , kwargs=kwargs)
                         batch[fileid] = p
                         p.start()
                 else:
@@ -892,15 +913,17 @@ class ParallelCorpusCleaner(Cleaner):
 
                         fileid = doclist.pop(0)
                         ix += 1
-                        
+
                         # print(f'Starting {fileid}')
 
                         if ix % log_interval == 0:
                             self.logger(f'Docset {ix}')
 
-                        if fileid.endswith('.txt'):    # text files only 
-                            filen = os.path.join(input_folder, fileid)     # input file 
-                            newfile = os.path.join(output_folder, fileid)   # output file
+                        if fileid.endswith('.txt'):    # text files only
+                            filen = os.path.join(
+                                input_folder, fileid)     # input file
+                            newfile = os.path.join(
+                                output_folder, fileid)   # output file
 
                             if not os.path.isfile(filen):
                                 self.logger(f"No input file: {fileid}")
@@ -908,17 +931,19 @@ class ParallelCorpusCleaner(Cleaner):
 
                             # Skip if output file already exists
                             if os.path.isfile(newfile) and skip_existing:
-                                p = multiprocessing.Process(target=self.load_existing_and_extract_metadata, args=(fileid, newfile, save_docs, process_output_dict))  # , kwargs=kwargs)
+                                p = multiprocessing.Process(target=self.load_existing_and_extract_metadata, args=(
+                                    fileid, newfile, save_docs, process_output_dict))  # , kwargs=kwargs)
                                 batch[fileid] = p
                                 p.start()
                                 # self.logger(f"Output file exists: {fileid}. Skipping...")
                                 continue
 
-                            # kwargs = {'process_output_dict': process_output_dict, 'save_doc': save_docs}                    
-                            p = multiprocessing.Process(target=self.clean_doc, args=(fileid, filen, save_docs, process_output_dict))  # , kwargs=kwargs)
+                            # kwargs = {'process_output_dict': process_output_dict, 'save_doc': save_docs}
+                            p = multiprocessing.Process(target=self.clean_doc, args=(
+                                fileid, filen, save_docs, process_output_dict))  # , kwargs=kwargs)
                             batch[fileid] = p
                             p.start()
-                            
+
             except Exception as e:
                 print(f'Exception received: {e.args[0]}')
                 bfileids = set(batch.keys())
@@ -931,7 +956,7 @@ class ParallelCorpusCleaner(Cleaner):
                         p.join()
                 break
 
-        # Cleanup just in case... 
+        # Cleanup just in case...
         bfileids = set(batch.keys())
         for fileid in bfileids:
             p = batch.pop(fileid)
@@ -940,13 +965,13 @@ class ParallelCorpusCleaner(Cleaner):
             if p.is_alive():
                 p.terminate()
                 p.join()
-                
+
         for fileid in process_output_dict.keys():
             doc_output = process_output_dict[fileid]
 
             lang_log.update(doc_output['lang'])
             token_log.update(doc_output['tokens'])
-            skipped_log.update(doc_output['skipped'])  
+            skipped_log.update(doc_output['skipped'])
             exception_log.update(doc_output['exception'])
             write_status_log.update(doc_output['write_status'])
 
@@ -967,8 +992,9 @@ class ParallelCorpusCleaner(Cleaner):
 
         return output_log
 
-    # Clean a single document using spell checker    
-    def clean_doc(self, fileid, filepath, save_doc=False, process_output_dict=None):  # args):
+    # Clean a single document using spell checker
+    # args):
+    def clean_doc(self, fileid, filepath, save_doc=False, process_output_dict=None):
         proc_fileid = fileid
         # filepath, *save_doc = args
 
@@ -976,7 +1002,8 @@ class ParallelCorpusCleaner(Cleaner):
             save_doc = False
 
         # log statistics
-        lang_log = {}  # lang info per document - uses the format - lang_log[fileid]={'score','lang'}
+        # lang info per document - uses the format - lang_log[fileid]={'score','lang'}
+        lang_log = {}
         spell_errors = {}
         token_log = {}  # Tokens count per document
         text_errors = {}
@@ -986,18 +1013,18 @@ class ParallelCorpusCleaner(Cleaner):
         write_status_log = {}
 
         filename = filepath.split('/')[-1]
-    
+
         fileid = filename.strip('.txt')
-        
+
         with open(filepath, 'rb') as fl:
             # Use context so that the file will be closed automatically upon exit from the context.
             text = fl.read()
             text = text.decode('utf-8', errors='ignore')
             text = text.lower()
-        
+
         cleaning_output = self.clean_text(text, filen=fileid)
         text = cleaning_output['text']
-        
+
         lang_log[fileid] = cleaning_output['lang']
         token_log[fileid] = cleaning_output['token']
         skipped_log[fileid] = cleaning_output['skipped']
@@ -1005,7 +1032,7 @@ class ParallelCorpusCleaner(Cleaner):
         spell_errors[fileid] = cleaning_output['spell_errors']
         exception_log[fileid] = cleaning_output['exception']
         write_status_log[fileid] = cleaning_output['write_status']
-        
+
         if save_doc and cleaning_output['write_status']:
             with open(os.path.join(self.output_folder, filename), 'w') as fl:
                 fl.write(text)
@@ -1019,10 +1046,10 @@ class ParallelCorpusCleaner(Cleaner):
         output_log['skipped'] = skipped_log
         output_log['exception'] = exception_log
         output_log['write_status'] = write_status_log
-        
+
         if process_output_dict is not None:
             process_output_dict[proc_fileid] = output_log
-        else: 
+        else:
             return output_log
 
 
@@ -1046,7 +1073,3 @@ class ParallelCorpusCleaner(Cleaner):
 # Step 1: Detect countries from the document if a country map file is provided.
 # Step 2: Apply lemmatization if specified (lemmatizer options: spacy or nltk).
 # In[ ]:
-
-
-
-
