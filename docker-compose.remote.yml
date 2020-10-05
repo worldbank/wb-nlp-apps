@@ -13,8 +13,9 @@ services:
         PROJECT_ID: wb_nlp
         ENV_DEV_FILE: "environment.dev.remote.yml"
     volumes:
+      - /home/avsolatorio/WBG/wb_nlp:/workspace
       # - ./:/workspace
-      - /home/avsolatorio/WBG/wb_nlp:/workspace:cached
+      # - /home/avsolatorio/WBG/wb_nlp:/workspace:cached
     # ports:
     #   - "8000:8000"
     # deploy:
@@ -30,9 +31,9 @@ services:
     image: nginx:latest
     ports:
     - "8880:80"
-    # volumes:
-    #     - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
-    #     - /home/avsolatorio/WBG/wb_nlp/app/site.conf:/etc/nginx/conf.d/site.conf
+    volumes:
+        - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
+        - /home/avsolatorio/WBG/wb_nlp/app/site.conf:/etc/nginx/conf.d/site.conf
     links:
       - php
     depends_on:
