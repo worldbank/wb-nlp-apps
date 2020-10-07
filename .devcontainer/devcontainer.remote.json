@@ -2,6 +2,7 @@
     "name": "wb_nlp",
     // https://code.visualstudio.com/docs/remote/devcontainerjson-reference
     "dockerComposeFile": [
+        "../docker-compose.yml",
         "../docker-compose.remote.yml"
     ],
     "service": "dev",
@@ -35,7 +36,8 @@
     ],
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     "forwardPorts": [
-        8000, 8880
+        8000,
+        8880
     ],
     // Use 'postCreateCommand' to run commands after the container is created.
     "postCreateCommand": "cp /tmp/conda-tmp/${ENV_DEV_FILE} ./ && /opt/conda/envs/${ENV_ID}/bin/python -m ipykernel install --user --name=wb_nlp && /opt/conda/envs/${ENV_ID}/bin/python setup.py develop",

@@ -14,49 +14,26 @@ services:
         ENV_DEV_FILE: "environment.dev.remote.yml"
     volumes:
       - /home/avsolatorio/WBG/wb_nlp:/workspace
-      # - ./:/workspace
       # - /home/avsolatorio/WBG/wb_nlp:/workspace:cached
     # ports:
     #   - "8000:8000"
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '4'
-    #       memory: 4G
-    #     reservations:
-    #       cpus: '3'
-    #       memory: 3G
 
   web:
-    image: nginx:latest
     ports:
     - "8880:80"
     volumes:
         - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
         - /home/avsolatorio/WBG/wb_nlp/app/site.conf:/etc/nginx/conf.d/site.conf
-    links:
-      - php
-    depends_on:
-      - php
 
   php:
-    image: php:7-fpm
     volumes:
       - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
 
-  tika:
-    image: apache/tika:latest
-
-  redis:
-    image: redis:latest
-
-  selenium:
-    image: selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20200907
-    ports:
-      - "4444:4444"
+  mongodb:
     volumes:
-      - /dev/shm:/dev/shm
-
+      - /home/avsolatorio/WBG/wb_nlp/data/mongodb:/data/db
+    ports:
+      - 27018:27017
   # nlp-app-mongodb:
   #   image: mongo:latest
   #   environment:
