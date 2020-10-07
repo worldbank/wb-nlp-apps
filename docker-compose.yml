@@ -32,7 +32,7 @@ services:
   web:
     image: nginx:latest
     ports:
-    - "80:80"
+    - "8880:80"
     volumes:
         - ./app/frontend:/frontend/nlp
         - ./app/site.conf:/etc/nginx/conf.d/site.conf
