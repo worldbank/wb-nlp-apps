@@ -38,6 +38,11 @@ RUN apt-get update \
     # Install enchant libraries for pyenchant
     && apt-get install -y enchant 2>&1 \
     #
+    # Install npm libraries for frontent (vuejs)
+    && apt-get install -y npm 2>&1 \
+    && npm install -g npm@latest 2>&1 \
+    && npm install -g @vue/cli 2>&1  \
+    #
     # Clean up
     && apt-get autoremove -y \
     && apt-get clean -y \
