@@ -1,5 +1,4 @@
-### WORD2VEC
-import path_manager
+# WORD2VEC
 import os
 import glob
 import requests
@@ -18,9 +17,12 @@ import langdetect
 from utils.parser import parse_args, log_payload
 import werkzeug
 
+from wb_nlp.dir_manager import get_model_dir
+
+
 headers = {"Content-Type": "application/json", "Accept": "application/json"}
 cleaning_url = 'http://localhost:8910/api/clean_text'
-WVEC_MODELS_PATH = path_manager.get_models_path('WORD2VEC')
+WVEC_MODELS_PATH = get_model_dir('WORD2VEC')
 WVEC_MODELS = {}
 
 
@@ -55,7 +57,8 @@ parser_wv.add_argument(
 def load_model(corpus_id, model_id, workers=1):
     # No doc_df for now.
     corpus_part, num_topics = model_id.split('_')
-    num_topics = num_topics.split('.')[0]  # Handles the format where we use other parameters: 128.wdw3 m-> 128 dimensions and window = 3
+    # Handles the format where we use other parameters: 128.wdw3 m-> 128 dimensions and window = 3
+    num_topics = num_topics.split('.')[0]
     num_topics = int(num_topics)
 
     w2vec_model = Word2VecModel(
@@ -105,7 +108,8 @@ class Word2VecView(Resource):
         else:
             return {'Error': 'Please provide a file or a raw_text parameter.'}
 
-        model = get_model(corpus_id, model_id)  # WVEC_MODELS.get(corpus_id, {}).get(model_id)
+        # WVEC_MODELS.get(corpus_id, {}).get(model_id)
+        model = get_model(corpus_id, model_id)
         if model is None:
             return {}
 
@@ -345,7 +349,8 @@ class RelatedDocsByIDView(Resource):
         duplicate_threshold = args['duplicate_threshold']
         return_related_words = args['return_related_words']
 
-        model = get_model(corpus_id, model_id)  # WVEC_MODELS.get(corpus_id, {}).get(model_id)
+        # WVEC_MODELS.get(corpus_id, {}).get(model_id)
+        model = get_model(corpus_id, model_id)
         if model is None:
             return {}
 

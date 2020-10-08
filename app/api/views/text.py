@@ -1,7 +1,8 @@
 from flask_restful import Resource, reqparse
 from flask_restful.inputs import boolean
-import path_manager as pm
 import os
+
+from wb_nlp.dir_manager import get_txt_data_dir
 
 parser = reqparse.RequestParser()
 parser.add_argument(
@@ -26,21 +27,21 @@ class FetchText(Resource):
         is_cleaned = args['is_cleaned']
 
         if is_cleaned:
-        	corpus_path = pm.get_txt_clean_path(corpus_id)
+            corpus_path = get_txt_data_dir(corpus_id, text_type='CLEAN')
         else:
-        	corpus_path = pm.get_txt_orig_path(corpus_id)
-        
+            corpus_path = get_txt_data_dir(corpus_id, text_type='ORIG')
+
         file_path = os.path.join(corpus_path, f'{doc_id}.txt')
         if os.path.isfile(file_path):
-        	try:
-        		with open(file_path) as fl:
-        			text = fl.read()
-        	except:
-        		with open(file_path, 'rb') as fl:
-        			text = fl.read().decode('utf-8', 'ignore')
+            try:
+                with open(file_path) as fl:
+                    text = fl.read()
+            except:
+                with open(file_path, 'rb') as fl:
+                    text = fl.read().decode('utf-8', 'ignore')
 
         else:
-        	return {'Error': 'File not found.'}
+            return {'Error': 'File not found.'}
 
         return {'text': text}
 

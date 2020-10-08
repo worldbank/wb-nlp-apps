@@ -1,5 +1,4 @@
-### WORD2VEC
-import path_manager
+# WORD2VEC
 import os
 import glob
 import requests
@@ -26,10 +25,14 @@ import time
 
 from utils.parser import parse_args
 
+from wb_nlp.dir_manager import get_model_dir
+
+
 headers = {"Content-Type": "application/json", "Accept": "application/json"}
 cleaning_url = 'http://localhost:8910/api/clean_text'
-LDA_MODELS_PATH = path_manager.get_models_path('LDA')
+LDA_MODELS_PATH = get_model_dir('LDA')
 LDA_MODELS = {}
+
 
 def load_model(corpus_id, model_id):
     # No doc_df for now.
@@ -241,7 +244,8 @@ class LDATopicWordsView(Resource):
             return {'Error': f'No model found for {corpus_id}-{model_id}'}
 
         return {'words': pd.read_json(
-            model.get_topic_words(topic_id, topn_words=topn_words, serialize=True)
+            model.get_topic_words(
+                topic_id, topn_words=topn_words, serialize=True)
         ).to_dict('records')}
 
     def get(self):
@@ -263,7 +267,8 @@ class LDADocTopicsView(Resource):
         total_topic_score = args['total_topic_score']
 
         return {'topics': pd.read_json(
-            model.get_doc_topic_words(text, topn_topics=topn_topics, total_topic_score=total_topic_score, serialize=True)
+            model.get_doc_topic_words(
+                text, topn_topics=topn_topics, total_topic_score=total_topic_score, serialize=True)
         ).to_dict('records')}
 
     def get(self):
@@ -281,12 +286,14 @@ class LDADocTopicsByIDView(Resource):
         topn_topics = args['topn_topics']
         total_topic_score = args['total_topic_score']
 
-        model = get_model(corpus_id, model_id)  # WVEC_MODELS.get(corpus_id, {}).get(model_id)
+        # WVEC_MODELS.get(corpus_id, {}).get(model_id)
+        model = get_model(corpus_id, model_id)
         if model is None:
             return {}
 
         return {'topics': pd.read_json(
-            model.get_doc_topic_words_by_id(id, topn_topics=topn_topics, total_topic_score=total_topic_score, serialize=True)
+            model.get_doc_topic_words_by_id(
+                id, topn_topics=topn_topics, total_topic_score=total_topic_score, serialize=True)
         ).to_dict('records')}
 
     def get(self):
@@ -337,7 +344,8 @@ class LDARelatedDocsByIDView(Resource):
         duplicate_threshold = args['duplicate_threshold']
         return_related_words = args['return_related_words']
 
-        model = get_model(corpus_id, model_id)  # WVEC_MODELS.get(corpus_id, {}).get(model_id)
+        # WVEC_MODELS.get(corpus_id, {}).get(model_id)
+        model = get_model(corpus_id, model_id)
         if model is None:
             return {}
 
@@ -360,7 +368,7 @@ class LDARelatedDocsByIDView(Resource):
 
 class LDAPartitionTopicShare(Resource):
     def post(self):
-        args =parse_args(parser_lda)
+        args = parse_args(parser_lda)
 
         year_start = args['year_start']
         year_end = args['year_end']
@@ -370,7 +378,8 @@ class LDAPartitionTopicShare(Resource):
         topic_id = args['topic_id']
         return_records = args['return_records']
 
-        model = get_model(corpus_id, model_id)  # WVEC_MODELS.get(corpus_id, {}).get(model_id)
+        # WVEC_MODELS.get(corpus_id, {}).get(model_id)
+        model = get_model(corpus_id, model_id)
 
         major_doc_types = args['major_doc_types']
         adm_regions = args['adm_regions']
@@ -382,10 +391,13 @@ class LDAPartitionTopicShare(Resource):
         plot_data = {}
 
         for part in lending_instruments:
-            data_iterator = get_data_iterator(filter={'wb_lending_instrument': {'$regex': f'{part}', '$options': 'i'}}, projection=['_id', 'year'])
-            data = pd.DataFrame(list(data_iterator)).rename(columns={'_id': 'id'}).set_index('id')
+            data_iterator = get_data_iterator(filter={'wb_lending_instrument': {
+                                              '$regex': f'{part}', '$options': 'i'}}, projection=['_id', 'year'])
+            data = pd.DataFrame(list(data_iterator)).rename(
+                columns={'_id': 'id'}).set_index('id')
 
-            topic_share = pd.Series(model.get_topic_share(topic_id, data.index.tolist()))
+            topic_share = pd.Series(model.get_topic_share(
+                topic_id, data.index.tolist()))
             print(topic_share.shape)
             data['topic_share'] = topic_share
 
@@ -400,15 +412,19 @@ class LDAPartitionTopicShare(Resource):
             plot_data.update({part: data.to_dict()})
 
             if return_records:
-                lending_instruments_data[part] = data.reset_index().to_dict('records')
+                lending_instruments_data[part] = data.reset_index().to_dict(
+                    'records')
             else:
                 lending_instruments_data[part] = data.to_dict()
 
         for part in major_doc_types:
-            data_iterator = get_data_iterator(filter={'major_doc_type': part}, projection=['_id', 'year'])
-            data = pd.DataFrame(list(data_iterator)).rename(columns={'_id': 'id'}).set_index('id')
+            data_iterator = get_data_iterator(
+                filter={'major_doc_type': part}, projection=['_id', 'year'])
+            data = pd.DataFrame(list(data_iterator)).rename(
+                columns={'_id': 'id'}).set_index('id')
 
-            topic_share = pd.Series(model.get_topic_share(topic_id, data.index.tolist()))
+            topic_share = pd.Series(model.get_topic_share(
+                topic_id, data.index.tolist()))
             data['topic_share'] = topic_share
 
             data.year = data.year.replace('', np.nan)
@@ -422,15 +438,19 @@ class LDAPartitionTopicShare(Resource):
             plot_data.update({part: data.to_dict()})
 
             if return_records:
-                major_doc_types_data[part] = data.reset_index().to_dict('records')
+                major_doc_types_data[part] = data.reset_index().to_dict(
+                    'records')
             else:
                 major_doc_types_data[part] = data.to_dict()
 
         for part in adm_regions:
-            data_iterator = get_data_iterator(filter={'adm_region': part}, projection=['_id', 'year'])
-            data = pd.DataFrame(list(data_iterator)).rename(columns={'_id': 'id'}).set_index('id')
+            data_iterator = get_data_iterator(
+                filter={'adm_region': part}, projection=['_id', 'year'])
+            data = pd.DataFrame(list(data_iterator)).rename(
+                columns={'_id': 'id'}).set_index('id')
 
-            topic_share = pd.Series(model.get_topic_share(topic_id, data.index.tolist()))
+            topic_share = pd.Series(model.get_topic_share(
+                topic_id, data.index.tolist()))
             data['topic_share'] = topic_share
 
             data.year = data.year.replace('', np.nan)
@@ -485,7 +505,8 @@ class LDAPartitionTopicShare(Resource):
 
         year_mark = 10
         ymax = pd.np.round(df.max().max(), 2) + 0.005
-        axs = df.plot(kind='bar', subplots=True, figsize=(12, df.shape[1] * 3), ylim=(0, ymax))
+        axs = df.plot(kind='bar', subplots=True, figsize=(
+            12, df.shape[1] * 3), ylim=(0, ymax))
 
         for ax in axs:
             ax.set_title('')
@@ -498,7 +519,8 @@ class LDAPartitionTopicShare(Resource):
 
             ax.xaxis.set_tick_params(reset=True)
 
-            ticks_pos, ticks_labels = zip(*[(i, j) for i, j in enumerate(df.reset_index()['index'].dt.strftime('%Y')) if int(j) % year_mark == 0])
+            ticks_pos, ticks_labels = zip(*[(i, j) for i, j in enumerate(
+                df.reset_index()['index'].dt.strftime('%Y')) if int(j) % year_mark == 0])
             ax.xaxis.set_major_formatter(mticker.FixedFormatter(ticks_labels))
             ax.xaxis.set_major_locator(mticker.FixedLocator(ticks_pos))
             ax.set_xlim((0, df.shape[0]))

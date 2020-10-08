@@ -1,8 +1,8 @@
 from flask_restful import Resource, reqparse
-import path_manager as pm
 import os
 import glob
 
+from wb_nlp.dir_manager import get_model_dir
 
 model_map = {
     'AFR': 'Africa',
@@ -30,13 +30,13 @@ class ModelsList(Resource):
     def post(self):
         models = {}
 
-        for m in glob.iglob(os.path.join(pm.MODELS_DIR, '*')):
+        for m in glob.iglob(get_model_dir('*')):
             if os.path.isdir(m):
                 model = os.path.basename(m)
                 models[model] = {}
 
         for model in models:
-            for m in glob.iglob(os.path.join(pm.get_models_path(model), '*')):
+            for m in glob.iglob(os.path.join(get_model_dir(model), '*')):
                 if os.path.isdir(m):
 
                     corpus_id, model_id = os.path.basename(m).split('-')
@@ -46,15 +46,19 @@ class ModelsList(Resource):
                             continue
 
                     partition_name = '_'.join(model_id.split('_')[:-1])
-                    partition_name = model_map.get(partition_name, partition_name)
+                    partition_name = model_map.get(
+                        partition_name, partition_name)
 
                     if corpus_id in models[model]:
                         if partition_name in models[model][corpus_id]:
-                            models[model][corpus_id][partition_name].append({'model_id': model_id, 'corpus_id': corpus_id})
+                            models[model][corpus_id][partition_name].append(
+                                {'model_id': model_id, 'corpus_id': corpus_id})
                         else:
-                            models[model][corpus_id][partition_name] = [{'model_id': model_id, 'corpus_id': corpus_id}]
+                            models[model][corpus_id][partition_name] = [
+                                {'model_id': model_id, 'corpus_id': corpus_id}]
                     else:
-                        models[model][corpus_id] = {partition_name: [{'model_id': model_id, 'partition_name': partition_name}]}
+                        models[model][corpus_id] = {partition_name: [
+                            {'model_id': model_id, 'partition_name': partition_name}]}
 
         return models
 

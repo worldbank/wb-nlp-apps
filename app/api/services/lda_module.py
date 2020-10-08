@@ -1,4 +1,3 @@
-from path_manager import get_models_path
 from gensim.models.wrappers.ldamallet import malletmodel2ldamodel
 import os
 import json
@@ -9,6 +8,7 @@ from gensim.corpora import Dictionary
 from gensim.models.wrappers import LdaMallet
 
 from sklearn.metrics import euclidean_distances
+from wb_nlp.dir_manager import get_model_dir
 
 
 class LDAInferencer:
@@ -25,7 +25,7 @@ class LDAInferencer:
         self.corpus_part = '_'.join(model_id.split('_')[:-1])
         self.num_topics = int(model_id.split('_')[-1])
 
-        self.models_path = get_models_path('LDA')
+        self.models_path = get_model_dir('LDA')
         self.model_folder = os.path.join(
             self.models_path, f'{CORPUS_ID}-{MODEL_ID}')
 

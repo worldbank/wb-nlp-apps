@@ -48,7 +48,6 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import PlaintextCorpusReader, wordnet
 from nltk.corpus import stopwords as nltk_stopwords
 from nltk.corpus import words
-import import_ipynb
 from services.acronyms.AcronymModule import AcronymMapper
 
 
@@ -60,9 +59,6 @@ import re
 import numpy as np
 import pandas as pd
 import nltk
-
-nltk.data.path.append("/R/nltk_data")
-
 
 # Spelling correction
 ENCHANT_INSTALLED = True

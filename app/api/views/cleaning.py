@@ -4,6 +4,8 @@ from services.data_cleaner_module import Cleaner
 from services.ngrams import NGramMapper
 import werkzeug
 
+from wb_nlp.dir_manager import get_data_dir
+
 
 parser = reqparse.RequestParser()
 parser.add_argument(
@@ -18,14 +20,17 @@ parser.add_argument(
 
 cleaner = Cleaner(
     use_spellchecker=True, use_respeller=True, use_lemmatizer=True, use_spacy=True,
-    replacements_plurals_to_singular_file='../SCRIPTS/whitelists/whitelist_replacements_plurals_to_singular.csv',
-    acronyms_file='../SCRIPTS/whitelists/whitelist_acronyms.csv',
+    replacements_plurals_to_singular_file=get_data_dir(
+        'whitelists', 'whitelists', 'whitelist_replacements_plurals_to_singular.csv'),
+    acronyms_file=get_data_dir(
+        'whitelists', 'whitelists', 'whitelist_acronyms.csv'),
     ignore_length=0,
     check_language=False,
 )
 
 ngrams = NGramMapper(
-    whitelist_file='../SCRIPTS/whitelists/whitelist_ngrams_cleaned.csv'  # '../SCRIPTS/whitelists/whitelist_ngrams_truncated_cleaned.csv'
+    whitelist_file=get_data_dir(
+        'whitelists', 'whitelists', 'whitelist_ngrams_cleaned.csv')  # '../SCRIPTS/whitelists/whitelist_ngrams_truncated_cleaned.csv'
 )
 
 
