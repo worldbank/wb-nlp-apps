@@ -3,6 +3,23 @@
     <br />
     <b-container fluid>
       <b-row>
+        <b-col class="ml-auto" cols="11">
+          <div>
+            <b-nav align="right">
+              <b-nav-item active>HOME</b-nav-item>
+              <b-nav-item>SEARCH</b-nav-item>
+              <b-nav-item>EXPLORE</b-nav-item>
+              <b-nav-item>ANALYZE</b-nav-item>
+              <b-nav-item>METHODS & TOOLS</b-nav-item>
+              <b-nav-item>API</b-nav-item>
+              <b-nav-item>ABOUT</b-nav-item>
+            </b-nav>
+          </div>
+        </b-col>
+        <b-col cols="1"></b-col>
+      </b-row>
+
+      <b-row>
         <b-col cols="2">
           <br />
           <br />
@@ -16,37 +33,28 @@
         ></b-col>
         <!-- <b-col cols="0.5"></b-col> -->
         <b-col cols="10">
-          <div>
-            <b-nav align="right">
-              <b-nav-item active>HOME</b-nav-item>
-              <b-nav-item>SEARCH</b-nav-item>
-              <b-nav-item>EXPLORE</b-nav-item>
-              <b-nav-item>ANALYZE</b-nav-item>
-              <b-nav-item>METHODS & TOOLS</b-nav-item>
-              <b-nav-item>API</b-nav-item>
-              <b-nav-item>ABOUT</b-nav-item>
-            </b-nav>
-          </div>
-          <br />
-          <br />
-          <div>
-            <ContentPanel msg="Welcome to Your Vue.js App" />
-          </div>
+          <b-row>
+            <b-col cols="11">
+              <br />
+              <br />
+              <div>
+                <router-view class="view"></router-view>
+              </div>
+            </b-col>
+            <b-col cols="1"></b-col>
+          </b-row>
         </b-col>
-        <!-- <b-col cols="0.5"></b-col> -->
       </b-row>
     </b-container>
   </div>
 </template>
 
 <script>
-import ContentPanel from "./components/ContentPanel.vue";
 import SidePanel from "./components/SidePanel.vue";
 
 export default {
   name: "App",
   components: {
-    ContentPanel,
     SidePanel,
   },
 };

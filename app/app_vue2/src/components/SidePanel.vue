@@ -15,9 +15,7 @@
 <script>
 export default {
   name: "SidePanel",
-  props: {
-    msg: String,
-  },
+  props: {},
 };
 </script>
 
