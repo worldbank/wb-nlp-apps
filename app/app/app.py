@@ -23,9 +23,24 @@ import pandas as pd
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 
+from functools import lru_cache
+from wb_nlp import dir_manager
+
 app = dash.Dash(__name__, external_stylesheets=[
                 dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
 server = app.server
+
+
+# @lru_cache(maxsize=None)
+def get_country_popularity_fig():
+    df = pd.read_csv(dir_manager.get_data_dir(
+        'preprocessed', 'country_popularity.csv'))
+
+    return px.choropleth(
+        df, locations='iso_alpha', locationmode='ISO-3',
+        color='popularity', animation_frame='year',
+        color_continuous_scale='Blues')
+
 
 # https://dash-bootstrap-components.opensource.faculty.ai/docs/components/navbar/
 nav = dbc.NavbarSimple(
@@ -75,6 +90,8 @@ CONTENT = dict(
 Description of metadata collected and augmented;
 
 Access to CSV and API (MongoDB)"""),
+    corpus__geographic_coverage=dcc.Markdown(
+        """# Corpus - Geographic coverage"""),
     corpus__test_corpus=dcc.Markdown("""# Corpus - Test corpus
 
 Provide a test corpus of ~50,000 WB docs with related metadata, source and clean txt files
@@ -185,8 +202,8 @@ app.layout = html.Div(children=[
                 html.Br(),
                 html.Br(),
                 html.Div(children=[
-
-                ], id="content-panel")
+                ], id="content-panel"),
+                dcc.Graph(id="content-graph")
             ], width=8),
             dbc.Col(children=[
             ], width=0.5),
@@ -232,6 +249,7 @@ nav_ids = [
 @ app.callback(
     [
         Output("content-panel", "children"),
+        Output("content-graph", "figure"),
         Output("collapse", "is_open")
     ] + [Output(f"{i}", "active") for i in nav_ids],
     [Input("url", "pathname")],
@@ -290,8 +308,12 @@ All code (except scrapers) in GitHub. See Methods and Tools.""")
     #     content.
 
     is_corpus_open = pathname.startswith("/corpus")
+    content_figure = None
 
-    outputs = [element, is_corpus_open] + \
+    if content_id == 'corpus__geographic_coverage':
+        content_figure = get_country_popularity_fig()
+
+    outputs = [element, content_figure, is_corpus_open] + \
         [pathname == f"/{i}" for i in nav_ids]
 
     return outputs
