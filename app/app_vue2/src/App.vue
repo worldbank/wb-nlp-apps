@@ -1,26 +1,55 @@
 <template>
   <div id="app">
-    <div>
-      <b-nav>
-        <b-nav-item active>Active</b-nav-item>
-        <b-nav-item>Link</b-nav-item>
-        <b-nav-item>Another Link</b-nav-item>
-        <b-nav-item disabled>Disabled</b-nav-item>
-      </b-nav>
-    </div>
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <br />
+    <b-container fluid>
+      <b-row>
+        <b-col cols="2">
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <b-row>
+            <b-col cols="1"></b-col>
+            <b-col cols="10"> <SidePanel /> </b-col>
+            <b-col cols="1"></b-col> </b-row
+        ></b-col>
+        <!-- <b-col cols="0.5"></b-col> -->
+        <b-col cols="10">
+          <div>
+            <b-nav align="right">
+              <b-nav-item active>HOME</b-nav-item>
+              <b-nav-item>SEARCH</b-nav-item>
+              <b-nav-item>EXPLORE</b-nav-item>
+              <b-nav-item>ANALYZE</b-nav-item>
+              <b-nav-item>METHODS & TOOLS</b-nav-item>
+              <b-nav-item>API</b-nav-item>
+              <b-nav-item>ABOUT</b-nav-item>
+            </b-nav>
+          </div>
+          <br />
+          <br />
+          <div>
+            <ContentPanel msg="Welcome to Your Vue.js App" />
+          </div>
+        </b-col>
+        <!-- <b-col cols="0.5"></b-col> -->
+      </b-row>
+    </b-container>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import ContentPanel from "./components/ContentPanel.vue";
+import SidePanel from "./components/SidePanel.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    ContentPanel,
+    SidePanel,
+  },
+};
 </script>
 
 <style>
@@ -28,8 +57,8 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  /* text-align: center; */
   color: #2c3e50;
-  margin-top: 60px;
+  /* margin-top: 60px; */
 }
 </style>
