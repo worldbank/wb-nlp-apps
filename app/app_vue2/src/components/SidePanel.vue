@@ -1,14 +1,10 @@
 <template>
-  <b-nav vertical pills align="left" class="w-25">
-    <b-nav-item active>INTRODUCTION</b-nav-item>
-    <b-nav-item>CORPUS</b-nav-item>
-    <b-nav-item>TOPIC COMPOSITION</b-nav-item>
-    <b-nav-item>TOPIC PROFILES</b-nav-item>
-    <b-nav-item>TOPIC TAXONOMY</b-nav-item>
-    <b-nav-item>TOPIC RELATIONSHIPS</b-nav-item>
-    <b-nav-item>WORD EMBEDDINGS</b-nav-item>
-    <b-nav-item>SIMILARITY</b-nav-item>
-    <b-nav-item>MONITORING SYSTEM</b-nav-item>
+  <b-nav vertical pills align="left" class="w-100">
+    <b-nav-item v-for="nav_name in nav_names" :key="nav_name">
+      <b-link :to="nav_name.toLowerCase()" :active="$route.name == nav_name">{{
+        nav_name
+      }}</b-link>
+    </b-nav-item>
   </b-nav>
 </template>
 
@@ -16,6 +12,21 @@
 export default {
   name: "SidePanel",
   props: {},
+  data: function () {
+    return {
+      nav_names: [
+        "INTRODUCTION",
+        "CORPUS",
+        "TOPIC COMPOSITION",
+        "TOPIC PROFILES",
+        "TOPIC TAXONOMY",
+        "TOPIC RELATIONSHIPS",
+        "WORD EMBEDDINGS",
+        "SIMILARITY",
+        "MONITORING SYSTEM",
+      ],
+    };
+  },
 };
 </script>
 
