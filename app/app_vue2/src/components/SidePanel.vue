@@ -1,9 +1,11 @@
 <template>
   <b-nav vertical pills align="left" class="w-100">
-    <b-nav-item v-for="nav_name in nav_names" :key="nav_name">
-      <b-link :to="nav_name.toLowerCase()" :active="$route.name == nav_name">{{
-        nav_name
-      }}</b-link>
+    <b-nav-item
+      v-for="nav_name in nav_names"
+      :key="nav_name"
+      :to="nav_name.toLowerCase()"
+      :active="$route.name == nav_name.toLowerCase()"
+      >{{ nav_name }}
     </b-nav-item>
   </b-nav>
 </template>

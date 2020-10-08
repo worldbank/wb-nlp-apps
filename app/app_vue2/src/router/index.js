@@ -6,10 +6,22 @@ Vue.use(VueRouter);
 
 const routes = [
     {
-        path: "/",
-        name: "content",
+        path: "/introduction",
+        name: "introduction",
         component: ContentPanel,
         props: { msg: "Introduction" },
+    },
+    {
+        path: "/corpus",
+        name: "corpus",
+        component: ContentPanel,
+        props: { msg: "Corpus" },
+    },
+    {
+        path: "/topic composition",
+        name: "topic composition",
+        component: ContentPanel,
+        props: { msg: "Topic Composition" },
     },
 ]
 
