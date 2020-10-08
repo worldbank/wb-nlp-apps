@@ -393,12 +393,8 @@ class Cleaner:
 
     def lemmatize_text_spacy(self, text):
         stopwords = set(self.stopwords)
-        try:
-            lmtzr_spacy = spacy.load(
-                'en', disable=['parser', 'ner', 'textcat'])
-        except OSError:
-            lmtzr_spacy = spacy.load(
-                '/R/spacy_data/en_core_web_sm/en_core_web_sm-2.0.0', disable=['parser', 'ner', 'textcat'])
+        lmtzr_spacy = spacy.load(
+            'en_core_web_sm', disable=['parser', 'ner', 'textcat'])
 
         doc = lmtzr_spacy(text.lower())
         # ' '.join(re.findall('[a-z0-9]+', text.lower())))

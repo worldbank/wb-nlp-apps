@@ -21,7 +21,9 @@ dependencies:
   - bandit=1.6.2
   - beautifulsoup4=4.9.1
   - black=20.8b1
+  - blas=1.0
   - bleach=3.2.0
+  - blosc=1.20.0
   - bokeh=2.2.1
   - boto=2.49.0
   - boto3=1.14.63
@@ -29,8 +31,9 @@ dependencies:
   - brotlipy=0.7.0
   - bs4=4.9.1
   - bz2file=0.98
+  - bzip2=1.0.8
   - c-ares=1.16.1
-  - ca-certificates=2020.6.20
+  - ca-certificates=2020.7.22
   - cachetools=4.1.1
   - catalogue=1.0.0
   - certifi=2020.6.20
@@ -85,6 +88,7 @@ dependencies:
   - googleapis-common-protos=1.51.0
   - googletrans=2.4.0
   - grpcio=1.31.0
+  - hdf5=1.10.4
   - heapdict=1.0.1
   - htop=3.0.2
   - identify=1.5.2
@@ -135,11 +139,13 @@ dependencies:
   - libwebp-base=1.1.0
   - locket=0.2.0
   - lz4-c=1.9.2
+  - lzo=2.10
   - markupsafe=1.1.1
   - matplotlib=3.3.2
   - matplotlib-base=3.3.2
   - mccabe=0.6.1
   - mistune=0.8.4
+  - mock=4.0.2
   - more-itertools=8.5.0
   - msgpack-python=1.0.0
   - murmurhash=1.0.0
@@ -156,6 +162,7 @@ dependencies:
   - nltk_data=2019.07.04
   - nodeenv=1.5.0
   - notebook=6.1.4
+  - numexpr=2.7.1
   - numpy=1.19.1
   - olefile=0.46
   - openpyxl=3.0.5
@@ -198,6 +205,7 @@ dependencies:
   - pyparsing=2.4.7
   - pyrsistent=0.17.3
   - pysocks=1.7.1
+  - pytables=3.6.1
   - pytest=6.0.2
   - pytest-cov=2.10.1
   - python=3.8.5
@@ -222,6 +230,7 @@ dependencies:
   - six=1.15.0
   - smart_open=2.1.1
   - smmap=3.0.4
+  - snappy=1.1.8
   - snowballstemmer=2.0.0
   - sortedcontainers=2.2.2
   - soupsieve=2.0.1

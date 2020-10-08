@@ -5,8 +5,8 @@ from views.cleaning import CleanText
 from views.word2vec import Word2VecView, RelatedWordsView, RelatedDocsView, RelatedDocsByIDView
 from views.lda import (
     LDAModelInferTopics,
-	LDARelatedDocsByIDView, LDARelatedDocsView, LDADocTopicsView,
-	LDATopicWordsView, LDADocTopicsByIDView, LDAPartitionTopicShare,
+    LDARelatedDocsByIDView, LDARelatedDocsView, LDADocTopicsView,
+    LDATopicWordsView, LDADocTopicsByIDView, LDAPartitionTopicShare,
     LDAModelTopicsView, LDATopicCompositionRangesView,
     LDADocsByTopicCompositionView,
 )
@@ -36,10 +36,13 @@ api.add_resource(LDADocTopicsByIDView, '/api/lda_doc_topics_by_id')
 api.add_resource(LDADocTopicsView, '/api/lda_doc_topics')
 
 api.add_resource(LDAModelTopicsView, '/api/get_lda_model_topics')
-api.add_resource(LDAPartitionTopicShare, '/api/lda_compare_partition_topic_share')
+api.add_resource(LDAPartitionTopicShare,
+                 '/api/lda_compare_partition_topic_share')
 
-api.add_resource(LDATopicCompositionRangesView, '/api/lda_topic_composition_ranges')
-api.add_resource(LDADocsByTopicCompositionView, '/api/lda_docs_by_topic_composition')
+api.add_resource(LDATopicCompositionRangesView,
+                 '/api/lda_topic_composition_ranges')
+api.add_resource(LDADocsByTopicCompositionView,
+                 '/api/lda_docs_by_topic_composition')
 
 api.add_resource(FetchText, '/api/fetch_text')
 
@@ -49,9 +52,10 @@ print('Server running...')
 
 if __name__ == '__main__':
     try:
-    	port = int(sys.argv[1])
+        port = int(sys.argv[1])
     except:
-    	port = 8910
+        port = 8910
 
     # gunicorn -w 4 -b 0.0.0.0:8910 server:app
+    # ss -lptn 'sport = :8910'
     app.run(host="0.0.0.0", debug=True, port=port)
