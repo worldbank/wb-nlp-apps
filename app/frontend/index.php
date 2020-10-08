@@ -151,7 +151,7 @@
             <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab" style="padding:20px;">
               <div class="input-group mb-3">
                 <div class="custom-file">
-                  <form class="form-file-upload" method="post" enctype="multipart/form-data" action="http://wbes2474:8910/api/related_docs">
+                  <form class="form-file-upload" method="post" enctype="multipart/form-data" action="/api/related_docs">
                     <input type="file" ref="file" name="file" class="xcustom-file-input" id="xinputGroupFile01">
                     <!--<label class="custom-file-label" for="inputGroupFile01">Choose file</label>-->
                     <input type="submit" v-on:click="uploadFile" :disabled="isReady() === false"/>
@@ -498,8 +498,8 @@
       data: {
         keywords: 'refugee',
         site_url:'http://wbes2474.worldbank.org/',
-        api_url:'http://wbes2474:8910/api/related_docs',
-        api_base_url:'http://wbes2474:8910/api/',
+        api_url:'/api/related_docs',
+        api_base_url:'/api/',
         is_searching:false,
         documents:[],
         words:[],
