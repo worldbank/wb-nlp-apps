@@ -6,37 +6,25 @@
     <b-container fluid>
       <b-row>
         <b-col cols="9" class="border-right">
-          <div
+          <b-row
             v-if="
               lda_model_id != '' &&
               topic_share_active &&
-              current_lda_model_topics
+              current_lda_model_topics_options
             "
-            class="row"
             style="padding-left: 20px"
           >
-            <div class="col-md-6">
-              <div class="form-group">
-                <select class="form-control" id="topic_id" v-model="topic_id">
-                  <option
-                    v-for="topic in current_lda_model_topics"
-                    :value="topic.topic_id"
-                    :key="'topic-id-' + topic.topic_id"
-                  >
-                    Topic {{ topic.topic_id }}:
-                    {{
-                      topic.topic_words
-                        .map(function (x) {
-                          return x.word;
-                        })
-                        .join(", ")
-                    }}
-                  </option>
-                </select>
-              </div>
-            </div>
+            <b-col cols="9">
+              <b-form-group>
+                <b-form-select
+                  id="topic_id"
+                  v-model="topic_id"
+                  :options="current_lda_model_topics_options"
+                ></b-form-select>
+              </b-form-group>
+            </b-col>
 
-            <div v-show="topic_share_active" class="col-md-6">
+            <b-col cols="3">
               <div>
                 <b-dropdown
                   split
@@ -52,34 +40,43 @@
                       <b-form-checkbox-group
                         v-model="topic_share_selected_adm_regions"
                         :options="adm_regions"
+                        stacked
                       ></b-form-checkbox-group>
                     </b-form-group>
                     <b-form-group label="Document Type">
                       <b-form-checkbox-group
                         v-model="topic_share_selected_doc_types"
                         :options="doc_types"
+                        stacked
                       ></b-form-checkbox-group>
                     </b-form-group>
                     <b-form-group label="Lending Instrument">
                       <b-form-checkbox-group
                         v-model="topic_share_selected_lending_instruments"
                         :options="lending_instruments"
+                        stacked
                       ></b-form-checkbox-group>
                     </b-form-group>
                   </b-dropdown-form>
+                  <b-dropdown-item-button disabled
+                    ><span> </span
+                  ></b-dropdown-item-button>
                 </b-dropdown>
               </div>
-            </div>
-          </div>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col>
+              {{ topic_share_selected_adm_regions }}
+              {{ topic_share_selected_doc_types }}
 
-          {{ topic_share_selected_adm_regions }}
-          {{ topic_share_selected_doc_types }}
-
-          <Plotly
-            :data="data"
-            :layout="layout"
-            :display-mode-bar="false"
-          ></Plotly>
+              <Plotly
+                :data="data"
+                :layout="layout"
+                :display-mode-bar="false"
+              ></Plotly>
+            </b-col>
+          </b-row>
         </b-col>
         <b-col cols="3">
           <h2>Try the API!</h2>
@@ -134,10 +131,12 @@ export default {
       api_url: "/api/related_words",
       related_words: [],
       current_lda_model_topics: [],
+      current_lda_model_topics_options: [],
       raw_text: "poverty",
       loading: true,
 
       corpus_id: "WB",
+      lda_model_id: "ALL_50",
 
       topic_share_active: true,
 
@@ -200,7 +199,7 @@ export default {
       this.loading = true;
       this.$http
         .get(
-          "http://10.0.0.25:8088/api/" +
+          "http://10.0.0.25:8088/api/related_words" +
             "?model_id=ALL_50&raw_text=" +
             this.raw_text
         )
@@ -212,6 +211,18 @@ export default {
           this.errored = true;
         })
         .finally(() => (this.loading = false));
+    },
+    formatTopicText: function (topic) {
+      return (
+        "Topic " +
+        topic.topic_id +
+        ": " +
+        topic.topic_words
+          .map(function (x) {
+            return x.word;
+          })
+          .join(", ")
+      );
     },
     setModel: function (_model_id, model_name) {
       _model_id = "ALL_50";
@@ -237,6 +248,15 @@ export default {
           )
           .then((response) => {
             this.current_lda_model_topics = response.data;
+            this.current_lda_model_topics_options = this.lodash.map(
+              this.current_lda_model_topics,
+              (topic) => {
+                return {
+                  text: this.formatTopicText(topic),
+                  value: topic.topic_id,
+                };
+              }
+            );
           })
           .catch((error) => {
             console.log(error);
@@ -258,6 +278,51 @@ export default {
       }
       // vm.state_ready = true;
     },
+    // findTopicShare: function () {
+    //   let vm = this;
+    //   this.topic_share_searching = true;
+    //   this.topic_share_plot_ready = false;
+
+    //   options = {
+    //     corpus_id: this.corpus_id,
+    //     model_id: this.lda_model_id,
+    //     topic_id: this.topic_id,
+    //     year_start: 1960,
+    //     adm_regions: this.topic_share_selected_adm_regions,
+    //     major_doc_types: this.topic_share_selected_doc_types,
+    //     lending_instruments: this.topic_share_selected_lending_instruments,
+    //   };
+
+    //   $.ajax({
+    //     url:
+    //       this.api_base_url +
+    //       "lda_compare_partition_topic_share" +
+    //       "?" +
+    //       $.param(options, true),
+    //     // data: options,
+    //     processData: false,
+    //     type: "POST",
+    //     method: "POST",
+    //     contentType: false,
+    //     success: function (data) {
+    //       if ("topic_shares" in data) {
+    //         vm.topic_shares = data.topic_shares;
+    //       }
+    //       if ("topic_words" in data) {
+    //         vm.topic_words = data.topic_words;
+    //       }
+    //       console.log(data);
+    //     },
+    //     error: function (e) {
+    //       console.log(e);
+    //       vm.errors.push(e);
+    //       vm.topic_share_searching = false;
+    //     },
+    //   }).done(function () {
+    //     vm.topic_share_searching = false;
+    //     vm.plotStack(vm.topic_shares);
+    //   });
+    // },
     // plotStack: function (topic_shares) {
     //   this.topic_share_plot_ready = false;
 
@@ -403,51 +468,6 @@ export default {
     // togglePanels: function (topic_map_active, topic_share_active) {
     //   this.topicShareActiveToggle(topic_share_active, topic_map_active);
     //   this.topicMapActiveToggle(topic_map_active, topic_share_active);
-    // },
-    // findTopicShare: function (topic_id, model_id, corpus_id) {
-    //   let vm = this;
-    //   this.topic_share_searching = true;
-    //   this.topic_share_plot_ready = false;
-
-    //   options = {
-    //     corpus_id: this.corpus_id,
-    //     model_id: this.lda_model_id,
-    //     topic_id: this.topic_id,
-    //     year_start: 1960,
-    //     adm_regions: this.topic_share_selected_adm_regions,
-    //     major_doc_types: this.topic_share_selected_doc_types,
-    //     lending_instruments: this.topic_share_selected_lending_instruments,
-    //   };
-
-    //   $.ajax({
-    //     url:
-    //       this.api_base_url +
-    //       "lda_compare_partition_topic_share" +
-    //       "?" +
-    //       $.param(options, true),
-    //     // data: options,
-    //     processData: false,
-    //     type: "POST",
-    //     method: "POST",
-    //     contentType: false,
-    //     success: function (data) {
-    //       if ("topic_shares" in data) {
-    //         vm.topic_shares = data.topic_shares;
-    //       }
-    //       if ("topic_words" in data) {
-    //         vm.topic_words = data.topic_words;
-    //       }
-    //       console.log(data);
-    //     },
-    //     error: function (e) {
-    //       console.log(e);
-    //       vm.errors.push(e);
-    //       vm.topic_share_searching = false;
-    //     },
-    //   }).done(function () {
-    //     vm.topic_share_searching = false;
-    //     vm.plotStack(vm.topic_shares);
-    //   });
     // },
   },
 };
