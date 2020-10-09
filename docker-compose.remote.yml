@@ -22,6 +22,19 @@ services:
       - mongodb
       - web
 
+  app:
+    build:
+      context: ./app/app_vue2
+      dockerfile: Dockerfile
+    volumes:
+      - /home/avsolatorio/WBG/wb_nlp/app/app_vue2:/app
+      # - ./:/workspace
+      # - /home/avsolatorio/WBG/wb_nlp:/workspace:cached
+    ports:
+      - "8088:8000"
+    depends_on:
+      - web
+
   web:
     ports:
     - "8880:80"

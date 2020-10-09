@@ -33,13 +33,14 @@
     },
     // Add the IDs of extensions you want installed when the container is created.
     "extensions": [
-		"ms-python.python",
-		"octref.vetur"
-	],
+        "ms-python.python",
+        "octref.vetur"
+    ],
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     "forwardPorts": [
         8000,
-        8880
+        8880,
+        8088
     ],
     // Use 'postCreateCommand' to run commands after the container is created.
     "postCreateCommand": "cp /tmp/conda-tmp/${ENV_DEV_FILE} ./ && /opt/conda/envs/${ENV_ID}/bin/python -m ipykernel install --user --name=wb_nlp && /opt/conda/envs/${ENV_ID}/bin/python setup.py develop",
