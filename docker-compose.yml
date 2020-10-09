@@ -29,30 +29,25 @@ services:
     #       cpus: '3'
     #       memory: 3G
 
-  web:
+  app:
     build:
       context: ./app/app_vue2
     ports:
+    - "8088:80"
+    volumes:
+      - ./site.conf:/etc/nginx/conf.d/site.conf
+
+  web:
+    image: nginx:latest
+    ports:
     - "8880:80"
-    # volumes:
-    #     - ./app/frontend:/frontend/nlp
-    #     - ./app/site.conf:/etc/nginx/conf.d/site.conf
+    volumes:
+        - ./app/frontend:/frontend/nlp
+        - ./app/site.conf:/etc/nginx/conf.d/site.conf
     links:
       - php
     depends_on:
       - php
-
-  # web:
-  #   image: nginx:latest
-  #   ports:
-  #   - "8880:80"
-  #   volumes:
-  #       - ./app/frontend:/frontend/nlp
-  #       - ./app/site.conf:/etc/nginx/conf.d/site.conf
-  #   links:
-  #     - php
-  #   depends_on:
-  #     - php
 
   php:
     image: php:7-fpm

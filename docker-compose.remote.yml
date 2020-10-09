@@ -35,15 +35,18 @@ services:
   #   depends_on:
   #     - web
 
+  app:
+    ports:
+      - "8088:80"
+    volumes:
+      - /home/avsolatorio/WBG/wb_nlp/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
+
   web:
     ports:
       - "8880:80"
     volumes:
-    #   # - ./app/frontend:/frontend/nlp
-    #   # - ./app/site.conf:/etc/nginx/conf.d/site.conf
-    #   - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
-    #   - /home/avsolatorio/WBG/wb_nlp/app/site.conf:/etc/nginx/conf.d/site.conf
-      - /home/avsolatorio/WBG/wb_nlp/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
+      - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
+      - /home/avsolatorio/WBG/wb_nlp/app/site.conf:/etc/nginx/conf.d/site.conf
 
   php:
     volumes:
