@@ -28,7 +28,7 @@
               <div>
                 <b-dropdown
                   split
-                  v-on:click="readyForSubmit ? getRelatedWords() : null"
+                  v-on:click="readyForSubmit ? findTopicShare() : null"
                   split-variant="outline-primary"
                   variant="primary"
                   :text="
@@ -71,9 +71,10 @@
               {{ topic_share_selected_doc_types }}
 
               <Plotly
-                :data="data"
-                :layout="layout"
-                :display-mode-bar="false"
+                v-show="topic_share_plot_ready"
+                :data="plot_data"
+                :layout="plot_layout"
+                :display-mode-bar="true"
               ></Plotly>
             </b-col>
           </b-row>
@@ -128,6 +129,7 @@ export default {
     // http://10.0.0.25:8880/api/related_words?raw_text=poverty&model_id=ALL_50
     return {
       // api_url: "http://10.0.0.25:8880/api/related_words",
+      errors: [],
       api_url: "/api/related_words",
       related_words: [],
       current_lda_model_topics: [],
@@ -146,6 +148,9 @@ export default {
       topic_share_selected_lending_instruments: [],
       topic_share_plot_ready: false,
       topic_share_searching: false,
+
+      topic_shares: null,
+      topic_words: null,
 
       // Doc types specific to WB document. Must be changed when updating the metadata.
       adm_regions: [
@@ -168,14 +173,14 @@ export default {
       lending_instruments: ["Development Policy Lending"],
 
       // Plotly data and layout
-      data: [
+      plot_data: [
         {
           x: [1, 2, 3, 4],
           y: [10, 15, 13, 17],
           type: "scatter",
         },
       ],
-      layout: {
+      plot_layout: {
         title: "My graph",
       },
     };
@@ -263,164 +268,156 @@ export default {
             this.errored = true;
           })
           .finally(() => (this.loading = false));
-
-        // $.ajax({
-        //   type: "GET",
-        //   url:
-        //     this.api_base_url + "get_lda_model_topics" + "?" + $.param(options),
-        //   success: function (data) {
-        //     console.log(data);
-        //     vm.current_lda_model_topics = data;
-        //   },
-        // });
       } else {
         return;
       }
       // vm.state_ready = true;
     },
-    // findTopicShare: function () {
-    //   let vm = this;
-    //   this.topic_share_searching = true;
-    //   this.topic_share_plot_ready = false;
+    findTopicShare: function () {
+      this.topic_share_searching = true;
+      this.topic_share_plot_ready = false;
 
-    //   options = {
-    //     corpus_id: this.corpus_id,
-    //     model_id: this.lda_model_id,
-    //     topic_id: this.topic_id,
-    //     year_start: 1960,
-    //     adm_regions: this.topic_share_selected_adm_regions,
-    //     major_doc_types: this.topic_share_selected_doc_types,
-    //     lending_instruments: this.topic_share_selected_lending_instruments,
-    //   };
+      let options = {
+        corpus_id: this.corpus_id,
+        model_id: this.lda_model_id,
+        topic_id: this.topic_id,
+        year_start: 1960,
+        adm_regions: this.topic_share_selected_adm_regions,
+        major_doc_types: this.topic_share_selected_doc_types,
+        lending_instruments: this.topic_share_selected_lending_instruments,
+      };
 
-    //   $.ajax({
-    //     url:
-    //       this.api_base_url +
-    //       "lda_compare_partition_topic_share" +
-    //       "?" +
-    //       $.param(options, true),
-    //     // data: options,
-    //     processData: false,
-    //     type: "POST",
-    //     method: "POST",
-    //     contentType: false,
-    //     success: function (data) {
-    //       if ("topic_shares" in data) {
-    //         vm.topic_shares = data.topic_shares;
-    //       }
-    //       if ("topic_words" in data) {
-    //         vm.topic_words = data.topic_words;
-    //       }
-    //       console.log(data);
-    //     },
-    //     error: function (e) {
-    //       console.log(e);
-    //       vm.errors.push(e);
-    //       vm.topic_share_searching = false;
-    //     },
-    //   }).done(function () {
-    //     vm.topic_share_searching = false;
-    //     vm.plotStack(vm.topic_shares);
-    //   });
-    // },
-    // plotStack: function (topic_shares) {
-    //   this.topic_share_plot_ready = false;
+      this.$http
+        .post(
+          "http://10.0.0.25:8088/api/lda_compare_partition_topic_share",
+          options
+        )
+        .then((response) => {
+          let data = response.data;
 
-    //   keys = Object.keys(topic_shares);
-    //   traces = [];
+          if ("topic_shares" in data) {
+            this.topic_shares = data.topic_shares;
+          }
+          if ("topic_words" in data) {
+            this.topic_words = data.topic_words;
+          }
+          console.log(data);
+        })
+        .catch((error) => {
+          console.log(error);
+          this.errors.push(error);
+          this.errored = true;
+        })
+        .finally(() => {
+          this.topic_share_searching = false;
+          this.plotStack(this.topic_shares);
+        });
+    },
+    plotStack: function (topic_shares) {
+      this.topic_share_plot_ready = false;
 
-    //   ph = 200.0;
-    //   ps = 20.0;
+      let keys = Object.keys(topic_shares);
+      let traces = [];
 
-    //   height = ph * keys.length + ps * (keys.length - 1);
-    //   div_dt = ps / height;
-    //   panel_dt = ph / height;
+      let ph = 200.0;
+      let ps = 20.0;
 
-    //   var layout = {
-    //     title: "Topic share per document group",
-    //     xaxis: { domain: [0, 1], title: "Year" },
-    //     // yaxis: {domain: [0, 0.325]},
-    //     // yaxis2: {domain: [0.35, 0.675]},
-    //     // yaxis3: {domain: [0.7, 1]},
-    //     // yaxis4: {domain: [0.85, 1]},
-    //     height: height,
-    //     // xaxis4: {
-    //     //   domain: [0.55, 1],
-    //     //   anchor: 'y4'
-    //     // },
-    //     // xaxis2: {domain: [0.55, 1]},
-    //     // yaxis3: {domain: [0.55, 1]},
-    //     // yaxis4: {
-    //     //   domain: [0.55, 1],
-    //     //   anchor: 'x4'
-    //     // }
-    //     autosize: true,
-    //   };
+      let height = ph * keys.length + ps * (keys.length - 1);
+      let panel_dt = ph / height;
 
-    //   Plotly.newPlot("myDiv", traces, layout);
+      let layout = {
+        title: "Topic share per document group",
+        xaxis: { domain: [0, 1], title: "Year" },
+        // yaxis: {domain: [0, 0.325]},
+        // yaxis2: {domain: [0.35, 0.675]},
+        // yaxis3: {domain: [0.7, 1]},
+        // yaxis4: {domain: [0.85, 1]},
+        height: height,
+        // xaxis4: {
+        //   domain: [0.55, 1],
+        //   anchor: 'y4'
+        // },
+        // xaxis2: {domain: [0.55, 1]},
+        // yaxis3: {domain: [0.55, 1]},
+        // yaxis4: {
+        //   domain: [0.55, 1],
+        //   anchor: 'x4'
+        // }
+        autosize: true,
+      };
 
-    //   ix = 1;
-    //   yd_start = 0;
-    //   yd_end = yd_start + panel_dt;
-    //   max_y = 0;
+      // Plotly.newPlot("myDiv", traces, layout);
 
-    //   for (name in topic_shares) {
-    //     (y = topic_shares[name].map(function (x) {
-    //       return x.topic_share;
-    //     })),
-    //       (y_max = Math.max.apply(null, y));
+      let ix = 1;
+      let yd_start = 0;
+      let yd_end = yd_start + panel_dt;
+      let max_y = 0;
+      let part_name = "";
+      let y, y_max, tr, div_dt;
 
-    //     if (y_max > max_y) {
-    //       max_y = y_max;
-    //     }
+      for (part_name in topic_shares) {
+        (y = topic_shares[part_name].map(function (x) {
+          return x.topic_share;
+        })),
+          (y_max = Math.max.apply(null, y));
 
-    //     tr = {
-    //       x: topic_shares[name].map(function (x) {
-    //         return x.year;
-    //       }),
-    //       y: y,
-    //       name: name,
-    //       type: "bar",
-    //     };
-    //     if (ix > 1) {
-    //       tr.xaxis = "x";
-    //       tr.yaxis = "y" + ix;
-    //     }
+        if (y_max > max_y) {
+          max_y = y_max;
+        }
 
-    //     traces.push(tr);
-    //     ix += 1;
-    //   }
+        tr = {
+          x: topic_shares[part_name].map(function (x) {
+            return x.year;
+          }),
+          y: y,
+          name: part_name,
+          type: "bar",
+        };
+        if (ix > 1) {
+          tr.xaxis = "x";
+          tr.yaxis = "y" + ix;
+        }
 
-    //   for (ix = 1; ix <= keys.length; ix++) {
-    //     if (ix > 1) {
-    //       layout["yaxis" + ix] = {
-    //         domain: [yd_start, yd_end],
-    //         range: [0, max_y],
-    //       };
-    //     } else {
-    //       layout.yaxis = { domain: [yd_start, yd_end], range: [0, max_y] };
-    //     }
+        traces.push(tr);
+        ix += 1;
+      }
 
-    //     yd_start = yd_end + div_dt;
-    //     yd_end = yd_start + panel_dt;
-    //   }
+      for (ix = 1; ix <= keys.length; ix++) {
+        if (ix > 1) {
+          layout["yaxis" + ix] = {
+            domain: [yd_start, yd_end],
+            range: [0, max_y],
+          };
+        } else {
+          layout.yaxis = { domain: [yd_start, yd_end], range: [0, max_y] };
+        }
 
-    //   layout.legend = { orientation: "h", x: 0, y: 1 };
+        yd_start = yd_end + div_dt;
+        yd_end = yd_start + panel_dt;
+      }
 
-    //   Plotly.newPlot("myDiv", traces, layout);
+      layout.legend = { orientation: "h", x: 0, y: 1 };
 
-    //   // myPlot = document.getElementById('myDiv');
-    //   // myPlot.on('plotly_afterplot', function() {
-    //   //   this.topic_share_plot_ready = true;
-    //   // });
+      this.plot_data = traces;
+      this.plot_layout = layout;
 
-    //   // Make the plotly responsive
-    //   // https://gist.github.com/aerispaha/63bb83208e6728188a4ee701d2b25ad5
-    //   this.makeResponsive();
+      //   Plotly.newPlot("myDiv", traces, layout);
 
-    //   this.topic_share_plot_ready = true;
-    //   return true;
-    // },
+      //   // myPlot = document.getElementById('myDiv');
+      //   // myPlot.on('plotly_afterplot', function() {
+      //   //   this.topic_share_plot_ready = true;
+      //   // });
+
+      //   // Make the plotly responsive
+      //   // https://gist.github.com/aerispaha/63bb83208e6728188a4ee701d2b25ad5
+      //   this.makeResponsive();
+
+      //   this.topic_share_plot_ready = true;
+      //   return true;
+      this.topic_share_plot_ready = true;
+
+      return topic_shares; // delete this after!!!
+    },
     // makeResponsive: function () {
     //   var d3 = Plotly.d3;
     //   var WIDTH_IN_PERCENT_OF_PARENT = 100,
