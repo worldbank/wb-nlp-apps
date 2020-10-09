@@ -6,7 +6,87 @@
     <b-container fluid>
       <b-row>
         <b-col cols="9" class="border-right">
-          Word2vec is a simple embedding model.
+          <div
+            v-if="
+              lda_model_id != '' &&
+              topic_share_active &&
+              current_lda_model_topics
+            "
+            class="row"
+            style="padding-left: 20px"
+          >
+            <div class="col-md-6">
+              <div class="form-group">
+                <select class="form-control" id="topic_id" v-model="topic_id">
+                  <option
+                    v-for="topic in current_lda_model_topics"
+                    :value="topic.topic_id"
+                    :key="'topic-id-' + topic.topic_id"
+                  >
+                    Topic {{ topic.topic_id }}:
+                    {{
+                      topic.topic_words
+                        .map(function (x) {
+                          return x.word;
+                        })
+                        .join(", ")
+                    }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div v-show="topic_share_active" class="col-md-6">
+              <!-- Edit stuff here -->
+              <div>
+                <b-dropdown
+                  split
+                  split-variant="outline-primary"
+                  variant="primary"
+                  text="Data Partitions"
+                >
+                  <b-dropdown-form>
+                    <b-form-group label="Admin Region">
+                      <b-form-checkbox-group
+                        v-model="topic_share_selected_adm_regions"
+                        :options="adm_regions"
+                      ></b-form-checkbox-group>
+                    </b-form-group>
+                    <b-form-group label="Document Type">
+                      <b-form-checkbox-group
+                        v-model="topic_share_selected_doc_types"
+                        :options="doc_types"
+                      ></b-form-checkbox-group>
+                    </b-form-group>
+                    <b-form-group label="Lending Instrument">
+                      <b-form-checkbox-group
+                        v-model="topic_share_selected_lending_instruments"
+                        :options="lending_instruments"
+                      ></b-form-checkbox-group>
+                    </b-form-group>
+
+                    <!-- v-for="adm_reg in adm_regions"
+                      :key="'adm_reg-' + adm_reg"
+                      ><label class="dropdown-menu-item checkbox">
+                        <input
+                          type="checkbox"
+                          :value="adm_reg"
+                          v-model="topic_share_selected_adm_regions"
+                        />
+                        <span>{{ adm_reg }}</span>
+                      </label></b-dropdown-form
+                    > -->
+                  </b-dropdown-form>
+                </b-dropdown>
+              </div>
+
+              <!-- End edit of stuff here -->
+            </div>
+          </div>
+
+          {{ topic_share_selected_adm_regions }}
+          {{ topic_share_selected_doc_types }}
+
           <Plotly
             :data="data"
             :layout="layout"
@@ -49,6 +129,7 @@
 
 <script>
 import { Plotly } from "vue-plotly";
+import $ from "jquery";
 
 export default {
   name: "TopicProfiles",
@@ -64,8 +145,41 @@ export default {
       // api_url: "http://10.0.0.25:8880/api/related_words",
       api_url: "/api/related_words",
       related_words: [],
+      current_lda_model_topics: [],
       raw_text: "",
       loading: true,
+
+      corpus_id: "WB",
+
+      topic_share_active: true,
+
+      topic_id: 0,
+      topic_share_selected_adm_regions: [],
+      topic_share_selected_doc_types: [],
+      topic_share_selected_lending_instruments: [],
+      topic_share_plot_ready: false,
+      topic_share_searching: false,
+
+      // Doc types specific to WB document. Must be changed when updating the metadata.
+      adm_regions: [
+        "Africa",
+        "East Asia and Pacific",
+        "Europe and Central Asia",
+        "Latin America & Caribbean",
+        "Middle East and North Africa",
+        "Rest Of The World",
+        "South Asia",
+        "The world Region",
+      ],
+      doc_types: [
+        "Board Documents",
+        "Country Focus",
+        "Economic & Sector Work",
+        "Project Documents",
+        "Publications & Research",
+      ],
+      lending_instruments: ["Development Policy Lending"],
+
       // Plotly data and layout
       data: [
         {
@@ -81,6 +195,7 @@ export default {
   },
   mounted() {
     this.getRelatedWords();
+    this.setModel();
   },
   methods: {
     getRelatedWords: function () {
@@ -95,6 +210,51 @@ export default {
           this.errored = true;
         })
         .finally(() => (this.loading = false));
+    },
+    setModel: function (_model_id, model_name) {
+      _model_id = "ALL_50";
+      model_name = "lda";
+      let vm = this;
+      if (model_name == "word2vec") {
+        vm.word2vec_model_id = _model_id;
+      } else if (model_name == "lda") {
+        // Assume that
+        vm.lda_model_id = _model_id;
+
+        let options = {
+          corpus_id: this.corpus_id,
+          model_id: this.lda_model_id,
+          topn_words: 10,
+        };
+
+        this.$http
+          .get(
+            "http://10.0.0.25:8088/api/get_lda_model_topics" +
+              "?" +
+              $.param(options)
+          )
+          .then((response) => {
+            this.current_lda_model_topics = response.data;
+          })
+          .catch((error) => {
+            console.log(error);
+            this.errored = true;
+          })
+          .finally(() => (this.loading = false));
+
+        // $.ajax({
+        //   type: "GET",
+        //   url:
+        //     this.api_base_url + "get_lda_model_topics" + "?" + $.param(options),
+        //   success: function (data) {
+        //     console.log(data);
+        //     vm.current_lda_model_topics = data;
+        //   },
+        // });
+      } else {
+        return;
+      }
+      // vm.state_ready = true;
     },
     // plotStack: function (topic_shares) {
     //   this.topic_share_plot_ready = false;
