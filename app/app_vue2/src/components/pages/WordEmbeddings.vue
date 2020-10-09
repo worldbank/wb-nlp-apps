@@ -3,23 +3,41 @@
     <h1>{{ page_title }}</h1>
     <br />
 
-    <ul>
-      <li v-for="related_word in related_words" :key="related_word.word">
-        {{ related_word.word }}
-      </li>
-    </ul>
-
     <b-container fluid>
-      <!-- <vue-friendly-iframe
-        src="https://agoldst.github.io/dfr-browser/demo/"
-        @load="onLoad"
-      ></vue-friendly-iframe> -->
-      <iframe
-        src="https://agoldst.github.io/dfr-browser/demo/"
-        frameborder="0"
-        height="800px"
-        width="100%"
-      ></iframe>
+      <b-row>
+        <b-col cols="9" class="border-right">
+          Word2vec is a simple embedding model.
+        </b-col>
+        <b-col cols="3">
+          <h2>Try the API!</h2>
+          <b-form-input
+            width="100%"
+            v-model="raw_text"
+            placeholder="Enter word(s)"
+            v-on:keyup.enter="getRelatedWords"
+          />
+          <br />
+          <h4 v-show="raw_text">Input text</h4>
+          {{ raw_text }}
+          <br />
+          <br />
+          <h4>Similar words</h4>
+
+          <b-skeleton
+            v-show="loading"
+            animation="wave"
+            width="85%"
+          ></b-skeleton>
+          <b-list-group v-show="!loading" flush>
+            <b-list-group-item
+              v-for="related_word in related_words"
+              :key="related_word.word"
+            >
+              {{ related_word.word }}
+            </b-list-group-item>
+          </b-list-group></b-col
+        >
+      </b-row>
     </b-container>
   </div>
 </template>
@@ -33,7 +51,9 @@ export default {
   data: function () {
     // http://10.0.0.25:8880/api/related_words?raw_text=poverty&model_id=ALL_50
     return {
+      api_url: "http://10.0.0.25:8880/api/related_words",
       related_words: [],
+      raw_text: "",
       loading: true,
     };
   },
@@ -42,10 +62,9 @@ export default {
   },
   methods: {
     getRelatedWords: function () {
+      this.loading = true;
       this.$http
-        .get(
-          "http://10.0.0.25:8880/api/related_words?raw_text=poverty&model_id=ALL_50"
-        )
+        .get(this.api_url + "?model_id=ALL_50&raw_text=" + this.raw_text)
         .then((response) => {
           this.related_words = response.data.words;
         })
