@@ -5,6 +5,8 @@ import ExploreNav from '../components/ExploreNav.vue'
 import ContentPanel from '../components/ContentPanel.vue'
 import Introduction from '../components/pages/Introduction.vue'
 import TopicComposition from '../components/pages/TopicComposition.vue'
+import WordEmbeddings from '../components/pages/WordEmbeddings.vue'
+
 
 Vue.use(VueRouter);
 
@@ -54,7 +56,7 @@ const explore_routes = [
     {
         path: "word-embeddings",
         name: "word embeddings",
-        component: ContentPanel,
+        component: WordEmbeddings,
         props: { page_title: "Word Embeddings" },
     },
     {
