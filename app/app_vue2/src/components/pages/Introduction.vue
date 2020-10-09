@@ -33,7 +33,7 @@
 
 <script>
 export default {
-  name: "ContentPanel",
+  name: "Introduction",
   props: {
     page_title: String,
   },
