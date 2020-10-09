@@ -37,13 +37,15 @@
             </div>
 
             <div v-show="topic_share_active" class="col-md-6">
-              <!-- Edit stuff here -->
               <div>
                 <b-dropdown
                   split
+                  v-on:click="readyForSubmit ? getRelatedWords() : null"
                   split-variant="outline-primary"
                   variant="primary"
-                  text="Data Partitions"
+                  :text="
+                    readyForSubmit ? 'Plot topic shares' : 'Data partitions'
+                  "
                 >
                   <b-dropdown-form>
                     <b-form-group label="Admin Region">
@@ -64,23 +66,9 @@
                         :options="lending_instruments"
                       ></b-form-checkbox-group>
                     </b-form-group>
-
-                    <!-- v-for="adm_reg in adm_regions"
-                      :key="'adm_reg-' + adm_reg"
-                      ><label class="dropdown-menu-item checkbox">
-                        <input
-                          type="checkbox"
-                          :value="adm_reg"
-                          v-model="topic_share_selected_adm_regions"
-                        />
-                        <span>{{ adm_reg }}</span>
-                      </label></b-dropdown-form
-                    > -->
                   </b-dropdown-form>
                 </b-dropdown>
               </div>
-
-              <!-- End edit of stuff here -->
             </div>
           </div>
 
@@ -146,7 +134,7 @@ export default {
       api_url: "/api/related_words",
       related_words: [],
       current_lda_model_topics: [],
-      raw_text: "",
+      raw_text: "poverty",
       loading: true,
 
       corpus_id: "WB",
@@ -193,6 +181,16 @@ export default {
       },
     };
   },
+  computed: {
+    readyForSubmit: function () {
+      return (
+        this.topic_share_selected_adm_regions.length +
+          this.topic_share_selected_doc_types.length +
+          this.topic_share_selected_lending_instruments.length >
+        1
+      );
+    },
+  },
   mounted() {
     this.getRelatedWords();
     this.setModel();
@@ -201,7 +199,11 @@ export default {
     getRelatedWords: function () {
       this.loading = true;
       this.$http
-        .get(this.api_url + "?model_id=ALL_50&raw_text=" + this.raw_text)
+        .get(
+          "http://10.0.0.25:8088/api/" +
+            "?model_id=ALL_50&raw_text=" +
+            this.raw_text
+        )
         .then((response) => {
           this.related_words = response.data.words;
         })
