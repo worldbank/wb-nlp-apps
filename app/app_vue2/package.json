@@ -17,6 +17,7 @@
     "vue-axios": "^3.0.1",
     "vue-friendly-iframe": "^0.18.0",
     "vue-lodash": "^2.1.2",
+    "vue-plotly": "^1.1.0",
     "vue-router": "^3.4.6"
   },
   "devDependencies": {

@@ -5,6 +5,7 @@ import ExploreNav from '../components/ExploreNav.vue'
 import ContentPanel from '../components/ContentPanel.vue'
 import Introduction from '../components/pages/Introduction.vue'
 import TopicComposition from '../components/pages/TopicComposition.vue'
+import TopicProfiles from '../components/pages/TopicProfiles.vue'
 import WordEmbeddings from '../components/pages/WordEmbeddings.vue'
 import Similarity from '../components/pages/Similarity.vue'
 
@@ -39,7 +40,7 @@ const explore_routes = [
     {
         path: "topic-profiles",
         name: "topic profiles",
-        component: ContentPanel,
+        component: TopicProfiles,
         props: { page_title: "Topic Profiles" },
     },
     {
