@@ -1,8 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import ExploreNav from '../components/ExploreNav.vue'
+
 import ContentPanel from '../components/ContentPanel.vue'
 import Introduction from '../components/pages/Introduction.vue'
-import ExploreNav from '../components/ExploreNav.vue'
+import TopicComposition from '../components/pages/TopicComposition.vue'
 
 Vue.use(VueRouter);
 
@@ -28,7 +30,7 @@ const explore_routes = [
     {
         path: "topic-composition",
         name: "topic composition",
-        component: ContentPanel,
+        component: TopicComposition,
         props: { page_title: "Topic Composition" },
     },
     {

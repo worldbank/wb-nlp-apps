@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueLodash from 'vue-lodash'
 import lodash from 'lodash'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+import VueFriendlyIframe from 'vue-friendly-iframe';
 
 import router from './router'
 import App from './App.vue'
@@ -17,8 +18,7 @@ Vue.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin)
 
-
-// Install VueLodash
+Vue.use(VueFriendlyIframe);
 Vue.use(VueLodash, { lodash: lodash })
 
 window.app = new Vue({
