@@ -13,7 +13,8 @@ services:
         PROJECT_ID: wb_nlp
         ENV_DEV_FILE: "environment.dev.remote.yml"
     volumes:
-      - /home/avsolatorio/WBG/wb_nlp:/workspace
+      # - /home/avsolatorio/WBG/wb_nlp:/workspace
+      - ./:/workspace
       # - /home/avsolatorio/WBG/wb_nlp:/workspace:cached
     # ports:
     #   - "8000:8000"
@@ -22,16 +23,20 @@ services:
     ports:
     - "8880:80"
     volumes:
-        - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
-        - /home/avsolatorio/WBG/wb_nlp/app/site.conf:/etc/nginx/conf.d/site.conf
+      - ./app/frontend:/frontend/nlp
+      - ./app/site.conf:/etc/nginx/conf.d/site.conf
+        # - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
+        # - /home/avsolatorio/WBG/wb_nlp/app/site.conf:/etc/nginx/conf.d/site.conf
 
   php:
     volumes:
-      - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
+      # - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
+      - ./app/frontend:/frontend/nlp
 
   mongodb:
     volumes:
-      - /home/avsolatorio/WBG/wb_nlp/data/mongodb:/data/db
+      # - /home/avsolatorio/WBG/wb_nlp/data/mongodb:/data/db
+      - ./data/mongodb:/data/db
     ports:
       - 27018:27017
   # nlp-app-mongodb:
