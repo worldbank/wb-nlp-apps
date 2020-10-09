@@ -6,6 +6,7 @@ import ContentPanel from '../components/ContentPanel.vue'
 import Introduction from '../components/pages/Introduction.vue'
 import TopicComposition from '../components/pages/TopicComposition.vue'
 import WordEmbeddings from '../components/pages/WordEmbeddings.vue'
+import Similarity from '../components/pages/Similarity.vue'
 
 
 Vue.use(VueRouter);
@@ -62,11 +63,11 @@ const explore_routes = [
     {
         path: "similarity",
         name: "similarity",
-        component: ContentPanel,
+        component: Similarity,
         props: { page_title: "Similarity" },
     },
     {
-        path: "/monitoring-system",
+        path: "monitoring-system",
         name: "monitoring system",
         component: ContentPanel,
         props: { page_title: "Monitoring System" },
