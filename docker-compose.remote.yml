@@ -22,27 +22,28 @@ services:
       - mongodb
       - web
 
-  app:
-    build:
-      context: ./app/app_vue2
-      dockerfile: Dockerfile
-    volumes:
-      - /home/avsolatorio/WBG/wb_nlp/app/app_vue2:/app
-      # - ./:/workspace
-      # - /home/avsolatorio/WBG/wb_nlp:/workspace:cached
-    ports:
-      - "8088:8000"
-    depends_on:
-      - web
+  # app:
+  #   build:
+  #     context: ./app/app_vue2
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - /home/avsolatorio/WBG/wb_nlp/app/app_vue2:/app
+  #     # - ./:/workspace
+  #     # - /home/avsolatorio/WBG/wb_nlp:/workspace:cached
+  #   ports:
+  #     - "8088:8000"
+  #   depends_on:
+  #     - web
 
   web:
     ports:
-    - "8880:80"
+      - "8880:80"
     volumes:
-      # - ./app/frontend:/frontend/nlp
-      # - ./app/site.conf:/etc/nginx/conf.d/site.conf
-      - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
-      - /home/avsolatorio/WBG/wb_nlp/app/site.conf:/etc/nginx/conf.d/site.conf
+    #   # - ./app/frontend:/frontend/nlp
+    #   # - ./app/site.conf:/etc/nginx/conf.d/site.conf
+    #   - /home/avsolatorio/WBG/wb_nlp/app/frontend:/frontend/nlp
+    #   - /home/avsolatorio/WBG/wb_nlp/app/site.conf:/etc/nginx/conf.d/site.conf
+      - /home/avsolatorio/WBG/wb_nlp/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
 
   php:
     volumes:

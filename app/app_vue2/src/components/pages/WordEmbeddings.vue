@@ -51,7 +51,8 @@ export default {
   data: function () {
     // http://10.0.0.25:8880/api/related_words?raw_text=poverty&model_id=ALL_50
     return {
-      api_url: "http://10.0.0.25:8880/api/related_words",
+      // api_url: "http://10.0.0.25:8880/api/related_words",
+      api_url: "/api/related_words",
       related_words: [],
       raw_text: "",
       loading: true,
