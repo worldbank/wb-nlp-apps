@@ -115,9 +115,7 @@ export default {
     page_title: String,
   },
   data: function () {
-    // http://10.0.0.25:8880/api/related_words?raw_text=poverty&model_id=ALL_50
     return {
-      // api_url: "http://10.0.0.25:8880/api/related_words",
       errors: [],
       api_url: "/api/related_words",
       related_words: [],
@@ -224,11 +222,7 @@ export default {
         };
 
         this.$http
-          .get(
-            "http://10.0.0.25:8088/api/get_lda_model_topics" +
-              "?" +
-              $.param(options)
-          )
+          .get("/api/get_lda_model_topics" + "?" + $.param(options))
           .then((response) => {
             this.current_lda_model_topics = response.data;
             this.current_lda_model_topics_options = this.lodash.map(
@@ -267,10 +261,7 @@ export default {
       };
 
       this.$http
-        .post(
-          "http://10.0.0.25:8088/api/lda_compare_partition_topic_share",
-          options
-        )
+        .post("/api/lda_compare_partition_topic_share", options)
         .then((response) => {
           let data = response.data;
 
