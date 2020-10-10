@@ -67,14 +67,11 @@
           </b-row>
           <b-row>
             <b-col>
-              {{ topic_share_selected_adm_regions }}
-              {{ topic_share_selected_doc_types }}
-
               <Plotly
                 v-show="topic_share_plot_ready"
                 :data="plot_data"
                 :layout="plot_layout"
-                :display-mode-bar="true"
+                :display-mode-bar="false"
               ></Plotly>
             </b-col>
           </b-row>
@@ -323,6 +320,7 @@ export default {
       let ps = 20.0;
 
       let height = ph * keys.length + ps * (keys.length - 1);
+      let div_dt = ps / height;
       let panel_dt = ph / height;
 
       let layout = {
@@ -353,13 +351,13 @@ export default {
       let yd_end = yd_start + panel_dt;
       let max_y = 0;
       let part_name = "";
-      let y, y_max, tr, div_dt;
+      let y, y_max, tr;
 
       for (part_name in topic_shares) {
-        (y = topic_shares[part_name].map(function (x) {
+        y = topic_shares[part_name].map(function (x) {
           return x.topic_share;
-        })),
-          (y_max = Math.max.apply(null, y));
+        });
+        y_max = Math.max.apply(null, y);
 
         if (y_max > max_y) {
           max_y = y_max;
@@ -398,10 +396,13 @@ export default {
 
       layout.legend = { orientation: "h", x: 0, y: 1 };
 
+      console.log(traces);
+      console.log(layout);
+
       this.plot_data = traces;
       this.plot_layout = layout;
 
-      //   Plotly.newPlot("myDiv", traces, layout);
+      // Plotly.newPlot("myDiv", traces, layout);
 
       //   // myPlot = document.getElementById('myDiv');
       //   // myPlot.on('plotly_afterplot', function() {
@@ -410,42 +411,40 @@ export default {
 
       //   // Make the plotly responsive
       //   // https://gist.github.com/aerispaha/63bb83208e6728188a4ee701d2b25ad5
-      //   this.makeResponsive();
+      // this.makeResponsive();
 
       //   this.topic_share_plot_ready = true;
       //   return true;
       this.topic_share_plot_ready = true;
-
-      return topic_shares; // delete this after!!!
     },
-    // makeResponsive: function () {
-    //   var d3 = Plotly.d3;
-    //   var WIDTH_IN_PERCENT_OF_PARENT = 100,
-    //     HEIGHT_IN_PERCENT_OF_PARENT = 100;
+    makeResponsive: function () {
+      var d3 = Plotly.d3;
+      var WIDTH_IN_PERCENT_OF_PARENT = 100,
+        HEIGHT_IN_PERCENT_OF_PARENT = 100;
 
-    //   var gd3 = d3.selectAll(".responsive-plot").style({
-    //     width: WIDTH_IN_PERCENT_OF_PARENT + "%",
-    //     "margin-left": (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + "%",
+      var gd3 = d3.selectAll(".responsive-plot").style({
+        width: WIDTH_IN_PERCENT_OF_PARENT + "%",
+        "margin-left": (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + "%",
 
-    //     height: HEIGHT_IN_PERCENT_OF_PARENT + "vh",
-    //     "margin-top": (100 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + "vh",
-    //   });
+        height: HEIGHT_IN_PERCENT_OF_PARENT + "vh",
+        "margin-top": (100 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + "vh",
+      });
 
-    //   var nodes_to_resize = gd3[0]; //not sure why but the goods are within a nested array
+      var nodes_to_resize = gd3[0]; //not sure why but the goods are within a nested array
 
-    //   // Important to run this explicitly here to fix some weird resizing behavior.
-    //   (function () {
-    //     for (var i = 0; i < nodes_to_resize.length; i++) {
-    //       Plotly.Plots.resize(nodes_to_resize[i]);
-    //     }
-    //   })();
+      // Important to run this explicitly here to fix some weird resizing behavior.
+      (function () {
+        for (var i = 0; i < nodes_to_resize.length; i++) {
+          Plotly.Plots.resize(nodes_to_resize[i]);
+        }
+      })();
 
-    //   window.onresize = function () {
-    //     for (var i = 0; i < nodes_to_resize.length; i++) {
-    //       Plotly.Plots.resize(nodes_to_resize[i]);
-    //     }
-    //   };
-    // },
+      window.onresize = function () {
+        for (var i = 0; i < nodes_to_resize.length; i++) {
+          Plotly.Plots.resize(nodes_to_resize[i]);
+        }
+      };
+    },
     // topicShareActiveToggle: function (topic_share_active, topic_map_active) {
     //   if (topic_share_active == this.topic_share_active) {
     //     return;
