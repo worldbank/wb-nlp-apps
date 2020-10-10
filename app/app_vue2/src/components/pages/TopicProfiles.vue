@@ -12,7 +12,6 @@
               topic_share_active &&
               current_lda_model_topics_options
             "
-            style="padding-left: 20px"
           >
             <b-col cols="9">
               <b-form-group>
@@ -29,7 +28,9 @@
                 <b-dropdown
                   split
                   v-on:click="readyForSubmit ? findTopicShare() : null"
-                  split-variant="outline-primary"
+                  :split-variant="
+                    readyForSubmit ? 'success' : 'outline-primary'
+                  "
                   variant="primary"
                   :text="
                     readyForSubmit ? 'Plot topic shares' : 'Data partitions'
@@ -67,43 +68,34 @@
           </b-row>
           <b-row>
             <b-col>
-              <Plotly
-                v-show="topic_share_plot_ready"
-                :data="plot_data"
-                :layout="plot_layout"
-                :display-mode-bar="false"
-              ></Plotly>
+              <div v-show="!topic_shares && !topic_share_plot_ready">
+                Start exploring topic shares by selecting the topic of interest
+                and select the data partitions to compare.
+              </div>
+              <div :class="blurContent ? 'blur' : ''">
+                <Plotly
+                  v-show="topic_share_plot_ready"
+                  :data="plot_data"
+                  :layout="plot_layout"
+                  :display-mode-bar="false"
+                ></Plotly>
+              </div>
             </b-col>
           </b-row>
         </b-col>
         <b-col cols="3">
-          <h2>Try the API!</h2>
-          <b-form-input
-            width="100%"
-            v-model="raw_text"
-            placeholder="Enter word(s)"
-            v-on:keyup.enter="getRelatedWords"
-          />
-          <br />
-          <h4 v-show="raw_text">Input text</h4>
-          {{ raw_text }}
-          <br />
-          <br />
-          <h4>Similar words</h4>
+          <h4>Topic words</h4>
 
-          <b-skeleton
-            v-show="loading"
-            animation="wave"
-            width="85%"
-          ></b-skeleton>
-          <b-list-group v-show="!loading" flush>
-            <b-list-group-item
-              v-for="related_word in related_words"
-              :key="related_word.word"
-            >
-              {{ related_word.word }}
-            </b-list-group-item>
-          </b-list-group></b-col
+          <div :class="blurContent ? 'blur' : ''">
+            <b-list-group flush>
+              <b-list-group-item
+                v-for="topic_word in topic_words"
+                :key="'topic_word-' + topic_word.word"
+              >
+                {{ topic_word.word }}
+              </b-list-group-item>
+            </b-list-group>
+          </div></b-col
         >
       </b-row>
     </b-container>
@@ -139,6 +131,7 @@ export default {
 
       topic_share_active: true,
 
+      prev_topic_id: -1,
       topic_id: 0,
       topic_share_selected_adm_regions: [],
       topic_share_selected_doc_types: [],
@@ -188,32 +181,20 @@ export default {
         this.topic_share_selected_adm_regions.length +
           this.topic_share_selected_doc_types.length +
           this.topic_share_selected_lending_instruments.length >
-        1
+        0
       );
+    },
+    topicChanged: function () {
+      return this.prev_topic_id != this.topic_id;
+    },
+    blurContent: function () {
+      return this.topicChanged || !this.topic_share_plot_ready;
     },
   },
   mounted() {
-    this.getRelatedWords();
     this.setModel();
   },
   methods: {
-    getRelatedWords: function () {
-      this.loading = true;
-      this.$http
-        .get(
-          "http://10.0.0.25:8088/api/related_words" +
-            "?model_id=ALL_50&raw_text=" +
-            this.raw_text
-        )
-        .then((response) => {
-          this.related_words = response.data.words;
-        })
-        .catch((error) => {
-          console.log(error);
-          this.errored = true;
-        })
-        .finally(() => (this.loading = false));
-    },
     formatTopicText: function (topic) {
       return (
         "Topic " +
@@ -259,6 +240,7 @@ export default {
                 };
               }
             );
+            this.topic_words = this.current_lda_model_topics[this.topic_id];
           })
           .catch((error) => {
             console.log(error);
@@ -268,9 +250,9 @@ export default {
       } else {
         return;
       }
-      // vm.state_ready = true;
     },
     findTopicShare: function () {
+      this.prev_topic_id = this.topic_id;
       this.topic_share_searching = true;
       this.topic_share_plot_ready = false;
 
@@ -316,8 +298,8 @@ export default {
       let keys = Object.keys(topic_shares);
       let traces = [];
 
-      let ph = 200.0;
-      let ps = 20.0;
+      let ph = 250.0;
+      let ps = 50.0;
 
       let height = ph * keys.length + ps * (keys.length - 1);
       let div_dt = ps / height;
@@ -326,25 +308,9 @@ export default {
       let layout = {
         title: "Topic share per document group",
         xaxis: { domain: [0, 1], title: "Year" },
-        // yaxis: {domain: [0, 0.325]},
-        // yaxis2: {domain: [0.35, 0.675]},
-        // yaxis3: {domain: [0.7, 1]},
-        // yaxis4: {domain: [0.85, 1]},
         height: height,
-        // xaxis4: {
-        //   domain: [0.55, 1],
-        //   anchor: 'y4'
-        // },
-        // xaxis2: {domain: [0.55, 1]},
-        // yaxis3: {domain: [0.55, 1]},
-        // yaxis4: {
-        //   domain: [0.55, 1],
-        //   anchor: 'x4'
-        // }
         autosize: true,
       };
-
-      // Plotly.newPlot("myDiv", traces, layout);
 
       let ix = 1;
       let yd_start = 0;
@@ -401,88 +367,17 @@ export default {
 
       this.plot_data = traces;
       this.plot_layout = layout;
-
-      // Plotly.newPlot("myDiv", traces, layout);
-
-      //   // myPlot = document.getElementById('myDiv');
-      //   // myPlot.on('plotly_afterplot', function() {
-      //   //   this.topic_share_plot_ready = true;
-      //   // });
-
-      //   // Make the plotly responsive
-      //   // https://gist.github.com/aerispaha/63bb83208e6728188a4ee701d2b25ad5
-      // this.makeResponsive();
-
-      //   this.topic_share_plot_ready = true;
-      //   return true;
       this.topic_share_plot_ready = true;
+      this.prev_topic_id = this.topic_id;
     },
-    makeResponsive: function () {
-      var d3 = Plotly.d3;
-      var WIDTH_IN_PERCENT_OF_PARENT = 100,
-        HEIGHT_IN_PERCENT_OF_PARENT = 100;
-
-      var gd3 = d3.selectAll(".responsive-plot").style({
-        width: WIDTH_IN_PERCENT_OF_PARENT + "%",
-        "margin-left": (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + "%",
-
-        height: HEIGHT_IN_PERCENT_OF_PARENT + "vh",
-        "margin-top": (100 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + "vh",
-      });
-
-      var nodes_to_resize = gd3[0]; //not sure why but the goods are within a nested array
-
-      // Important to run this explicitly here to fix some weird resizing behavior.
-      (function () {
-        for (var i = 0; i < nodes_to_resize.length; i++) {
-          Plotly.Plots.resize(nodes_to_resize[i]);
-        }
-      })();
-
-      window.onresize = function () {
-        for (var i = 0; i < nodes_to_resize.length; i++) {
-          Plotly.Plots.resize(nodes_to_resize[i]);
-        }
-      };
-    },
-    // topicShareActiveToggle: function (topic_share_active, topic_map_active) {
-    //   if (topic_share_active == this.topic_share_active) {
-    //     return;
-    //   } else {
-    //     this.topic_share_active = topic_share_active;
-    //     this.topicMapActiveToggle(topic_map_active, this.topic_share_active);
-    //   }
-    // },
-    // topicMapActiveToggle: function (topic_map_active, topic_share_active) {
-    //   if (topic_map_active == this.topic_map_active) {
-    //     return;
-    //   } else {
-    //     this.topic_map_active = topic_map_active;
-    //     this.topicShareActiveToggle(topic_share_active, this.topic_map_active);
-    //   }
-    // },
-    // togglePanels: function (topic_map_active, topic_share_active) {
-    //   this.topicShareActiveToggle(topic_share_active, topic_map_active);
-    //   this.topicMapActiveToggle(topic_map_active, topic_share_active);
-    // },
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
+.blur {
+  filter: blur(1px);
+  opacity: 0.4;
 }
 </style>
