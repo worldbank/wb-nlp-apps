@@ -6,6 +6,8 @@ import ContentPanel from '../components/ContentPanel.vue'
 import Introduction from '../components/pages/Introduction.vue'
 import TopicComposition from '../components/pages/TopicComposition.vue'
 import TopicProfiles from '../components/pages/TopicProfiles.vue'
+import TopicRelationships from '../components/pages/TopicRelationships.vue'
+import EmbeddingViz from '../components/pages/EmbeddingViz.vue'
 import WordEmbeddings from '../components/pages/WordEmbeddings.vue'
 import Similarity from '../components/pages/Similarity.vue'
 
@@ -52,8 +54,14 @@ const explore_routes = [
     {
         path: "topic-relationships",
         name: "topic relationships",
-        component: ContentPanel,
+        component: TopicRelationships,
         props: { page_title: "Topic Relationships" },
+    },
+    {
+        path: "embedding-viz",
+        name: "embedding viz",
+        component: EmbeddingViz,
+        props: { page_title: "Embedding Viz" },
     },
     {
         path: "word-embeddings",

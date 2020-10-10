@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import lodash from 'lodash'
 import axios from 'axios'
-
+import Plotly from 'plotly.js'
 import VueLodash from 'vue-lodash'
 // import VueAxios from 'vue-axios'
 
@@ -17,6 +17,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
+Vue.prototype.$Plotly = Plotly
 
 // Install BootstrapVue
 Vue.use(BootstrapVue)

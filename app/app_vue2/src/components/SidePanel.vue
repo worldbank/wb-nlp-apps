@@ -88,6 +88,7 @@ export default {
         { page: "TOPIC PROFILES", subpages: [] },
         { page: "TOPIC TAXONOMY", subpages: [] },
         { page: "TOPIC RELATIONSHIPS", subpages: [] },
+        { page: "EMBEDDING VIZ", subpages: [] },
         { page: "WORD EMBEDDINGS", subpages: [] },
         { page: "SIMILARITY", subpages: [] },
         { page: "MONITORING SYSTEM", subpages: [] },
