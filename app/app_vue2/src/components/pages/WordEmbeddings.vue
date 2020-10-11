@@ -6,7 +6,8 @@
     <b-container fluid>
       <b-row>
         <b-col cols="9" class="border-right">
-          Word2vec is a simple embedding model.
+          <!-- Word2vec is a simple embedding model. -->
+          <EmbeddingViz></EmbeddingViz>
         </b-col>
         <b-col cols="3">
           <h2>Try the API!</h2>
@@ -43,8 +44,13 @@
 </template>
 
 <script>
+import EmbeddingViz from "./EmbeddingViz.vue";
+
 export default {
   name: "WordEmbeddings",
+  components: {
+    EmbeddingViz,
+  },
   props: {
     page_title: String,
   },

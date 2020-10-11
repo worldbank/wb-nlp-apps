@@ -26,7 +26,7 @@ import { Plotly } from "vue-plotly";
 var cnt = 1;
 
 export default {
-  name: "TopicRelationshipsVuePlotly",
+  name: "EmbeddingViz",
   components: {
     Plotly,
   },
