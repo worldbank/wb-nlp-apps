@@ -110,7 +110,7 @@ export default {
           marker: {
             size: 7,
             color: marker_colors, //unpack(rows, "cluster"),
-            // opacity: 0.6,
+            opacity: 0.6,
           },
           hoverinfo: "text",
           type: "scatter3d",
@@ -198,7 +198,38 @@ export default {
         range: [-1, 1],
       };
     },
+    computeDataDist: function (data, x, y, z) {
+      var dist = [];
+      var min_dist = Infinity;
+      var max_dist = 0;
+      for (var i = 0; i < data.x.length; ++i) {
+        var p_dist =
+          Math.pow(x - data.x[i], 2) +
+          Math.pow(y - data.y[i], 2) +
+          Math.pow(z - data.z[i], 2);
+        dist.push(p_dist);
+        if (p_dist > max_dist) {
+          max_dist = p_dist;
+        }
+        if (p_dist < min_dist) {
+          min_dist = p_dist;
+        }
+      }
 
+      var normed_dist = [];
+      for (var j = 0; j < dist.length; ++j) {
+        var nd = (dist[j] - min_dist) / (max_dist - min_dist);
+        var n_dist = 1 - nd;
+        if (nd > 0.8) {
+          n_dist = 0.3;
+        } else {
+          n_dist = 0.6;
+        }
+        normed_dist.push(this.getRGBAFromCluster(this.data_cluster[j], n_dist));
+      }
+
+      return normed_dist;
+    },
     update: function (cnt) {
       let vm = this;
 
@@ -210,59 +241,29 @@ export default {
       if (vm.stopMotion) return;
 
       setTimeout(function () {
-        var plotDiv = document.getElementById("plotDiv");
-        var layout = plotDiv.layout;
-        var data = plotDiv.data[0];
-        var z = layout.scene.camera.eye.z;
-        var x = Math.cos(cnt * vm.rotScale) * vm.camZoom;
-        var y = Math.sin(cnt * vm.rotScale) * vm.camZoom;
+        // var plotDiv = document.getElementById("plotDiv");
+        // var layout = plotDiv.layout;
+        // var data = plotDiv.data[0];
+        // var z = layout.scene.camera.eye.z;
+        // var x = Math.cos(cnt * vm.rotScale) * vm.camZoom;
+        // var y = Math.sin(cnt * vm.rotScale) * vm.camZoom;
 
-        layout.scene.camera.eye = {
-          x: x,
-          y: y,
-          z: z,
-        };
+        // layout.scene.camera.eye = {
+        //   x: x,
+        //   y: y,
+        //   z: z,
+        // };
 
-        var dist = [];
-        var min_dist = Infinity;
-        var max_dist = 0;
-        for (var i = 0; i < data.x.length; ++i) {
-          var p_dist =
-            Math.pow(x - data.x[i], 2) +
-            Math.pow(y - data.y[i], 2) +
-            Math.pow(z - data.z[i], 2);
-          dist.push(p_dist);
-          if (p_dist > max_dist) {
-            max_dist = p_dist;
-          }
-          if (p_dist < min_dist) {
-            min_dist = p_dist;
-          }
-        }
-
-        // console.log(normed_dist);
-
-        // console.log(layout.scene.camera.eye);
+        var u = vm.computeLayoutUpdates(false, cnt);
+        var layout = u.layout_update;
+        var trace_update = u.trace_update;
 
         vm.$Plotly.relayout("plotDiv", layout).then(function () {
-          var normed_dist = [];
-          for (var j = 0; j < dist.length; ++j) {
-            var nd = (dist[j] - min_dist) / (max_dist - min_dist);
-            var n_dist = 1 - nd;
-            // console.log(nd);
-            if (nd > 0.8) {
-              n_dist = 0.3;
-            } else {
-              n_dist = 0.6;
-            }
-            normed_dist.push(vm.getRGBAFromCluster(vm.data_cluster[j], n_dist));
-          }
-          // console.log(normed_dist.length);
-          var update = {
-            marker: { color: normed_dist },
-          };
+          // var trace_update = {
+          //   marker: { color: vm.computeDataDist(data, x, y, z) },
+          // };
 
-          vm.$Plotly.restyle("plotDiv", update).then(function () {
+          vm.$Plotly.restyle("plotDiv", trace_update).then(function () {
             vm.update(cnt);
           });
           // vm.update(cnt);
@@ -279,6 +280,8 @@ export default {
       let vm = this;
       console.log("Start motion");
       vm.stopMotion = false;
+
+      // var updates = vm.computeLayoutUpdates(true);
 
       var plotDiv = document.getElementById("plotDiv");
       var layout = plotDiv.layout;
@@ -308,6 +311,48 @@ export default {
         //   });
         vm.update(cnt);
       });
+    },
+    computeLayoutUpdates: function (is_resume, cnt = 0) {
+      let vm = this;
+
+      var plotDiv = document.getElementById("plotDiv");
+      var layout = plotDiv.layout;
+
+      var data = plotDiv.data[0];
+      // var layout = this.plot_layout;
+
+      var x = layout.scene.camera.eye.x;
+      var y = layout.scene.camera.eye.y;
+      var z = layout.scene.camera.eye.z;
+
+      if (is_resume) {
+        var atan = Math.atan(y / x);
+        cnt = atan / vm.rotScale;
+        vm.camZoom = x / Math.cos(cnt * vm.rotScale);
+
+        layout.scene.camera.eye = {
+          x: Math.cos(cnt * vm.rotScale) * vm.camZoom,
+          y: Math.sin(cnt * vm.rotScale) * vm.camZoom,
+          z: z,
+        };
+      } else {
+        z = layout.scene.camera.eye.z;
+        x = Math.cos(cnt * vm.rotScale) * vm.camZoom;
+        y = Math.sin(cnt * vm.rotScale) * vm.camZoom;
+
+        layout.scene.camera.eye = {
+          x: x,
+          y: y,
+          z: z,
+        };
+      }
+
+      return {
+        layout_update: layout,
+        trace_update: {
+          marker: { color: vm.computeDataDist(data, x, y, z) },
+        },
+      };
     },
   },
 };
