@@ -39,19 +39,13 @@ export default {
 
       // Animation variables
       stopMotion: false,
-      WAIT: 1000 / 60, // 30fps
+      WAIT: 1000 / 120, // 30fps
       dt: 0.5, // from 0.2
       camZoom: -1,
       rotScale: Math.PI / 120,
 
       // Plotly data and layout
-      plot_data: [
-        // {
-        //   x: [1, 2, 3, 4],
-        //   y: [10, 15, 13, 17],
-        //   type: "scatter",
-        // },
-      ],
+      plot_data: [],
       plot_layout: {
         height: 800,
         autosize: true,
@@ -89,10 +83,6 @@ export default {
       }
 
       vm.data_cluster = unpack(rows, "cluster");
-      // console.log(vm.lodash.uniq(cluster));
-      // vm.lodash.uniq(cluster).forEach((element) => {
-      //   vm.cluster_color_map[element] = vm.getRandomColor(1);
-      // });
 
       var marker_colors = [];
       for (var i = 0; i < vm.data_cluster.length; ++i) {
@@ -109,7 +99,7 @@ export default {
           mode: "markers",
           marker: {
             size: 7,
-            color: marker_colors, //unpack(rows, "cluster"),
+            color: marker_colors,
             opacity: 0.6,
           },
           hoverinfo: "text",
@@ -174,9 +164,9 @@ export default {
     axisParams: function () {
       return {
         autorange: true,
-        // showgrid: false,
-        // zeroline: false,
-        // showline: false,
+        showgrid: false,
+        zeroline: false,
+        showline: false,
         autotick: true,
         ticks: "",
         showticklabels: false,
@@ -187,18 +177,20 @@ export default {
     sceneAxisParams: function () {
       return {
         autorange: true,
-        // showgrid: false,
-        // zeroline: false,
-        // showline: false,
+        showgrid: false,
+        zeroline: false,
+        showline: false,
         autotick: true,
         ticks: "",
         showticklabels: false,
-        // title: "",
+        title: "",
         showspikes: false,
         range: [-1, 1],
       };
     },
     computeDataDist: function (data, x, y, z) {
+      // This function computes the distance of the data points to some vector.
+      // Based on the distance, update the color opacity of the marker.
       var dist = [];
       var min_dist = Infinity;
       var max_dist = 0;
@@ -241,33 +233,17 @@ export default {
       if (vm.stopMotion) return;
 
       setTimeout(function () {
-        // var plotDiv = document.getElementById("plotDiv");
-        // var layout = plotDiv.layout;
-        // var data = plotDiv.data[0];
-        // var z = layout.scene.camera.eye.z;
-        // var x = Math.cos(cnt * vm.rotScale) * vm.camZoom;
-        // var y = Math.sin(cnt * vm.rotScale) * vm.camZoom;
+        var plotUpdates = vm.computeLayoutUpdates(false, cnt);
 
-        // layout.scene.camera.eye = {
-        //   x: x,
-        //   y: y,
-        //   z: z,
-        // };
-
-        var u = vm.computeLayoutUpdates(false, cnt);
-        var layout = u.layout_update;
-        var trace_update = u.trace_update;
-
-        vm.$Plotly.relayout("plotDiv", layout).then(function () {
-          // var trace_update = {
-          //   marker: { color: vm.computeDataDist(data, x, y, z) },
-          // };
-
-          vm.$Plotly.restyle("plotDiv", trace_update).then(function () {
-            vm.update(cnt);
+        vm.$Plotly
+          .relayout("plotDiv", plotUpdates.layout_update)
+          .then(function () {
+            vm.$Plotly
+              .restyle("plotDiv", plotUpdates.trace_update)
+              .then(function () {
+                vm.update(plotUpdates.cnt);
+              });
           });
-          // vm.update(cnt);
-        });
       }, vm.WAIT);
     },
 
@@ -281,36 +257,17 @@ export default {
       console.log("Start motion");
       vm.stopMotion = false;
 
-      // var updates = vm.computeLayoutUpdates(true);
+      var plotUpdates = vm.computeLayoutUpdates(true);
 
-      var plotDiv = document.getElementById("plotDiv");
-      var layout = plotDiv.layout;
-      // var layout = this.plot_layout;
-
-      var x = layout.scene.camera.eye.x;
-      var y = layout.scene.camera.eye.y;
-      var z = layout.scene.camera.eye.z;
-
-      var atan = Math.atan(y / x);
-      var cnt = atan / vm.rotScale;
-      vm.camZoom = x / Math.cos(cnt * vm.rotScale);
-
-      layout.scene.camera.eye = {
-        x: Math.cos(cnt * vm.rotScale) * vm.camZoom,
-        y: Math.sin(cnt * vm.rotScale) * vm.camZoom,
-        z: z,
-      };
-
-      vm.$Plotly.relayout("plotDiv", layout).then(function () {
-        // vm.$Plotly
-        //   .restyle(plotDiv, "marker.size", Math.floor(Math.random() * 3) + 5, [
-        //     0,
-        //   ])
-        //   .then(function () {
-        //     vm.update(cnt);
-        //   });
-        vm.update(cnt);
-      });
+      vm.$Plotly
+        .relayout("plotDiv", plotUpdates.layout_update)
+        .then(function () {
+          vm.$Plotly
+            .restyle("plotDiv", plotUpdates.trace_update)
+            .then(function () {
+              vm.update(plotUpdates.cnt);
+            });
+        });
     },
     computeLayoutUpdates: function (is_resume, cnt = 0) {
       let vm = this;
@@ -319,8 +276,6 @@ export default {
       var layout = plotDiv.layout;
 
       var data = plotDiv.data[0];
-      // var layout = this.plot_layout;
-
       var x = layout.scene.camera.eye.x;
       var y = layout.scene.camera.eye.y;
       var z = layout.scene.camera.eye.z;
@@ -352,6 +307,7 @@ export default {
         trace_update: {
           marker: { color: vm.computeDataDist(data, x, y, z) },
         },
+        cnt: cnt,
       };
     },
   },
