@@ -43,6 +43,7 @@ export default {
       dt: 0.5, // from 0.2
       camZoom: -1,
       rotScale: Math.PI / 120,
+      distanceSensitiveMarker: false,
 
       // Plotly data and layout
       plot_data: [],
@@ -213,10 +214,11 @@ export default {
         var nd = (dist[j] - min_dist) / (max_dist - min_dist);
         var n_dist = 1 - nd;
         if (nd > 0.8) {
-          n_dist = 0.3;
-        } else {
-          n_dist = 0.6;
+          n_dist = 0.5;
         }
+        // else {
+        //   n_dist = 0.8;
+        // }
         normed_dist.push(this.getRGBAFromCluster(this.data_cluster[j], n_dist));
       }
 
@@ -238,11 +240,15 @@ export default {
         vm.$Plotly
           .relayout("plotDiv", plotUpdates.layout_update)
           .then(function () {
-            vm.$Plotly
-              .restyle("plotDiv", plotUpdates.trace_update)
-              .then(function () {
-                vm.update(plotUpdates.cnt);
-              });
+            if (vm.distanceSensitiveMarker) {
+              vm.$Plotly
+                .restyle("plotDiv", plotUpdates.trace_update)
+                .then(function () {
+                  vm.update(plotUpdates.cnt);
+                });
+            } else {
+              vm.update(plotUpdates.cnt);
+            }
           });
       }, vm.WAIT);
     },
@@ -262,11 +268,15 @@ export default {
       vm.$Plotly
         .relayout("plotDiv", plotUpdates.layout_update)
         .then(function () {
-          vm.$Plotly
-            .restyle("plotDiv", plotUpdates.trace_update)
-            .then(function () {
-              vm.update(plotUpdates.cnt);
-            });
+          if (vm.distanceSensitiveMarker) {
+            vm.$Plotly
+              .restyle("plotDiv", plotUpdates.trace_update)
+              .then(function () {
+                vm.update(plotUpdates.cnt);
+              });
+          } else {
+            vm.update(plotUpdates.cnt);
+          }
         });
     },
     computeLayoutUpdates: function (is_resume, cnt = 0) {
@@ -304,6 +314,10 @@ export default {
 
       return {
         layout_update: layout,
+        // Markers with opacity are not rendering based on depth...
+        // https://community.plotly.com/t/weird-marker-overlapping-using-scatter3d-and-opacity-1/20931
+        // https://github.com/plotly/plotly.js/issues/1267
+        // NOTE: If fixed, enable feature using distanceSensitiveMarker=true;
         trace_update: {
           marker: { color: vm.computeDataDist(data, x, y, z) },
         },
