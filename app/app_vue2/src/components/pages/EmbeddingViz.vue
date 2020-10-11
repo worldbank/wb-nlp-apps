@@ -23,8 +23,7 @@
 <script>
 import { Plotly } from "vue-plotly";
 
-var camZoom = -1;
-var cnt = 0;
+var cnt = 1;
 
 export default {
   name: "TopicRelationshipsVuePlotly",
@@ -42,6 +41,7 @@ export default {
       stopMotion: false,
       WAIT: 1000 / 60, // 30fps
       dt: 0.5, // from 0.2
+      camZoom: -1,
       rotScale: Math.PI / 120,
 
       // Plotly data and layout
@@ -72,6 +72,8 @@ export default {
           l: 0,
         },
       },
+      cluster_color_map: {},
+      data_cluster: [],
     };
   },
   mounted() {
@@ -85,6 +87,19 @@ export default {
           return row[key];
         });
       }
+
+      vm.data_cluster = unpack(rows, "cluster");
+      // console.log(vm.lodash.uniq(cluster));
+      // vm.lodash.uniq(cluster).forEach((element) => {
+      //   vm.cluster_color_map[element] = vm.getRandomColor(1);
+      // });
+
+      var marker_colors = [];
+      for (var i = 0; i < vm.data_cluster.length; ++i) {
+        var ix = vm.data_cluster[i];
+        marker_colors.push(vm.getRGBAFromCluster(ix));
+      }
+
       vm.plot_data = [
         {
           x: unpack(rows, "x"),
@@ -94,13 +109,15 @@ export default {
           mode: "markers",
           marker: {
             size: 7,
-            color: unpack(rows, "cluster"),
-            opacity: 0.6,
+            color: marker_colors, //unpack(rows, "cluster"),
+            // opacity: 0.6,
           },
           hoverinfo: "text",
           type: "scatter3d",
         },
       ];
+
+      console.log(vm.plot_layout.scene.camera);
 
       vm.$Plotly.relayout("plotDiv", vm.plot_layout).then(function () {
         vm.update(cnt);
@@ -109,6 +126,31 @@ export default {
     });
   },
   methods: {
+    getRandomColor: function (a = 1) {
+      var r = Math.floor(Math.random() * 256).toString();
+      var g = Math.floor(Math.random() * 256).toString();
+      var b = Math.floor(Math.random() * 256).toString();
+
+      return { r: r, g: g, b: b, a: a };
+    },
+    getRGBAFromCluster: function (cluster, a = 1) {
+      if (!(cluster in this.cluster_color_map)) {
+        this.cluster_color_map[cluster] = this.getRandomColor(a);
+      }
+      var cluster_color = this.cluster_color_map[cluster];
+
+      return (
+        "rgba(" +
+        cluster_color.r +
+        ", " +
+        cluster_color.g +
+        ", " +
+        cluster_color.b +
+        ", " +
+        a +
+        ")"
+      );
+    },
     sceneCameraParams: function () {
       return {
         up: {
@@ -122,9 +164,9 @@ export default {
           z: 0,
         },
         eye: {
-          x: Math.cos(cnt * this.rotScale) * camZoom,
-          y: Math.sin(cnt * this.rotScale) * camZoom,
-          z: Math.sin(cnt * this.rotScale) * camZoom,
+          x: Math.cos(cnt * this.rotScale) * this.camZoom,
+          y: Math.sin(cnt * this.rotScale) * this.camZoom,
+          z: 1,
         },
       };
     },
@@ -132,9 +174,9 @@ export default {
     axisParams: function () {
       return {
         autorange: true,
-        showgrid: false,
-        zeroline: false,
-        showline: false,
+        // showgrid: false,
+        // zeroline: false,
+        // showline: false,
         autotick: true,
         ticks: "",
         showticklabels: false,
@@ -145,13 +187,13 @@ export default {
     sceneAxisParams: function () {
       return {
         autorange: true,
-        showgrid: false,
-        zeroline: false,
-        showline: false,
+        // showgrid: false,
+        // zeroline: false,
+        // showline: false,
         autotick: true,
         ticks: "",
         showticklabels: false,
-        title: "",
+        // title: "",
         showspikes: false,
         range: [-1, 1],
       };
@@ -170,26 +212,60 @@ export default {
       setTimeout(function () {
         var plotDiv = document.getElementById("plotDiv");
         var layout = plotDiv.layout;
+        var data = plotDiv.data[0];
         var z = layout.scene.camera.eye.z;
+        var x = Math.cos(cnt * vm.rotScale) * vm.camZoom;
+        var y = Math.sin(cnt * vm.rotScale) * vm.camZoom;
 
         layout.scene.camera.eye = {
-          x: Math.cos(cnt * vm.rotScale) * camZoom,
-          y: Math.sin(cnt * vm.rotScale) * camZoom,
+          x: x,
+          y: y,
           z: z,
         };
 
+        var dist = [];
+        var min_dist = Infinity;
+        var max_dist = 0;
+        for (var i = 0; i < data.x.length; ++i) {
+          var p_dist =
+            Math.pow(x - data.x[i], 2) +
+            Math.pow(y - data.y[i], 2) +
+            Math.pow(z - data.z[i], 2);
+          dist.push(p_dist);
+          if (p_dist > max_dist) {
+            max_dist = p_dist;
+          }
+          if (p_dist < min_dist) {
+            min_dist = p_dist;
+          }
+        }
+
+        // console.log(normed_dist);
+
+        // console.log(layout.scene.camera.eye);
+
         vm.$Plotly.relayout("plotDiv", layout).then(function () {
-          // vm.$Plotly
-          //   .restyle(
-          //     plotDiv,
-          //     "marker.size",
-          //     Math.floor(Math.random() * 3) + 5,
-          //     [0]
-          //   )
-          //   .then(function () {
-          //     vm.update(cnt);
-          //   });
-          vm.update(cnt);
+          var normed_dist = [];
+          for (var j = 0; j < dist.length; ++j) {
+            var nd = (dist[j] - min_dist) / (max_dist - min_dist);
+            var n_dist = 1 - nd;
+            // console.log(nd);
+            if (nd > 0.8) {
+              n_dist = 0.3;
+            } else {
+              n_dist = 0.6;
+            }
+            normed_dist.push(vm.getRGBAFromCluster(vm.data_cluster[j], n_dist));
+          }
+          // console.log(normed_dist.length);
+          var update = {
+            marker: { color: normed_dist },
+          };
+
+          vm.$Plotly.restyle("plotDiv", update).then(function () {
+            vm.update(cnt);
+          });
+          // vm.update(cnt);
         });
       }, vm.WAIT);
     },
@@ -214,11 +290,11 @@ export default {
 
       var atan = Math.atan(y / x);
       var cnt = atan / vm.rotScale;
-      var camZoom = x / Math.cos(cnt * vm.rotScale);
+      vm.camZoom = x / Math.cos(cnt * vm.rotScale);
 
       layout.scene.camera.eye = {
-        x: Math.cos(cnt * vm.rotScale) * camZoom,
-        y: Math.sin(cnt * vm.rotScale) * camZoom,
+        x: Math.cos(cnt * vm.rotScale) * vm.camZoom,
+        y: Math.sin(cnt * vm.rotScale) * vm.camZoom,
         z: z,
       };
 
