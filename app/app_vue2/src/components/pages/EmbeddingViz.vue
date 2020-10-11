@@ -40,9 +40,9 @@ export default {
 
       // Animation variables
       stopMotion: false,
-      WAIT: 1000 / 30, // 30fps
-      dt: 0.2,
-      rotScale: Math.PI / 60,
+      WAIT: 1000 / 60, // 30fps
+      dt: 0.5, // from 0.2
+      rotScale: Math.PI / 120,
 
       // Plotly data and layout
       plot_data: [
@@ -77,6 +77,8 @@ export default {
   mounted() {
     let vm = this;
 
+    // https://plotly.com/javascript/plotlyjs-events/#hover-event
+
     vm.$Plotly.d3.csv("/static/data/sample_embedding.csv", function (e, rows) {
       function unpack(rows, key) {
         return rows.map(function (row) {
@@ -91,7 +93,7 @@ export default {
           text: unpack(rows, "word"),
           mode: "markers",
           marker: {
-            size: 2,
+            size: 7,
             color: unpack(rows, "cluster"),
             opacity: 0.6,
           },
@@ -177,6 +179,16 @@ export default {
         };
 
         vm.$Plotly.relayout("plotDiv", layout).then(function () {
+          // vm.$Plotly
+          //   .restyle(
+          //     plotDiv,
+          //     "marker.size",
+          //     Math.floor(Math.random() * 3) + 5,
+          //     [0]
+          //   )
+          //   .then(function () {
+          //     vm.update(cnt);
+          //   });
           vm.update(cnt);
         });
       }, vm.WAIT);
@@ -211,6 +223,13 @@ export default {
       };
 
       vm.$Plotly.relayout("plotDiv", layout).then(function () {
+        // vm.$Plotly
+        //   .restyle(plotDiv, "marker.size", Math.floor(Math.random() * 3) + 5, [
+        //     0,
+        //   ])
+        //   .then(function () {
+        //     vm.update(cnt);
+        //   });
         vm.update(cnt);
       });
     },
