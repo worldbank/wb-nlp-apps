@@ -22,13 +22,15 @@
           {{ raw_text }}
           <br />
           <br />
-          <h4>Similar words</h4>
 
           <b-skeleton
             v-show="loading"
             animation="wave"
             width="85%"
           ></b-skeleton>
+
+          <h4 v-show="related_words.length > 0">Similar words</h4>
+
           <b-list-group v-show="!loading" flush>
             <b-list-group-item
               v-for="related_word in related_words"
