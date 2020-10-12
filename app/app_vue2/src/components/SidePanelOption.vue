@@ -9,7 +9,10 @@
     >
 
     <b-collapse
-      v-if="nav_item.subpages.length > 0"
+      v-if="
+        nav_item.subpages.length > 0 &&
+        $route.name.startsWith(slugifyText(nav_item.page))
+      "
       :id="'collapse-' + slugifyText(nav_item.page)"
       class="mt-2"
     >
