@@ -7,8 +7,8 @@
         id="myPlotlyDiv"
         v-on:mouseover="stopAnimation"
         v-on:mouseleave="resumeAnimation"
-        v-on:touchenter="stopAnimation"
-        v-on:touchleave="resumeAnimation"
+        v-on:touchstart="stopAnimation"
+        v-on:touchend="resumeAnimation"
         style="width: 100%; height: 100%"
       >
         <Plotly
