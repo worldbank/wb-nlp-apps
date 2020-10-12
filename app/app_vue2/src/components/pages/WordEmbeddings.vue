@@ -1,15 +1,15 @@
 <template>
-  <div class="hello">
+  <div>
     <h1>{{ page_title }}</h1>
     <br />
 
     <b-container fluid>
       <b-row>
-        <b-col cols="9" class="border-right">
+        <b-col md="9" class="border-right">
           <!-- Word2vec is a simple embedding model. -->
           <EmbeddingViz></EmbeddingViz>
         </b-col>
-        <b-col cols="3">
+        <b-col md="3">
           <h2>Try the API!</h2>
           <b-form-input
             width="100%"

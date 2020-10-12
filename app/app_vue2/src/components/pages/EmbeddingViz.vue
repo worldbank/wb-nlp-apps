@@ -1,5 +1,5 @@
 <template>
-  <div id="content">
+  <div>
     <h1>{{ page_title }}</h1>
     <b-container fluid>
       <div

@@ -1,11 +1,11 @@
 <template>
-  <div class="hello">
+  <div>
     <h1>{{ page_title }}</h1>
     <br />
 
     <b-container fluid>
       <b-row>
-        <b-col cols="9" class="border-right">
+        <b-col md="9" class="border-right">
           <b-row
             v-if="
               lda_model_id != '' &&
@@ -83,7 +83,7 @@
             </b-col>
           </b-row>
         </b-col>
-        <b-col cols="3">
+        <b-col md="3">
           <h4>Topic words</h4>
 
           <div :class="blurContent ? 'blur' : ''">

@@ -20,28 +20,28 @@
       </b-row>
 
       <b-row>
-        <b-col cols="2">
+        <b-col md="2">
           <br />
           <br />
           <br />
           <br />
           <br />
           <b-row>
-            <b-col cols="1"></b-col>
-            <b-col cols="10"> <SidePanel /> </b-col>
-            <b-col cols="1"></b-col> </b-row
+            <b-col cols="2" md="1"></b-col>
+            <b-col cols="8" md="10"> <SidePanel /> </b-col>
+            <b-col cols="2" md="1"></b-col> </b-row
         ></b-col>
-        <!-- <b-col cols="0.5"></b-col> -->
-        <b-col cols="10">
+        <b-col md="10" class="mr-auto">
           <b-row>
-            <b-col cols="11">
+            <!-- <b-col sm="10" offset-sm="1" offset-md="0" md="11"> -->
+            <b-col md="11">
               <br />
               <br />
               <div>
                 <router-view class="view"></router-view>
               </div>
             </b-col>
-            <b-col cols="1"></b-col>
+            <b-col md="1"></b-col>
           </b-row>
         </b-col>
       </b-row>

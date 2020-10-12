@@ -2,7 +2,6 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import ExploreNav from '../components/ExploreNav.vue'
 
-import ContentPanel from '../components/ContentPanel.vue'
 import Introduction from '../components/pages/Introduction.vue'
 import TopicComposition from '../components/pages/TopicComposition.vue'
 import TopicProfiles from '../components/pages/TopicProfiles.vue'
@@ -30,7 +29,7 @@ const explore_routes = [
     {
         path: "corpus",
         name: "corpus",
-        component: ContentPanel,
+        component: Introduction,
         props: { page_title: "Corpus" },
     },
     {
@@ -48,7 +47,7 @@ const explore_routes = [
     {
         path: "topic-taxonomy",
         name: "topic taxonomy",
-        component: ContentPanel,
+        component: Introduction,
         props: { page_title: "Topic Taxonomy" },
     },
     {
@@ -78,7 +77,7 @@ const explore_routes = [
     {
         path: "monitoring-system",
         name: "monitoring system",
-        component: ContentPanel,
+        component: Introduction,
         props: { page_title: "Monitoring System" },
     },
 ]

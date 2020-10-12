@@ -1,15 +1,5 @@
 <template>
   <b-nav vertical pills align="left" class="w-100">
-    <!-- <b-nav-item
-      v-for="nav_name in nav_names"
-      :key="nav_name"
-      :to="nav_name.toLowerCase().replaceAll(' ', '-')"
-      :active="$route.name == nav_name.toLowerCase()"
-      >{{ nav_name }}
-      <b-nav-link>{{ nav_name }}</b-nav-link>
-    </b-nav-item> -->
-    {{ $route.name }}
-
     <b-nav-item
       v-for="nav_item in nav_items"
       :key="nav_item.page"
