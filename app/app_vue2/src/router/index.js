@@ -34,25 +34,25 @@ const explore_routes = [
     },
     {
         path: "topic-composition",
-        name: "topic composition",
+        name: "topic-composition",
         component: TopicComposition,
         props: { page_title: "Topic Composition" },
     },
     {
         path: "topic-profiles",
-        name: "topic profiles",
+        name: "topic-profiles",
         component: TopicProfiles,
         props: { page_title: "Topic Profiles" },
     },
     {
         path: "topic-taxonomy",
-        name: "topic taxonomy",
+        name: "topic-taxonomy",
         component: Introduction,
         props: { page_title: "Topic Taxonomy" },
     },
     {
         path: "topic-relationships",
-        name: "topic relationships",
+        name: "topic-relationships",
         component: TopicRelationships,
         props: { page_title: "Topic Relationships" },
     },
@@ -64,7 +64,7 @@ const explore_routes = [
     // },
     {
         path: "word-embeddings",
-        name: "word embeddings",
+        name: "word-embeddings",
         component: WordEmbeddings,
         props: { page_title: "Word Embeddings" },
     },
@@ -76,7 +76,7 @@ const explore_routes = [
     },
     {
         path: "monitoring-system",
-        name: "monitoring system",
+        name: "monitoring-system",
         component: Introduction,
         props: { page_title: "Monitoring System" },
     },
