@@ -484,7 +484,7 @@ class LDAPartitionTopicShare(Resource):
     def plot_topic_share(self, payload, filename):
         df = pd.DataFrame(payload)
 
-        figure = plt.figure(figsize=(12, 3 * df.shape[1]))
+        # figure = plt.figure(figsize=(12, 3 * df.shape[1]))
 
         # ymax = pd.np.round(df.max().max(), 2) + 0.005
         # for ix, part in enumerate(df.columns):
