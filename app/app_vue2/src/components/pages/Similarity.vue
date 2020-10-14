@@ -6,15 +6,23 @@
     <b-container fluid>
       <b-row>
         <b-col cols="9" class="border-right">
-          Word2vec is a simple embedding model.
-          <FileUpload
-            :url="url"
-            :thumb-url="thumbUrl"
-            :headers="headers"
-            accept=".txt, .pdf"
-            @change="onFileChange"
-          ></FileUpload>
+          <!-- Word2vec is a simple embedding model. -->
 
+          <vueDropzone
+            :options="dropzoneOptions"
+            :useCustomSlot="true"
+            @vdropzone-files-added="onFileChange"
+          >
+            <div class="dropzone-custom-content">
+              <h3 class="dropzone-custom-title">
+                Drag and drop to upload a document
+              </h3>
+              <div class="subtitle">
+                ...or click to select a file from your computer
+              </div>
+            </div>
+          </vueDropzone>
+          <!--
           <div class="input-group mb-3">
             <div class="custom-file">
               <form
@@ -30,7 +38,6 @@
                   class="xcustom-file-input"
                   id="xinputGroupFile01"
                 />
-                <!--<label class="custom-file-label" for="inputGroupFile01">Choose file</label>-->
                 <input
                   type="submit"
                   v-on:click="uploadFile"
@@ -38,7 +45,7 @@
                 />
               </form>
             </div>
-          </div>
+          </div> -->
         </b-col>
         <b-col cols="3">
           <h2>Try the API!</h2>
@@ -75,13 +82,15 @@
 </template>
 
 <script>
-import FileUpload from "v-file-upload";
+import vue2Dropzone from "vue2-dropzone";
+import "vue2-dropzone/dist/vue2Dropzone.min.css";
+
 import $ from "jquery";
 
 export default {
   name: "Similarity",
   components: {
-    FileUpload,
+    vueDropzone: vue2Dropzone,
   },
   props: {
     page_title: String,
@@ -102,14 +111,38 @@ export default {
       // fileUploaded: null,
       is_searching: false,
       documents: [],
+      dropzoneOptions: {
+        url: "https://httpbin.org/post",
+        thumbnailWidth: 200,
+        addRemoveLinks: true,
+      },
     };
   },
   mounted() {
     this.getRelatedWords();
   },
+  computed: {
+    related_docs_url: function () {
+      var options = {
+        corpus_id: this.corpus_id,
+        model_id: this.word2vec_model_id,
+        topn: 10,
+        clean_doc: true,
+      };
+
+      // this.$http
+      //   .post(
+      //     // "/api/related_docs?corpus_id=WB&model_id=ALL_50&topn=10&clean_doc=true",
+      return "/api/related_docs?" + $.param(options);
+    },
+  },
   methods: {
+    isSuccess: function (e) {
+      window.esuccess = e;
+    },
     onFileChange: function (file) {
       // this.fileUploaded = file;
+      file = file[0];
       window.fup = file;
       this.postUploadedFile(file);
     },
@@ -313,5 +346,22 @@ li {
 }
 a {
   color: #42b983;
+}
+
+.dropzone-custom-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.dropzone-custom-title {
+  margin-top: 0;
+  color: #00b782;
+}
+
+.subtitle {
+  color: #314b5f;
 }
 </style>

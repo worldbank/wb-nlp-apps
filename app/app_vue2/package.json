@@ -14,13 +14,13 @@
     "core-js": "^3.6.5",
     "jquery": "^3.5.1",
     "lodash": "^4.17.20",
-    "v-file-upload": "^3.1.7",
     "vue": "^2.6.12",
     "vue-axios": "^3.0.1",
     "vue-friendly-iframe": "^0.18.0",
     "vue-lodash": "^2.1.2",
     "vue-plotly": "^1.1.0",
-    "vue-router": "^3.4.6"
+    "vue-router": "^3.4.6",
+    "vue2-dropzone": "^3.6.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.5.7",
