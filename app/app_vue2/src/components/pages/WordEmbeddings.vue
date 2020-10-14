@@ -23,11 +23,15 @@
           <br />
           <br />
 
-          <b-skeleton
-            v-show="loading"
-            animation="wave"
-            width="85%"
-          ></b-skeleton>
+          <div v-show="loading">
+            <b-skeleton-table
+              v-show="loading"
+              animation="wave"
+              :rows="10"
+              :columns="1"
+              :table-props="{ bordered: true, striped: true }"
+            ></b-skeleton-table>
+          </div>
 
           <h4 v-show="related_words.length > 0">Similar words</h4>
 
@@ -38,8 +42,8 @@
             >
               {{ related_word.word }}
             </b-list-group-item>
-          </b-list-group></b-col
-        >
+          </b-list-group>
+        </b-col>
       </b-row>
     </b-container>
   </div>
@@ -86,6 +90,7 @@ export default {
         .catch((error) => {
           console.log(error);
           this.errored = true;
+          this.loading = false;
         })
         .finally(() => (this.loading = false));
     },
