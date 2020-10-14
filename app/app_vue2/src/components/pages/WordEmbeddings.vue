@@ -79,6 +79,7 @@ export default {
         text = this.raw_text;
       } else {
         this.raw_text = text;
+        text += "&clean_doc=false";
       }
       this.loading = true;
       this.related_words = [];

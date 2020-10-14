@@ -78,7 +78,7 @@ export default {
           l: 0,
         },
       },
-      cluster_color_map: {},
+      cluster_color_map: { "-1": { r: 220, g: 220, b: 220, a: 1 } },
       data_cluster: [],
     };
   },
@@ -87,7 +87,8 @@ export default {
 
     // https://plotly.com/javascript/plotlyjs-events/#hover-event
 
-    vm.$Plotly.d3.csv("/static/data/sample_embedding.csv", function (e, rows) {
+    // vm.$Plotly.d3.csv("/static/data/sample_embedding.csv", function (e, rows) {
+    vm.$Plotly.d3.csv("/static/data/w2v_vecs.csv", function (e, rows) {
       function unpack(rows, key) {
         return rows.map(function (row) {
           return row[key];
@@ -303,23 +304,23 @@ export default {
 
       if (!vm.clickEventRegistered) {
         plotDiv.on("plotly_click", function (data) {
-          // var pts = "";
+          var pts = "";
           console.log("clicked", data);
-          // for (var i = 0; i < data.points.length; i++) {
-          //   pts +=
-          //     "text = " +
-          //     data.points[i].text +
-          //     "\nx = " +
-          //     data.points[i].x +
-          //     "\ny = " +
-          //     data.points[i].y +
-          //     "\nz = " +
-          //     data.points[i].z +
-          //     "\n\n";
-          // }
+          for (var i = 0; i < data.points.length; i++) {
+            pts += data.points[i].text;
+            // "text = " +
+            // data.points[i].text +
+            // "\nx = " +
+            // data.points[i].x +
+            // "\ny = " +
+            // data.points[i].y +
+            // "\nz = " +
+            // data.points[i].z +
+            // "\n\n";
+          }
           // alert("Closest point clicked:\n\n" + pts);
           vm.clickEventRegistered = true;
-          vm.$emit("selected", "fragility");
+          vm.$emit("selected", pts);
         });
       }
     },
