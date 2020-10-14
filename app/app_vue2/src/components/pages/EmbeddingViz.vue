@@ -11,6 +11,13 @@
         v-on:touchend="resumeAnimation"
         style="width: 100%; height: 100%"
       >
+        <!-- <div
+        v-show="plotReady"
+        id="myPlotlyDiv"
+        style="width: 100%; height: 100%"
+        v-on:mouseover="stopAnimation"
+        v-on:mouseleave="resumeAnimation"
+      > -->
         <Plotly
           id="plotDiv"
           :data="plot_data"
@@ -46,6 +53,8 @@ export default {
       camZoom: -1,
       rotScale: Math.PI / 120,
       distanceSensitiveMarker: false,
+
+      clickEventRegistered: false,
 
       // Plotly data and layout
       plot_data: [],
@@ -113,8 +122,33 @@ export default {
       console.log(vm.plot_layout.scene.camera);
 
       vm.$Plotly.relayout("plotDiv", vm.plot_layout).then(function () {
-        vm.update(cnt);
+        // var plotDiv = document.getElementById("plotDiv");
+
+        // if (!vm.clickEventRegistered) {
+        //   plotDiv.on("plotly_click", function (data) {
+        //     var pts = "";
+        //     console.log("clicked", data);
+        //     for (var i = 0; i < data.points.length; i++) {
+        //       pts +=
+        //         "text = " +
+        //         data.points[i].text +
+        //         "\nx = " +
+        //         data.points[i].x +
+        //         "\ny = " +
+        //         data.points[i].y +
+        //         "\nz = " +
+        //         data.points[i].z +
+        //         "\n\n";
+        //     }
+        //     alert("Closest point clicked:\n\n" + pts);
+        //     vm.clickEventRegistered = true;
+        //   });
+        // }
+        // console.log(plotDiv);
+        // window.plotDiv = plotDiv;
+
         vm.plotReady = true;
+        vm.update(cnt);
       });
     });
   },
@@ -234,30 +268,60 @@ export default {
       cnt = cnt + vm.dt;
       window.cnt = cnt;
 
-      if (vm.stopMotion) return;
+      if (vm.stopMotion) {
+        // return;
+        setTimeout(function () {
+          return;
+        }, 10000);
+      } else {
+        setTimeout(function () {
+          var plotUpdates = vm.computeLayoutUpdates(false, cnt);
 
-      setTimeout(function () {
-        var plotUpdates = vm.computeLayoutUpdates(false, cnt);
-
-        vm.$Plotly
-          .relayout("plotDiv", plotUpdates.layout_update)
-          .then(function () {
-            if (vm.distanceSensitiveMarker) {
-              vm.$Plotly
-                .restyle("plotDiv", plotUpdates.trace_update)
-                .then(function () {
-                  vm.update(plotUpdates.cnt);
-                });
-            } else {
-              vm.update(plotUpdates.cnt);
-            }
-          });
-      }, vm.WAIT);
+          vm.$Plotly
+            .relayout("plotDiv", plotUpdates.layout_update)
+            .then(function () {
+              if (vm.distanceSensitiveMarker) {
+                vm.$Plotly
+                  .restyle("plotDiv", plotUpdates.trace_update)
+                  .then(function () {
+                    vm.update(plotUpdates.cnt);
+                  });
+              } else {
+                vm.update(plotUpdates.cnt);
+              }
+            });
+        }, vm.WAIT);
+      }
     },
 
     stopAnimation: function () {
+      let vm = this;
       console.log("Stop motion");
       this.stopMotion = true;
+
+      var plotDiv = document.getElementById("plotDiv");
+
+      if (!vm.clickEventRegistered) {
+        plotDiv.on("plotly_click", function (data) {
+          // var pts = "";
+          console.log("clicked", data);
+          // for (var i = 0; i < data.points.length; i++) {
+          //   pts +=
+          //     "text = " +
+          //     data.points[i].text +
+          //     "\nx = " +
+          //     data.points[i].x +
+          //     "\ny = " +
+          //     data.points[i].y +
+          //     "\nz = " +
+          //     data.points[i].z +
+          //     "\n\n";
+          // }
+          // alert("Closest point clicked:\n\n" + pts);
+          vm.clickEventRegistered = true;
+          vm.$emit("selected", "fragility");
+        });
+      }
     },
 
     resumeAnimation: function () {

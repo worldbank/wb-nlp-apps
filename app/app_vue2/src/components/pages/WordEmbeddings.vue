@@ -7,7 +7,7 @@
       <b-row>
         <b-col md="9" class="border-right">
           <!-- Word2vec is a simple embedding model. -->
-          <EmbeddingViz></EmbeddingViz>
+          <EmbeddingViz @selected="getRelatedWords"></EmbeddingViz>
         </b-col>
         <b-col md="3">
           <h2>Try the API!</h2>
@@ -70,10 +70,16 @@ export default {
     this.getRelatedWords();
   },
   methods: {
-    getRelatedWords: function () {
+    getRelatedWords: function (text = null) {
+      if (typeof text !== "string") {
+        text = this.raw_text;
+      } else {
+        this.raw_text = text;
+      }
       this.loading = true;
+      this.related_words = [];
       this.$http
-        .get(this.api_url + "?model_id=ALL_50&raw_text=" + this.raw_text)
+        .get(this.api_url + "?model_id=ALL_50&raw_text=" + text)
         .then((response) => {
           this.related_words = response.data.words;
         })
