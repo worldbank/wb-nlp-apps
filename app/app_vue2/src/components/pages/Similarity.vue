@@ -14,7 +14,9 @@
             @change="onFileChange"
           ></FileUpload>
 
-          <div style="word-wrap: break-word">
+          <br />
+          <br />
+          <div v-if="documents.length" style="word-wrap: break-word">
             <vue-json-pretty :data="documents" :highlightMouseoverNode="true">
             </vue-json-pretty>
           </div>
