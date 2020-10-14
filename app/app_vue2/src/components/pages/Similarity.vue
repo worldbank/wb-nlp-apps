@@ -8,7 +8,18 @@
         <b-col cols="9" class="border-right">
           <!-- Word2vec is a simple embedding model. -->
 
-          <vueDropzone
+          <FileUpload
+            :url="'/api/empty'"
+            accept=".txt,.pdf"
+            :post_file="false"
+            :progress="progress"
+            @change="onFileChange"
+          ></FileUpload>
+
+          <!-- <div class="file-upload">
+            <div class="input-wrapper"> -->
+          <!-- <vueDropzone
+            :include-styling="true"
             :options="dropzoneOptions"
             :useCustomSlot="true"
             @vdropzone-files-added="onFileChange"
@@ -21,7 +32,9 @@
                 ...or click to select a file from your computer
               </div>
             </div>
-          </vueDropzone>
+          </vueDropzone> -->
+          <!-- </div>
+          </div> -->
           <!--
           <div class="input-group mb-3">
             <div class="custom-file">
@@ -82,15 +95,17 @@
 </template>
 
 <script>
-import vue2Dropzone from "vue2-dropzone";
-import "vue2-dropzone/dist/vue2Dropzone.min.css";
+import FileUpload from "@avsolatorio/v-file-upload";
+// import vue2Dropzone from "vue2-dropzone";
+// import "vue2-dropzone/dist/vue2Dropzone.min.css";
 
 import $ from "jquery";
 
 export default {
   name: "Similarity",
   components: {
-    vueDropzone: vue2Dropzone,
+    FileUpload,
+    // vueDropzone: vue2Dropzone,
   },
   props: {
     page_title: String,
@@ -108,6 +123,7 @@ export default {
       word2vec_model_id: "ALL_50",
       lda_model_id: "ALL_50",
       // Uploaded file data
+      progress: 0,
       // fileUploaded: null,
       is_searching: false,
       documents: [],
@@ -141,13 +157,51 @@ export default {
       window.esuccess = e;
     },
     onFileChange: function (file) {
+      this.progress = 0.1;
       // this.fileUploaded = file;
-      file = file[0];
+      window.anexo = file;
+      file = file["file"];
+      window.uploaded_file = file;
       window.fup = file;
+
+      // var data = new FormData();
+      // data.append("file", file);
+
+      // this.$http
+      //   .post(
+      //     // "/api/related_docs?corpus_id=WB&model_id=ALL_50&topn=10&clean_doc=true",
+      //     "/api/upload_file",
+      //     data,
+      //     {
+      //       headers: {
+      //         "Content-Type": "multipart/form-data",
+      //       },
+      //     }
+      //   )
+      //   .then((response) => {
+      //     let data = response.data;
+      //     window.uploaded_file = data;
+      //   })
+      //   .catch((error) => {
+      //     console.log(error);
+      //     this.errors.push(error);
+      //     this.errored = true;
+      //     this.is_searching = false;
+      //   })
+      //   .finally(() => {
+      //     this.is_searching = false;
+      //   });
+
       this.postUploadedFile(file);
     },
     isReady: function () {
       return true;
+    },
+
+    onProgress(e) {
+      this.progress = parseInt((e.loaded * 100) / e.total);
+      console.log(this.progress);
+      // this.$emit("progress", this.progress);
     },
     postUploadedFile: function (file) {
       var data = new FormData();
@@ -167,16 +221,19 @@ export default {
         // data: data,
       };
 
+      var config = {
+        onUploadProgress: this.onProgress,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
       this.$http
         .post(
           // "/api/related_docs?corpus_id=WB&model_id=ALL_50&topn=10&clean_doc=true",
           "/api/related_docs?" + $.param(options),
           data,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
+          config
         )
         .then((response) => {
           let data = response.data;
@@ -189,9 +246,11 @@ export default {
           this.errors.push(error);
           this.errored = true;
           this.is_searching = false;
+          this.progress = 0;
         })
         .finally(() => {
           this.is_searching = false;
+          this.progress = 0;
         });
 
       if (this.lda_model_id != "") {
@@ -203,12 +262,9 @@ export default {
           clean_doc: true,
         };
 
+        this.progress = 0.1;
         this.$http
-          .post("/api/lda_doc_topics?" + $.param(options), data, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          })
+          .post("/api/lda_doc_topics?" + $.param(options), data, config)
           .then((response) => {
             let data = response.data;
             if ("topics" in data) {
@@ -220,9 +276,11 @@ export default {
             this.errors.push(error);
             this.errored = true;
             this.is_searching = false;
+            this.progress = 0;
           })
           .finally(() => {
             this.is_searching = false;
+            this.progress = 0;
           });
       }
     },
@@ -347,6 +405,16 @@ li {
 a {
   color: #42b983;
 }
+/*
+.file-upload .input-wrapper {
+  text-align: center;
+  position: relative;
+  background-color: #307dbf;
+  height: 80px;
+}
+.file-upload .input-wrapper:hover {
+  background-color: #2c70ac;
+}
 
 .dropzone-custom-content {
   position: absolute;
@@ -363,5 +431,5 @@ a {
 
 .subtitle {
   color: #314b5f;
-}
+} */
 </style>

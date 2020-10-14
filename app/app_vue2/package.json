@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@avsolatorio/v-file-upload": "^3.1.9",
     "axios": "^0.20.0",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.17.3",

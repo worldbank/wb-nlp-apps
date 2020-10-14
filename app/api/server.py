@@ -13,6 +13,7 @@ from views.lda import (
 from views.models import ModelsList
 from views.text import FetchText
 from views.translate import TranslateText
+from views.upfile import EmptyAPI
 import os
 import sys
 
@@ -22,6 +23,8 @@ cors = CORS(app, resources={r'/api/*': {"origins": "*"}})
 api = Api(app)
 
 api.add_resource(CleanText, '/api/clean_text')
+api.add_resource(EmptyAPI, '/api/empty')
+
 api.add_resource(ModelsList, '/api/get_models')
 
 api.add_resource(Word2VecView, '/api/word2vec')
