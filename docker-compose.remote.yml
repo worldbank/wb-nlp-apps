@@ -41,6 +41,12 @@ services:
     volumes:
       - /home/avsolatorio/WBG/wb_nlp/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
 
+  dfr:
+    ports:
+    - "8098:80"
+    volumes:
+      - /home/avsolatorio/WBG/wb_nlp/app/dfr/data:/usr/share/nginx/html/data
+
   web:
     ports:
       - "8880:80"

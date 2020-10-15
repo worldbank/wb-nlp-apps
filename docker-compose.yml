@@ -37,6 +37,14 @@ services:
     volumes:
       - ./site.conf:/etc/nginx/conf.d/site.conf
 
+  dfr:
+    build:
+      context: ./app/dfr
+    ports:
+    - "8098:80"
+    volumes:
+      - ./app/dfr/data:/usr/share/nginx/html/data
+
   web:
     image: nginx:latest
     ports:

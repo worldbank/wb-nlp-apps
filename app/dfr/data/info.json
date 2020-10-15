@@ -1,0 +1,29 @@
+{
+    "title": "Model Browser",
+    "meta_info": "<p>Topic model browser generated for LDA models</p>",
+    "VIS": {
+        "condition": {
+            "type": "time",
+            "spec": {
+                "field": "date",
+                "unit": "year",
+                "n": 1
+            }
+        },
+        "bib": {
+            "author": {
+                "author_delimeter": ","
+            }
+        }
+    },
+    "models": [
+        {
+            "id": "LDA-ALL_50",
+            "name": "All documents"
+        },
+        {
+            "id": "LDA-PR_50",
+            "name": "Publications and Research documents"
+        }
+    ]
+}
