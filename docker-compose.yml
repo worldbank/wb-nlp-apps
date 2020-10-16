@@ -56,6 +56,10 @@ services:
     - "8088:80"
     volumes:
       - ./site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - api
+    depends_on:
+      - api
 
   dfr:
     build:
@@ -74,8 +78,10 @@ services:
         - ./app/site.conf:/etc/nginx/conf.d/site.conf
     links:
       - php
+      - api
     depends_on:
       - php
+      - api
 
   php:
     image: php:7-fpm
