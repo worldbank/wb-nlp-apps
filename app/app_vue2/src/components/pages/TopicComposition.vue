@@ -1,18 +1,16 @@
 <template>
   <div>
-    <h1>{{ page_title }}</h1>
+    <!-- <h1>{{ page_title }}</h1> -->
     <br />
     <b-container fluid>
-      <!-- <vue-friendly-iframe
-        src="https://agoldst.github.io/dfr-browser/demo/"
-        @load="onLoad"
-      ></vue-friendly-iframe> -->
-      <iframe
+      <!-- <iframe
         src="https://agoldst.github.io/dfr-browser/demo/"
         frameborder="0"
         height="800px"
         width="100%"
-      ></iframe>
+      ></iframe> -->
+
+      <iframe src="/dfr/" frameborder="0" height="800px" width="100%"></iframe>
     </b-container>
   </div>
 </template>
