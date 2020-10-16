@@ -72,6 +72,7 @@
                 Start exploring topic shares by selecting the topic of interest
                 and select the data partitions to compare.
               </div>
+
               <div :class="blurContent ? 'blur' : ''">
                 <Plotly
                   v-show="topic_share_plot_ready"
@@ -80,13 +81,36 @@
                   :display-mode-bar="false"
                 ></Plotly>
               </div>
+              <div
+                v-show="
+                  (!topic_share_plot_ready && topic_shares) ||
+                  topic_share_searching
+                "
+              >
+                <b-skeleton-img></b-skeleton-img>
+              </div>
             </b-col>
           </b-row>
         </b-col>
         <b-col md="3">
           <h4>Topic words</h4>
 
-          <div :class="blurContent ? 'blur' : ''">
+          <div
+            v-show="
+              (!topic_share_plot_ready && topic_shares) || topic_share_searching
+            "
+          >
+            <b-skeleton-table
+              animation="wave"
+              :rows="10"
+              :columns="1"
+              :table-props="{ bordered: true, striped: true }"
+            ></b-skeleton-table>
+          </div>
+          <div
+            v-show="topic_share_plot_ready"
+            :class="blurContent ? 'blur' : ''"
+          >
             <b-list-group flush>
               <b-list-group-item
                 v-for="topic_word in topic_words"
