@@ -16,8 +16,14 @@ services:
       - ./:/workspace
     links:
       - mongodb
+      - web
+      - app
+      - api
     depends_on:
       - mongodb
+      - web
+      - app
+      - api
     # ports:
     #   - "8000:8000"
     # deploy:
@@ -104,8 +110,9 @@ services:
   mongodb:
     image: mongo:latest
     environment:
-      - MONGO_DATA_DIR=/data/db
-      - MONGO_LOG_DIR=/dev/null
+      - ./data/mongodb:/data/db
+      # - MONGO_DATA_DIR=/data/db
+      # - MONGO_LOG_DIR=/dev/null
     # volumes:
     #   - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
     # ports:
