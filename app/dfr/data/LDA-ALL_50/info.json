@@ -1,0 +1,19 @@
+{
+    "title": "Model Browser",
+    "meta_info": "<p>Topic model browser generated for wb147665</p>",
+    "VIS": {
+        "condition": {
+            "type": "time",
+            "spec": {
+                "field": "date",
+                "unit": "year",
+                "n": 1
+            }
+        },
+        "bib": {
+            "author": {
+                "author_delimeter": ","
+            }
+        }
+    }
+}
