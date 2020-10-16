@@ -38,7 +38,8 @@ services:
         ENV_PROD_FILE: "environment.prod.api.yml"
     volumes:
       - ./models:/workspace/models
-      - ./data:/workspace/data
+      - ./data/preprocessed:/workspace/data/preprocessed
+      - ./data/whitelists:/workspace/data/whitelists
     command:
       - gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200
     ports:

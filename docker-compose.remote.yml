@@ -38,7 +38,8 @@ services:
   api:
     volumes:
       - /home/avsolatorio/WBG/wb_nlp/models:/workspace/models
-      - /home/avsolatorio/WBG/wb_nlp/data:/workspace/data
+      - /home/avsolatorio/WBG/wb_nlp/data/preprocessed:/workspace/data/preprocessed
+      - /home/avsolatorio/WBG/wb_nlp/data/whitelists:/workspace/data/whitelists
     command:
       - gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200
     ports:
