@@ -31,10 +31,11 @@ COPY ./app/api/${ENV_PROD_FILE} /tmp/${ENV_PROD_FILE}
 RUN conda init bash && conda env create -f /tmp/${ENV_PROD_FILE}
 
 WORKDIR /workspace
+COPY . .
 
-COPY ./setup.py .
-COPY ./src ./src
-COPY ./app/api ./app/api
+# COPY setup.* ./
+# COPY ./src ./src/
+# COPY ./app/api ./app/api
 
 RUN /opt/conda/envs/${ENV_ID}/bin/python setup.py develop
 
@@ -44,6 +45,7 @@ RUN /opt/conda/envs/${ENV_ID}/bin/python setup.py develop
 # RUN conda env update -n ${ENV_ID} --file /tmp/conda-tmp/${ENV_DEV_FILE}  --prune && rm -rf /opt/conda/pkg/*
 
 # Add this so that the container doesn't exit prematurely
-CMD ["tail", "-f", "/dev/null"]
+# CMD ["tail", "-f", "/dev/null"]
+CMD /opt/conda/envs/prod/bin/gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200
 
 
