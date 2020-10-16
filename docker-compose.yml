@@ -29,6 +29,25 @@ services:
     #       cpus: '3'
     #       memory: 3G
 
+  api:
+    build:
+      context: ./
+      dockerfile: ./app/api/Dockerfile
+      args:
+        ENV_ID: prod
+        ENV_PROD_FILE: "environment.prod.api.yml"
+    volumes:
+      - ./models:/workspace/models
+      - ./data:/workspace/data
+    command:
+      - gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200
+    ports:
+      - "8911:8910"
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+
   app:
     build:
       context: ./app/app_vue2
