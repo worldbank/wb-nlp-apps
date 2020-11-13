@@ -1,10 +1,13 @@
+import pandas as pd
+from collections import Counter
+from sklearn.feature_extraction.text import CountVectorizer
 import re
 import spacy
 import nltk
 from haystack.preprocessor.preprocessor import PreProcessor
 from haystack.file_converter.pdf import PDFToTextConverter
 from haystack.file_converter.pdf import PDFToTextConverter, PreProcessor
-In[89]: % history
+In[177]: % history
 fname = 'WDR 2013 low res.pdf'
 converter = PDFToTextConverter(
     remove_numeric_tables=True, valid_languages=["de", "en"])
@@ -145,3 +148,117 @@ for s in sents[:500]:
     print(s.replace('\n', ' ').strip())
     print('------------------------------------')
 %history
+w = open('wdr.txt').read()
+%time w_sents = nltk.sent_tokenize(normalize_footnote_citations(w))
+for s in w_sents[:500]:
+    print(s.replace('\n', ' ').strip())
+    print('------------------------------------')
+doc['text'][:10]
+f_split = doc['text'].split('\f')
+len(f_split)
+f_split[0]
+f_split[1]
+f_split[2]
+f_split[3]
+f_split[4]
+f_split[5]
+f_split[6]
+f_split[7]
+f_split[8]
+f_split[9]
+f_split[10]
+f_split[11]
+f_split[12]
+f_split[13]
+f_split[14]
+f_split[15]
+f_split[16]
+f_split[17]
+f_split[18]
+f_split[19]
+f_split[20]
+f_split[21]
+f_split[22]
+cvec = CountVectorizer(ngram_range=(1, 4))
+cvec.fit(f_split[22])
+cvec.fit([f_split[22]])
+cvec.vocabulary_
+potential_headers = [i.split()[:20] for i in f_split]
+len(potential_headers)
+potential_headers[:10]
+potential_headers[40:45]
+potential_headers = [i.split()[:50] for i in f_split]
+potential_headers[40:45]
+first_words = Counter([i[0] for i in potential_headers])
+first_words = Counter([i[0] for i in potential_headers])
+first_words = Counter([i[0] for i in potential_headers if len(i)])
+first_words.most_common()[:10]
+first_words.most_common()[:20]
+second_words = Counter([i[:2] for i in potential_headers if len(i)])
+second_words = Counter([' '.join(i[:2]) for i in potential_headers if len(i)])
+second_words.most_common(10)
+Counter([' '.join(i[:3]) for i in potential_headers if len(i)]).most_common(10)
+Counter([' '.join(i[:4]) for i in potential_headers if len(i)]).most_common(10)
+Counter([' '.join(i[:5]) for i in potential_headers if len(i)]).most_common(10)
+Counter([' '.join(i[:6]) for i in potential_headers if len(i)]).most_common(10)
+len(f_split)
+0.05 * 423
+0.01 * 423
+Counter([' '.join(i[:1]) for i in potential_headers if len(i)]).most_common(10)
+pd.Series(Counter([' '.join(i[:1])
+          for i in potential_headers if len(i)]).most_common(10))
+pd.Series(dict(Counter([' '.join(i[:1])
+          for i in potential_headers if len(i)]).most_common(10)))
+pd.Series(dict(Counter([' '.join(i[:1])
+          for i in potential_headers if len(i)]).most_common())).describe()
+pd.Series(dict(Counter([' '.join(i[:1]) for i in potential_headers if len(
+    i)]).most_common())).quantile(0.95)
+pd.Series(dict(Counter([' '.join(i[:1]) for i in potential_headers if len(
+    i)]).most_common())).quantile(0.9)
+pd.Series(dict(Counter([' '.join(i[:1]) for i in potential_headers if len(
+    i)]).most_common())).quantile(0.75)
+len(f_split) * 0.01
+pd.Series(dict(Counter([' '.join(i[:1]) for i in potential_headers if len(i)]).most_common())).quantile(0.75)('Jobs and social cohesion', 12),
+pd.Series(dict(Counter([' '.join(i[:1]) for i in potential_headers if len(
+    i)]).most_common())).quantile(0.75)
+Counter([' '.join(i[:7]) for i in potential_headers if len(i)]).most_common(10)
+Counter([' '.join(i[:20])
+        for i in potential_headers if len(i)]).most_common(10)
+Counter([' '.join(i[:25])
+        for i in potential_headers if len(i)]).most_common(10)
+Counter([' '.join(i[:50])
+        for i in potential_headers if len(i)]).most_common(10)
+Counter([' '.join(i[:40])
+        for i in potential_headers if len(i)]).most_common(10)
+Counter([' '.join(i[:30])
+        for i in potential_headers if len(i)]).most_common(10)
+Counter([' '.join(i[:24])
+        for i in potential_headers if len(i)]).most_common(10)
+# page_thresh = len(f_split)
+common_p_val = 0.01
+page_thresh = len(f_split) * common_p_val
+page_thresh
+page_thresh = int(len(f_split) * common_p_val)
+int(4.6)
+Counter([' '.join(i[:1]) for i in potential_headers if len(i)]).most_common(10)
+Counter([' '.join(i[:1]) for i in potential_headers if len(i)]).most_common(20)
+Counter([' '.join(i[:2]) for i in potential_headers if len(i)]).most_common(20)
+idx = 2
+common_list = []
+while True:
+    pg = pd.Series(dict(
+        Counter([' '.join(i[:1]) for i in potential_headers if len(i)]).most_common()))
+    pg = pg[pg >= page_thresh]
+    if pg.empty:
+        break
+    common_list.append(pg)
+common_list = []
+while True:
+    pg = pd.Series(dict(Counter([' '.join(i[:idx])
+                   for i in potential_headers if len(i)]).most_common()))
+    pg = pg[pg >= page_thresh]
+    if pg.empty:
+        break
+    common_list.append(pg)
+    idx += 1
+len(common_list)
