@@ -1,0 +1,13 @@
+{
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.pythonPath": "/opt/conda/envs/dev/bin/python",
+    "python.formatting.provider": "autopep8",
+    // "python.formatting.autopep8Path": "/opt/conda/envs/dev/bin/autopep8",
+    // whitelist numpy to remove lint errors
+    "python.linting.pylintArgs": [
+        "--extension-pkg-whitelist=numpy,spacy",
+        "--disable=too-many-arguments,too-many-local-variables"
+    ],
+    "docker.host": "ssh://avsolatorio@10.0.0.25"
+}
