@@ -329,6 +329,9 @@ class PDFToTextProcessor:
 
 
 # pdftp = PDFToTextProcessor()
-# %time ee = pdftp.pdf_to_text('WDR 2013 low res.pdf')
+# %time ee = pdftp.pdf_to_text('WDR 2013 low res.pdf', joiner='\f')
 # %time e_sents = nltk.sent_tokenize(normalize_footnote_citations(ee))
-# proc = [re.sub('\s+', ' ', s).strip() for s in e_sents]
+# proc = [re.sub('\s+', ' ', s.replace('\f', '$$$$$')).strip().replace('$$$$$', '\f') for s in e_sents]
+# with open('processed-wdr.txt', 'w') as fl:
+#     for p in proc:
+#         fl.write(p.replace('\f', '\n\n----page break----\n\n') + '\n\n')
