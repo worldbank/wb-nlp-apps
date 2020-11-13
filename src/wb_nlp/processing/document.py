@@ -326,3 +326,9 @@ class PDFToTextProcessor:
                     break
 
         return pages_copy
+
+
+# pdftp = PDFToTextProcessor()
+# %time ee = pdftp.pdf_to_text('WDR 2013 low res.pdf')
+# %time e_sents = nltk.sent_tokenize(normalize_footnote_citations(ee))
+# proc = [re.sub('\s+', ' ', s).strip() for s in e_sents]
