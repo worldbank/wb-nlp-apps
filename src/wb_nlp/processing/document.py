@@ -288,24 +288,34 @@ class PDFToTextProcessor:
 
     @staticmethod
     def remove_headers(pages, common_p_val=0.01):
+        n_pages = len(pages)
         pages_copy = list(pages)
-        page_thresh = int(len(pages) * common_p_val)
+        page_thresh = max(int(n_pages * common_p_val), 4)
+        n_words = 50
 
         sep = ' '
         potential_headers = [PDFToTextProcessor.process_for_header(
-            i).split(sep)[:50] for i in pages if len(i.split())]
+            i).split(sep)[:n_words] for i in pages if len(i.split())]
+
+        for p in potential_headers:
+            if p[0].strip().isdigit():
+                p.pop(0)
 
         idx = 2
         common_list = []
 
         while True:
             pg = pd.Series(dict(Counter([sep.join(i[:idx])
-                                         for i in potential_headers if len(i)]).most_common()))
+                                         for i in potential_headers if len(sep.join(i[:idx]))]).most_common()))
             pg = pg[pg >= page_thresh]
             if pg.empty:
                 break
             common_list.append(pg)
             idx += 1
+
+            if idx > n_words:
+                raise ValueError(
+                    f'The `idx` value exceeded `n_word` out of `{n_pages}`. Check potential_headers data.')
 
         len(common_list)
 
@@ -317,6 +327,9 @@ class PDFToTextProcessor:
 
         for ix, l in enumerate(pages):
             ll = PDFToTextProcessor.process_for_header(l).split(sep)
+            if ll[0].strip().isdigit():
+                ll.pop(0)
+
             # if ix and ix % 10 == 0:
             #     print(ix)
             for c in comms:
