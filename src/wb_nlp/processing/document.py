@@ -2,11 +2,12 @@ import bs4
 import pandas as pd
 import re
 import requests
+import subprocess
 import tika
 from bs4 import BeautifulSoup
+from collections import Counter
 from tika import parser
-from typing import Union
-
+from typing import Union, List
 # Make sure that a Tika service is running
 # If tika is installed on a local machine, then just replace
 # this with `http://localhost:9998`
@@ -24,6 +25,7 @@ class PDFDoc2Txt:
         - For each paragraph, normalize the footnote citations.
 
     """
+
     def __init__(self):
         # self.nlp = spacy.load('en_core_web_sm')
         # self.sentences = []
@@ -33,7 +35,7 @@ class PDFDoc2Txt:
     def _parse(self, parser, content):
         return parser(content, xmlContent=True, serverEndpoint=TIKA_SERVER_ENDPOINT)
 
-    def parse(self, source: Union[bytes, str], source_type: str='buffer') -> str:
+    def parse(self, source: Union[bytes, str], source_type: str = 'buffer') -> str:
         """Parse a PDF document to text from different source types.
 
         Args:
@@ -62,7 +64,7 @@ class PDFDoc2Txt:
             raise ValueError(f'Unknown source_type: `{source_type}`')
 
         soup = BeautifulSoup(pdf_text['content'], features="html.parser")
-        pages = soup.find_all('div', {'class':'page'})
+        pages = soup.find_all('div', {'class': 'page'})
 
         text_pages = []
         for page in pages:
@@ -82,7 +84,8 @@ class PDFDoc2Txt:
 
             prev_paragraph_end = paragraphs[-1][-1] if paragraphs and paragraphs[-1] else ''
 
-            if prev_paragraph_end and (re.search(r'[a-zA-Z\-\,]', prev_paragraph_end) or (paragraph[0].islower())):  # .isalpha():
+            # .isalpha():
+            if prev_paragraph_end and (re.search(r'[a-zA-Z\-\,]', prev_paragraph_end) or (paragraph[0].islower())):
                 paragraph = paragraphs[-1] + ' ' + paragraph
                 paragraphs[-1] = paragraph
             else:
@@ -96,7 +99,7 @@ class PDFDoc2Txt:
         return paragraphs
 
     @staticmethod
-    def consolidate_paragraph(text_paragraph: str, min_fragment_len: int=3) -> str:
+    def consolidate_paragraph(text_paragraph: str, min_fragment_len: int = 3) -> str:
         """Consolidate a `text_paragraph` with possible multiple newlines into one logical paragraph.
 
         Tika provides access to extracted text by paragraph. These paragraphs, however, may contain
@@ -220,3 +223,106 @@ class PDFDoc2Txt:
         #     if p in unique_ps:
         #         continue
         #     unique_ps.append(p)
+
+
+class PDFToTextProcessor:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def normalize_footnote_citations(text: str) -> str:
+        r"""This method tries to detect footnotes and normalizes them.
+
+        This is essential to improve the accuracy of SpaCy's sentence
+        detector. Sometimes footnote citations are connected with sentence
+        endings that prevents the detection of proper sentence boundary.
+
+        The transformation handles common footnote citation formats:
+            pattern: ((?:[a-zA-Z\)]+[.,]|\)))(\d+)(\s)
+                - This is a normalizer.1 We will use this.
+                - This is a normalizer (great).2 We will use this.
+                - This is a normalizer (great).3\nWe will use this.
+                - The normalizer (2020)8 is working.
+            transforms to:
+                - This is a normalizer. _1 We will use this.
+                - This is a normalizer (great). _2 We will use this.
+                - This is a normalizer (great). _3\nWe will use this.
+                - The normalizer (2020) _8 is working.
+
+        Args:
+            text:
+                Text that will be checked and normalized for footnote
+                citations.
+
+        Returns:
+            normalized text
+
+        """
+        footnote_patterns = [
+            r'((?:[a-zA-Z\)]+[.,]|\)))(\d+)(\s)'
+        ]
+
+        footnote_patterns = '|'.join(footnote_patterns)
+
+        return re.sub(footnote_patterns, r'\1 _\2\3', text)
+
+    @staticmethod
+    def process_for_header(s):
+        s = re.sub(r'([^\s])(\n+)', r'\1 \2', s)
+        return s
+
+    @staticmethod
+    def read_pdf(fname: str) -> List[str]:
+        output = subprocess.run(
+            ["pdftotext", str(fname), "-"], stdout=subprocess.PIPE, shell=False)
+        pages = output.stdout.decode(errors="ignore").split("\f")
+        pages = pages[:-1]  # the last page in the split is always empty.
+
+        return pages
+
+    @staticmethod
+    def pdf_to_text(fname: str, common_p_val: float = 0.01, joiner: str = ' ') -> str:
+        pages = PDFToTextProcessor.read_pdf(fname)
+
+        return joiner.join(PDFToTextProcessor.remove_headers(pages, common_p_val))
+
+    @staticmethod
+    def remove_headers(pages, common_p_val=0.01):
+        pages_copy = list(pages)
+        page_thresh = int(len(pages) * common_p_val)
+
+        sep = ' '
+        potential_headers = [PDFToTextProcessor.process_for_header(
+            i).split(sep)[:50] for i in pages if len(i.split())]
+
+        idx = 2
+        common_list = []
+
+        while True:
+            pg = pd.Series(dict(Counter([sep.join(i[:idx])
+                                         for i in potential_headers if len(i)]).most_common()))
+            pg = pg[pg >= page_thresh]
+            if pg.empty:
+                break
+            common_list.append(pg)
+            idx += 1
+
+        len(common_list)
+
+        common_list_df = pd.concat(common_list[::-1])
+        common_list_df.head()
+        common_list_df.tail()
+
+        comms = [i.split(sep) for i in common_list_df.index]
+
+        for ix, l in enumerate(pages):
+            ll = PDFToTextProcessor.process_for_header(l).split(sep)
+            # if ix and ix % 10 == 0:
+            #     print(ix)
+            for c in comms:
+                ixl = len(c)
+                if ll[:ixl] == c:
+                    pages_copy[ix] = sep.join(ll[ixl:]).replace(' \n', '\n')
+                    break
+
+        return pages_copy
