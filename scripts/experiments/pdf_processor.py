@@ -1,3 +1,4 @@
+import subprocess
 import pandas as pd
 from collections import Counter
 from sklearn.feature_extraction.text import CountVectorizer
@@ -262,3 +263,683 @@ while True:
     common_list.append(pg)
     idx += 1
 len(common_list)
+%history
+common_list[0]
+common_list[1]
+common_list[3]
+common_list[4]
+common_list[5]
+common_list[6]
+common_list[7]
+common_list[8]
+common_list[9]
+common_list[2]
+common_list[-1]
+common_list[-2]
+common_list[::-1][0]
+common_list[::-1][1]
+common_list[::-1][2]
+common_list[::-1].index[:10]
+common_list_df = pd.concat(common_list[::-1])
+common_list_df.head()
+common_list_df.index[-5:]
+common_list_df.index[-15:]
+f_split_copy = list(f_split)
+comms = [i.split() for i in common_list_df.index]
+comms[0]
+for ix, l in f_split:
+    if ix and ix % 10 == 0:
+        print(ix)
+    for c in comms:
+        ixl = len(c)
+        if l[:ixl] == c:
+            f_split_copy[ix] = l[:ixl]
+            break
+for ix, l in enumerate(f_split):
+    if ix and ix % 10 == 0:
+        print(ix)
+    for c in comms:
+        ixl = len(c)
+        if l[:ixl] == c:
+            f_split_copy[ix] = l[:ixl]
+            break
+f_split[22]
+f_split_copy[22]
+for ix, l in enumerate(f_split):
+    ll = l.split(' ')
+    if ix and ix % 10 == 0:
+        print(ix)
+    for c in comms:
+        ixl = len(c)
+        if ll[:ixl] == c:
+            f_split_copy[ix] = ' '.join(ll[ixl:])
+            break
+f_split[22]
+f_split_copy[22]
+for ix, l in enumerate(f_split):
+    ll = l.replace('\n', ' _\n').split(' ')
+    if ix and ix % 10 == 0:
+        print(ix)
+    for c in comms:
+        ixl = len(c)
+        if ll[:ixl] == c:
+            f_split_copy[ix] = ' '.join(ll[ixl:]).replace('_\n', '\n')
+            break
+f_split[22]
+f_split_copy[22]
+for ix, l in enumerate(f_split):
+    ll = l.replace('\n', ' _\n').split(' ')
+    if ix and ix % 10 == 0:
+        print(ix)
+    for c in comms:
+        ixl = len(c)
+        if ll[:ixl] == c:
+            f_split_copy[ix] = ' '.join(ll[ixl:]).replace(' _\n', '\n')
+            break
+f_split_copy[22]
+for ix, l in enumerate(f_split):
+    ll = l.replace('\n', ' _\n').split(' ')
+    if ix and ix % 10 == 0:
+        print(ix)
+    for c in comms:
+        ixl = len(c)
+        if ll[:ixl] == c:
+            f_split_copy[ix] = (' ' + ' '.join(ll[ixl:])).replace(' _\n', '\n')
+            break
+f_split_copy[22]
+f_split_copy[21]
+f_split_copy[25]
+f_split_copy[27]
+potential_headers = [i.split(' ')[:50] for i in f_split]
+idx = 2
+common_list = []
+while True:
+    pg = pd.Series(dict(Counter([' '.join(i[:idx])
+                   for i in potential_headers if len(i)]).most_common()))
+    pg = pg[pg >= page_thresh]
+    if pg.empty:
+        break
+    common_list.append(pg)
+    idx += 1
+potential_headers[0]
+potential_headers[1]
+idx
+len(potential_headers)
+Counter([' '.join(i[:2]) for i in potential_headers if len(i)]).most_common(20)
+Counter([' '.join(i[:3]) for i in potential_headers if len(i)]).most_common(20)
+' '.join(['\n'])
+' '.join([''])
+potential_headers = [i.split(' ')[:50] for i in f_split if len(i)]
+Counter([' '.join(i[:3]) for i in potential_headers if len(i)]).most_common(20)
+potential_headers = [i.split(' ')[:50] for i in f_split if len(i)]
+idx = 2
+common_list = []
+while True:
+    pg = pd.Series(dict(Counter([' '.join(i[:idx])
+                   for i in potential_headers if len(i)]).most_common()))
+    pg = pg[pg >= page_thresh]
+    if pg.empty:
+        break
+    common_list.append(pg)
+    idx += 1
+len(common_list)
+common_list_df = pd.concat(common_list[::-1])
+common_list_df.head()
+common_list_df.tail()
+for ix, l in enumerate(f_split):
+    ll = l.split(' ')
+    if ix and ix % 10 == 0:
+        print(ix)
+    for c in comms:
+        ixl = len(c)
+        if ll[:ixl] == c:
+            f_split_copy[ix] = ' '.join(ll[ixl:])
+            break
+f_split_copy[27]
+c
+comms = [i.split(' ') for i in common_list_df.index]
+for ix, l in enumerate(f_split):
+    ll = l.split(' ')
+    if ix and ix % 10 == 0:
+        print(ix)
+    for c in comms:
+        ixl = len(c)
+        if ll[:ixl] == c:
+            f_split_copy[ix] = ' '.join(ll[ixl:])
+            break
+f_split_copy[27]
+f_split[27]
+f_split[23]
+f_split_copy[23]
+f_split_copy[24]
+f_split[24]
+%history
+
+
+def process_for_header(s):
+    s = re.sub(r'([^\s])(\n+)', r'\1 \2', s)
+    return s
+
+
+sep = ' '
+potential_headers = [process_for_header(i).split(
+    sep)[:50] for i in f_split if len(i.split())]
+
+idx = 2
+common_list = []
+
+while True:
+    pg = pd.Series(dict(Counter([sep.join(i[:idx])
+                                 for i in potential_headers if len(i)]).most_common()))
+    pg = pg[pg >= page_thresh]
+    if pg.empty:
+        break
+    common_list.append(pg)
+    idx += 1
+
+len(common_list)
+
+common_list_df = pd.concat(common_list[::-1])
+common_list_df.head()
+common_list_df.tail()
+
+comms = [i.split(sep) for i in common_list_df.index]
+
+for ix, l in enumerate(f_split):
+    ll = l.split(sep)
+    if ix and ix % 10 == 0:
+        print(ix)
+    for c in comms:
+        ixl = len(c)
+        if ll[:ixl] == c:
+            f_split_copy[ix] = sep.join(ll[ixl:])
+            break
+f_split[24]
+f_split_copy[24]
+
+
+def process_for_header(s):
+    s = re.sub(r'([^\s])(\n+)', r'\1 \2', s)
+    return s
+
+
+sep = ' '
+potential_headers = [process_for_header(i).split(
+    sep)[:50] for i in f_split if len(i.split())]
+
+idx = 2
+common_list = []
+
+while True:
+    pg = pd.Series(dict(Counter([sep.join(i[:idx])
+                                 for i in potential_headers if len(i)]).most_common()))
+    pg = pg[pg >= page_thresh]
+    if pg.empty:
+        break
+    common_list.append(pg)
+    idx += 1
+
+len(common_list)
+
+common_list_df = pd.concat(common_list[::-1])
+common_list_df.head()
+common_list_df.tail()
+
+comms = [i.split(sep) for i in common_list_df.index]
+
+for ix, l in enumerate(f_split):
+    ll = process_for_header(l).split(sep)
+    if ix and ix % 10 == 0:
+        print(ix)
+    for c in comms:
+        ixl = len(c)
+        if ll[:ixl] == c:
+            f_split_copy[ix] = sep.join(ll[ixl:])
+            break
+f_split_copy[24]
+f_split[24]
+f_split_copy[24]
+f_split_copy[25]
+f_split[25]
+
+
+class PDFToTextProcessor:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def process_for_header(s):
+        s = re.sub(r'([^\s])(\n+)', r'\1 \2', s)
+        return s
+
+    def remove_headers(self, pages, common_p_val=0.01):
+        pages_copy = list(pages)
+        page_thresh = int(len(pages) * common_p_val)
+
+        sep = ' '
+        potential_headers = [PDFToTextProcessor.process_for_header(
+            i).split(sep)[:50] for i in pages if len(i.split())]
+
+        idx = 2
+        common_list = []
+
+        while True:
+            pg = pd.Series(dict(Counter([sep.join(i[:idx])
+                                         for i in potential_headers if len(i)]).most_common()))
+            pg = pg[pg >= page_thresh]
+            if pg.empty:
+                break
+            common_list.append(pg)
+            idx += 1
+
+        len(common_list)
+
+        common_list_df = pd.concat(common_list[::-1])
+        common_list_df.head()
+        common_list_df.tail()
+
+        comms = [i.split(sep) for i in common_list_df.index]
+
+        for ix, l in enumerate(pages):
+            ll = PDFToTextProcessor.process_for_header(l).split(sep)
+            if ix and ix % 10 == 0:
+                print(ix)
+            for c in comms:
+                ixl = len(c)
+                if ll[:ixl] == c:
+                    pages_copy[ix] = sep.join(ll[ixl:])
+                    break
+
+        return pages_copy
+
+pdftp = PDFToTextProcessor()
+ww = pdftp.remove_headers(f_split, common_p_val=0.01)
+ww[27]
+f_split[27]
+
+
+class PDFToTextProcessor:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def process_for_header(s):
+        s = re.sub(r'([^\s])(\n+)', r'\1 \2', s)
+        return s
+
+    def remove_headers(self, pages, common_p_val=0.01):
+        pages_copy = list(pages)
+        page_thresh = int(len(pages) * common_p_val)
+
+        sep = ' '
+        potential_headers = [PDFToTextProcessor.process_for_header(
+            i).split(sep)[:50] for i in pages if len(i.split())]
+
+        idx = 2
+        common_list = []
+
+        while True:
+            pg = pd.Series(dict(Counter([sep.join(i[:idx])
+                                         for i in potential_headers if len(i)]).most_common()))
+            pg = pg[pg >= page_thresh]
+            if pg.empty:
+                break
+            common_list.append(pg)
+            idx += 1
+
+        len(common_list)
+
+        common_list_df = pd.concat(common_list[::-1])
+        common_list_df.head()
+        common_list_df.tail()
+
+        comms = [i.split(sep) for i in common_list_df.index]
+
+        for ix, l in enumerate(pages):
+            ll = PDFToTextProcessor.process_for_header(l).split(sep)
+            # if ix and ix % 10 == 0:
+            #     print(ix)
+            for c in comms:
+                ixl = len(c)
+                if ll[:ixl] == c:
+                    pages_copy[ix] = sep.join(ll[ixl:]).replace(' \n', '\n')
+                    break
+
+        return pages_copy
+
+pdftp = PDFToTextProcessor()
+ww = pdftp.remove_headers(f_split, common_p_val=0.01)
+ww[27]
+f_split[27]
+pdoc = ' '.join(ww)
+sents = nltk.sent_tokenize(pdoc)
+for s in sents[:500]:
+    print(s.replace('\n', ' ').strip())
+    print('------------------------------------')
+%time w_sents = nltk.sent_tokenize(normalize_footnote_citations(pdocs))
+%time w_sents = nltk.sent_tokenize(normalize_footnote_citations(pdoc))
+for s in w_sents[:500]:
+    print(s.replace('\n', ' ').strip())
+    print('------------------------------------')
+
+
+class PDFToTextProcessor:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def process_for_header(s):
+        s = re.sub(r'([^\s])(\n+)', r'\1 \2', s)
+        return s
+
+    @staticmethod
+    def read_pdf(fname: str) -> List[str]:
+
+        command = ["pdftotext", str(fname), "-"]
+        output = subprocess.run(command, stdout=subprocess.PIPE, shell=False)
+        document = output.stdout.decode(errors="ignore")
+        pages = document.split("\f")
+        pages = pages[:-1]  # the last page in the split is always empty.
+
+        return pages
+
+    def pdf_to_text(fname: str, common_p_val: float = 0.01, joiner: str = ' ') -> str:
+        pages = PDFToTextProcessor.read_pdf(fname)
+
+        return joiner.join(PDFToTextProcessor.remove_headers(pages, common_p_val))
+
+    @staticmethod
+    def remove_headers(pages, common_p_val=0.01):
+        pages_copy = list(pages)
+        page_thresh = int(len(pages) * common_p_val)
+
+        sep = ' '
+        potential_headers = [PDFToTextProcessor.process_for_header(
+            i).split(sep)[:50] for i in pages if len(i.split())]
+
+        idx = 2
+        common_list = []
+
+        while True:
+            pg = pd.Series(dict(Counter([sep.join(i[:idx])
+                                         for i in potential_headers if len(i)]).most_common()))
+            pg = pg[pg >= page_thresh]
+            if pg.empty:
+                break
+            common_list.append(pg)
+            idx += 1
+
+        len(common_list)
+
+        common_list_df = pd.concat(common_list[::-1])
+        common_list_df.head()
+        common_list_df.tail()
+
+        comms = [i.split(sep) for i in common_list_df.index]
+
+        for ix, l in enumerate(pages):
+            ll = PDFToTextProcessor.process_for_header(l).split(sep)
+            # if ix and ix % 10 == 0:
+            #     print(ix)
+            for c in comms:
+                ixl = len(c)
+                if ll[:ixl] == c:
+                    pages_copy[ix] = sep.join(ll[ixl:]).replace(' \n', '\n')
+                    break
+
+        return pages_copy
+
+from typing import List
+
+
+class PDFToTextProcessor:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def process_for_header(s):
+        s = re.sub(r'([^\s])(\n+)', r'\1 \2', s)
+        return s
+
+    @staticmethod
+    def read_pdf(fname: str) -> List[str]:
+
+        command = ["pdftotext", str(fname), "-"]
+        output = subprocess.run(command, stdout=subprocess.PIPE, shell=False)
+        document = output.stdout.decode(errors="ignore")
+        pages = document.split("\f")
+        pages = pages[:-1]  # the last page in the split is always empty.
+
+        return pages
+
+    def pdf_to_text(fname: str, common_p_val: float = 0.01, joiner: str = ' ') -> str:
+        pages = PDFToTextProcessor.read_pdf(fname)
+
+        return joiner.join(PDFToTextProcessor.remove_headers(pages, common_p_val))
+
+    @staticmethod
+    def remove_headers(pages, common_p_val=0.01):
+        pages_copy = list(pages)
+        page_thresh = int(len(pages) * common_p_val)
+
+        sep = ' '
+        potential_headers = [PDFToTextProcessor.process_for_header(
+            i).split(sep)[:50] for i in pages if len(i.split())]
+
+        idx = 2
+        common_list = []
+
+        while True:
+            pg = pd.Series(dict(Counter([sep.join(i[:idx])
+                                         for i in potential_headers if len(i)]).most_common()))
+            pg = pg[pg >= page_thresh]
+            if pg.empty:
+                break
+            common_list.append(pg)
+            idx += 1
+
+        len(common_list)
+
+        common_list_df = pd.concat(common_list[::-1])
+        common_list_df.head()
+        common_list_df.tail()
+
+        comms = [i.split(sep) for i in common_list_df.index]
+
+        for ix, l in enumerate(pages):
+            ll = PDFToTextProcessor.process_for_header(l).split(sep)
+            # if ix and ix % 10 == 0:
+            #     print(ix)
+            for c in comms:
+                ixl = len(c)
+                if ll[:ixl] == c:
+                    pages_copy[ix] = sep.join(ll[ixl:]).replace(' \n', '\n')
+                    break
+
+        return pages_copy
+
+pdftp = PDFToTextProcessor()
+
+
+class PDFToTextProcessor:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def process_for_header(s):
+        s = re.sub(r'([^\s])(\n+)', r'\1 \2', s)
+        return s
+
+    @staticmethod
+    def read_pdf(fname: str) -> List[str]:
+
+        command = ["pdftotext", str(fname), "-"]
+        output = subprocess.run(command, stdout=subprocess.PIPE, shell=False)
+        document = output.stdout.decode(errors="ignore")
+        pages = document.split("\f")
+        pages = pages[:-1]  # the last page in the split is always empty.
+
+        return pages
+
+    def pdf_to_text(fname: str, common_p_val: float = 0.01, joiner: str = ' ') -> str:
+        pages = PDFToTextProcessor.read_pdf(fname)
+
+        return joiner.join(PDFToTextProcessor.remove_headers(pages, common_p_val))
+
+    @staticmethod
+    def remove_headers(pages, common_p_val=0.01):
+        pages_copy = list(pages)
+        page_thresh = int(len(pages) * common_p_val)
+
+        sep = ' '
+        potential_headers = [PDFToTextProcessor.process_for_header(
+            i).split(sep)[:50] for i in pages if len(i.split())]
+
+        idx = 2
+        common_list = []
+
+        while True:
+            pg = pd.Series(dict(Counter([sep.join(i[:idx])
+                                         for i in potential_headers if len(i)]).most_common()))
+            pg = pg[pg >= page_thresh]
+            if pg.empty:
+                break
+            common_list.append(pg)
+            idx += 1
+
+        len(common_list)
+
+        common_list_df = pd.concat(common_list[::-1])
+        common_list_df.head()
+        common_list_df.tail()
+
+        comms = [i.split(sep) for i in common_list_df.index]
+
+        for ix, l in enumerate(pages):
+            ll = PDFToTextProcessor.process_for_header(l).split(sep)
+            # if ix and ix % 10 == 0:
+            #     print(ix)
+            for c in comms:
+                ixl = len(c)
+                if ll[:ixl] == c:
+                    pages_copy[ix] = sep.join(ll[ixl:]).replace(' \n', '\n')
+                    break
+
+        return pages_copy
+
+pdftp = PDFToTextProcessor()
+%time ee = pdftp.pdf_to_text('WDR 2013 low res.pdf')
+
+
+class PDFToTextProcessor:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def normalize_footnote_citations(text: str) -> str:
+        r"""This method tries to detect footnotes and normalizes them.
+
+        This is essential to improve the accuracy of SpaCy's sentence
+        detector. Sometimes footnote citations are connected with sentence
+        endings that prevents the detection of proper sentence boundary.
+
+        The transformation handles common footnote citation formats:
+            pattern: ((?:[a-zA-Z\)]+[.,]|\)))(\d+)(\s)
+                - This is a normalizer.1 We will use this.
+                - This is a normalizer (great).2 We will use this.
+                - This is a normalizer (great).3\nWe will use this.
+                - The normalizer (2020)8 is working.
+            transforms to:
+                - This is a normalizer. _1 We will use this.
+                - This is a normalizer (great). _2 We will use this.
+                - This is a normalizer (great). _3\nWe will use this.
+                - The normalizer (2020) _8 is working.
+
+        Args:
+            text:
+                Text that will be checked and normalized for footnote
+                citations.
+
+        Returns:
+            normalized text
+
+        """
+        footnote_patterns = [
+            r'((?:[a-zA-Z\)]+[.,]|\)))(\d+)(\s)'
+        ]
+
+        footnote_patterns = '|'.join(footnote_patterns)
+
+        return re.sub(footnote_patterns, r'\1 _\2\3', text)
+
+    @staticmethod
+    def process_for_header(s):
+        s = re.sub(r'([^\s])(\n+)', r'\1 \2', s)
+        return s
+
+    @staticmethod
+    def read_pdf(fname: str) -> List[str]:
+
+        command = ["pdftotext", str(fname), "-"]
+        output = subprocess.run(command, stdout=subprocess.PIPE, shell=False)
+        document = output.stdout.decode(errors="ignore")
+        pages = document.split("\f")
+        pages = pages[:-1]  # the last page in the split is always empty.
+
+        return pages
+
+    @staticmethod
+    def pdf_to_text(fname: str, common_p_val: float = 0.01, joiner: str = ' ') -> str:
+        pages = PDFToTextProcessor.read_pdf(fname)
+
+        return joiner.join(PDFToTextProcessor.remove_headers(pages, common_p_val))
+
+    @staticmethod
+    def remove_headers(pages, common_p_val=0.01):
+        pages_copy = list(pages)
+        page_thresh = int(len(pages) * common_p_val)
+
+        sep = ' '
+        potential_headers = [PDFToTextProcessor.process_for_header(
+            i).split(sep)[:50] for i in pages if len(i.split())]
+
+        idx = 2
+        common_list = []
+
+        while True:
+            pg = pd.Series(dict(Counter([sep.join(i[:idx])
+                                         for i in potential_headers if len(i)]).most_common()))
+            pg = pg[pg >= page_thresh]
+            if pg.empty:
+                break
+            common_list.append(pg)
+            idx += 1
+
+        len(common_list)
+
+        common_list_df = pd.concat(common_list[::-1])
+        common_list_df.head()
+        common_list_df.tail()
+
+        comms = [i.split(sep) for i in common_list_df.index]
+
+        for ix, l in enumerate(pages):
+            ll = PDFToTextProcessor.process_for_header(l).split(sep)
+            # if ix and ix % 10 == 0:
+            #     print(ix)
+            for c in comms:
+                ixl = len(c)
+                if ll[:ixl] == c:
+                    pages_copy[ix] = sep.join(ll[ixl:]).replace(' \n', '\n')
+                    break
+
+        return pages_copy
+
+pdftp = PDFToTextProcessor()
+%time ee = pdftp.pdf_to_text('WDR 2013 low res.pdf')
+len(ee)
+%time e_sents = nltk.sent_tokenize(normalize_footnote_citations(ee))
+for s in e_sents[:500]:
+    print(s.replace('\n', ' ').strip())
+    print('------------------------------------')
+%history
