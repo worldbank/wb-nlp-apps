@@ -42,16 +42,15 @@ def main(cfg_path: Path, log_level: int):
         max_token_length=config['max_token_length']
     )
 
+    for text in raw_text:
+        logging.info()
+        tokens = cleaner.get_clean_tokens(text)
+
 
 # Parameters:
 # - Location of input data
 # - Directory of * .txt files
 # - MongoDB database
-
-except expression as identifier:
-    pass
-else:
-    pass
 
 if __name__ == '__main__':
     main()
