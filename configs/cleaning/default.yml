@@ -30,6 +30,8 @@ config:
       # - DATE
       # - QUANTITY
       # - ORDINAL
+    min_token_length: 2
+    max_token_length: 50
     cleaner:
         # Options for cleaning.corrector.recover_segmented_words
         fix_fragmented_tokens:
