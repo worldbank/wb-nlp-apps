@@ -1,6 +1,36 @@
 
-default_config:
-    cleaner_config:
+config:
+    # https://spacy.io/api/annotation
+    include_pos_tags:
+      # - POS
+      - ADJ
+      # - ADP
+      - ADV
+      # - AUX
+      # - CONJ
+      # - CCONJ
+      # - DET
+      # - INTJ
+      - NOUN
+      # - NUM
+      # - PART
+      # - PRON
+      # - PROPN
+      # - PUNCT
+      # - SCONJ
+      # - SYM
+      - VERB
+      # - X
+      # - SPACE
+    exclude_entity_types:
+      - CARDINAL
+      - TIME
+      - PERCENT
+      - MONEY
+      # - DATE
+      # - QUANTITY
+      # - ORDINAL
+    cleaner:
         # Options for cleaning.corrector.recover_segmented_words
         fix_fragmented_tokens:
             use: True
@@ -31,7 +61,7 @@ default_config:
             use: True
             params: {}
 
-    spell_checker_config:
+    spell_checker:
         __init__:
             lang: en_US
             text: null
@@ -39,7 +69,7 @@ default_config:
             chunkers: null
             filters: null
 
-    respeller_config:
+    respeller:
         __init__:
             dictionary_file: null
             spell_threshold: 0.25
