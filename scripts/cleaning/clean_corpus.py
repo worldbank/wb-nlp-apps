@@ -21,7 +21,7 @@ from wb_nlp.cleaning import cleaner
 
 
 def joblib_clean_file(cleaner_func: Callable[[str], list], file_id: int, input_file: Path, output_dir: Path):
-    logging.info(f"Processing {file_id}: {input_file.name}")
+    # logging.info(f"Processing {file_id}: {input_file.name}")
 
     with open(input_file, "rb") as in_file:
         text = in_file.read().decode("utf-8", errors="ignore")
@@ -64,18 +64,19 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
 
-    # Check directories
+    logging.info('Checking directories...')
     if not input_dir.exists():
         raise ValueError("Input directory doesn't exist!")
 
     if not output_dir.exists():
         output_dir.mkdir(parents=True)
 
-    # Initialize dask client
+    logging.info('Creating dask client...')
     client = Client(threads_per_worker=1, processes=True)
     logging.info(client)
     logging.info(client.dashboard_link)
 
+    logging.info(f'Load config file {cfg_path}...')
     with open(cfg_path) as cfg_file:
         config = yaml.safe_load(cfg_file)
         config = config['config']
@@ -88,6 +89,7 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
         max_token_length=config['max_token_length']
     )
 
+    logging.info(f'Starting joblib tasks...')
     with joblib.parallel_backend('dask'):
         res = Parallel(verbose=10)(delayed(joblib_clean_file)(cleaner_object.get_clean_tokens, ix, i, output_dir)
                                    for ix, i in enumerate(input_dir.glob('*.txt'), 1))
