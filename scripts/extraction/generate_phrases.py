@@ -26,12 +26,14 @@ from wb_nlp.cleaning import cleaner
 #                     datefmt='%Y-%m-%d %H:%M',
 #                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
+MAX_LENGTH = 1000000
+
 
 def joblib_extract_phrases(cleaner_func: Callable[[str], dict], file_id: int, input_file: Path, output_dir: Path):
     # logging.info(f"Processing {file_id}: {input_file.name}")
 
     with open(input_file, "rb") as in_file:
-        text = in_file.read().decode("utf-8", errors="ignore")
+        text = in_file.read().decode("utf-8", errors="ignore")[:MAX_LENGTH]
 
         # result = lda_cleaner.get_tokens_and_phrases(text)
         # Output is a dictionary with keys `tokens` and `phrases`
@@ -81,7 +83,8 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
         output_dir.mkdir(parents=True)
 
     logging.info('Creating dask client...')
-    client = Client(threads_per_worker=1, processes=True)
+    client = Client(dashboard_address=':8887',
+                    threads_per_worker=1, processes=True)
     logging.info(client)
     logging.info(client.dashboard_link)
 
