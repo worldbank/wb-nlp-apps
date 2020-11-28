@@ -74,10 +74,12 @@ def main(input_dir: Path, output_dir: Path, log_level: int):
     total_frequency_out = output_dir / 'phrases_total_frequency.json'
 
     with open(doc_frequency_out, 'w') as fl:
-        json.dump(dict(doc_frequency.most_common()), fl)
+        json.dump(
+            dict(filter(lambda x: x[1] > 1, doc_frequency.most_common())), fl)
 
     with open(total_frequency_out, 'w') as fl:
-        json.dump(dict(total_frequency.most_common()), fl)
+        json.dump(
+            dict(filter(lambda x: x[1] > 1, total_frequency.most_common())), fl)
 
     logging.info(doc_frequency.most_common(100))
 
