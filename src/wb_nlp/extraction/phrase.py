@@ -3,7 +3,7 @@ from typing import Callable, Optional
 
 
 PHRASE_FILLERS = ['of', 'the', 'in']  # Not used if
-PHRASE_POS = ['ADJ', 'NOUN']
+PHRASE_POS = ['ADJ', 'NOUN', 'ADV']
 PHRASE_SEP = '_'
 
 
