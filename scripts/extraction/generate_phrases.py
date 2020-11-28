@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import logging
 from pathlib import Path
+import os
 import sys
 from typing import Callable
 import click
@@ -48,8 +49,8 @@ def joblib_extract_phrases(cleaner_func: Callable[[str], dict], file_id: int, in
 
 
 # fallback to debugger on error
-sys.excepthook = ultratb.FormattedTB(
-    mode='Verbose', color_scheme='Linux', call_pdb=1)
+# sys.excepthook = ultratb.FormattedTB(
+#     mode='Verbose', color_scheme='Linux', call_pdb=1)
 
 _logger = logging.getLogger(__name__)
 
@@ -83,8 +84,9 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
         output_dir.mkdir(parents=True)
 
     logging.info('Creating dask client...')
-    client = Client(dashboard_address=':8887',
-                    threads_per_worker=1, processes=True)
+    cluster = LocalCluster(n_workers=max(1, os.cpu_count() - 4), dashboard_address=':8887',
+                           threads_per_worker=1, processes=True, memory_limit=0)
+    client = Client(cluster)
     logging.info(client)
     logging.info(client.dashboard_link)
 
