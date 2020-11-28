@@ -5,12 +5,14 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1
   - _openmp_mutex=4.5
+  - aiohttp=3.6.2
   - alabaster=0.7.12
   - altair=4.1.0
   - aniso8601=8.0.0
   - appdirs=1.4.3
   - argon2-cffi=20.1.0
   - astroid=2.4.2
+  - async-timeout=3.0.1
   - async_generator=1.10
   - attrs=20.2.0
   - autopep8=1.5.4
@@ -151,6 +153,7 @@ dependencies:
   - mock=4.0.2
   - more-itertools=8.5.0
   - msgpack-python=1.0.0
+  - multidict=4.7.5
   - murmurhash=1.0.0
   - mypy=0.782
   - mypy_extensions=0.4.3
@@ -277,6 +280,7 @@ dependencies:
   - xz=5.2.5
   - yaml=0.2.5
   - yapf=0.30.0
+  - yarl=1.4.2
   - zeromq=4.3.2
   - zict=2.0.0
   - zipp=3.1.0
@@ -298,10 +302,12 @@ dependencies:
     - pyarrow==1.0.1
     - pydeck==0.5.0b1
     - pyenchant==3.1.1
+    - redis==3.5.3
     - streamlit==0.66.0
     - tzlocal==2.1
     - userpath==1.4.1
     - validators==0.18.1
     - watchdog==0.10.3
     - widgetsnbextension==3.5.1
+    - wordninja==2.0.0
 

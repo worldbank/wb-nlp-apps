@@ -6,6 +6,7 @@ import os
 import pickle
 import re
 import warnings
+from collections import Counter
 from typing import Callable, Generator, Optional
 from gensim.utils import simple_preprocess
 
@@ -115,7 +116,7 @@ class BaseCleaner:
     def get_clean_text(self, text: str) -> str:
         return " ".join(self.get_clean_tokens(text))
 
-    def get_tokens_and_phrases(self, text: str) -> dict:
+    def get_tokens_and_phrases(self, text: str, return_phrase_count: bool = False) -> dict:
         doc = BaseCleaner.text_to_doc(text)
         doc = self._apply_extractors(doc)
         tokens = []
@@ -127,6 +128,9 @@ class BaseCleaner:
             token_func=self._is_valid_token,
             token_container=tokens,
         )
+
+        if return_phrase_count:
+            phrases = dict(Counter(phrases).most_common())
 
         return dict(tokens=tokens, phrases=phrases)
 

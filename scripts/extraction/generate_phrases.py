@@ -7,6 +7,8 @@ from typing import Callable
 import click
 from IPython.core import ultratb
 
+import gzip
+import json
 import yaml
 
 import dask
@@ -18,9 +20,11 @@ from joblib import Parallel, delayed
 import joblib
 import wb_nlp
 from wb_nlp.cleaning import cleaner
-import gzip
-import json
-from contexttimer.timeout import timeout
+
+# logging.basicConfig(stream=sys.stdout,
+#                     level=logging.INFO,
+#                     datefmt='%Y-%m-%d %H:%M',
+#                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 def joblib_extract_phrases(cleaner_func: Callable[[str], dict], file_id: int, input_file: Path, output_dir: Path):
@@ -31,7 +35,7 @@ def joblib_extract_phrases(cleaner_func: Callable[[str], dict], file_id: int, in
 
         # result = lda_cleaner.get_tokens_and_phrases(text)
         # Output is a dictionary with keys `tokens` and `phrases`
-        result = cleaner_func(text)
+        result = cleaner_func(text, return_phrase_count=True)
 
     output_file = output_dir / (input_file.name + '.json.gz')
 
@@ -86,6 +90,8 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
         config = yaml.safe_load(cfg_file)
         config = config['config']
 
+    logging.info(config)
+
     cleaner_object = cleaner.BaseCleaner(
         config=config,
         include_pos=config['include_pos_tags'],
@@ -94,17 +100,9 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
         max_token_length=config['max_token_length']
     )
 
-    def timeout_handler(limit, f, *args, **kwargs):
-        logging.warn(f"{f.__name__} timed out after {limit}s...")
-        return False
-
-    # @timeout(limit=5 * 60, handler=timeout_handler)
-    def phrase_extractor_with_timeout(text: str):
-        return cleaner_object.get_tokens_and_phrases(text)
-
     logging.info(f'Starting joblib tasks...')
     with joblib.parallel_backend('dask'):
-        res = Parallel(verbose=10)(delayed(joblib_extract_phrases)(phrase_extractor_with_timeout, ix, i, output_dir)
+        res = Parallel(verbose=10)(delayed(joblib_extract_phrases)(cleaner_object.get_tokens_and_phrases, ix, i, output_dir)
                                    for ix, i in enumerate(input_dir.glob('*.txt'), 1))
 
     logging.info(f'Processed all: {all(res)}')
@@ -116,5 +114,5 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
 
 
 if __name__ == '__main__':
-    # python generate_phrases.py --config ../../configs/cleaning/default.yml --input-dir ../../data/raw/sample_data/TXT_SAMPLE --output-dir ../../data/preprocessed/sample_data/phrases -v
+    # python -u generate_phrases.py --config ../../configs/cleaning/default.yml --input-dir ../../data/raw/sample_data/TXT_SAMPLE --output-dir ../../data/preprocessed/sample_data/phrases -v |& tee logging.log
     main()
