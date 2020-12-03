@@ -1,5 +1,6 @@
 model_config:
   meta:
+    model_id: null  # To be filled up in the model training
     library: Gensim
     model_implementation: LDA Multicore
     library_version: 3.8.3

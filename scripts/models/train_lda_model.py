@@ -10,9 +10,10 @@ from IPython.core import ultratb
 
 import wb_nlp
 from wb_nlp import dir_manager
-from wb_nlp.configs.utils import load_config
+from wb_nlp.utils.scripts import load_config, generate_model_hash, generate_files, create_get_directory
 
 import itertools
+import json
 import gensim
 from gensim.corpora import Dictionary
 from gensim.models.ldamulticore import LdaMulticore
@@ -23,18 +24,6 @@ import joblib
 # # fallback to debugger on error
 # sys.excepthook = ultratb.FormattedTB(
 #     mode='Verbose', color_scheme='Linux', call_pdb=1)
-
-
-def load_file(fname: Path, split: bool = True):
-    with open(fname) as fl:
-        txt = fl.read()
-
-    return txt.split() if split else txt
-
-
-def generate_files(path: Path, split: bool = True):
-    return map(lambda x: load_file(x, split=split), path.glob('*.txt'))
-
 
 _logger = logging.getLogger(__file__)
 
@@ -105,15 +94,25 @@ def main(cfg_path: Path, log_level: int):
 
     _logger.info('Training models...')
     for ix, model_params in enumerate(lda_params_set):
-        _logger.info(model_params)
+        record_config = dict(config)
+        record_config['params']['lda'] = dict(model_params)
+        record_config['meta']['model_id'] = ''
 
+        model_hash = generate_model_hash(record_config)
+        sub_model_dir = create_get_directory(model_dir, model_hash)
+
+        _logger.info(model_params)
         model_params['id2word'] = dict(g_dict.id2token)
 
         lda = LdaMulticore(corpus, **model_params)
 
         # TODO: Find a better strategy to name models.
         # It can be a hash of the config values for easier tracking?
-        lda.save(os.path.join(model_dir, f'model-{ix}.lda'))
+        lda.save(str(sub_model_dir / f'model_{model_hash}.lda.bz2'))
+
+        with open(sub_model_dir / 'model_config.json', 'w') as fl:
+            json.dump(record_config, fl)
+
         _logger.info(lda.print_topics())
         # lda.update(corpus)
         break
