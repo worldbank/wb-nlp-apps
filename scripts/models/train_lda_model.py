@@ -120,5 +120,5 @@ def main(cfg_path: Path, log_level: int):
 
 
 if __name__ == '__main__':
-    # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -v
+    # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -vv |& tee train_lda_model.logging.log
     main()
