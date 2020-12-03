@@ -75,7 +75,7 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
     client = create_dask_cluster(_logger)
     _logger.info(client)
 
-    config = load_config(cfg_path, 'config', _logger)
+    config = load_config(cfg_path, 'cleaner_config', _logger)
 
     cleaner_object = cleaner.BaseCleaner(
         config=config,

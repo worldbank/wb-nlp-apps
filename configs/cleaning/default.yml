@@ -1,5 +1,4 @@
-
-config:
+cleaner_config:
     # https://spacy.io/api/annotation
     include_pos_tags:
       # - POS
