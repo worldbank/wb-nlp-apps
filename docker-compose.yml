@@ -12,8 +12,10 @@ services:
         ENV_DEV_BASE_FILE: "environment.dev.base.yml"
         PROJECT_ID: wb_nlp
         ENV_DEV_FILE: "environment.dev.yml"
+    env_file:
+      - .env
     volumes:
-      - ./:/workspace
+      - ${LOCAL_PATH}:/workspace
     links:
       - mongodb
       - web
@@ -42,10 +44,12 @@ services:
       args:
         ENV_ID: prod
         ENV_PROD_FILE: "environment.prod.api.yml"
+    env_file:
+      - .env
     volumes:
-      - ./models:/workspace/models
-      - ./data/preprocessed:/workspace/data/preprocessed
-      - ./data/whitelists:/workspace/data/whitelists
+      - ${LOCAL_PATH}/models:/workspace/models
+      - ${LOCAL_PATH}/data/preprocessed:/workspace/data/preprocessed
+      - ${LOCAL_PATH}/data/whitelists:/workspace/data/whitelists
     # command:
     #   - /opt/conda/envs/prod/bin/gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200
     ports:
@@ -59,9 +63,11 @@ services:
     build:
       context: ./app/app_vue2
     ports:
-    - "8088:80"
+      - "8088:80"
+    env_file:
+      - .env
     volumes:
-      - ./site.conf:/etc/nginx/conf.d/site.conf
+      - ${LOCAL_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
     links:
       - api
     depends_on:
@@ -71,17 +77,21 @@ services:
     build:
       context: ./app/dfr
     ports:
-    - "8098:80"
+      - "8098:80"
+    env_file:
+      - .env
     volumes:
-      - ./app/dfr/data:/usr/share/nginx/html/data
+      - ${LOCAL_PATH}/app/dfr/data:/usr/share/nginx/html/data
 
   web:
     image: nginx:latest
     ports:
-    - "8880:80"
+      - "8880:80"
+    env_file:
+      - .env
     volumes:
-        - ./app/frontend:/frontend/nlp
-        - ./app/site.conf:/etc/nginx/conf.d/site.conf
+      - ${LOCAL_PATH}/app/frontend:/frontend/nlp
+      - ${LOCAL_PATH}/app/site.conf:/etc/nginx/conf.d/site.conf
     links:
       - php
       - api
@@ -91,8 +101,10 @@ services:
 
   php:
     image: php:7-fpm
+    env_file:
+      - .env
     volumes:
-      - ./app/frontend:/frontend/nlp
+      - ${LOCAL_PATH}/app/frontend:/frontend/nlp
 
   tika:
     image: apache/tika:latest
@@ -109,8 +121,10 @@ services:
 
   mongodb:
     image: mongo:latest
+    env_file:
+      - .env
     environment:
-      - ./data/mongodb:/data/db
+      - ${LOCAL_PATH}/data/mongodb:/data/db
       # - MONGO_DATA_DIR=/data/db
       # - MONGO_LOG_DIR=/dev/null
     # volumes:
@@ -120,3 +134,16 @@ services:
     # # command: mongod --smallfiles  # --auth
     # env_file:
     #   - .env
+
+  milvus:
+    image: milvusdb/milvus:0.11.0-cpu-d101620-4c44c0
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/milvus/db:/var/lib/milvus/db
+      - ${LOCAL_PATH}/milvus/conf:/var/lib/milvus/conf
+      - ${LOCAL_PATH}/milvus/logs:/var/lib/milvus/logs
+      - ${LOCAL_PATH}/milvus/wal:/var/lib/milvus/wal
+    ports:
+      - "19530:19530"
+      - "19121:19121"
