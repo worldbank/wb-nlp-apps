@@ -1,35 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import logging
-from pathlib import Path
-import os
-import sys
-from typing import Callable
-import click
-from IPython.core import ultratb
-
+'''
+This script aggregates the result of the generate_phrases.py script to
+identify the most common part-of-speech based phrases in the corpus.
+'''
 import gzip
 import json
-import yaml
-
+import logging
+import sys
 from collections import Counter
+from pathlib import Path
 
-import dask
-import dask.bag as db
-import dask.dataframe as dd
-from dask.distributed import get_worker
-from dask.distributed import Client, LocalCluster, progress
-from joblib import Parallel, delayed
-import joblib
+import click
+
 import wb_nlp
-from wb_nlp.cleaning import cleaner
 
 
 # fallback to debugger on error
 # sys.excepthook = ultratb.FormattedTB(
 #     mode='Verbose', color_scheme='Linux', call_pdb=1)
 
-_logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__file__)
 
 
 @click.command()
@@ -42,6 +33,10 @@ _logger = logging.getLogger(__name__)
 @click.option('-vv', '--very-verbose', 'log_level', flag_value=logging.DEBUG)
 @click.version_option(wb_nlp.__version__)
 def main(input_dir: Path, output_dir: Path, log_level: int):
+    '''
+    Entry point for aggregating part-of-speech based phrases
+    extracted from the generate_phrases.py script.
+    '''
     logging.basicConfig(stream=sys.stdout,
                         level=log_level,
                         datefmt='%Y-%m-%d %H:%M',
@@ -50,7 +45,7 @@ def main(input_dir: Path, output_dir: Path, log_level: int):
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
 
-    logging.info('Checking directories...')
+    _logger.info('Checking directories...')
     if not input_dir.exists():
         raise ValueError("Input directory doesn't exist!")
 
@@ -60,12 +55,12 @@ def main(input_dir: Path, output_dir: Path, log_level: int):
     doc_frequency = Counter()
     total_frequency = Counter()
 
-    for ix, input_file in enumerate(input_dir.glob('*.json.gz'), 1):
-        if ix % 100 == 0:
-            logging.info(f"{ix}. {input_file}")
+    for idx, input_file in enumerate(input_dir.glob('*.json.gz'), 1):
+        if idx % 100 == 0:
+            _logger.info("%s. %s", idx, input_file)
 
-        with gzip.open(input_file, mode='rt', encoding='utf-8') as zf:
-            result = json.load(zf)
+        with gzip.open(input_file, mode='rt', encoding='utf-8') as gz_file:
+            result = json.load(gz_file)
 
         doc_frequency.update(result['phrases'].keys())
         total_frequency.update(result['phrases'])
@@ -73,15 +68,15 @@ def main(input_dir: Path, output_dir: Path, log_level: int):
     doc_frequency_out = output_dir / 'phrases_doc_frequency.json'
     total_frequency_out = output_dir / 'phrases_total_frequency.json'
 
-    with open(doc_frequency_out, 'w') as fl:
+    with open(doc_frequency_out, 'w') as open_file:
         json.dump(
-            dict(filter(lambda x: x[1] > 1, doc_frequency.most_common())), fl)
+            dict(filter(lambda x: x[1] > 1, doc_frequency.most_common())), open_file)
 
-    with open(total_frequency_out, 'w') as fl:
+    with open(total_frequency_out, 'w') as open_file:
         json.dump(
-            dict(filter(lambda x: x[1] > 1, total_frequency.most_common())), fl)
+            dict(filter(lambda x: x[1] > 1, total_frequency.most_common())), open_file)
 
-    logging.info(doc_frequency.most_common(100))
+    _logger.info(doc_frequency.most_common(100))
 
 
 # Parameters:

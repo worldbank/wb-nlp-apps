@@ -24,7 +24,7 @@ from wb_nlp import dir_manager
 from wb_nlp.utils.scripts import (
     load_config, generate_model_hash,
     generate_files, create_get_directory,
-    dask_cluster,
+    create_dask_cluster,
 )
 
 
@@ -61,7 +61,7 @@ def main(cfg_path: Path, log_level: int):
     if not model_dir.exists():
         model_dir.mkdir(parents=True)
 
-    client = dask_cluster(_logger)
+    client = create_dask_cluster(_logger)
     _logger.info(client)
 
     _logger.info('Training dictionary...')

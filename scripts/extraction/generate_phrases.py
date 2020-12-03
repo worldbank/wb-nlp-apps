@@ -1,26 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+'''
+This script processes the text data to generate candidate phrases based on part-of-speech patterns.
+'''
 import logging
 from pathlib import Path
-import os
 import sys
 from typing import Callable
-import click
-from IPython.core import ultratb
 
 import gzip
 import json
-import yaml
 
-import dask
-import dask.bag as db
-import dask.dataframe as dd
-from dask.distributed import get_worker
-from dask.distributed import Client, LocalCluster, progress
+import click
+
 from joblib import Parallel, delayed
 import joblib
 import wb_nlp
 from wb_nlp.cleaning import cleaner
+from wb_nlp.utils.scripts import load_config, create_dask_cluster
 
 # logging.basicConfig(stream=sys.stdout,
 #                     level=logging.INFO,
@@ -30,8 +27,15 @@ from wb_nlp.cleaning import cleaner
 MAX_LENGTH = 1000000
 
 
-def joblib_extract_phrases(cleaner_func: Callable[[str], dict], file_id: int, input_file: Path, output_dir: Path):
-    # logging.info(f"Processing {file_id}: {input_file.name}")
+def joblib_extract_phrases(
+        cleaner_func: Callable[[str], dict],
+        file_id: int, input_file: Path,
+        output_dir: Path, logger=None):
+    '''
+    Wrapper function used in joblib to parallelize extraction of phrases across text documents.
+    '''
+    if logger is not None:
+        logger.info(f"Processing {file_id}: {input_file.name}")
 
     with open(input_file, "rb") as in_file:
         text = in_file.read().decode("utf-8", errors="ignore")[:MAX_LENGTH]
@@ -42,17 +46,13 @@ def joblib_extract_phrases(cleaner_func: Callable[[str], dict], file_id: int, in
 
     output_file = output_dir / (input_file.name + '.json.gz')
 
-    with gzip.open(output_file, mode='wt', encoding='utf-8') as zf:
-        json.dump(result, zf)
+    with gzip.open(output_file, mode='wt', encoding='utf-8') as gz_file:
+        json.dump(result, gz_file)
 
     return True
 
 
-# fallback to debugger on error
-# sys.excepthook = ultratb.FormattedTB(
-#     mode='Verbose', color_scheme='Linux', call_pdb=1)
-
-_logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__file__)
 
 
 @click.command()
@@ -67,6 +67,9 @@ _logger = logging.getLogger(__name__)
 @click.option('-vv', '--very-verbose', 'log_level', flag_value=logging.DEBUG)
 @click.version_option(wb_nlp.__version__)
 def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
+    '''
+    Entry point for part-of-speech based phrase generation script.
+    '''
     logging.basicConfig(stream=sys.stdout,
                         level=log_level,
                         datefmt='%Y-%m-%d %H:%M',
@@ -83,19 +86,10 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
     if not output_dir.exists():
         output_dir.mkdir(parents=True)
 
-    logging.info('Creating dask client...')
-    cluster = LocalCluster(n_workers=max(1, os.cpu_count() - 4), dashboard_address=':8887',
-                           threads_per_worker=1, processes=True, memory_limit=0)
-    client = Client(cluster)
-    logging.info(client)
-    logging.info(client.dashboard_link)
+    client = create_dask_cluster(_logger)
+    _logger.info(client)
 
-    logging.info(f'Load config file {cfg_path}...')
-    with open(cfg_path) as cfg_file:
-        config = yaml.safe_load(cfg_file)
-        config = config['config']
-
-    logging.info(config)
+    config = load_config(cfg_path, 'config', _logger)
 
     cleaner_object = cleaner.BaseCleaner(
         config=config,
@@ -105,12 +99,14 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
         max_token_length=config['max_token_length']
     )
 
-    logging.info(f'Starting joblib tasks...')
+    _logger.info('Starting joblib tasks...')
     with joblib.parallel_backend('dask'):
-        res = Parallel(verbose=10)(delayed(joblib_extract_phrases)(cleaner_object.get_tokens_and_phrases, ix, i, output_dir)
-                                   for ix, i in enumerate(input_dir.glob('*.txt'), 1))
+        res = Parallel(verbose=10)(
+            delayed(joblib_extract_phrases)(
+                cleaner_object.get_tokens_and_phrases,
+                ix, i, output_dir) for ix, i in enumerate(input_dir.glob('*.txt'), 1))
 
-    logging.info(f'Processed all: {all(res)}')
+    _logger.info('Processed all: %s', all(res))
 
 # Parameters:
 # - Location of input data

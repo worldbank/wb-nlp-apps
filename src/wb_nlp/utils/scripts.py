@@ -60,7 +60,7 @@ def create_get_directory(parent: Path, child: str) -> Path:
     return path
 
 
-def dask_cluster(logger=None):
+def create_dask_cluster(logger=None):
     '''
     This function creates a local dask cluster.
     '''
