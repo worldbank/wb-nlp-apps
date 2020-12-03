@@ -1,29 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+'''
+This script runs the LDA model training.
+'''
+
 import logging
 from pathlib import Path
 import os
 import sys
-
-import click
-from IPython.core import ultratb
-
-import wb_nlp
-from wb_nlp import dir_manager
-from wb_nlp.utils.scripts import load_config, generate_model_hash, generate_files, create_get_directory
-
 import itertools
 import json
+import click
 import gensim
+
 from gensim.corpora import Dictionary
 from gensim.models.ldamulticore import LdaMulticore
 
-from dask.distributed import Client, LocalCluster, progress
-from joblib import Parallel, delayed
-import joblib
-# # fallback to debugger on error
-# sys.excepthook = ultratb.FormattedTB(
-#     mode='Verbose', color_scheme='Linux', call_pdb=1)
+# from joblib import Parallel, delayed
+# import joblib
+
+import wb_nlp
+from wb_nlp import dir_manager
+from wb_nlp.utils.scripts import (
+    load_config, generate_model_hash,
+    generate_files, create_get_directory,
+    dask_cluster,
+)
+
 
 _logger = logging.getLogger(__file__)
 
@@ -36,6 +39,9 @@ _logger = logging.getLogger(__file__)
 @click.option('-vv', '--very-verbose', 'log_level', flag_value=logging.DEBUG)
 @click.version_option(wb_nlp.__version__)
 def main(cfg_path: Path, log_level: int):
+    '''
+    Entry point for LDA model training script.
+    '''
     logging.basicConfig(stream=sys.stdout,
                         level=log_level,
                         datefmt='%Y-%m-%d %H:%M',
@@ -45,7 +51,7 @@ def main(cfg_path: Path, log_level: int):
 
     config = load_config(cfg_path, 'model_config', _logger)
 
-    assert(gensim.__version__ == config['meta']['library_version'])
+    assert gensim.__version__ == config['meta']['library_version']
 
     input_dir = Path(dir_manager.get_path_from_root(
         config['paths']['input_dir']))
@@ -55,12 +61,8 @@ def main(cfg_path: Path, log_level: int):
     if not model_dir.exists():
         model_dir.mkdir(parents=True)
 
-    # _logger.info('Creating dask client...')
-    # cluster = LocalCluster(n_workers=max(1, os.cpu_count() - 4), dashboard_address=':8887',
-    #                        threads_per_worker=1, processes=True, memory_limit=0)
-    # client = Client(cluster)
-    # _logger.info(client)
-    # _logger.info(client.dashboard_link)
+    client = dask_cluster(_logger)
+    _logger.info(client)
 
     _logger.info('Training dictionary...')
     dictionary_params = config['params']['dictionary']
@@ -88,12 +90,12 @@ def main(cfg_path: Path, log_level: int):
 
     for vals in itertools.product(*[lda_params[lp] for lp in list_params]):
         _lda_params = dict(lda_params)
-        for k, v in zip(list_params, vals):
-            _lda_params[k] = v
+        for k, val in zip(list_params, vals):
+            _lda_params[k] = val
         lda_params_set.append(_lda_params)
 
     _logger.info('Training models...')
-    for ix, model_params in enumerate(lda_params_set):
+    for model_params in lda_params_set:
         record_config = dict(config)
         record_config['params']['lda'] = dict(model_params)
         record_config['meta']['model_id'] = ''
@@ -110,8 +112,8 @@ def main(cfg_path: Path, log_level: int):
         # It can be a hash of the config values for easier tracking?
         lda.save(str(sub_model_dir / f'model_{model_hash}.lda.bz2'))
 
-        with open(sub_model_dir / 'model_config.json', 'w') as fl:
-            json.dump(record_config, fl)
+        with open(sub_model_dir / 'model_config.json', 'w') as open_file:
+            json.dump(record_config, open_file)
 
         _logger.info(lda.print_topics())
         # lda.update(corpus)
