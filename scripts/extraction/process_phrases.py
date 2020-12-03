@@ -7,18 +7,13 @@ identify the most common part-of-speech based phrases in the corpus.
 import gzip
 import json
 import logging
-import sys
 from collections import Counter
 from pathlib import Path
 
 import click
 
 import wb_nlp
-
-
-# fallback to debugger on error
-# sys.excepthook = ultratb.FormattedTB(
-#     mode='Verbose', color_scheme='Linux', call_pdb=1)
+from wb_nlp.utils.scripts import configure_logger
 
 _logger = logging.getLogger(__file__)
 
@@ -37,10 +32,8 @@ def main(input_dir: Path, output_dir: Path, log_level: int):
     Entry point for aggregating part-of-speech based phrases
     extracted from the generate_phrases.py script.
     '''
-    logging.basicConfig(stream=sys.stdout,
-                        level=log_level,
-                        datefmt='%Y-%m-%d %H:%M',
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    configure_logger(log_level)
+
     # YOUR CODE GOES HERE! Keep the main functionality in src/wb_nlp
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
@@ -86,5 +79,5 @@ def main(input_dir: Path, output_dir: Path, log_level: int):
 
 
 if __name__ == '__main__':
-    # python -u process_phrases.py --input-dir ../../data/preprocessed/sample_data/phrases --output-dir ../../data/preprocessed/sample_data/phrases_processed -v
+    # python -u process_phrases.py --input-dir ../../data/preprocessed/sample_data/phrases --output-dir ../../data/preprocessed/sample_data/phrases_processed -v |& tee process_phrases.py.log
     main()

@@ -5,7 +5,6 @@ This script processes the text data to generate candidate phrases based on part-
 '''
 import logging
 from pathlib import Path
-import sys
 from typing import Callable
 
 import gzip
@@ -17,7 +16,7 @@ from joblib import Parallel, delayed
 import joblib
 import wb_nlp
 from wb_nlp.cleaning import cleaner
-from wb_nlp.utils.scripts import load_config, create_dask_cluster
+from wb_nlp.utils.scripts import configure_logger, load_config, create_dask_cluster
 
 # logging.basicConfig(stream=sys.stdout,
 #                     level=logging.INFO,
@@ -70,10 +69,8 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
     '''
     Entry point for part-of-speech based phrase generation script.
     '''
-    logging.basicConfig(stream=sys.stdout,
-                        level=log_level,
-                        datefmt='%Y-%m-%d %H:%M',
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    configure_logger(log_level)
+
     # YOUR CODE GOES HERE! Keep the main functionality in src/wb_nlp
     cfg_path = Path(cfg_path)
     input_dir = Path(input_dir)
@@ -115,5 +112,5 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
 
 
 if __name__ == '__main__':
-    # python -u generate_phrases.py --config ../../configs/cleaning/default.yml --input-dir ../../data/raw/sample_data/TXT_SAMPLE --output-dir ../../data/preprocessed/sample_data/phrases -v |& tee logging.log
+    # python -u generate_phrases.py --config ../../configs/cleaning/default.yml --input-dir ../../data/raw/sample_data/TXT_SAMPLE --output-dir ../../data/preprocessed/sample_data/phrases -v |& tee generate_phrases.py.log
     main()

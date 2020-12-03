@@ -7,7 +7,6 @@ This script runs the LDA model training.
 import logging
 from pathlib import Path
 import os
-import sys
 import itertools
 import json
 import click
@@ -22,6 +21,7 @@ from gensim.models.ldamulticore import LdaMulticore
 import wb_nlp
 from wb_nlp import dir_manager
 from wb_nlp.utils.scripts import (
+    configure_logger,
     load_config, generate_model_hash,
     generate_files, create_get_directory,
     create_dask_cluster,
@@ -42,10 +42,8 @@ def main(cfg_path: Path, log_level: int):
     '''
     Entry point for LDA model training script.
     '''
-    logging.basicConfig(stream=sys.stdout,
-                        level=log_level,
-                        datefmt='%Y-%m-%d %H:%M',
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    configure_logger(log_level)
+
     # YOUR CODE GOES HERE! Keep the main functionality in src/wb_nlp
     # est = wb_nlp.models.Estimator()
 
@@ -121,5 +119,5 @@ def main(cfg_path: Path, log_level: int):
 
 
 if __name__ == '__main__':
-    # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -vv |& tee train_lda_model.logging.log
+    # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -vv |& tee train_lda_model.py.log
     main()

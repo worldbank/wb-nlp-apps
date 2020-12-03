@@ -2,11 +2,25 @@
 Module containing common functions used across the scripts.
 '''
 from pathlib import Path
+
+import logging
 import os
+import sys
 import hashlib
 import json
 import yaml
+
 from dask.distributed import Client, LocalCluster
+
+
+def configure_logger(log_level):
+    '''
+    Configures how the logger output is formatted.
+    '''
+    logging.basicConfig(stream=sys.stdout,
+                        level=log_level,
+                        datefmt='%Y-%m-%d %H:%M:%S',
+                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 def load_config(config_path: Path, config_root: str, logger=None) -> dict:
