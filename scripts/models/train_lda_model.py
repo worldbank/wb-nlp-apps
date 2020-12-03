@@ -110,6 +110,9 @@ def main(cfg_path: Path, log_level: int):
         model_params['id2word'] = dict(g_dict.id2token)
 
         lda = LdaMulticore(corpus, **model_params)
+
+        # TODO: Find a better strategy to name models.
+        # It can be a hash of the config values for easier tracking?
         lda.save(os.path.join(model_dir, f'model-{ix}.lda'))
         _logger.info(lda.print_topics())
         # lda.update(corpus)
