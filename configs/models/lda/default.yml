@@ -29,7 +29,7 @@ model_config:
       eta: null
       decay: 0.5
       offset: 1.0
-      eval_every: 5
+      eval_every: 1
       iterations:
         - 50
         - 100

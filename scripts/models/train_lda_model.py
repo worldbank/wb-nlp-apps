@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import logging
 from pathlib import Path
+import os
 import sys
 
 import click
@@ -16,9 +17,24 @@ import gensim
 from gensim.corpora import Dictionary
 from gensim.models.ldamulticore import LdaMulticore
 
+from dask.distributed import Client, LocalCluster, progress
+from joblib import Parallel, delayed
+import joblib
 # # fallback to debugger on error
 # sys.excepthook = ultratb.FormattedTB(
 #     mode='Verbose', color_scheme='Linux', call_pdb=1)
+
+
+def load_file(fname: Path, split: bool = True):
+    with open(fname) as fl:
+        txt = fl.read()
+
+    return txt.split() if split else txt
+
+
+def generate_files(path: Path, split: bool = True):
+    return map(lambda x: load_file(x, split=split), path.glob('*.txt'))
+
 
 _logger = logging.getLogger(__file__)
 
@@ -42,32 +58,42 @@ def main(cfg_path: Path, log_level: int):
 
     assert(gensim.__version__ == config['meta']['library_version'])
 
-    input_dir = dir_manager.get_path_from_root(config['paths']['input_dir'])
-    model_dir = dir_manager.get_path_from_root(config['paths']['model_dir'])
+    input_dir = Path(dir_manager.get_path_from_root(
+        config['paths']['input_dir']))
+    model_dir = Path(dir_manager.get_path_from_root(
+        config['paths']['model_dir']))
 
-    # Load text data
-    docs = []
+    if not model_dir.exists():
+        model_dir.mkdir(parents=True)
 
-    # Compute using gensim dictionary
+    # _logger.info('Creating dask client...')
+    # cluster = LocalCluster(n_workers=max(1, os.cpu_count() - 4), dashboard_address=':8887',
+    #                        threads_per_worker=1, processes=True, memory_limit=0)
+    # client = Client(cluster)
+    # _logger.info(client)
+    # _logger.info(client.dashboard_link)
+
+    _logger.info('Training dictionary...')
     dictionary_params = config['params']['dictionary']
-    g_dict = Dictionary()
+    g_dict = Dictionary(generate_files(input_dir, split=True))
     g_dict.filter_extremes(
         no_below=dictionary_params['no_below'],
         no_above=dictionary_params['no_above'],
         keep_n=dictionary_params['keep_n'],
         keep_tokens=dictionary_params['keep_tokens'])
     g_dict.id2token = {id: token for token, id in g_dict.token2id.items()}
-    id2word = dict(g_dict.id2token)
 
-    corpus = []
+    _logger.info('Generating corpus...')
+    corpus = [g_dict.doc2bow(d) for d in generate_files(input_dir, split=True)]
 
+    _logger.info('Generating model configurations...')
     # Find parameters that are lists
     lda_params = config['params']['lda']
     list_params = sorted(
         filter(lambda x: isinstance(lda_params[x], list), lda_params))
     _logger.info(list_params)
 
-    lda_params['id2word'] = id2word
+    lda_params['workers'] = max(1, os.cpu_count() + lda_params['workers'])
 
     lda_params_set = []
 
@@ -77,13 +103,19 @@ def main(cfg_path: Path, log_level: int):
             _lda_params[k] = v
         lda_params_set.append(_lda_params)
 
-    for model_params in lda_params_set:
-        # logging.info(lda_params_set)
+    _logger.info('Training models...')
+    for ix, model_params in enumerate(lda_params_set):
+        _logger.info(model_params)
 
-        # lda = LdaMulticore(**model_params)
+        model_params['id2word'] = dict(g_dict.id2token)
+
+        lda = LdaMulticore(corpus, **model_params)
+        lda.save(os.path.join(model_dir, f'model-{ix}.lda'))
+        _logger.info(lda.print_topics())
         # lda.update(corpus)
-        pass
+        break
 
 
 if __name__ == '__main__':
+    # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -v
     main()
