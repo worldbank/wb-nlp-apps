@@ -10,9 +10,10 @@ from IPython.core import ultratb
 import wb_nlp
 
 # fallback to debugger on error
-sys.excepthook = ultratb.FormattedTB(mode='Verbose', color_scheme='Linux', call_pdb=1)
+sys.excepthook = ultratb.FormattedTB(
+    mode='Verbose', color_scheme='Linux', call_pdb=1)
 
-_logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__file__)
 
 
 @click.command()
@@ -29,6 +30,8 @@ def main(cfg_path: Path, log_level: int):
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     # YOUR CODE GOES HERE! Keep the main functionality in src/wb_nlp
     # est = wb_nlp.models.Estimator()
+
+    _logger.info('Test')
 
 
 if __name__ == '__main__':
