@@ -8,9 +8,12 @@ import click
 from IPython.core import ultratb
 
 import wb_nlp
+from wb_nlp import dir_manager
 from wb_nlp.configs.utils import load_config
 
+import itertools
 import gensim
+from gensim.corpora import Dictionary
 from gensim.models.ldamulticore import LdaMulticore
 
 # # fallback to debugger on error
@@ -39,25 +42,47 @@ def main(cfg_path: Path, log_level: int):
 
     assert(gensim.__version__ == config['meta']['library_version'])
 
+    input_dir = dir_manager.get_path_from_root(config['paths']['input_dir'])
+    model_dir = dir_manager.get_path_from_root(config['paths']['model_dir'])
+
+    # Load text data
+    docs = []
+
     # Compute using gensim dictionary
-    id2word = {}
+    dictionary_params = config['params']['dictionary']
+    g_dict = Dictionary()
+    g_dict.filter_extremes(
+        no_below=dictionary_params['no_below'],
+        no_above=dictionary_params['no_above'],
+        keep_n=dictionary_params['keep_n'],
+        keep_tokens=dictionary_params['keep_tokens'])
+    g_dict.id2token = {id: token for token, id in g_dict.token2id.items()}
+    id2word = dict(g_dict.id2token)
+
     corpus = []
 
     # Find parameters that are lists
-    params = config['params']
-    list_params = sorted(filter(lambda x: isinstance(params[x], list), params))
+    lda_params = config['params']['lda']
+    list_params = sorted(
+        filter(lambda x: isinstance(lda_params[x], list), lda_params))
     _logger.info(list_params)
 
-    params['id2word'] = id2word
+    lda_params['id2word'] = id2word
 
-    params_set = []
+    lda_params_set = []
 
-    for lp in list_params:
-        for v in params[lp]:
-            pass
+    for vals in itertools.product(*[lda_params[lp] for lp in list_params]):
+        _lda_params = dict(lda_params)
+        for k, v in zip(list_params, vals):
+            _lda_params[k] = v
+        lda_params_set.append(_lda_params)
 
-    lda = LdaMulticore(**params)
-    lda.update(corpus)
+    for model_params in lda_params_set:
+        # logging.info(lda_params_set)
+
+        # lda = LdaMulticore(**model_params)
+        # lda.update(corpus)
+        pass
 
 
 if __name__ == '__main__':
