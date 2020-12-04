@@ -23,9 +23,6 @@ services:
       - web
 
   app:
-    build:
-      context: ./app/app_vue2
-      dockerfile: Dockerfile
     volumes:
       - ${REMOTE_PATH}/app/app_vue2:/app
       - ${REMOTE_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
@@ -44,12 +41,6 @@ services:
       - mongodb
     depends_on:
       - mongodb
-
-  app:
-    ports:
-      - "8088:80"
-    volumes:
-      - ${REMOTE_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
 
   dfr:
     ports:
