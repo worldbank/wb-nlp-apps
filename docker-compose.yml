@@ -137,7 +137,7 @@ services:
     #   - .env
 
   milvus:
-    image: milvusdb/milvus:cpu-lates
+    image: milvusdb/milvus:cpu-latest
     env_file:
       - .env
     volumes:
