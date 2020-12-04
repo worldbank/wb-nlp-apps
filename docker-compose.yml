@@ -67,6 +67,7 @@ services:
     env_file:
       - .env
     volumes:
+      - ${LOCAL_PATH}/app/app_vue2:/app
       - ${LOCAL_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
     links:
       - api

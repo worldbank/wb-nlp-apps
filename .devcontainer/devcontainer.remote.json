@@ -16,7 +16,8 @@
         "dev",
         "app",
         "dfr",
-        "api"
+        "api",
+        "milvus"
     ],
     // Set *default* container specific settings.json values on container create.
     "settings": {
@@ -43,7 +44,9 @@
     "forwardPorts": [
         8000,
         8880,
-        8088
+        8088,
+        19530,
+        19121
     ],
     // Use 'postCreateCommand' to run commands after the container is created.
     "postCreateCommand": "cp /tmp/conda-tmp/${ENV_DEV_FILE} ./ && /opt/conda/envs/${ENV_ID}/bin/python -m ipykernel install --user --name=wb_nlp && /opt/conda/envs/${ENV_ID}/bin/python setup.py develop",
