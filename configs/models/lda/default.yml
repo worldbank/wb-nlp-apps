@@ -1,0 +1,49 @@
+model_config:
+  meta:
+    model_id: null  # To be filled up in the model training
+    library: Gensim
+    model_implementation: LDA Multicore
+    library_version: 3.8.3
+    docs: https://radimrehurek.com/gensim/models/ldamulticore.html#module-gensim.models.ldamulticore
+    references:
+      - https://markroxor.github.io/gensim/static/notebooks/lda_training_tips.html
+  params:
+    dictionary:
+      no_below: 10
+      no_above: 0.99
+      keep_n: 200000
+      keep_tokens: null
+    lda:
+      num_topics:
+        - 50
+        - 100
+        - 150
+      id2word: null
+      workers: -4
+      chunksize: 2000
+      passes:
+        # - 1
+        - 10
+        - 20
+      batch: False
+      alpha: symmetric
+      eta: null
+      decay: 0.5
+      offset: 1.0
+      eval_every: 1
+      iterations:
+        - 50
+        - 100
+      gamma_threshold: 0.001
+      random_state: 1029
+      minimum_probability: 0.01
+      minimum_phi_value: 0.01
+      per_word_topics: True
+  paths:
+    input_dir: data/preprocessed/sample_data/clean_text
+    model_dir: models/lda
+    dfr_files:
+      tw: tw.json
+      dt: dt.json
+      info: info.json
+

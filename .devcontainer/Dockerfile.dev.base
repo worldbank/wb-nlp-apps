@@ -1,0 +1,87 @@
+#-------------------------------------------------------------------------------------------------------------------
+# Modified version of Microsoft's VS Code Dockerfile (https://github.com/microsoft/vscode-dev-containers)
+# Licensed under the MIT License.
+# See https://github.com/avsolatorio/pyscaffoldext-dsproject-vscode/blob/master/LICENSE.txt for license information.
+#-------------------------------------------------------------------------------------------------------------------
+
+FROM continuumio/miniconda3:latest
+
+# This Dockerfile adds a non-root user with sudo access. Use the "remoteUser"
+# property in devcontainer.json to use it. On Linux, the container user's GID/UIDs
+# will be updated to match your local UID/GID (when using the dockerFile property).
+# See https://aka.ms/vscode-remote/containers/non-root-user for details.
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+# Set to false to skip installing zsh and Oh My ZSH!
+ARG INSTALL_ZSH="true"
+
+# Location and expected SHA for common setup script - SHA generated on release
+ARG COMMON_SCRIPT_SOURCE="https://raw.githubusercontent.com/microsoft/vscode-dev-containers/v0.109.0/script-library/common-debian.sh"
+ARG COMMON_SCRIPT_SHA="c16b59a069c9e8a7dcdb5dfaeba833b98803295fcf7fd96b7f2b57e28b434f87"
+
+# Avoid warnings by switching to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Configure apt and install packages
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends software-properties-common apt-utils dialog wget ca-certificates 2>&1 \
+    && apt-get update \
+    #
+    # Verify git, common tools / libs installed, add/modify non-root user, optionally install zsh
+    && wget -q -O /tmp/common-setup.sh $COMMON_SCRIPT_SOURCE \
+    && if [ "$COMMON_SCRIPT_SHA" != "dev-mode" ]; then echo "$COMMON_SCRIPT_SHA /tmp/common-setup.sh" | sha256sum -c - ; fi \
+    && /bin/bash /tmp/common-setup.sh "$INSTALL_ZSH" "$USERNAME" "$USER_UID" "$USER_GID" \
+    && rm /tmp/common-setup.sh \
+    #
+    # Install enchant libraries for pyenchant
+    && apt-get install -y enchant 2>&1 \
+    #
+    # Install npm libraries for frontent (vuejs)
+    && apt-get install -y npm 2>&1 \
+    && npm install -g npm@latest 2>&1 \
+    && npm install -g @vue/cli 2>&1  \
+    #
+    # Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to dialog for any ad-hoc use of apt-get
+ENV DEBIAN_FRONTEND=dialog
+
+# Adapted for custom setup of conda environment
+# The `ENV_DEV_BASE_FILE` contains the common DS libraries
+# Additional libraries can be exported in the generated `ENV_DEV_FILE` below
+ARG ENV_ID=dev
+ARG ENV_DEV_BASE_FILE=environment.dev.base.yml
+
+ENV PROJECT_USER=$USERNAME
+ENV ENV_ID=$ENV_ID
+ENV ENV_DEV_BASE_FILE=$ENV_DEV_BASE_FILE
+
+COPY ${ENV_DEV_BASE_FILE} /tmp/conda-tmp/
+RUN chown -R ${PROJECT_USER}:${PROJECT_USER} /opt/conda && chown -R ${PROJECT_USER}:${PROJECT_USER} /tmp/conda-tmp
+
+USER 1000
+RUN conda init bash && conda env create -f /tmp/conda-tmp/${ENV_DEV_BASE_FILE}
+
+ARG PROJECT_ID=wb_nlp
+ARG ENV_DEV_FILE=environment.dev.yml
+
+ENV PROJECT_ID=$PROJECT_ID
+ENV ENV_DEV_FILE=$ENV_DEV_FILE
+
+COPY ${ENV_DEV_BASE_FILE} ${ENV_DEV_FILE}* /tmp/conda-tmp/
+
+# If the dev env file doesn't exist, create a new file.
+RUN [ ! -f /tmp/conda-tmp/${ENV_DEV_FILE} ] && conda env export -n ${ENV_ID} --no-builds | grep -v "prefix" > /tmp/conda-tmp/${ENV_DEV_FILE} || echo 0
+
+# Always try to install the latest dev env file.
+# This is useful when you installed new packages and updated the env file with
+# conda env export -n ${ENV_ID} --no-builds | grep -v "prefix" > /workspace/${ENV_DEV_FILE}
+RUN conda env update -n ${ENV_ID} --file /tmp/conda-tmp/${ENV_DEV_FILE}  --prune && rm -rf /opt/conda/pkg/*
+
+# Add this so that the container doesn't exit prematurely
+CMD ["tail", "-f", "/dev/null"]
