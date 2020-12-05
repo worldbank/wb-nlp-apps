@@ -9,6 +9,8 @@ services:
         - ./site.conf:/etc/nginx/conf.d/site.conf
     links:
       - php
+    depends_on:
+      - php
 
   php:
       image: php:7-fpm

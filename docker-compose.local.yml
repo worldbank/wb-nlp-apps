@@ -1,0 +1,69 @@
+version: '3.6'
+services:
+
+  dev:
+    build:
+      context: ./
+      dockerfile: .devcontainer/Dockerfile.dev.base
+      args:
+        USERNAME: vscode
+        USER_UID: 1000
+        ENV_ID: dev
+        ENV_DEV_BASE_FILE: "environment.dev.base.local.yml"
+        PROJECT_ID: wb_nlp
+        ENV_DEV_FILE: "environment.dev.local.yml"
+    volumes:
+      - ./:/workspace
+    # ports:
+    #   - "8000:8000"
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '4'
+    #       memory: 4G
+    #     reservations:
+    #       cpus: '3'
+    #       memory: 3G
+
+  web:
+    image: nginx:latest
+    ports:
+    - "80:80"
+    volumes:
+        - ./app/frontend:/frontend/nlp
+        - ./app/site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - php
+    depends_on:
+      - php
+
+  php:
+    image: php:7-fpm
+    volumes:
+      - ./app/frontend:/frontend/nlp
+
+  tika:
+    image: apache/tika:latest
+
+  redis:
+    image: redis:latest
+
+  selenium:
+    image: selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20200907
+    ports:
+      - "4444:4444"
+    volumes:
+      - /dev/shm:/dev/shm
+
+  # nlp-app-mongodb:
+  #   image: mongo:latest
+  #   environment:
+  #     - MONGO_DATA_DIR=/data/db
+  #     - MONGO_LOG_DIR=/dev/null
+  #   volumes:
+  #     - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
+  #   ports:
+  #     - $NLP_APP_MONGODB_PORT:27017
+  #   # command: mongod --smallfiles  # --auth
+  #   env_file:
+  #     - .env

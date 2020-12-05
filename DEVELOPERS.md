@@ -35,6 +35,10 @@ Then, simply activate the environment using `conda activate wb_nlp`. To install 
 $ python -m ipykernel install --user --name=wb_nlp
 ```
 
+## Setting up frontend
+
+To run the frontend component on your local machine, first add `127.0.0.1   w1lxbdatad07` into your host's `/etc/hosts` file. Then run `docker-compose -f docker-compose.yml up`.
+
 ## Note
 
 This project has been set up using PyScaffold 3.2.3. For details and usage
