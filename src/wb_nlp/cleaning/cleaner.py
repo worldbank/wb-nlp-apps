@@ -122,7 +122,7 @@ class BaseCleaner:
         tokens = []
 
         # tokens = self._tokenize(doc)
-        phrases = phrase.get_phrases(
+        phrases = phrase.get_spacy_phrases(
             doc,
             min_token_length=self.min_token_length,
             token_func=self._is_valid_token,
