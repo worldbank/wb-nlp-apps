@@ -21,6 +21,7 @@ from wb_nlp.extraction import phrase
 # https://spacy.io/api/annotation
 POS_TAGS = ["POS", "ADJ", "ADP", "ADV", "AUX", "CONJ", "CCONJ", "DET", "INTJ", "NOUN",
             "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X", "SPACE", ]
+MAX_LENGTH = 1000000
 
 nlp = spacy.load("en_core_web_sm", disable=["parser"])
 nlp.Defaults.stop_words |= set(stopwords.stopwords)
@@ -65,7 +66,7 @@ class BaseCleaner:
             .replace("”", '"')
         )
 
-        text = re.sub(r"\s+", " ", text).strip()
+        text = re.sub(r"\s+", " ", text).strip()[:MAX_LENGTH]
         doc = nlp(text)
 
         return doc
