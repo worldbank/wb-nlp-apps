@@ -1,5 +1,6 @@
 name: wb_nlp
 channels:
+  - judowill
   - conda-forge
   - anaconda
   - defaults
@@ -28,6 +29,7 @@ dependencies:
   - expat=2.2.9
   - fontconfig=2.13.0
   - freetype=2.10.2
+  - gitflow=0.4.1
   - glib=2.65.0
   - gst-plugins-base=1.14.0
   - gstreamer=1.14.0
@@ -81,7 +83,6 @@ dependencies:
   - numpy-base=1.18.5
   - openssl=1.1.1g
   - packaging=20.4
-  - pandas=1.0.5
   - pandoc=2.9.2.1
   - pandocfilters=1.4.2
   - parso=0.7.0
@@ -118,7 +119,7 @@ dependencies:
   - sip=4.19.13
   - six=1.15.0
   - soupsieve=2.0.1
-  - spacy=2.3.1
+  - spacy=2.3.2
   - spacy-model-en_core_web_sm=2.3.0
   - sqlite=3.32.3
   - srsly=1.0.2
@@ -144,19 +145,31 @@ dependencies:
     - alabaster==0.7.12
     - appdirs==1.4.4
     - babel==2.8.0
+    - boto==2.49.0
+    - boto3==1.14.25
+    - botocore==1.17.25
     - cfgv==3.1.0
+    - cmdstanpy==0.4.0
     - commonmark==0.9.1
+    - cython==0.29.21
     - distlib==0.3.1
-    - docutils==0.16
+    - docutils==0.15.2
     - filelock==3.0.12
+    - gensim==3.8.3
     - identify==1.4.21
     - imagesize==1.2.0
+    - ipython-autotime==0.1
+    - jmespath==0.10.0
     - nodeenv==1.4.0
+    - pandas==0.25.3
     - pre-commit==2.6.0
+    - pyenchant==3.1.1
     - pyscaffoldext-dsproject==0.4
     - pyscaffoldext-markdown==0.3.2
     - pyyaml==5.3.1
     - recommonmark==0.6.0
+    - s3transfer==0.3.3
+    - smart-open==2.1.0
     - snowballstemmer==2.0.0
     - sphinx==3.1.2
     - sphinxcontrib-applehelp==1.0.2
@@ -166,5 +179,6 @@ dependencies:
     - sphinxcontrib-qthelp==1.0.3
     - sphinxcontrib-serializinghtml==1.1.4
     - toml==0.10.1
+    - tscv==0.0.4
     - virtualenv==20.0.26
 

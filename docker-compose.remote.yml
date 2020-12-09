@@ -1,0 +1,87 @@
+version: '3.6'
+services:
+
+  dev:
+    build:
+      context: ./
+      dockerfile: .devcontainer/Dockerfile.dev.base
+      args:
+        USERNAME: vscode
+        USER_UID: 1000
+        ENV_ID: dev
+        ENV_DEV_BASE_FILE: "environment.dev.base.remote.yml"
+        PROJECT_ID: wb_nlp
+        ENV_DEV_FILE: "environment.dev.remote.yml"
+    volumes:
+      - ${REMOTE_PATH}:/workspace
+      # - ./:/workspace
+      # - ${REMOTE_PATH}:/workspace:cached
+    # ports:
+    #   - "8000:8000"
+    depends_on:
+      - mongodb
+      - web
+
+  app:
+    volumes:
+      - ${REMOTE_PATH}/app/app_vue2:/app
+      - ${REMOTE_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
+
+  api:
+    volumes:
+      - ${REMOTE_PATH}/models:/workspace/models
+      - ${REMOTE_PATH}/data/preprocessed:/workspace/data/preprocessed
+      - ${REMOTE_PATH}/data/whitelists:/workspace/data/whitelists
+    # command:
+      # - "/opt/conda/envs/prod/bin/gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200"
+      # - "tail -f /dev/null"
+    ports:
+      - "8911:8910"
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+
+  dfr:
+    ports:
+    - "8098:80"
+    volumes:
+      - ${REMOTE_PATH}/app/dfr/data:/usr/share/nginx/html/data
+
+  web:
+    ports:
+      - "8880:80"
+    volumes:
+      - ${REMOTE_PATH}/app/frontend:/frontend/nlp
+      - ${REMOTE_PATH}/app/site.conf:/etc/nginx/conf.d/site.conf
+
+  php:
+    volumes:
+      - ${REMOTE_PATH}/app/frontend:/frontend/nlp
+      # - ./app/frontend:/frontend/nlp
+
+  mongodb:
+    volumes:
+      - ${REMOTE_PATH}/data/mongodb:/data/db
+      # - ./data/mongodb:/data/db
+    ports:
+      - 27018:27017
+  # nlp-app-mongodb:
+  #   image: mongo:latest
+  #   environment:
+  #     - MONGO_DATA_DIR=/data/db
+  #     - MONGO_LOG_DIR=/dev/null
+  #   volumes:
+  #     - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
+  #   ports:
+  #     - $NLP_APP_MONGODB_PORT:27017
+  #   # command: mongod --smallfiles  # --auth
+  #   env_file:
+  #     - .env
+
+  milvus:
+    volumes:
+      - ${REMOTE_PATH}/milvus/db:/var/lib/milvus/db
+      - ${REMOTE_PATH}/milvus/conf:/var/lib/milvus/conf
+      - ${REMOTE_PATH}/milvus/logs:/var/lib/milvus/logs
+      - ${REMOTE_PATH}/milvus/wal:/var/lib/milvus/wal
