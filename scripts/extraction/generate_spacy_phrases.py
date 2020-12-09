@@ -68,8 +68,9 @@ _logger = logging.getLogger(__file__)
 @click.option('-v', '--verbose', 'log_level', flag_value=logging.INFO)
 @click.option('-vv', '--very-verbose', 'log_level', flag_value=logging.DEBUG)
 @click.option('--n-workers', 'n_workers', required=False, default=None)
+@click.option('--batch-size', 'batch_size', required=False, default=None)
 @click.version_option(wb_nlp.__version__)
-def main(input_dir: Path, output_dir: Path, log_level: int, n_workers: int = None):
+def main(input_dir: Path, output_dir: Path, log_level: int, n_workers: int = None, batch_size: int = None):
     '''
     Entry point for part-of-speech based phrase generation script.
     '''
@@ -91,7 +92,9 @@ def main(input_dir: Path, output_dir: Path, log_level: int, n_workers: int = Non
 
     _logger.info('Starting joblib tasks...')
     with joblib.parallel_backend('dask'):
-        res = Parallel(verbose=10)(
+        batch_size = 'auto' if batch_size is None else int(batch_size)
+
+        res = Parallel(verbose=10, batch_size=batch_size)(
             delayed(joblib_extract_spacy_phrases)(
                 ix, i, output_dir) for ix, i in enumerate(input_dir.glob('*.txt'), 1))
 
