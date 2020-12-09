@@ -55,11 +55,13 @@ def main(input_dir: Path, output_dir: Path, log_level: int):
         with gzip.open(input_file, mode='rt', encoding='utf-8') as gz_file:
             result = json.load(gz_file)
 
+        lib = result['lib']
+
         doc_frequency.update(result['phrases'].keys())
         total_frequency.update(result['phrases'])
 
-    doc_frequency_out = output_dir / 'phrases_doc_frequency.json'
-    total_frequency_out = output_dir / 'phrases_total_frequency.json'
+    doc_frequency_out = output_dir / f'phrases_doc_frequency-{lib}.json'
+    total_frequency_out = output_dir / f'phrases_total_frequency-{lib}.json'
 
     with open(doc_frequency_out, 'w') as open_file:
         json.dump(
@@ -79,5 +81,6 @@ def main(input_dir: Path, output_dir: Path, log_level: int):
 
 
 if __name__ == '__main__':
-    # python -u process_phrases.py --input-dir ../../data/preprocessed/sample_data/phrases --output-dir ../../data/preprocessed/sample_data/phrases_processed -v |& tee process_phrases.py.log
+    # python -u ./scripts/extraction/process_phrases.py --input-dir ./data/preprocessed/sample_data/spacy_phrases --output-dir ./data/preprocessed/sample_data/phrases_processed -v |& tee process_phrases.py.log
+
     main()

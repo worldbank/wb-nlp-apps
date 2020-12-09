@@ -74,13 +74,16 @@ def create_get_directory(parent: Path, child: str) -> Path:
     return path
 
 
-def create_dask_cluster(logger=None):
+def create_dask_cluster(logger=None, n_workers=None):
     '''
     This function creates a local dask cluster.
     '''
+    if n_workers is not None:
+        n_workers = int(n_workers)
+
     if logger:
         logger.info('Creating dask client...')
-    cluster = LocalCluster(n_workers=max(1, os.cpu_count() - 4), dashboard_address=':8887',
+    cluster = LocalCluster(n_workers=max(1, os.cpu_count() - 4) if n_workers is None else n_workers, dashboard_address=':8887',
                            threads_per_worker=1, processes=True, memory_limit=0)
     client = Client(cluster)
     if logger:

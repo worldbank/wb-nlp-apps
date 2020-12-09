@@ -5,8 +5,7 @@ This script processes the text data to generate candidate phrases based on part-
 '''
 import logging
 from pathlib import Path
-from typing import Callable
-
+from collections import Counter
 import gzip
 import json
 
@@ -14,9 +13,11 @@ import click
 
 from joblib import Parallel, delayed
 import joblib
+import spacy
+
 import wb_nlp
-from wb_nlp.cleaning import cleaner
-from wb_nlp.utils.scripts import configure_logger, load_config, create_dask_cluster
+from wb_nlp.extraction.phrase import get_spacy_phrases
+from wb_nlp.utils.scripts import configure_logger, create_dask_cluster
 
 # logging.basicConfig(stream=sys.stdout,
 #                     level=logging.INFO,
@@ -25,9 +26,10 @@ from wb_nlp.utils.scripts import configure_logger, load_config, create_dask_clus
 
 MAX_LENGTH = 1000000
 
+nlp = spacy.load("en_core_web_sm", disable=["parser"])
 
-def joblib_extract_phrases(
-        cleaner_func: Callable[[str], dict],
+
+def joblib_extract_spacy_phrases(
         file_id: int, input_file: Path,
         output_dir: Path, logger=None):
     '''
@@ -39,9 +41,12 @@ def joblib_extract_phrases(
     with open(input_file, "rb") as in_file:
         text = in_file.read().decode("utf-8", errors="ignore")[:MAX_LENGTH]
 
-        # result = lda_cleaner.get_tokens_and_phrases(text)
-        # Output is a dictionary with keys `tokens` and `phrases`
-        result = cleaner_func(text, return_phrase_count=True)
+        doc = nlp(text)
+
+        phrases = get_spacy_phrases(doc)
+        phrases = dict(Counter(phrases).most_common())
+
+        result = dict(lib='SpaCy', tokens=[], phrases=phrases)
 
     output_file = output_dir / (input_file.name + '.json.gz')
 
@@ -55,8 +60,6 @@ _logger = logging.getLogger(__file__)
 
 
 @click.command()
-@click.option('-c', '--config', 'cfg_path', required=True,
-              type=click.Path(exists=True), help='path to yaml config file')
 @click.option('--input-dir', 'input_dir', required=True,
               type=click.Path(exists=True), help='path to directory of raw text files')
 @click.option('--output-dir', 'output_dir', required=True,
@@ -64,15 +67,15 @@ _logger = logging.getLogger(__file__)
 @click.option('--quiet', 'log_level', flag_value=logging.WARNING, default=True)
 @click.option('-v', '--verbose', 'log_level', flag_value=logging.INFO)
 @click.option('-vv', '--very-verbose', 'log_level', flag_value=logging.DEBUG)
+@click.option('--n-workers', 'n_workers', required=False, default=None)
 @click.version_option(wb_nlp.__version__)
-def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
+def main(input_dir: Path, output_dir: Path, log_level: int, n_workers: int = None):
     '''
     Entry point for part-of-speech based phrase generation script.
     '''
     configure_logger(log_level)
 
     # YOUR CODE GOES HERE! Keep the main functionality in src/wb_nlp
-    cfg_path = Path(cfg_path)
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
 
@@ -83,24 +86,13 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
     if not output_dir.exists():
         output_dir.mkdir(parents=True)
 
-    client = create_dask_cluster(_logger)
+    client = create_dask_cluster(_logger, n_workers=n_workers)
     _logger.info(client)
-
-    config = load_config(cfg_path, 'cleaner_config', _logger)
-
-    cleaner_object = cleaner.BaseCleaner(
-        config=config,
-        include_pos=config['include_pos_tags'],
-        exclude_entities=config['exclude_entity_types'],
-        min_token_length=config['min_token_length'],
-        max_token_length=config['max_token_length']
-    )
 
     _logger.info('Starting joblib tasks...')
     with joblib.parallel_backend('dask'):
         res = Parallel(verbose=10)(
-            delayed(joblib_extract_phrases)(
-                cleaner_object.get_tokens_and_phrases,
+            delayed(joblib_extract_spacy_phrases)(
                 ix, i, output_dir) for ix, i in enumerate(input_dir.glob('*.txt'), 1))
 
     _logger.info('Processed all: %s', all(res))
@@ -112,5 +104,5 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
 
 
 if __name__ == '__main__':
-    # python -u generate_phrases.py --config ../../configs/cleaning/default.yml --input-dir ../../data/raw/sample_data/TXT_SAMPLE --output-dir ../../data/preprocessed/sample_data/phrases -v |& tee generate_phrases.py.log
+    # python -u ./scripts/extraction/generate_spacy_phrases.py --input-dir ./data/raw/sample_data/TXT_SAMPLE --output-dir ./data/preprocessed/sample_data/spacy_phrases -v --n-workers 6 |& tee generate_spacy_phrases.py.log
     main()
