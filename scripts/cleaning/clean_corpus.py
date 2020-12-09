@@ -53,8 +53,10 @@ _logger = logging.getLogger(__file__)
 @click.option('--quiet', 'log_level', flag_value=logging.WARNING, default=True)
 @click.option('-v', '--verbose', 'log_level', flag_value=logging.INFO)
 @click.option('-vv', '--very-verbose', 'log_level', flag_value=logging.DEBUG)
+@click.option('--n-workers', 'n_workers', required=False, default=None)
+@click.option('--batch-size', 'batch_size', required=False, default=None)
 @click.version_option(wb_nlp.__version__)
-def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
+def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int, n_workers: int = None, batch_size: int = None):
     '''
     Entry point for cleaning raw text data inside a directory given a config file.
     '''
@@ -72,7 +74,7 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
     if not output_dir.exists():
         output_dir.mkdir(parents=True)
 
-    client = create_dask_cluster(_logger)
+    client = create_dask_cluster(_logger, n_workers=n_workers)
     _logger.info(client)
 
     config = load_config(cfg_path, 'cleaner_config', _logger)
@@ -87,7 +89,9 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int):
 
     _logger.info('Starting joblib tasks...')
     with joblib.parallel_backend('dask'):
-        res = Parallel(verbose=10)(
+        batch_size = 'auto' if batch_size is None else int(batch_size)
+
+        res = Parallel(verbose=10, batch_size=batch_size)(
             delayed(joblib_clean_file)(
                 cleaner_object.get_clean_tokens,
                 ix, i, output_dir) for ix, i in enumerate(input_dir.glob('*.txt'), 1))
