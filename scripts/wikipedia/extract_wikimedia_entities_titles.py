@@ -240,6 +240,9 @@ def process_data_entry(data_entry):
     if not is_valid:
         payload['valid'] = False
 
+        # Return here to prevent parsing of empty entry_label below.
+        return payload
+
     if (
             entry_label.isdigit() or
             entry_label.isupper() or
