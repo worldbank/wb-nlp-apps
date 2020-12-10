@@ -259,7 +259,7 @@ class Respeller:
         """Checks for the validity of the word.
 
         Filters such as stopwords, title case, and length are applied
-        to check of the candidate word is actually valid.
+        to check if the candidate word is actually valid.
 
         Args:
             word:
