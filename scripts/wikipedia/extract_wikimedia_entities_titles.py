@@ -5,23 +5,17 @@ This script processes the text data to generate candidate phrases based on part-
 '''
 import logging
 from pathlib import Path
-
+import gzip
 import json
 import re
 
 import click
 
-import nltk
 from gensim import utils
 from joblib import Parallel, delayed
 import joblib
 import wb_nlp
 from wb_nlp.utils.scripts import configure_logger, create_dask_cluster
-
-# logging.basicConfig(stream=sys.stdout,
-#                     level=logging.INFO,
-#                     datefmt='%Y-%m-%d %H:%M',
-#                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 MAX_LENGTH = 1000000
 
@@ -29,7 +23,7 @@ MAX_LENGTH = 1000000
 '''
 Notes:
 1. Download entities data from https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2 and save in /data/external/wikipedia/latest-all.json.bz2
-2. Run `python -u ./scripts/wikipedia/extract_wikimedia_entities_titles.py --input-file ./data/external/wikipedia/latest-all.json.bz2 --output-file ./data/external/wikipedia/latest-all.wikimedia-titles.json  |& tee ./logs/extract_wikimedia_entities_titles.py.log
+2. Run `python -u ./scripts/wikipedia/extract_wikimedia_entities_titles.py --input-file ./data/external/wikipedia/latest-all.json.bz2 --output-file ./data/external/wikipedia/latest-all.wikimedia-titles.json  |& tee ./logs/extract_wikimedia_entities_titles.py.log`
 
 Algorithm:
 1. For each entity, check if not in excluded items or doesn't contain properties in the excluded properties list.
@@ -94,37 +88,43 @@ def process_data_entry(data_entry):
     so that it's easy to generate a dictionary from the list of such tuples, i.e., result of joblib parallel processing.
     '''
     entry = json.loads(data_entry)
+    entry_label = entry['labels'].get('en')
 
-    if (entry['type'] != 'item' or
+    if (
+        entry['ns'] != 0 or
+        # Make sure the entry has an English label
+        entry_label is None or
+        # Make sure the entry is an item
+        entry['type'] != 'item' or
+        # Include only entries that are of desired item types
         entry['id'] in EXCLUDE_LIST_ITEMS or
-            set(entry['claims']).intersection(EXCLUDE_LIST_PROPERTIES) or
-            entry['sitelinks'].get('enwiki', None) is None or
-            len(entry['sitelinks'])):
-        return (entry['id'], None)
+        # Include only entities that don't have properties in the excluded list
+        set(entry['claims']).intersection(EXCLUDE_LIST_PROPERTIES) or
+        # Make sure there's an English wiki site for the entry
+        entry['sitelinks'].get('enwiki', None) is None or
+        # The entry must have wiki site available in at least 5 of the 10 top spoken languages.
+        len(MAJOR_LANG_WIKIS.intersection(entry['sitelinks'])) < 5
+    ):
+        return dict(
+            id=entry['id'],
+            label=entry_label,
+            valid=False)
 
-    section_texts = article['section_texts']
+    payload = dict(
+        id=entry['id'],
+        label=entry_label,
+        valid=True)
 
-    if (title.isdigit() or title.isupper() or title[0].isdigit() or len(title) <= 2 or len(section_texts) == 0 or P_ASCII.search(title) is None):
-        return (title, None)
+    if (
+            entry_label.isdigit() or
+            entry_label.isupper() or
+            entry_label[0].isdigit() or
+            len(entry_label) <= 2 or
+            P_ASCII.search(entry_label) is None
+    ):
+        payload['valid'] = None
 
-    intro = section_texts[0]
-
-    # Use the ''' convention in gensim processing to identify the general start of intro.
-    # Example, the first line of the entry for "Albedo" is the description of an image. We use
-    # The above convention to make sure we get the correct first line.
-
-    intro = P_INTRO_NOISE_PATTERN.sub(
-        ' ', GENSIM_BOLD_PATTERN.join(intro.split(GENSIM_BOLD_PATTERN)[1:]))
-    sents = nltk.sent_tokenize(intro)
-
-    intro = None
-
-    if sents:
-        intro = sents[0]
-        if P_BDAY.search(intro):
-            return (title, None)
-
-    return (title, intro)
+    return payload
 
 
 _logger = logging.getLogger(__file__)
@@ -158,20 +158,24 @@ def main(input_file: Path, output_file: Path, log_level: int, n_workers: int = N
     if not output_file.resolve().parent.exists():
         output_file.resolve().parent.mkdir(parents=True)
 
-    client = create_dask_cluster(_logger)
+    client = create_dask_cluster(_logger, n_workers=n_workers)
     _logger.info(client)
 
     _logger.info('Starting joblib tasks...')
 
     with utils.open(input_file, 'rb') as wiki_gz:
         with joblib.parallel_backend('dask'):
-        batch_size = 'auto' if batch_size is None else int(batch_size)
+            batch_size = 'auto' if batch_size is None else int(batch_size)
 
-        res = Parallel(verbose=10, batch_size=batch_size)(
-            delayed(process_data_entry)(line) for line in wiki_gz)
+            res = Parallel(verbose=10, batch_size=batch_size)(
+                delayed(process_data_entry)(line) for line in wiki_gz)
 
-    with open(output_file, 'w') as out:
-        json.dump(dict(filter(lambda x: x[1] is not None, res)), out)
+    if output_file.name.endswith('.gz'):
+        with gzip.open(output_file, mode='wt', encoding='utf-8') as gz_file:
+            json.dump(list(filter(lambda x: x['valid'], res)), gz_file)
+    else:
+        with open(output_file, 'w') as out:
+            json.dump(list(filter(lambda x: x['valid'], res)), out)
 
     _logger.info('Processed all: %s', all(res))
 
@@ -182,7 +186,7 @@ def main(input_file: Path, output_file: Path, log_level: int, n_workers: int = N
 
 
 if __name__ == '__main__':
-    # python -u ./scripts/wikipedia/extract_wikipedia_titles.py --input-file ./data/external/wikipedia/enwiki-latest.json.gz --output-file ./data/external/wikipedia/enwiki-latest.titles-intro.json  |& tee ./logs/extract_wikipedia_titles.py.log
+    # python -u ./scripts/wikipedia/extract_wikimedia_entities_titles.py --input-file ./data/external/wikipedia/sample-latest-all.json.bz2 --output-file ./data/external/wikipedia/sample-latest-all.wikimedia-titles.json -vv |& tee ./logs/extract_wikimedia_entities_titles.py.log
     main()
 
 
