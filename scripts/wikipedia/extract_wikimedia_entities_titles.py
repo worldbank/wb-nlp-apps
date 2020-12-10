@@ -310,6 +310,8 @@ def main(
             batch_size = 'auto' if batch_size is None else int(batch_size)
 
             with Parallel(verbose=10, batch_size=batch_size) as parallel:
+                # res = parallel(delayed(process_data_entry)(line)
+                #                for line in wiki_gz)
                 buffer = []
                 sub_buffer = []
                 for line in wiki_gz:
@@ -328,6 +330,7 @@ def main(
                     buffer.append(sub_buffer)
                     sub_buffer = []
 
+                if buffer:
                     partial_res = parallel(
                         delayed(process_batch_data_entry)(sbuf) for sbuf in buffer)
                     res.extend([pr for part in partial_res for pr in part])
