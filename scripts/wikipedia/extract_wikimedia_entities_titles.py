@@ -255,6 +255,13 @@ def process_data_entry(data_entry):
     return payload
 
 
+def process_batch_data_entry(sbuf):
+    '''
+    Process list of lines.
+    '''
+    return [process_data_entry(line) for line in sbuf]
+
+
 _logger = logging.getLogger(__file__)
 
 
@@ -268,11 +275,13 @@ _logger = logging.getLogger(__file__)
 @ click.option('-vv', '--very-verbose', 'log_level', flag_value=logging.DEBUG)
 @ click.option('--n-workers', 'n_workers', required=False, default=None)
 @ click.option('--batch-size', 'batch_size', required=False, default=None)
+@ click.option('--max-sub-buffer', 'max_sub_buffer', required=False, default=10)
 @ click.version_option(wb_nlp.__version__)
 def main(
         input_file: Path, output_file: Path,
         log_level: int, n_workers: int = None,
-        batch_size: int = None):
+        batch_size: int = None,
+        max_sub_buffer: int = 10):
     '''
     Entry point for wikimedia data filtering and title extraction script.
     '''
@@ -294,12 +303,35 @@ def main(
 
     _logger.info('Starting joblib tasks...')
 
+    res = []
+    max_buffer = len(client.scheduler_info()['workers'])
     with utils.open(input_file, 'rb') as wiki_gz:
         with joblib.parallel_backend('dask'):
             batch_size = 'auto' if batch_size is None else int(batch_size)
 
-            res = Parallel(verbose=10, batch_size=batch_size)(
-                delayed(process_data_entry)(line) for line in wiki_gz)
+            with Parallel(verbose=10, batch_size=batch_size) as parallel:
+                buffer = []
+                sub_buffer = []
+                for line in wiki_gz:
+                    sub_buffer.append(line)
+                    if len(sub_buffer) == max_sub_buffer:
+                        buffer.append(sub_buffer)
+                        sub_buffer = []
+                        if len(buffer) == max_buffer:
+                            partial_res = parallel(
+                                delayed(process_batch_data_entry)(sbuf) for sbuf in buffer)
+                            res.extend(
+                                [pr for part in partial_res for pr in part])
+                            buffer = []
+
+                if sub_buffer:
+                    buffer.append(sub_buffer)
+                    sub_buffer = []
+
+                    partial_res = parallel(
+                        delayed(process_batch_data_entry)(sbuf) for sbuf in buffer)
+                    res.extend([pr for part in partial_res for pr in part])
+                    buffer = []
 
     if output_file.name.endswith('.gz'):
         with gzip.open(output_file, mode='wt', encoding='utf-8') as gz_file:
@@ -312,8 +344,8 @@ def main(
 
 
 if __name__ == '__main__':
-    # python -u ./scripts/wikipedia/extract_wikimedia_entities_titles.py --input-file ./data/external/wikipedia/sample-latest-all.json.bz2 --output-file ./data/external/wikipedia/sample-latest-all.wikimedia-titles.json -vv |& tee ./logs/extract_wikimedia_entities_titles.py.log
-    # python -u ./scripts/wikipedia/extract_wikimedia_entities_titles.py --input-file /data/wb536061/wb_nlp/data/external/wikipedia/latest-all.json.bz2 --output-file /data/wb536061/wb_nlp/data/external/wikipedia/latest-all.wikimedia-titles.json -vv |& tee ./logs/extract_wikimedia_entities_titles.py.log
+    # python -u ./scripts/wikipedia/extract_wikimedia_entities_titles.py --input-file ./data/external/wikipedia/sample-latest-all.json.bz2 --output-file ./data/external/wikipedia/sample-latest-all.wikimedia-titles.json -vv --max-sub-buffer 100 |& tee ./logs/extract_wikimedia_entities_titles.py.log
+    # python -u ./scripts/wikipedia/extract_wikimedia_entities_titles.py --input-file /data/wb536061/wb_nlp/data/external/wikipedia/latest-all.json.bz2 --output-file /data/wb536061/wb_nlp/data/external/wikipedia/latest-all.wikimedia-titles.json -vv --max-sub-buffer 100 |& tee ./logs/extract_wikimedia_entities_titles.py.log
     main()
 
 
