@@ -47,6 +47,7 @@ P_BDAY = re.compile(
 P_ASCII = re.compile('^[ -~]+$')
 GENSIM_BOLD_PATTERN = "'''"
 
+INSTANCE_OF_PROPERTY = 'P31'
 EXCLUDE_LIST_PROPERTIES = set([
     # https://www.wikidata.org/wiki/Property:P495
     'P495',     # - country of origin
@@ -54,6 +55,10 @@ EXCLUDE_LIST_PROPERTIES = set([
     'P27',      # - country of citizenship
     'P17',      # - country
     'P276',     # - location
+    'P50',      # - author
+    'P170',     # - creator
+    'P136',     # - genre
+    'P175',     # - performer
 ])
 
 EXCLUDE_LIST_ITEMS = set([
@@ -61,7 +66,26 @@ EXCLUDE_LIST_ITEMS = set([
     'Q5',            # - human
     'Q23810017',     # - decree
     'Q35749',        # - parliament
+    'Q1197685',      # - public holiday
+    'Q10876391',     # - Wikipedia language edition
+    'Q7366',         # - song
+    'Q4167410',      # - Wikipedia disambiguation page
+    'Q4167836',      # - Wikimedia category
+    'Q14795564',     # - point in time with respect to recurrent timeframe
+    'Q13406463',     # - Wikimedia list article
+    'Q80096233',     # - information list
 ])
+
+IGNORED_NAMESPACES = [
+    'Wikipedia', 'Category', 'File', 'Portal', 'Template',
+    'MediaWiki', 'User', 'Help', 'Book', 'Draft', 'WikiProject',
+    'Special', 'Talk'
+]
+
+IGNORED_GENERIC_STARTS = [
+    'history of',
+    'list of',
+]
 
 # https://www.babbel.com/en/magazine/the-10-most-spoken-languages-in-the-world
 MAJOR_LANG_WIKIS = set([
@@ -78,6 +102,20 @@ MAJOR_LANG_WIKIS = set([
 ])
 
 
+def get_mainsnak_value(ms):
+    '''
+    Crawl the mainsnak entry to get the snak value id.
+    '''
+    value = ''
+    if ms is not None:
+        if ms.get('mainsnak') is not None:
+            if ms.get('mainsnak').get('datavalue') is not None:
+                if ms.get('mainsnak').get('datavalue').get('value') is not None:
+                    value = ms.get('mainsnak').get(
+                        'datavalue').get('value').get('id')
+    return value
+
+
 def process_data_entry(data_entry):
     '''
     This function extracts the title and first line of the intro of the wiki article.
@@ -87,21 +125,41 @@ def process_data_entry(data_entry):
     The return format is a tuple. The first value is the title and the second is the intro. This is designed
     so that it's easy to generate a dictionary from the list of such tuples, i.e., result of joblib parallel processing.
     '''
-    entry = json.loads(data_entry)
-    entry_label = entry['labels'].get('en')
+    try:
+        entry = json.loads(data_entry.rstrip(b',\n'))
+    except:
+        return dict(
+            id=data_entry,
+            label='',
+            valid=False)
+
+    entry_label = entry['labels'].get('en', {}).get('value', '')
+    is_invalid_instance = False
+    if entry['claims'].get(INSTANCE_OF_PROPERTY):
+        is_invalid_instance = len(EXCLUDE_LIST_ITEMS.intersection(
+            [get_mainsnak_value(ms) for ms in entry['claims'].get(
+                INSTANCE_OF_PROPERTY)]
+        )) > 0
 
     if (
-        entry['ns'] != 0 or
         # Make sure the entry has an English label
-        entry_label is None or
+        entry_label == '' or
+
         # Make sure the entry is an item
         entry['type'] != 'item' or
-        # Include only entries that are of desired item types
-        entry['id'] in EXCLUDE_LIST_ITEMS or
+
+        # Include only entries that are not instances of the excluded items list
+        is_invalid_instance or
+
         # Include only entities that don't have properties in the excluded list
         set(entry['claims']).intersection(EXCLUDE_LIST_PROPERTIES) or
+
         # Make sure there's an English wiki site for the entry
         entry['sitelinks'].get('enwiki', None) is None or
+
+        any([entry_label.startswith(f'{ignored_ns}:') for ignored_ns in IGNORED_NAMESPACES]) or
+        any([entry_label.lower().startswith(ignored_start) for ignored_start in IGNORED_GENERIC_STARTS]) or
+
         # The entry must have wiki site available in at least 5 of the 10 top spoken languages.
         len(MAJOR_LANG_WIKIS.intersection(entry['sitelinks'])) < 5
     ):
