@@ -10,6 +10,7 @@ import json
 import re
 
 import click
+import contexttimer
 
 from gensim import utils
 from joblib import Parallel, delayed
@@ -304,37 +305,42 @@ def main(
     _logger.info('Starting joblib tasks...')
 
     res = []
-    max_buffer = len(client.scheduler_info()['workers'])
-    with utils.open(input_file, 'rb') as wiki_gz:
-        with joblib.parallel_backend('dask'):
-            batch_size = 'auto' if batch_size is None else int(batch_size)
+    max_buffer = 100 * len(client.scheduler_info()['workers'])
+    with contexttimer.Timer() as t:
+        with utils.open(input_file, 'rb') as wiki_gz:
+            with joblib.parallel_backend('dask'):
+                batch_size = 'auto' if batch_size is None else int(batch_size)
 
-            with Parallel(verbose=10, batch_size=batch_size) as parallel:
-                # res = parallel(delayed(process_data_entry)(line)
-                #                for line in wiki_gz)
-                buffer = []
-                sub_buffer = []
-                for line in wiki_gz:
-                    sub_buffer.append(line)
-                    if len(sub_buffer) == max_sub_buffer:
+                with Parallel(verbose=10, batch_size=batch_size) as parallel:
+                    # res = parallel(delayed(process_data_entry)(line)
+                    #                for line in wiki_gz)
+                    buffer = []
+                    sub_buffer = []
+                    for line in wiki_gz:
+                        sub_buffer.append(line)
+                        if len(sub_buffer) == max_sub_buffer:
+                            buffer.append(sub_buffer)
+                            sub_buffer = []
+                            if len(buffer) == max_buffer:
+                                partial_res = parallel(
+                                    delayed(process_batch_data_entry)(sbuf) for sbuf in buffer)
+                                res.extend(
+                                    [pr for part in partial_res for pr in part])
+                                _logger.info(
+                                    'Finished processing %s entries after %s minutes.', len(res), t.elapsed / 60)
+                                buffer = []
+
+                    if sub_buffer:
                         buffer.append(sub_buffer)
                         sub_buffer = []
-                        if len(buffer) == max_buffer:
-                            partial_res = parallel(
-                                delayed(process_batch_data_entry)(sbuf) for sbuf in buffer)
-                            res.extend(
-                                [pr for part in partial_res for pr in part])
-                            buffer = []
 
-                if sub_buffer:
-                    buffer.append(sub_buffer)
-                    sub_buffer = []
-
-                if buffer:
-                    partial_res = parallel(
-                        delayed(process_batch_data_entry)(sbuf) for sbuf in buffer)
-                    res.extend([pr for part in partial_res for pr in part])
-                    buffer = []
+                    if buffer:
+                        partial_res = parallel(
+                            delayed(process_batch_data_entry)(sbuf) for sbuf in buffer)
+                        res.extend([pr for part in partial_res for pr in part])
+                        buffer = []
+        _logger.info(
+            'Finished processing all %s entries after %s minutes.', len(res), t.elapsed / 60)
 
     if output_file.name.endswith('.gz'):
         with gzip.open(output_file, mode='wt', encoding='utf-8') as gz_file:
