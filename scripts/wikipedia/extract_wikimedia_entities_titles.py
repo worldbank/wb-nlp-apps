@@ -168,7 +168,7 @@ def process_data_entry(data_entry):
         entry = json.loads(data_entry.rstrip(b',\n'))
     except:
         return dict(
-            id=data_entry,
+            id=None,
             label='',
             aliases=[],
             is_org=None,
@@ -305,7 +305,7 @@ def main(
     _logger.info('Starting joblib tasks...')
 
     res = []
-    max_buffer = 100 * len(client.scheduler_info()['workers'])
+    max_buffer = 10 * len(client.scheduler_info()['workers'])
     with contexttimer.Timer() as t:
         with utils.open(input_file, 'rb') as wiki_gz:
             with joblib.parallel_backend('dask'):
@@ -324,8 +324,15 @@ def main(
                             if len(buffer) == max_buffer:
                                 partial_res = parallel(
                                     delayed(process_batch_data_entry)(sbuf) for sbuf in buffer)
-                                res.extend(
-                                    [pr for part in partial_res for pr in part])
+                                partial_res = [
+                                    pr for part in partial_res for pr in part]
+
+                                part_name = f'{str(len(res)).zfill(10)}-{str(len(res) + len(partial_res)).zfill(10)}.json'
+
+                                with open(output_file.resolve().parent / f'wikimedia-titles-part-{part_name}', 'w') as part_file:
+                                    json.dump(partial_res, part_file)
+
+                                res.extend(partial_res)
                                 _logger.info(
                                     'Finished processing %s entries after %s minutes.', len(res), t.elapsed / 60)
                                 buffer = []
@@ -337,7 +344,15 @@ def main(
                     if buffer:
                         partial_res = parallel(
                             delayed(process_batch_data_entry)(sbuf) for sbuf in buffer)
-                        res.extend([pr for part in partial_res for pr in part])
+                        partial_res = [
+                            pr for part in partial_res for pr in part]
+
+                        part_name = f'{str(len(res)).zfill(10)}-{str(len(res) + len(partial_res)).zfill(10)}.json'
+
+                        with open(output_file.resolve().parent / f'wikimedia-titles-part-{part_name}', 'w') as part_file:
+                            json.dump(partial_res, part_file)
+
+                        res.extend(partial_res)
                         buffer = []
         _logger.info(
             'Finished processing all %s entries after %s minutes.', len(res), t.elapsed / 60)
