@@ -81,7 +81,7 @@ cleaner_config:
         __init__:
             dictionary_file: null
             spell_threshold: 0.25
-            allow_proper: True
+            allow_proper: False  # Don't include proper names in suggestions
             spell_cache: null
         infer_correct_word:
             sim_thresh: 0.0

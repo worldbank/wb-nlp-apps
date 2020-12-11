@@ -11,12 +11,32 @@ from typing import Callable, Generator, Optional
 from gensim.utils import simple_preprocess
 
 import spacy
+from spacy.tokens import Doc
 import numpy as np
+
+from spacy_langdetect import LanguageDetector
 
 import wb_nlp.config as conf
 from wb_nlp.cleaning import stopwords, respelling
 from wb_nlp.extraction import phrase
 # from wb_nlp.extraction import extractor
+
+
+class DocLanguageDetector(LanguageDetector):
+    """Derived class from the `spacy_langdetect` module.
+    This is done because we don't use the dependency parser for performance
+    but the library is dependent on it. There's no use-case for sentence level
+    language detection anyway, so let's just do doc level detection.
+    """
+
+    def __call__(self, doc):
+        assert isinstance(
+            doc, Doc), "doc must be an instance of spacy Doc. But got a {}".format(type(doc))
+        doc.set_extension(
+            "language", getter=self._language_detection_function, force=True)
+
+        return doc
+
 
 # https://spacy.io/api/annotation
 POS_TAGS = ["POS", "ADJ", "ADP", "ADV", "AUX", "CONJ", "CCONJ", "DET", "INTJ", "NOUN",
@@ -25,6 +45,7 @@ MAX_LENGTH = 1000000
 
 nlp = spacy.load("en_core_web_sm", disable=["parser"])
 nlp.Defaults.stop_words |= set(stopwords.stopwords)
+nlp.add_pipe(DocLanguageDetector(), name='language_detector', last=True)
 
 
 def expand_acronyms(text: str) -> str:
@@ -36,7 +57,7 @@ def expand_acronyms(text: str) -> str:
 class BaseCleaner:
     def __init__(self, config: dict, include_pos: tuple, exclude_entities: tuple,
                  min_token_length: int = 2, max_token_length: int = 50,
-                 extractors: Optional[list] = None) -> None:
+                 extractors: Optional[list] = None, logger=None) -> None:
 
         self.include_pos = include_pos
         self.exclude_entities = exclude_entities
@@ -49,6 +70,7 @@ class BaseCleaner:
         self.set_config(config)
 
         self.spelling_model = respelling.SpellingModels(config)
+        self.logger = logger
 
     @staticmethod
     def text_to_doc(text: str) -> spacy.tokens.doc.Doc:
@@ -72,6 +94,8 @@ class BaseCleaner:
         return doc
 
     def set_config(self, config):
+        """Sets the config to instance.
+        """
         self.config = config
 
     def _apply_extractors(self, doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
@@ -92,6 +116,11 @@ class BaseCleaner:
         return tokens
 
     def get_clean_tokens(self, text: str) -> list:
+        """Method for cleaning text strings typically read from text files.
+
+        Returns:
+            lists of clean tokens
+        """
         # Fix not properly parsed tokens.
         if self.config["cleaner"]["fix_fragmented_tokens"]["use"]:
             text = self.spelling_model.recover_segmented_words(
@@ -103,6 +132,17 @@ class BaseCleaner:
             text = expand_acronyms(text)
 
         doc = BaseCleaner.text_to_doc(text)
+        doc_lang = doc._.language
+
+        if self.config["cleaner"]["filter_language"]["use"]:
+            lang_params = self.config["cleaner"]["filter_language"]["params"]
+            # Return empty list if language is not valid.
+            if not (
+                (doc_lang["language"] in lang_params["langs"]) and
+                    (doc_lang["score"] >= lang_params["score"])):
+                if self.logger is not None:
+                    self.logger.debug('Text is not in valid language...')
+                return []
 
         if self.config["cleaner"]["tag_whitelisted_entities"]["use"]:
             doc = self._apply_extractors(doc)
@@ -115,9 +155,13 @@ class BaseCleaner:
         return tokens
 
     def get_clean_text(self, text: str) -> str:
+        """Cleans a given text.
+        """
         return " ".join(self.get_clean_tokens(text))
 
     def get_tokens_and_phrases(self, text: str, return_phrase_count: bool = False) -> dict:
+        """This method parses and extracts phrases from texts based on POS which uses SpaCy.
+        """
         doc = BaseCleaner.text_to_doc(text)
         doc = self._apply_extractors(doc)
         tokens = []
@@ -404,17 +448,24 @@ class CorpusCleaner:
 
 
 if __name__ == "__main__":
-    bc = LDACleaner(conf.get_config(conf.default_config))
+    from wb_nlp.utils.scripts import load_config
+    from wb_nlp import dir_manager
 
-    t = bc.get_clean_tokens(
-        """Hello world, why are you all here at the World Bank?
+    config = load_config(dir_manager.get_path_from_root(
+        'configs', 'cleaning', 'default.yml'), 'cleaner_config', None)
+
+    bc = LDACleaner(config)
+    test_txt = """Hello world, why are you all here at the World Bank?
         We need to do something about the linear regresion.
         The bayesian information is not liot here."""
-    )
+
+    print([(i.text, i.pos_, i.lemma_) for i in nlp(test_txt)])
+
+    t = bc.get_clean_tokens(test_txt)
+
     print(t)
 
     assert t == [
-        "hello",
         "world",
         "need",
         "linear",

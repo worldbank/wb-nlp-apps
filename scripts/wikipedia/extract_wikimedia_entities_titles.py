@@ -23,6 +23,7 @@ MAX_LENGTH = 1000000
 
 '''
 Notes:
+# https://dumps.wikimedia.org/other/wikibase/wikidatawiki/
 1. Download entities data from https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2 and save in /data/external/wikipedia/latest-all.json.bz2
 2. Run `python -u ./scripts/wikipedia/extract_wikimedia_entities_titles.py --input-file ./data/external/wikipedia/latest-all.json.bz2 --output-file ./data/external/wikipedia/latest-all.wikimedia-titles.json  |& tee ./logs/extract_wikimedia_entities_titles.py.log`
 
@@ -64,6 +65,7 @@ EXCLUDE_LIST_PROPERTIES = set([
     'P36',      # - capital
     'P122',     # - basic form of government
     'P112',     # - founded by
+    'P1476',    # - title  # published title of work
 ])
 
 EXCLUDE_LIST_ITEMS = set([
@@ -87,6 +89,7 @@ EXCLUDE_LIST_ITEMS = set([
     'Q820655',      # - legislative act
     'Q13406554',    # - sports competition
     'Q3244175',     # - tabletop game
+    'Q16334295',    # - group of humans
 ])
 
 INCLUDE_LIST_ITEMS = set([
@@ -378,4 +381,21 @@ if __name__ == '__main__':
 # https://www.wikidata.org/w/index.php?title=Special:WhatLinksHere/Q5&namespace=0&limit=500&from=7130&back=4035
 # https://meta.wikimedia.org/wiki/Data_dumps
 # https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON
+# '''
+
+
+# '''
+# import json
+
+# with utils.open('latest-all.json.bz2', 'rb') as wiki_bz2:
+#     entities = []
+#     for line in wiki_bz2:
+#         entities.append(line)
+#         if len(entities) == 20000:
+#            break
+
+
+# with utils.open('../sample-latest-all.json.bz2', 'wb') as wiki_bz2:
+#     for line in entities:
+#         wiki_bz2.write(line)
 # '''
