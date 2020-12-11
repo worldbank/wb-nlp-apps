@@ -91,7 +91,7 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int, n_wo
     with joblib.parallel_backend('dask'):
         batch_size = 'auto' if batch_size is None else int(batch_size)
 
-        res = Parallel(verbose=10, batch_size=batch_size)(
+        res = Parallel(verbose=100, batch_size=batch_size)(
             delayed(joblib_clean_file)(
                 cleaner_object.get_clean_tokens,
                 ix, i, output_dir) for ix, i in enumerate(input_dir.glob('*.txt'), 1))
@@ -105,5 +105,5 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int, n_wo
 
 
 if __name__ == '__main__':
-    # python -u clean_corpus.py --config ../../configs/cleaning/default.yml --input-dir ../../data/raw/sample_data/TXT_SAMPLE --output-dir ../../data/preprocessed/sample_data/clean_text -v |& tee clean_corpus.py.log
+    # python -u ./scripts/cleaning/clean_corpus.py --config ./configs/cleaning/default.yml --input-dir ./data/raw/sample_data/TXT_SAMPLE --output-dir ./data/preprocessed/sample_data/clean_text -vv |& tee ./logs/clean_corpus.py.log
     main()

@@ -72,6 +72,8 @@ class BaseCleaner:
         return doc
 
     def set_config(self, config):
+        """Sets the config to instance.
+        """
         self.config = config
 
     def _apply_extractors(self, doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
@@ -92,6 +94,11 @@ class BaseCleaner:
         return tokens
 
     def get_clean_tokens(self, text: str) -> list:
+        """Method for cleaning text strings typically read from text files.
+
+        Returns:
+            lists of clean tokens
+        """
         # Fix not properly parsed tokens.
         if self.config["cleaner"]["fix_fragmented_tokens"]["use"]:
             text = self.spelling_model.recover_segmented_words(
@@ -115,9 +122,13 @@ class BaseCleaner:
         return tokens
 
     def get_clean_text(self, text: str) -> str:
+        """Cleans a given text.
+        """
         return " ".join(self.get_clean_tokens(text))
 
     def get_tokens_and_phrases(self, text: str, return_phrase_count: bool = False) -> dict:
+        """This method parses and extracts phrases from texts based on POS which uses SpaCy.
+        """
         doc = BaseCleaner.text_to_doc(text)
         doc = self._apply_extractors(doc)
         tokens = []
