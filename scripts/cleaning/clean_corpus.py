@@ -48,15 +48,16 @@ _logger = logging.getLogger(__file__)
               type=click.Path(exists=True), help='path to yaml config file')
 @click.option('--input-dir', 'input_dir', required=True,
               type=click.Path(exists=True), help='path to directory of raw text files')
-@click.option('--output-dir', 'output_dir', required=True,
-              type=click.Path(exists=False), help='path to directory of output text files')
+@click.option('--output-dir-name', 'output_dir_name', required=True, help='name of the output directory')
 @click.option('--quiet', 'log_level', flag_value=logging.WARNING, default=True)
 @click.option('-v', '--verbose', 'log_level', flag_value=logging.INFO)
 @click.option('-vv', '--very-verbose', 'log_level', flag_value=logging.DEBUG)
+@click.option('--non-recursive', 'recursive', flag_value=False, default=True)
+@click.option('--recursive', 'recursive', flag_value=True)
 @click.option('--n-workers', 'n_workers', required=False, default=None)
 @click.option('--batch-size', 'batch_size', required=False, default=None)
 @click.version_option(wb_nlp.__version__)
-def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int, n_workers: int = None, batch_size: int = None):
+def main(cfg_path: Path, input_dir: Path, output_dir_name: str, log_level: int, recursive: bool, n_workers: int = None, batch_size: int = None):
     '''
     Entry point for cleaning raw text data inside a directory given a config file.
     '''
@@ -65,14 +66,29 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int, n_wo
     # YOUR CODE GOES HERE! Keep the main functionality in src/wb_nlp
     cfg_path = Path(cfg_path)
     input_dir = Path(input_dir)
-    output_dir = Path(output_dir)
 
     _logger.info('Checking directories...')
     if not input_dir.exists():
         raise ValueError("Input directory doesn't exist!")
 
-    if not output_dir.exists():
-        output_dir.mkdir(parents=True)
+    source_dirs = [input_dir]
+    target_dirs = []
+    if recursive:
+        # Assume that the input_directory is at the corpus level.
+        # Example: input_dir = '/data/raw/CORPUS'
+        # /data/raw/CORPUS/ADB/TXT_ORIG
+        # /data/raw/CORPUS/WB/TXT_ORIG
+        # Also, the output dir will be stored in the same path as the
+        # parent of the input dir under the directory specified in the
+        # output_dir parameter.
+        source_dirs = sorted(input_dir.glob('*/TXT_ORIG'))
+        target_dirs = [i.resolve().parent /
+                       output_dir_name for i in source_dirs]
+        _logger.info('List of source dirs... %s', source_dirs)
+        _logger.info('List of target dirs... %s', target_dirs)
+        assert source_dirs, "No source_dirs found. Aborting!"
+    else:
+        target_dirs.append(input_dir.resolve().parent / output_dir_name)
 
     client = create_dask_cluster(_logger, n_workers=n_workers)
     _logger.info(client)
@@ -88,16 +104,26 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int, n_wo
     )
 
     _logger.info('Starting joblib tasks...')
+    files_count = 0
     with joblib.parallel_backend('dask'):
         batch_size = 'auto' if batch_size is None else int(batch_size)
 
-        res = Parallel(verbose=100, batch_size=batch_size)(
-            delayed(joblib_clean_file)(
-                cleaner_object.get_clean_tokens,
-                ix, i, output_dir) for ix, i in enumerate(input_dir.glob('*.txt'), 1))
+        for input_dir, output_dir in zip(source_dirs, target_dirs):
 
-    _logger.info('Processed all: %s', all(res))
+            if not output_dir.exists():
+                output_dir.mkdir(parents=True)
 
+            res = Parallel(verbose=1, batch_size=batch_size)(
+                delayed(joblib_clean_file)(
+                    cleaner_object.get_clean_tokens,
+                    ix, i, output_dir) for ix, i in enumerate(input_dir.glob('*.txt'), 1))
+
+            files_count += len(res)
+            _logger.info('Processed all %s files with success status %s and saved in %s', len(res),
+                         all(res), output_dir)
+
+    _logger.info('Processed a total of %s files across %s source dirs...',
+                 files_count, len(source_dirs))
 # Parameters:
 # - Location of input data
 # - Directory of * .txt files
@@ -106,4 +132,5 @@ def main(cfg_path: Path, input_dir: Path, output_dir: Path, log_level: int, n_wo
 
 if __name__ == '__main__':
     # python -u ./scripts/cleaning/clean_corpus.py --config ./configs/cleaning/default.yml --input-dir ./data/raw/sample_data/TXT_SAMPLE --output-dir ./data/preprocessed/sample_data/clean_text -vv |& tee ./logs/clean_corpus.py.log
+    # python -u ./scripts/cleaning/clean_corpus.py --config ./configs/cleaning/default.yml --input-dir ./data/raw/sample_data/TXT_SAMPLE --output-dir-name TXT_TEST -vv |& tee ./logs/clean_corpus.py.log
     main()
