@@ -21,7 +21,7 @@ model_config:
         - 150
       id2word: null
       workers: -41  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
-      chunksize: 5000
+      chunksize: 250  # Update size is chunksize * number of workers -> Update every 10,000 documents processed.
       passes:
         - 1
         - 2
