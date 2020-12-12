@@ -2,7 +2,6 @@
 Module containing common functions used across the scripts.
 '''
 from pathlib import Path
-
 import logging
 import os
 import sys
@@ -11,10 +10,10 @@ import json
 import yaml
 import click
 from dask.distributed import Client, LocalCluster
-
 # export DASK_DISTRIBUTED__SCHEDULER__ALLOWED_FAILURES=210
 # export DASK_DISTRIBUTED__COMM__TIMEOUTS__CONNECT=60
 # export DASK_DISTRIBUTED__COMM__RETRY__COUNT=20
+from wb_nlp.processing.corpus import load_file, generate_files
 
 
 @click.command()
@@ -70,23 +69,6 @@ def generate_model_hash(config: dict) -> str:
     Computes an md5 hash of a config which can be used as a unique identifier.
     '''
     return hashlib.md5(json.dumps(config, sort_keys=True).encode('utf-8')).hexdigest()
-
-
-def load_file(fname: Path, split: bool = True):
-    '''
-    Simply loads a file and has an option to return the raw string or a list split by whitespaces.
-    '''
-    with open(fname) as open_file:
-        txt = open_file.read()
-
-    return txt.split() if split else txt
-
-
-def generate_files(path: Path, split: bool = True):
-    '''
-    A generator that loads text files given a directory.
-    '''
-    return map(lambda x: load_file(x, split=split), path.glob('*.txt'))
 
 
 def create_get_directory(parent: Path, child: str) -> Path:

@@ -41,11 +41,11 @@ model_config:
       minimum_phi_value: 0.001
       per_word_topics: True
   paths:
-    base_dir: /data/wb536061/wb_nlp/data/raw/CORPUS
+    base_dir: data/raw
     source_dir_name: TXT_LDA
-    corpus_path: /data/wb536061/wb_nlp/data/raw/CORPUS/bow_corpus-TXT_LDA.mm
-    dictionary_path: /data/wb536061/wb_nlp/data/raw/CORPUS/dictionary-TXT_LDA.gensim.dict
-    model_dir: /data/wb536061/wb_nlp/models/lda
+    corpus_path: data/raw/bow_corpus-TXT_LDA.mm
+    dictionary_path: data/raw/dictionary-TXT_LDA.gensim.dict
+    model_dir: models/lda
     dfr_files:
       tw: tw.json
       dt: dt.json
