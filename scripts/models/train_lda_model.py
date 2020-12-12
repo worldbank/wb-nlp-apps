@@ -70,7 +70,8 @@ def main(cfg_path: Path, log_level: int, load_dictionary: bool, load_dump: bool)
         base_dir=paths_conf['base_dir'],
         source_dir_name=paths_conf['source_dir_name'],
         split=True,
-        min_tokens=config['params']['min_tokens']
+        min_tokens=config['params']['min_tokens'],
+        logger=_logger
     )
 
     _logger.info('Training dictionary...')

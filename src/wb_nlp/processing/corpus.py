@@ -40,11 +40,12 @@ def generate_files(path: Path, split: bool = True, min_tokens: int = 50):
 
 
 class MultiDirGenerator:
-    def __init__(self, base_dir: str, source_dir_name: str = None, split: bool = True, min_tokens: int = 5):
+    def __init__(self, base_dir: str, source_dir_name: str = None, split: bool = True, min_tokens: int = 5, logger=None):
         self.base_dir = base_dir
         self.source_dir_name = source_dir_name
         self.split = split
         self.min_tokens = min_tokens
+        self.logger = logger
 
         if source_dir_name is None:
             self.source_dirs = [Path(base_dir)]
@@ -60,5 +61,8 @@ class MultiDirGenerator:
 
     def __iter__(self):
         for source_dir in self.source_dirs:
+            if self.logger:
+                self.logger.info(
+                    'Loading files from source_dir %s', source_dir)
             for tokens in generate_files(source_dir, split=self.split, min_tokens=self.min_tokens):
                 yield tokens

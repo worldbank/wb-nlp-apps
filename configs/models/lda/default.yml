@@ -11,7 +11,7 @@ model_config:
     min_tokens: 50
     dictionary:
       no_below: 10
-      no_above: 0.99
+      no_above: 0.98
       keep_n: 200000
       keep_tokens: null
     lda:
@@ -33,12 +33,12 @@ model_config:
       offset: 1.0
       eval_every: 1
       iterations:
-        - 50
-        - 100
+        - 1000
+        - 2000
       gamma_threshold: 0.001
       random_state: 1029
-      minimum_probability: 0.001
-      minimum_phi_value: 0.001
+      minimum_probability: 0.01
+      minimum_phi_value: 0.01
       per_word_topics: False
   paths:
     base_dir: /data/wb536061/wb_nlp/data/raw/CORPUS
