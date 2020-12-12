@@ -111,7 +111,7 @@ def main(cfg_path: Path, log_level: int, load_dictionary: bool, load_dump: bool)
 
         if load_dump:
             _logger.info('Loading saved corpus...')
-            corpus = MmCorpus.load(corpus_path)
+            corpus = MmCorpus(corpus_path)
         else:
             _logger.info('Generating corpus...')
             corpus = [g_dict.doc2bow(d) for d in file_generator]
@@ -148,6 +148,9 @@ def main(cfg_path: Path, log_level: int, load_dictionary: bool, load_dump: bool)
             model_hash = generate_model_hash(record_config)
             sub_model_dir = create_get_directory(model_dir, model_hash)
 
+            with open(sub_model_dir / f'model_config_{model_hash}.json', 'w') as open_file:
+                json.dump(record_config, open_file)
+
             _logger.info("Training model_id: %s", model_hash)
             _logger.info(model_params)
             model_params['id2word'] = dict(g_dict.id2token)
@@ -157,9 +160,6 @@ def main(cfg_path: Path, log_level: int, load_dictionary: bool, load_dump: bool)
             # TODO: Find a better strategy to name models.
             # It can be a hash of the config values for easier tracking?
             lda.save(str(sub_model_dir / f'model_{model_hash}.lda.bz2'))
-
-            with open(sub_model_dir / f'model_config_{model_hash}.json', 'w') as open_file:
-                json.dump(record_config, open_file)
 
             _logger.info(lda.print_topics())
             checkpoint_log(
@@ -171,7 +171,10 @@ def main(cfg_path: Path, log_level: int, load_dictionary: bool, load_dump: bool)
 if __name__ == '__main__':
     # Use in local machine
     # python -u scripts/models/train_lda_model.py -c configs/models/lda/test.yml -vv |& tee ./logs/train_lda_model.py.log
+    # python -u scripts/models/train_lda_model.py -c configs/models/lda/test.yml -vv --load-dictionary --from-dump |& tee ./logs/train_lda_model.py.log
 
     # Use in w1lxbdatad07
     # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -vv |& tee ./logs/train_lda_model.py.log
+    # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -vv --load-dictionary --from-dump |& tee ./logs/train_lda_model.py.log
+
     main()

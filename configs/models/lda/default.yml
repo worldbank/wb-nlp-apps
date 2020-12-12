@@ -20,21 +20,22 @@ model_config:
         - 100
         - 150
       id2word: null
-      workers: -4
-      chunksize: 2000
+      workers: -41  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
+      chunksize: 5000
       passes:
-        # - 1
-        - 10
-        - 20
+        - 1
+        - 2
+        # - 10
+        # - 20
       batch: False
       alpha: symmetric
       eta: null
       decay: 0.5
       offset: 1.0
-      eval_every: 1
+      eval_every: 5
       iterations:
         - 1000
-        - 2000
+        # - 2000
       gamma_threshold: 0.001
       random_state: 1029
       minimum_probability: 0.01
