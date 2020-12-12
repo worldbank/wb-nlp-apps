@@ -39,7 +39,7 @@ model_config:
       random_state: 1029
       minimum_probability: 0.001
       minimum_phi_value: 0.001
-      per_word_topics: True
+      per_word_topics: False
   paths:
     base_dir: /data/wb536061/wb_nlp/data/raw/CORPUS
     source_dir_name: TXT_LDA
