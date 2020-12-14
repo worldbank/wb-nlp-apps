@@ -16,20 +16,24 @@ model_config:
       keep_tokens: null
     lda:
       num_topics:
-        - 50
+        # - 50
         - 100
-        - 150
+        # - 150
       id2word: null
       workers: -41  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
       chunksize: 250  # Update size is chunksize * number of workers -> Update every 10,000 documents processed.
       passes:
-        - 1
-        - 2
+        - 5
+        # - 10
         # - 10
         # - 20
       batch: False
-      alpha: symmetric
-      eta: null
+      alpha:
+        - symmetric
+        - auto
+      eta:
+        - null
+        - auto
       decay: 0.5
       offset: 1.0
       eval_every: 5
