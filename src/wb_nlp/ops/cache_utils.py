@@ -51,7 +51,7 @@ try:
     redis_cache.hset('test', '1029', '1029')
 except redis.ConnectionError:
     # Fallback to localhost
-    os.environ['WB_NLP_REDIS_PORT'] = 'localhost'
+    os.environ['WB_NLP_REDIS_HOSTNAME'] = 'localhost'
     redis_cache = get_redis()
 
 
