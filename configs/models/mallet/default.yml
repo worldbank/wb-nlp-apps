@@ -24,7 +24,7 @@ model_config:
         - 5
         - 50
       id2word: null
-      workers: -41  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
+      workers: -4  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
       prefix: /data/wb536061/wb_nlp/models/mallet/tmp_
       optimize_interval:  # int
         - 10
