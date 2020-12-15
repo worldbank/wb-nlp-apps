@@ -30,7 +30,7 @@ wordnet_lemmatizer = WordNetLemmatizer()
 
 @functools.lru_cache(maxsize=1024)
 def get_nltk_lemma(token, pos):
-    return wordnet_lemmatizer.lemmatize(token, pos=NLTK_TAG_MAP.get(pos[0])).lower()
+    return wordnet_lemmatizer.lemmatize(token, pos=NLTK_TAG_MAP.get(pos[0], wordnet.NOUN)).lower()
 
 
 def generate_phrase(phrase_tokens: list, phrase_pos: list, library: str):
