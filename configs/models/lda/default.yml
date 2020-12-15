@@ -17,7 +17,8 @@ model_config:
     lda:
       num_topics:
         # - 50
-        - 100
+        - 75
+        # - 100
         # - 150
       id2word: null
       workers: -41  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
@@ -30,10 +31,10 @@ model_config:
       batch: False
       alpha:
         - symmetric
-        - auto
+        # - auto  # The auto value is not supported by LdaMulticore
       eta:
-        - null
         - auto
+        - null
       decay: 0.5
       offset: 1.0
       eval_every: 5
