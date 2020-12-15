@@ -24,21 +24,9 @@ _logger = logging.getLogger(__file__)
 cm = sns.light_palette('green', as_cmap=True)
 
 
-def set_background(vals):
-    backgrounds = []
-
-    for v in vals:
-        r, g, b, a = cm(v)
-        r, g, b = list(map(int, 255 * np.array([r, g, b])))
-        color = 'rgba(0, 0, 0, 1)'
-        if r + g + b < 200:
-            color = 'rgba(255, 255, 255, 1)'
-        backgrounds.append(
-            f'background-color: rgba({r},{g},{b},{a}); color: {color};')
-    return pd.Series(backgrounds, index=vals.index)
-
-
 def get_colors(v):
+    '''Transform a value to a style color.
+    '''
     r, g, b, a = cm(v)
     r, g, b = list(map(int, 255 * np.array([r, g, b])))
     color = '#000000'
@@ -119,8 +107,6 @@ def main(model_base_dir: Path, log_level: int):
 
             topic_id_words = pd.DataFrame(topic_id_words).T
             topic_id_scores = pd.DataFrame(topic_id_scores).T
-            # topic_id_words_styled = topic_id_words.style.apply(lambda x: topic_id_scores.apply(
-            #     set_background, axis=1), axis=None)  # .apply(lambda x: df1.apply(set_color, axis=1), axis=None)
 
             topic_id_words_styled = topic_id_words.style.apply(
                 lambda x: (topic_id_scores / topic_id_scores.max().max()).applymap(get_colors), axis=None)
