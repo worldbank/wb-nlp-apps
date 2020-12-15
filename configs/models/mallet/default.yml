@@ -22,18 +22,18 @@ model_config:
         - 100
         # - 150
       alpha:
-        - 50
+        - 50  # int
       id2word: null
       workers: -41  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
-      prefix: null
+      prefix: /data/wb536061/wb_nlp/models/mallet/tmp_
       optimize_interval:
-        - 0.0
+        - 0  # int
       iterations:
         - 1000
         # - 2000
       topic_threshold:
-        - 0.0
-      random_state: 1029
+        - 0.0  # float
+      random_seed: 1029
   paths:
     base_dir: /data/wb536061/wb_nlp/data/raw/CORPUS
     source_dir_name: TXT_LDA

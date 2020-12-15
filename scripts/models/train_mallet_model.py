@@ -14,7 +14,7 @@ import gensim
 
 import contexttimer
 from gensim.corpora import Dictionary, MmCorpus
-from gensim.models.ldamulticore import LdaMulticore
+from gensim.models.wrappers import LdaMallet
 
 # from joblib import Parallel, delayed
 # import joblib
@@ -51,7 +51,7 @@ def checkpoint_log(timer, logger, message=''):
 @click.version_option(wb_nlp.__version__)
 def main(cfg_path: Path, log_level: int, load_dictionary: bool, load_dump: bool):
     '''
-    Entry point for LDA model training script.
+    Entry point for LDA Mallet model training script.
     '''
     with contexttimer.Timer() as timer:
         configure_logger(log_level)
@@ -121,28 +121,29 @@ def main(cfg_path: Path, log_level: int, load_dictionary: bool, load_dump: bool)
 
         _logger.info('Generating model configurations...')
         # Find parameters that are lists
-        lda_params = config['params']['lda']
+        mallet_params = config['params']['mallet']
         list_params = sorted(
-            filter(lambda x: isinstance(lda_params[x], list), lda_params))
+            filter(lambda x: isinstance(mallet_params[x], list), mallet_params))
         _logger.info(list_params)
 
-        lda_params['workers'] = max(1, os.cpu_count() + lda_params['workers'])
+        mallet_params['workers'] = max(
+            1, os.cpu_count() + mallet_params['workers'])
 
-        lda_params_set = []
+        mallet_params_set = []
 
-        for vals in itertools.product(*[lda_params[lp] for lp in list_params]):
-            _lda_params = dict(lda_params)
+        for vals in itertools.product(*[mallet_params[lp] for lp in list_params]):
+            _mallet_params = dict(mallet_params)
             for k, val in zip(list_params, vals):
-                _lda_params[k] = val
-            lda_params_set.append(_lda_params)
+                _mallet_params[k] = val
+            mallet_params_set.append(_mallet_params)
 
         _logger.info('Training models...')
         checkpoint_log(timer, _logger, message='Starting now...')
-        models_count = len(lda_params_set)
+        models_count = len(mallet_params_set)
 
-        for model_num, model_params in enumerate(lda_params_set, 1):
+        for model_num, model_params in enumerate(mallet_params_set, 1):
             record_config = dict(config)
-            record_config['params']['lda'] = dict(model_params)
+            record_config['params']['mallet'] = dict(model_params)
             record_config['meta']['model_id'] = ''
 
             model_hash = generate_model_hash(record_config)
@@ -155,26 +156,26 @@ def main(cfg_path: Path, log_level: int, load_dictionary: bool, load_dump: bool)
             _logger.info(model_params)
             model_params['id2word'] = dict(g_dict.id2token)
 
-            lda = LdaMulticore(corpus, **model_params)
+            mallet = LdaMallet(corpus=corpus, **model_params)
 
             # TODO: Find a better strategy to name models.
             # It can be a hash of the config values for easier tracking?
-            lda.save(str(sub_model_dir / f'model_{model_hash}.lda.bz2'))
+            mallet.save(str(sub_model_dir / f'model_{model_hash}.mallet.bz2'))
 
-            _logger.info(lda.print_topics())
+            _logger.info(mallet.print_topics())
             checkpoint_log(
                 timer, _logger, message=f'Finished running model {model_num}/{models_count}...')
-            # lda.update(corpus)
+            # mallet.update(corpus)
             # break
 
 
 if __name__ == '__main__':
     # Use in local machine
-    # python -u scripts/models/train_lda_model.py -c configs/models/lda/test.yml -vv |& tee ./logs/train_lda_model.py.log
-    # python -u scripts/models/train_lda_model.py -c configs/models/lda/test.yml -vv --load-dictionary --from-dump |& tee ./logs/train_lda_model.py.log
+    # python -u scripts/models/train_mallet_model.py -c configs/models/mallet/test.yml -vv |& tee ./logs/train_mallet_model.py.log
+    # python -u scripts/models/train_mallet_model.py -c configs/models/mallet/test.yml -vv --load-dictionary --from-dump |& tee ./logs/train_mallet_model.py.log
 
     # Use in w1lxbdatad07
-    # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -vv |& tee ./logs/train_lda_model.py.log
-    # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -vv --load-dictionary --from-dump |& tee ./logs/train_lda_model.py.log
+    # python -u scripts/models/train_mallet_model.py -c configs/models/mallet/default.yml -vv |& tee ./logs/train_mallet_model.py.log
+    # python -u scripts/models/train_mallet_model.py -c configs/models/mallet/default.yml -vv --load-dictionary --from-dump |& tee ./logs/train_mallet_model.py.log
 
     main()

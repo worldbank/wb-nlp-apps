@@ -22,18 +22,18 @@ model_config:
         # - 100
         # - 150
       alpha:
-        - 50
+        - 50  # int
       id2word: null
       workers: -2  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
-      prefix: null
+      prefix: models/mallet/tmp_
       optimize_interval:
-        - 0.0
+        - 10  # int
       iterations:
         - 1000
         # - 2000
       topic_threshold:
-        - 0.0
-      random_state: 1029
+        - 0.0   # float
+      random_seed: 1029
   paths:
     base_dir: data/raw
     source_dir_name: TXT_LDA
