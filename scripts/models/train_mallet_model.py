@@ -140,6 +140,7 @@ def main(cfg_path: Path, log_level: int, load_dictionary: bool, load_dump: bool)
         _logger.info('Training models...')
         checkpoint_log(timer, _logger, message='Starting now...')
         models_count = len(mallet_params_set)
+        model_num = 0
 
         for model_num, model_params in enumerate(mallet_params_set, 1):
             record_config = dict(config)
@@ -167,6 +168,9 @@ def main(cfg_path: Path, log_level: int, load_dictionary: bool, load_dump: bool)
                 timer, _logger, message=f'Finished running model {model_num}/{models_count}...')
             # mallet.update(corpus)
             # break
+
+        checkpoint_log(
+            timer, _logger, message=f'Finished running all models {model_num}/{models_count}...')
 
 
 if __name__ == '__main__':
