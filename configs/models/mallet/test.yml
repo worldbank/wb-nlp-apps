@@ -1,0 +1,46 @@
+model_config:
+  meta:
+    model_id: null  # To be filled up in the model training
+    library: Gensim
+    model_implementation: LDA Mallet
+    library_version: 3.8.3
+    docs: https://radimrehurek.com/gensim_3.8.3/models/wrappers/ldamallet.html
+    references:
+      - http://mallet.cs.umass.edu/dist/mallet-2.0.8.tar.gz
+  params:
+    min_tokens: 50
+    dictionary:
+      no_below: 10
+      no_above: 0.98
+      keep_n: 200000
+      keep_tokens: null
+    mallet:
+      mallet_path: models/mallet/mallet-2.0.8/bin/mallet
+      num_topics:
+        - 75
+        - 50
+        # - 100
+        # - 150
+      alpha:
+        - 50
+      id2word: null
+      workers: -2  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
+      prefix: null
+      optimize_interval:
+        - 0.0
+      iterations:
+        - 1000
+        # - 2000
+      topic_threshold:
+        - 0.0
+      random_state: 1029
+  paths:
+    base_dir: data/raw
+    source_dir_name: TXT_LDA
+    corpus_path: data/raw/bow_corpus-TXT_LDA.mm
+    dictionary_path: data/raw/dictionary-TXT_LDA.gensim.dict
+    model_dir: models/mallet
+    dfr_files:
+      tw: tw.json
+      dt: dt.json
+      info: info.json
