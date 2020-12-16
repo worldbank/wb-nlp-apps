@@ -111,9 +111,37 @@ class Params(BaseModel):
     params: dict = {}
 
 
-class SpellCheckerConfig(BaseModel):
+class RespellerInit(BaseModel):
+    dictionary_file: Optional[str] = None
+    spell_threshold: float = 0.25
+    allow_proper: bool = False  # Don't include proper names in suggestions
+    spell_cache: Optional[dict] = None
+
+
+class RespellerInferCorrectWord(BaseModel):
+    sim_thresh: float = 0.0
+    print_log: bool = False
+    min_len: int = 3
+    use_suggest_score: bool = True
+
+
+class RespellerInferCorrectWords(BaseModel):
+    return_tokens_as_list: bool = True
+
+
+class RespellerConfig(BaseModel):
+    init: RespellerInit
+    infer_correct_word: RespellerInferCorrectWord
+    infer_correct_words: RespellerInferCorrectWords
+
+
+class SpellCheckerInit(BaseModel):
     lang: str = "en_US"
     text: Optional[str] = None
+
+
+class SpellCheckerConfig(BaseModel):
+    init: SpellCheckerInit
     # tokenize: Optional[str] = None
     # chunkers: Optional[str] = None
     # filters: Optional[str] = None
@@ -138,8 +166,16 @@ class CleanerConfig(BaseModel):
     filter_language: Params
 
 
-@router.get("/clean")
-async def clean(cleaner_config: CleanerConfig, spell_checker_config: SpellCheckerConfig):
+@ router.post("/clean")
+async def clean(
+        text: str,
+        cleaner_config: CleanerConfig,
+        spell_checker_config: SpellCheckerConfig,
+        respeller_config: RespellerConfig):
+    '''This endpoint accepts configuration parameters and cleans the text data.'''
+
     return dict(
+        text=text,
         cleaner_config=cleaner_config,
-        spell_checker_config=spell_checker_config)
+        spell_checker_config=spell_checker_config,
+        respeller_config=respeller_config)
