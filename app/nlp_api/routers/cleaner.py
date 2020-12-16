@@ -1,7 +1,7 @@
 '''This router contains the implementation for the cleaning API.
 '''
 import enum
-from typing import Optional
+from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
@@ -18,6 +18,8 @@ router = APIRouter(
 
 
 class POSTag(enum.Enum):
+    '''Enum of SpaCy part-of-speech tags.
+    '''
     # SpaCy pos tags
     noun = "NOUN"
     adjective = "ADJ"
@@ -28,7 +30,9 @@ class POSTag(enum.Enum):
     # 'NUM', 'PART',
 
 
-class EntityType(enum.Enum):
+class Entity(enum.Enum):
+    '''Enum of SpaCy entities.
+    '''
     cardinal = "CARDINAL"
     time = "TIME"
     percent = "PERCENT"
@@ -195,6 +199,18 @@ class CleanerConfig(BaseModel):
     filter_stopwords: Params
     # Filter by language
     filter_language: Params
+    include_pos_tags: List[POSTag] = [
+        POSTag.adjective.value, POSTag.noun.value]
+    exclude_entity_types: List[Entity] = [
+        Entity.cardinal.value, Entity.time.value]
+
+
+class POSTagType(BaseModel):
+    pos: POSTag
+
+
+class EntityType(BaseModel):
+    ent: Entity
 
 
 @ router.post("/clean")
@@ -202,7 +218,11 @@ async def clean(
         text: str,
         cleaner_config: CleanerConfig,
         spell_checker_config: SpellCheckerConfig,
-        respeller_config: RespellerConfig):
+        respeller_config: RespellerConfig,
+        # include_pos_tags: List[str] = [
+        #     POSTag.adjective, POSTag.noun],
+        # exclude_entity_types: List[str] = [Entity.cardinal, Entity.time]
+):
     '''This endpoint accepts configuration parameters and cleans the text data.'''
     spell_checker_config = spell_checker_config.dict()
     respeller_config = respeller_config.dict()
@@ -223,8 +243,11 @@ async def clean(
 
     config['min_token_length'] = 3
     config['max_token_length'] = 50
-    config['include_pos_tags'] = ["ADJ", "NOUN"]
-    config['exclude_entity_types'] = ["CARDINAL", "TIME", "PERCENT", "MONEY"]
+
+    config['include_pos_tags'] = [
+        p.value for p in cleaner_config.pop('include_pos_tags')]
+    config['exclude_entity_types'] = [
+        e.value for e in cleaner_config.pop('exclude_entity_types')]
 
     cleaner_object = cleaner.BaseCleaner(
         config=config,
@@ -234,7 +257,10 @@ async def clean(
         max_token_length=config['max_token_length']
     )
 
+    cleaned_text = cleaner_object.get_clean_tokens(text)
+    print(cleaned_text)
+
     return dict(
         text=text,
-        cleaned_text=cleaner_object.get_clean_tokens(text),
+        cleaned_text=cleaned_text,
         cleaner_config=config)
