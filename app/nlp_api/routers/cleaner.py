@@ -21,6 +21,8 @@ router = APIRouter(
 )
 
 
+############# START: DEFINITION OF DATA TYPES AND MODELS #############
+
 class POSTag(enum.Enum):
     '''Enum of SpaCy part-of-speech tags.
     '''
@@ -44,100 +46,6 @@ class Entity(enum.Enum):
     date = "DATE"
     quantity = "QUANTITY"
     ordinal = "ORDINAL"
-
-
-# cleaner_config:
-#     # https://spacy.io/api/annotation
-#     include_pos_tags:
-#         # - POS
-#         - ADJ
-#         # - ADP
-#         - ADV
-#         # - AUX
-#         # - CONJ
-#         # - CCONJ
-#         # - DET
-#         # - INTJ
-#         - NOUN
-#         # - NUM
-#         # - PART
-#         # - PRON
-#         # - PROPN
-#         # - PUNCT
-#         # - SCONJ
-#         # - SYM
-#         - VERB
-#         # - X
-#         # - SPACE
-#     exclude_entity_types:
-#         - CARDINAL
-#         - TIME
-#         - PERCENT
-#         - MONEY
-#         # - DATE
-#         # - QUANTITY
-#         # - ORDINAL
-#     min_token_length: 2
-#     max_token_length: 50
-#     cleaner:
-#         # Options for cleaning.corrector.recover_segmented_words
-#         fix_fragmented_tokens:
-#             use: True
-#             params:
-#                 max_len: 5
-#         # Expand the acronyms in the text
-#         expand_acronyms:
-#             use: True
-#             params: {}
-#         # Update the spacy doc with the whitelisted entitiy tag
-#         tag_whitelisted_entities:
-#             use: True
-#             params: {}
-#         # Use the part-of-speech as filter
-#         filter_by_pos:
-#             use: True
-#             params: {}
-#         # Use extracted entities as filter
-#         filter_by_entities:
-#             use: True
-#             params: {}
-#         # Check and fix spelling based on the Respeller module
-#         correct_misspelling:
-#             use: True
-#             params: {}
-#         # Remove stopwords from the text
-#         filter_stopwords:
-#             use: True
-#             params: {}
-#         # Filter by language
-#         filter_language:
-#             use: True
-#             params:
-#                 langs:
-#                     - en
-#                 score: 0.98
-
-#     spell_checker:
-#         __init__:
-#             lang: en_US
-#             text: null
-#             tokenize: null
-#             chunkers: null
-#             filters: null
-
-#     respeller:
-#         __init__:
-#             dictionary_file: null
-#             spell_threshold: 0.25
-#             allow_proper: False  # Don't include proper names in suggestions
-#             spell_cache: null
-#         infer_correct_word:
-#             sim_thresh: 0.0
-#             print_log: False
-#             min_len: 3
-#             use_suggest_score: True
-#         infer_correct_words:
-#             return_tokens_as_list: True
 
 
 class Params(BaseModel):
@@ -186,9 +94,26 @@ class SpellCheckerConfig(BaseModel):
 #     include_pos_tags: List
 
 
+class CleanerFixFragmentedTokensParams(BaseModel):
+    max_len: int = 5
+
+
+class CleanerFixFragmentedTokens(Params):
+    params: CleanerFixFragmentedTokensParams
+
+
+class CleanerFilterLanguageParams(BaseModel):
+    langs: List[str] = ["en"]
+    score: float = 0.98
+
+
+class CleanerFilterLanguage(Params):
+    params: CleanerFilterLanguageParams
+
+
 class CleanerConfig(BaseModel):
     # Options for cleaning.corrector.recover_segmented_words
-    fix_fragmented_tokens: Params
+    fix_fragmented_tokens: CleanerFixFragmentedTokens
     # Expand the acronyms in the text
     expand_acronyms: Params
     # Update the spacy doc with the whitelisted entitiy tag
@@ -202,7 +127,7 @@ class CleanerConfig(BaseModel):
     # Remove stopwords from the text
     filter_stopwords: Params
     # Filter by language
-    filter_language: Params
+    filter_language: CleanerFilterLanguage
     include_pos_tags: List[POSTag] = [
         POSTag.adjective.value, POSTag.noun.value]
     exclude_entity_types: List[Entity] = [
@@ -216,27 +141,13 @@ class POSTagType(BaseModel):
 class EntityType(BaseModel):
     ent: Entity
 
-
-CLEANER_CACHE = {}
-
-# def get_cleaner(config):
-#     print(len(CLEANER_CACHE))
-#     config_id = generate_model_hash(config=config)
-#     if config_id not in CLEANER_CACHE:
-#         print('Getting cleaner instance...')
-
-#         CLEANER_CACHE[config_id] = cleaner.BaseCleaner(
-#             config=config,
-#             include_pos=config['include_pos_tags'],
-#             exclude_entities=config['exclude_entity_types'],
-#             min_token_length=config['min_token_length'],
-#             max_token_length=config['max_token_length']
-#         )
-
-#     return CLEANER_CACHE[config_id]
+############# END: DEFINITION OF DATA TYPES AND MODELS #############
 
 
 class HashableDict(dict):
+    '''This is a wrapper class to make a dictionary hashable.
+    '''
+
     def __hash__(self):
         return hash(generate_model_hash(config=self))
 
@@ -265,7 +176,10 @@ async def clean(
         respeller_config: RespellerConfig
 ):
     '''This endpoint cleans the given `text` data.
+
     The cleaning pipeline is setup based on the given configuration parameters.
+
+    Configuration parameters can alter the behavior of the `cleaner`, `respeller`, and `spell checker`.
     '''
 
     spell_checker_config = spell_checker_config.dict()
@@ -275,11 +189,6 @@ async def clean(
     # Cast the data to the acceptable key value as used in the cleaner module.
     spell_checker_config['__init__'] = spell_checker_config.pop('init')
     respeller_config['__init__'] = respeller_config.pop('init')
-
-    cleaner_config['fix_fragmented_tokens']['params']['max_len'] = 5
-
-    cleaner_config['filter_language']['params']['langs'] = ['en']
-    cleaner_config['filter_language']['params']['score'] = 0.98
 
     config = dict(
         cleaner=cleaner_config,
@@ -295,16 +204,7 @@ async def clean(
         e.value for e in cleaner_config.pop('exclude_entity_types')]
 
     cleaner_object = get_cleaner(HashableDict(config))
-    #  cleaner.BaseCleaner(
-    #     config=config,
-    #     include_pos=config['include_pos_tags'],
-    #     exclude_entities=config['exclude_entity_types'],
-    #     min_token_length=config['min_token_length'],
-    #     max_token_length=config['max_token_length']
-    # )
-
     cleaned_text = cleaner_object.get_clean_tokens(text)
-    print(cleaned_text)
 
     return dict(
         text=text,
