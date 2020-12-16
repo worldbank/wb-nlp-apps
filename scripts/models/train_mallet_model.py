@@ -9,6 +9,8 @@ from pathlib import Path
 import os
 import itertools
 import json
+import shutil
+
 import click
 import gensim
 
@@ -162,6 +164,9 @@ def main(cfg_path: Path, log_level: int, load_dictionary: bool, load_dump: bool)
             # TODO: Find a better strategy to name models.
             # It can be a hash of the config values for easier tracking?
             mallet.save(str(sub_model_dir / f'model_{model_hash}.mallet.bz2'))
+
+            shutil.copy(Path(mallet.ftopickeys()), sub_model_dir /
+                        f'topickeys_{model_hash}.txt')
 
             _logger.info(mallet.print_topics())
             checkpoint_log(
