@@ -4,8 +4,8 @@ import enum
 from typing import Optional, List
 from functools import lru_cache
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Body
+from pydantic import BaseModel, Field
 
 import uvicorn
 
@@ -104,7 +104,8 @@ class CleanerFixFragmentedTokens(Params):
 
 class CleanerFilterLanguageParams(BaseModel):
     langs: List[str] = ["en"]
-    score: float = 0.98
+    score: float = Field(
+        0.98, gt=0, description="Threshold for a detected language to be valid.")
 
 
 class CleanerFilterLanguage(Params):
@@ -112,6 +113,8 @@ class CleanerFilterLanguage(Params):
 
 
 class CleanerConfig(BaseModel):
+    """This defines the data model for the cleaner config.
+    """
     # Options for cleaning.corrector.recover_segmented_words
     fix_fragmented_tokens: CleanerFixFragmentedTokens
     # Expand the acronyms in the text
@@ -132,6 +135,11 @@ class CleanerConfig(BaseModel):
         POSTag.adjective.value, POSTag.noun.value]
     exclude_entity_types: List[Entity] = [
         Entity.cardinal.value, Entity.time.value]
+
+    class Config:
+        schema_extra = {
+            "example": "Example"
+        }
 
 
 class POSTagType(BaseModel):
@@ -173,7 +181,12 @@ async def clean(
         text: str,
         cleaner_config: CleanerConfig,
         spell_checker_config: SpellCheckerConfig,
-        respeller_config: RespellerConfig
+        respeller_config: RespellerConfig,
+        min_token_length: int = Body(
+            3, gt=0, description="Minimum length of token."),
+        max_token_length: int = Body(
+            50, gt=0, description="Maximum length of token."),
+
 ):
     '''This endpoint cleans the given `text` data.
 
@@ -195,8 +208,8 @@ async def clean(
         spell_checker=spell_checker_config,
         respeller=respeller_config)
 
-    config['min_token_length'] = 3
-    config['max_token_length'] = 50
+    config['min_token_length'] = min_token_length
+    config['max_token_length'] = max_token_length
 
     config['include_pos_tags'] = [
         p.value for p in cleaner_config.pop('include_pos_tags')]
