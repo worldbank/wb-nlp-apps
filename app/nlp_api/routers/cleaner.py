@@ -2,12 +2,16 @@
 '''
 import enum
 from typing import Optional, List
+from functools import lru_cache
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 import uvicorn
 
 from wb_nlp.cleaning import cleaner
+from wb_nlp.utils.scripts import generate_model_hash
+
 
 router = APIRouter(
     prefix="/cleaner",
@@ -213,21 +217,62 @@ class EntityType(BaseModel):
     ent: Entity
 
 
+CLEANER_CACHE = {}
+
+# def get_cleaner(config):
+#     print(len(CLEANER_CACHE))
+#     config_id = generate_model_hash(config=config)
+#     if config_id not in CLEANER_CACHE:
+#         print('Getting cleaner instance...')
+
+#         CLEANER_CACHE[config_id] = cleaner.BaseCleaner(
+#             config=config,
+#             include_pos=config['include_pos_tags'],
+#             exclude_entities=config['exclude_entity_types'],
+#             min_token_length=config['min_token_length'],
+#             max_token_length=config['max_token_length']
+#         )
+
+#     return CLEANER_CACHE[config_id]
+
+
+class HashableDict(dict):
+    def __hash__(self):
+        return hash(generate_model_hash(config=self))
+
+
+@lru_cache(maxsize=32)
+def get_cleaner(config):
+    """This creates a cleaner instances and caches (LRU) the
+    object based on the config.
+    """
+    print('Getting cleaner instance...')
+
+    return cleaner.BaseCleaner(
+        config=config,
+        include_pos=config['include_pos_tags'],
+        exclude_entities=config['exclude_entity_types'],
+        min_token_length=config['min_token_length'],
+        max_token_length=config['max_token_length']
+    )
+
+
 @ router.post("/clean")
 async def clean(
         text: str,
         cleaner_config: CleanerConfig,
         spell_checker_config: SpellCheckerConfig,
-        respeller_config: RespellerConfig,
-        # include_pos_tags: List[str] = [
-        #     POSTag.adjective, POSTag.noun],
-        # exclude_entity_types: List[str] = [Entity.cardinal, Entity.time]
+        respeller_config: RespellerConfig
 ):
-    '''This endpoint accepts configuration parameters and cleans the text data.'''
+    '''This endpoint cleans the given `text` data.
+    The cleaning pipeline is setup based on the given configuration parameters.
+    '''
+
     spell_checker_config = spell_checker_config.dict()
     respeller_config = respeller_config.dict()
     cleaner_config = cleaner_config.dict()
 
+    # Cast the data to the acceptable key value as used in the cleaner module.
     spell_checker_config['__init__'] = spell_checker_config.pop('init')
     respeller_config['__init__'] = respeller_config.pop('init')
 
@@ -249,13 +294,14 @@ async def clean(
     config['exclude_entity_types'] = [
         e.value for e in cleaner_config.pop('exclude_entity_types')]
 
-    cleaner_object = cleaner.BaseCleaner(
-        config=config,
-        include_pos=config['include_pos_tags'],
-        exclude_entities=config['exclude_entity_types'],
-        min_token_length=config['min_token_length'],
-        max_token_length=config['max_token_length']
-    )
+    cleaner_object = get_cleaner(HashableDict(config))
+    #  cleaner.BaseCleaner(
+    #     config=config,
+    #     include_pos=config['include_pos_tags'],
+    #     exclude_entities=config['exclude_entity_types'],
+    #     min_token_length=config['min_token_length'],
+    #     max_token_length=config['max_token_length']
+    # )
 
     cleaned_text = cleaner_object.get_clean_tokens(text)
     print(cleaned_text)
