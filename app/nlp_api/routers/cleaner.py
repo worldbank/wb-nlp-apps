@@ -1,8 +1,13 @@
 '''This router contains the implementation for the cleaning API.
 '''
+import enum
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+
+import uvicorn
+
+from wb_nlp.cleaning import cleaner
 
 router = APIRouter(
     prefix="/cleaner",
@@ -10,6 +15,27 @@ router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
+
+
+class POSTag(enum.Enum):
+    # SpaCy pos tags
+    noun = "NOUN"
+    adjective = "ADJ"
+    verb = "VERB"
+    propn = "PROPN"
+    adverb = "ADV"
+    # 'ADP', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ',
+    # 'NUM', 'PART',
+
+
+class EntityType(enum.Enum):
+    cardinal = "CARDINAL"
+    time = "TIME"
+    percent = "PERCENT"
+    money = "MONEY"
+    date = "DATE"
+    quantity = "QUANTITY"
+    ordinal = "ORDINAL"
 
 
 # cleaner_config:
@@ -147,6 +173,11 @@ class SpellCheckerConfig(BaseModel):
     # filters: Optional[str] = None
 
 
+# class FilterByPOSParams(Params):
+#     params:
+#     include_pos_tags: List
+
+
 class CleanerConfig(BaseModel):
     # Options for cleaning.corrector.recover_segmented_words
     fix_fragmented_tokens: Params
@@ -173,9 +204,37 @@ async def clean(
         spell_checker_config: SpellCheckerConfig,
         respeller_config: RespellerConfig):
     '''This endpoint accepts configuration parameters and cleans the text data.'''
+    spell_checker_config = spell_checker_config.dict()
+    respeller_config = respeller_config.dict()
+    cleaner_config = cleaner_config.dict()
+
+    spell_checker_config['__init__'] = spell_checker_config.pop('init')
+    respeller_config['__init__'] = respeller_config.pop('init')
+
+    cleaner_config['fix_fragmented_tokens']['params']['max_len'] = 5
+
+    cleaner_config['filter_language']['params']['langs'] = ['en']
+    cleaner_config['filter_language']['params']['score'] = 0.98
+
+    config = dict(
+        cleaner=cleaner_config,
+        spell_checker=spell_checker_config,
+        respeller=respeller_config)
+
+    config['min_token_length'] = 3
+    config['max_token_length'] = 50
+    config['include_pos_tags'] = ["ADJ", "NOUN"]
+    config['exclude_entity_types'] = ["CARDINAL", "TIME", "PERCENT", "MONEY"]
+
+    cleaner_object = cleaner.BaseCleaner(
+        config=config,
+        include_pos=config['include_pos_tags'],
+        exclude_entities=config['exclude_entity_types'],
+        min_token_length=config['min_token_length'],
+        max_token_length=config['max_token_length']
+    )
 
     return dict(
         text=text,
-        cleaner_config=cleaner_config,
-        spell_checker_config=spell_checker_config,
-        respeller_config=respeller_config)
+        cleaned_text=cleaner_object.get_clean_tokens(text),
+        cleaner_config=config)
