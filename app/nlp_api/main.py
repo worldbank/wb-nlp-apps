@@ -3,11 +3,12 @@ from enum import Enum
 import uvicorn
 from fastapi import FastAPI
 
-from .routers import cleaner
+from .routers import cleaner, models
 
 app = FastAPI()
 
 app.include_router(cleaner.router)
+app.include_router(models.router)
 
 
 @app.get("/")
