@@ -15,7 +15,7 @@ from wb_nlp.utils.scripts import generate_model_hash
 
 router = APIRouter(
     prefix="/models",
-    tags=["models"],
+    tags=["Models"],
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
