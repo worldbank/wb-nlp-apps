@@ -8,11 +8,8 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Body
 from pydantic import BaseModel, Field
 
-import uvicorn
 
-from wb_nlp.cleaning import cleaner
 from wb_nlp.dir_manager import get_path_from_root
-from wb_nlp.utils.scripts import generate_model_hash
 
 
 router = APIRouter(
@@ -36,14 +33,6 @@ class ModelTypes(enum.Enum):
 ############# END: DEFINITION OF DATA TYPES AND MODELS #############
 
 
-class HashableDict(dict):
-    '''This is a wrapper class to make a dictionary hashable.
-    '''
-
-    def __hash__(self):
-        return hash(generate_model_hash(config=self))
-
-
 @lru_cache(maxsize=64)
 def process_config(path: Path):
     if not path.exists():
@@ -59,25 +48,19 @@ def process_config(path: Path):
     return config
 
 
-@lru_cache(maxsize=32)
-def get_model_configs(model_type: str):
+@ router.get("/get_model_configs")
+async def get_model_configs(model_type: ModelTypes):
+    '''This endpoint returns the configurations used to train the available models of the given `model_type`.
 
-    model_path = Path(get_path_from_root('models', model_type))
+    This can be used in the frontend to generate guidance and information about the available models.
+    '''
+
+    model_path = Path(get_path_from_root('models', model_type.value))
     config_paths = model_path.glob('*/model_config_*.json')
+    print(config_paths)
 
     configs = map(process_config, config_paths)
 
-    return list(filter(lambda x: x, configs))
-
-
-@ router.get("/get_model_configs")
-async def get_model_configs(model_type: str):
-    '''This endpoint cleans the given `text` data.
-
-    The cleaning pipeline is setup based on the given configuration parameters.
-
-    Configuration parameters can alter the behavior of the `cleaner`, `respeller`, and `spell checker`.
-    '''
-    model_configs = get_model_configs(model_type)
+    model_configs = list(filter(lambda x: x, configs))
 
     return dict(model_configs=model_configs)

@@ -7,10 +7,9 @@ from functools import lru_cache
 from fastapi import APIRouter, Depends, HTTPException, Body
 from pydantic import BaseModel, Field
 
-import uvicorn
 
 from wb_nlp.cleaning import cleaner
-from wb_nlp.utils.scripts import generate_model_hash
+from wb_nlp.utils.data_types import HashableDict
 
 
 router = APIRouter(
@@ -136,10 +135,10 @@ class CleanerConfig(BaseModel):
     exclude_entity_types: List[Entity] = [
         Entity.cardinal.value, Entity.time.value]
 
-    class Config:
-        schema_extra = {
-            "example": "Example"
-        }
+    # class Config:
+    #     schema_extra = {
+    #         "example": "Example"
+    #     }
 
 
 class POSTagType(BaseModel):
@@ -150,14 +149,6 @@ class EntityType(BaseModel):
     ent: Entity
 
 ############# END: DEFINITION OF DATA TYPES AND MODELS #############
-
-
-class HashableDict(dict):
-    '''This is a wrapper class to make a dictionary hashable.
-    '''
-
-    def __hash__(self):
-        return hash(generate_model_hash(config=self))
 
 
 @lru_cache(maxsize=32)
