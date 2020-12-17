@@ -64,3 +64,7 @@ async def get_model_configs(model_type: ModelTypes):
     model_configs = list(filter(lambda x: x, configs))
 
     return dict(model_configs=model_configs)
+
+
+def infer(model_type: ModelTypes, model_id: str):
+    pass
