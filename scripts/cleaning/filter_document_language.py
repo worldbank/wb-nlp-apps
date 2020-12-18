@@ -50,6 +50,9 @@ def filter_document_by_language(txt, pval=0.05):
     '''Remove contents of documents that are unlikely to be in English.
 
     This uses statistical hypothesis testing to automate the removal of tokens.
+
+    Other formulation:
+    compute overlap in distribution of average (a, b) and the sentence.
     '''
 
     alpha_pattern = re.compile(r'[a-z]+')
