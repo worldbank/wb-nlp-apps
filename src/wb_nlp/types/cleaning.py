@@ -78,7 +78,14 @@ class Cleaner(BaseModel):
     max_token_length: int = 50
 
     def __init__(self, **data: Any) -> None:
-        super().__init__(**data)
+        temp_data = dict(data)
+
+        if 'config_id' in temp_data:
+            # Remove `config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('config_id')
+
+        super().__init__(**temp_data)
 
         self.config_id = generate_model_hash(self.dict())
 
