@@ -112,29 +112,53 @@ class CleanerFlags(BaseModel):
 class CleanerParams(BaseModel):
     '''Definition of parameters for the cleaner pipeline.
     '''
-    pos_tags: List[SpaCyPOSTag] = Field(
-        ...,
-        description="List of SpaCy part-of-speech tags to be `included` in the cleaned text.")
     entities: List[Entity] = Field(
         ...,
         description="List of SpaCy entity types to be `excluded` in the cleaned text.")
-    languages: List[LanguageFilter] = Field(
-        ...,
-        description="List of languages code defined in the `pyenchant` library that will be considered as valid.")
+
     fragmented_token_max_len: int = Field(
-        5, description="Maximum number of tokens to consider for fragmented text fixing.")
+        5, description="Maximum number of tokens to consider for fixing fragmented lines of text.")
+
+    languages: List[LanguageFilter] = Field(
+        [LanguageFilter(lang='en', score=0.98)],
+        description="List of languages code defined in the `pyenchant` library that will be considered as valid.")
+
+    max_token_length: int = Field(
+        50, description="Maximum character limit for a token to be considered as valid.")
+
+    min_token_length: int = Field(
+        3, ge=2, description="Minimum character limit for a token to be considered as valid.")
+
+    pos_tags: List[SpaCyPOSTag] = Field(
+        ...,
+        description="List of SpaCy part-of-speech tags to be `included` in the cleaned text.")
 
     @validator('entities')
     def sort_entities(cls, v):
+        return sorted(v)
+
+    @validator('languages')
+    def sort_languages(cls, v):
         return sorted(v)
 
     @validator('pos_tags')
     def sort_pos_tags(cls, v):
         return sorted(v)
 
-    @validator('languages')
-    def sort_languages(cls, v):
-        return sorted(v)
+    @validator('max_token_length', pre=True, always=True)
+    def max_token_length_greater_than_min(cls, v, values, **kwargs):
+        if 'min_token_length' in values and v <= values['min_token_length']:
+            raise ValueError(
+                '`max_token_length` must be greater than `min_token_length`!')
+        return v
+
+    @validator('min_token_length', pre=True, always=True)
+    def min_token_length_less_than_max(cls, v, values, **kwargs):
+        print(values)
+        if 'max_token_length' in values and v >= values['max_token_length']:
+            raise ValueError(
+                '`min_token_length` must be less than `max_token_length`!')
+        return v
 
 
 class Cleaner(BaseModel):
@@ -151,7 +175,6 @@ class Cleaner(BaseModel):
         include_pos_tags=True,
         exclude_entity_types=True,
         tag_whitelisted_entities=True,
-
     )
     params: CleanerParams = CleanerParams(
         pos_tags=[SpaCyPOSTag.noun],
@@ -163,8 +186,6 @@ class Cleaner(BaseModel):
         languages=[LanguageFilter(
             lang='en', score=0.98)]
     )
-    min_token_length: int = 3
-    max_token_length: int = 50
 
     def __init__(self, **data: Any) -> None:
         temp_data = dict(data)
