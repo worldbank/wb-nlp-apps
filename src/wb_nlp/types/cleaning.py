@@ -114,14 +114,14 @@ class CleanerParams(BaseModel):
     '''
     entities: List[Entity] = Field(
         ...,
-        description="List of SpaCy entity types to be `excluded` in the cleaned text.")
+        description="List of SpaCy entity types to be `excluded` in the cleaned text. The `exclude_entity_types` flag must be set to `True` before this takes effect.")
 
     fragmented_token_max_len: int = Field(
-        5, description="Maximum number of tokens to consider for fixing fragmented lines of text.")
+        5, description="Maximum number of tokens to consider for fixing fragmented lines of text. The `fix_fragmented_tokens` flag must be set to `True` before this takes effect.")
 
     languages: List[LanguageFilter] = Field(
         [LanguageFilter(lang='en', score=0.98)],
-        description="List of languages code defined in the `pyenchant` library that will be considered as valid.")
+        description="List of languages code defined in the `pyenchant` library that will be considered as valid. The `filter_language` flag must be set to `True` before this takes effect.")
 
     max_token_length: int = Field(
         50, description="Maximum character limit for a token to be considered as valid.")
@@ -131,7 +131,7 @@ class CleanerParams(BaseModel):
 
     pos_tags: List[SpaCyPOSTag] = Field(
         ...,
-        description="List of SpaCy part-of-speech tags to be `included` in the cleaned text.")
+        description="List of SpaCy part-of-speech tags to be `included` in the cleaned text. The `include_pos_tags` flag must be set to `True` before this takes effect.")
 
     @validator('entities')
     def sort_entities(cls, v):
@@ -154,7 +154,6 @@ class CleanerParams(BaseModel):
 
     @validator('min_token_length', pre=True, always=True)
     def min_token_length_less_than_max(cls, v, values, **kwargs):
-        print(values)
         if 'max_token_length' in values and v >= values['max_token_length']:
             raise ValueError(
                 '`min_token_length` must be less than `max_token_length`!')
@@ -165,7 +164,8 @@ class Cleaner(BaseModel):
     """Main cleaner configuration body that contains the specification
     for the flags and parameters that will be used in the cleaning process.
     """
-    config_id: str = ''
+    cleaner_config_id: str = Field(
+        '', description="Cleaner configuration id derived from the combination of the parameters.")
     flags: CleanerFlags = CleanerFlags(
         expand_acronyms=True,
         correct_misspelling=True,
@@ -177,7 +177,8 @@ class Cleaner(BaseModel):
         tag_whitelisted_entities=True,
     )
     params: CleanerParams = CleanerParams(
-        pos_tags=[SpaCyPOSTag.noun],
+        pos_tags=[SpaCyPOSTag.noun, SpaCyPOSTag.adverb,
+                  SpaCyPOSTag.verb, SpaCyPOSTag.adjective],
         entities=[
             Entity.cardinal,
             Entity.money,
@@ -186,6 +187,94 @@ class Cleaner(BaseModel):
         languages=[LanguageFilter(
             lang='en', score=0.98)]
     )
+
+    def __init__(self, **data: Any) -> None:
+        temp_data = dict(data)
+
+        if 'cleaner_config_id' in temp_data:
+            # Remove `cleaner_config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('cleaner_config_id')
+
+        super().__init__(**temp_data)
+
+        self.cleaner_config_id = generate_model_hash(self.dict())
+
+
+class RespellerInferCorrectWord(BaseModel):
+    sim_thresh: float = Field(0.0, ge=0, le=1, description="")
+    print_log: bool = Field(False, description="")
+    min_len: int = Field(3, description="")
+    use_suggest_score: bool = Field(True, description="")
+
+
+class RespellerInferCorrectWords(BaseModel):
+    infer_correct_word_params: RespellerInferCorrectWord = Field(
+        RespellerInferCorrectWord(),
+        description="Set of parameters for the `infer_correct_word` method.")
+    return_tokens_as_list: bool = Field(
+        True, description="Flag that controls whether the returned value will be a list of tokens or concatenation of the tokens as a single space separated string.")
+
+
+class Respeller(BaseModel):
+    respeller_config_id: str = Field(
+        '', description="Respeller configuration id derived from the combination of the parameters.")
+    dictionary_file: str = Field(None)
+    spell_threshold: float = Field(0.25)
+    allow_proper: bool = Field(True)
+    spell_cache: dict = Field(None)
+    infer_correct_words: RespellerInferCorrectWords = Field(
+        RespellerInferCorrectWords(),
+        description="Set of parameters for the `infer_correct_words` method.")
+
+    def __init__(self, **data: Any) -> None:
+        temp_data = dict(data)
+
+        if 'respeller_config_id' in temp_data:
+            # Remove `respeller_config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('respeller_config_id')
+
+        super().__init__(**temp_data)
+
+        self.respeller_config_id = generate_model_hash(self.dict())
+
+
+class SpellChecker(BaseModel):
+    spell_checker_config_id: str = Field(
+        '', description="SpellChecker configuration id derived from the combination of the parameters.")
+    lang: str = 'en_US'
+    text: Any = None
+    tokenize: Any = None
+    chunkers: Any = None
+    filters: Any = None
+
+    def __init__(self, **data: Any) -> None:
+        temp_data = dict(data)
+
+        if 'spell_checker_config_id' in temp_data:
+            # Remove `spell_checker_config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('spell_checker_config_id')
+
+        super().__init__(**temp_data)
+
+        self.spell_checker_config_id = generate_model_hash(self.dict())
+
+
+class CleaningConfig(BaseModel):
+    config_id: str = Field(
+        '', description="Configuration id derived from the combination of the parameters.")
+    cleaner: Cleaner = Field(
+        Cleaner(),
+        description="Parameters for the cleaning pipeline."
+    )
+    respeller: Respeller = Field(
+        Respeller(),
+        description="Parameters for the respelling algorithm.")
+    spell_checker: SpellChecker = Field(
+        SpellChecker(),
+        description="Parameters for the spell checking algorithm.")
 
     def __init__(self, **data: Any) -> None:
         temp_data = dict(data)

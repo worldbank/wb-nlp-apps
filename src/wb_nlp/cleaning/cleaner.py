@@ -55,19 +55,23 @@ def expand_acronyms(text: str) -> str:
 
 
 class BaseCleaner:
-    def __init__(self, config: dict, include_pos: tuple, exclude_entities: tuple,
-                 min_token_length: int = 2, max_token_length: int = 50,
-                 extractors: Optional[list] = None, logger=None) -> None:
+    def __init__(self, config: dict, extractors: Optional[list] = None, logger=None) -> None:
 
-        self.include_pos = include_pos
-        self.exclude_entities = exclude_entities
-        self.min_token_length = min_token_length
-        self.max_token_length = max_token_length
+        self.set_config(config)
+
+        self.include_pos = (
+            set(self.config['cleaner']['params']['pos_tags']) if
+            self.config['cleaner']['flags']['include_pos_tags'] else set())
+
+        self.exclude_entities = (
+            set(self.config['cleaner']['params']['entities']) if
+            self.config['cleaner']['flags']['exclude_entity_types'] else set())
+
+        self.min_token_length = self.config['cleaner']['params']['min_token_length']
+        self.max_token_length = self.config['cleaner']['params']['max_token_length']
         self.extractors = (
             extractors or []
         )  # extractor.CountryExtractor(nlp, lower=True)
-
-        self.set_config(config)
 
         self.spelling_model = respelling.SpellingModels(config)
         self.logger = logger
@@ -122,34 +126,36 @@ class BaseCleaner:
             lists of clean tokens
         """
         # Fix not properly parsed tokens.
-        if self.config["cleaner"]["fix_fragmented_tokens"]["use"]:
+        if self.config["cleaner"]["flags"]["fix_fragmented_tokens"]:
             text = self.spelling_model.recover_segmented_words(
-                text, **self.config["cleaner"]["fix_fragmented_tokens"]["params"]
+                text, max_len=self.config["cleaner"]["params"]["fragmented_token_max_len"]
             )
 
-        if self.config["cleaner"]["expand_acronyms"]["use"]:
+        if self.config["cleaner"]["flags"]["expand_acronyms"]:
             # Expand acronyms
             text = expand_acronyms(text)
 
         doc = BaseCleaner.text_to_doc(text)
         doc_lang = doc._.language
 
-        if self.config["cleaner"]["filter_language"]["use"]:
-            lang_params = self.config["cleaner"]["filter_language"]["params"]
+        if self.config["cleaner"]["flags"]["filter_language"]:
+            lang_score = {
+                lang["lang"]: lang["score"] for lang in self.config["cleaner"]["params"]["languages"]}
             # Return empty list if language is not valid.
             if not (
-                (doc_lang["language"] in lang_params["langs"]) and
-                    (doc_lang["score"] >= lang_params["score"])):
+                (doc_lang["language"] in lang_score) and
+                    (doc_lang["score"] >= lang_score[doc_lang["language"]])):
                 if self.logger is not None:
-                    self.logger.debug('Text is not in valid language...')
+                    self.logger.debug(
+                        'Text is not in valid language (`%s`)...', doc_lang["language"])
                 return []
 
-        if self.config["cleaner"]["tag_whitelisted_entities"]["use"]:
+        if self.config["cleaner"]["flags"]["tag_whitelisted_entities"]:
             doc = self._apply_extractors(doc)
 
         tokens = self._tokenize(doc)
 
-        if self.config["cleaner"]["correct_misspelling"]["use"]:
+        if self.config["cleaner"]["flags"]["correct_misspelling"]:
             tokens = self.spelling_model.fix_spellings(tokens)
 
         return tokens
@@ -181,95 +187,95 @@ class BaseCleaner:
 
     def _is_valid_token(self, token: spacy.tokens.token.Token) -> bool:
         is_valid = token.is_alpha
-        is_valid = is_valid and len(token) >= self.min_token_length
-        is_valid = is_valid and len(token) <= self.max_token_length
+        is_valid = is_valid and (len(token) >= self.min_token_length)
+        is_valid = is_valid and (len(token) <= self.max_token_length)
 
         # Check only for complex filters once the token passed the basic filters.
         if is_valid:
 
-            if self.config["cleaner"]["filter_by_pos"]["use"]:
+            if self.include_pos:
                 is_valid = is_valid and (token.pos_ in self.include_pos)
 
-            if self.config["cleaner"]["filter_by_entities"]["use"]:
+            if self.exclude_entities:
                 is_valid = is_valid and (
                     token.ent_type_ not in self.exclude_entities)
 
-            if self.config["cleaner"]["filter_stopwords"]["use"]:
+            if self.config["cleaner"]['flags']["filter_stopwords"]:
                 is_valid = is_valid and not token.is_stop
 
         return is_valid
 
 
-class LDACleaner(BaseCleaner):
-    LDA_INCLUDE_POS_TAGS = [
-        "ADJ",
-        "NOUN",
-        # 'PROPN',
-        "VERB",
-        # Which is better? Add this by default or simply create
-        # a whitelist of relevant adverbs?
-        "ADV",
-    ]
+# class LDACleaner(BaseCleaner):
+#     LDA_INCLUDE_POS_TAGS = [
+#         "ADJ",
+#         "NOUN",
+#         # 'PROPN',
+#         "VERB",
+#         # Which is better? Add this by default or simply create
+#         # a whitelist of relevant adverbs?
+#         "ADV",
+#     ]
 
-    LDA_EXCLUDE_ENT_TYPE = [
-        "GPE", "COUNTRY",  # Countries, cities, states
-        "PERSON", "ORG",  # Persons and organizations
-        "DATE", "TIME",  # Tomorrow, today, 10am, etc.
-        "PERCENT", "MONEY", "QUANTITY",  # Words related to amounts and money
-        "ORDINAL",  # first, second, etc.
-        "CARDINAL",  # Other numerals
-    ]
+#     LDA_EXCLUDE_ENT_TYPE = [
+#         "GPE", "COUNTRY",  # Countries, cities, states
+#         "PERSON", "ORG",  # Persons and organizations
+#         "DATE", "TIME",  # Tomorrow, today, 10am, etc.
+#         "PERCENT", "MONEY", "QUANTITY",  # Words related to amounts and money
+#         "ORDINAL",  # first, second, etc.
+#         "CARDINAL",  # Other numerals
+#     ]
 
-    def __init__(self, config: dict,
-                 min_token_length: int = 2, max_token_length: int = 50,
-                 extractors: Optional[list] = None) -> None:
+#     def __init__(self, config: dict,
+#                  min_token_length: int = 2, max_token_length: int = 50,
+#                  extractors: Optional[list] = None) -> None:
 
-        super(LDACleaner, self).__init__(
-            config,
-            LDACleaner.LDA_INCLUDE_POS_TAGS,
-            LDACleaner.LDA_EXCLUDE_ENT_TYPE,
-            min_token_length,
-            max_token_length,
-            extractors,
-        )
+#         super(LDACleaner, self).__init__(
+#             config,
+#             LDACleaner.LDA_INCLUDE_POS_TAGS,
+#             LDACleaner.LDA_EXCLUDE_ENT_TYPE,
+#             min_token_length,
+#             max_token_length,
+#             extractors,
+#         )
 
 
-class Word2VecCleaner(BaseCleaner):
+# class Word2VecCleaner(BaseCleaner):
 
-    EMBEDDING_INCLUDE_POS_TAGS = [
-        "ADJ",
-        "NOUN",
-        "VERB",
-        # 'PROPN',
-        # Which is better? Add this by default or simply create
-        # a whitelist of relevant adverbs?
-        "ADV"
-        # 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ',
-        # 'NUM', 'PART',
-    ]
+#     EMBEDDING_INCLUDE_POS_TAGS = [
+#         "ADJ",
+#         "NOUN",
+#         "VERB",
+#         # 'PROPN',
+#         # Which is better? Add this by default or simply create
+#         # a whitelist of relevant adverbs?
+#         "ADV"
+#         # 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ',
+#         # 'NUM', 'PART',
+#     ]
 
-    EMBEDDING_EXCLUDE_ENT_TYPE = [
-        "CARDINAL",
-        "TIME",
-        "PERCENT",
-        "MONEY",
-        # 'DATE',
-        # 'QUANTITY',
-        # 'ORDINAL',
-    ]
+#     EMBEDDING_EXCLUDE_ENT_TYPE = [
+#         "CARDINAL",
+#         "TIME",
+#         "PERCENT",
+#         "MONEY",
+#         # 'DATE',
+#         # 'QUANTITY',
+#         # 'ORDINAL',
+#     ]
 
-    def __init__(self, config: dict,
-                 min_token_length: int = 2, max_token_length: int = 50,
-                 extractors: Optional[list] = None) -> None:
+#     def __init__(self, config: dict,
+#                  min_token_length: int = 2, max_token_length: int = 50,
+#                  extractors: Optional[list] = None) -> None:
 
-        super(Word2VecCleaner, self).__init__(
-            config,
-            Word2VecCleaner.EMBEDDING_INCLUDE_POS_TAGS,
-            Word2VecCleaner.EMBEDDING_EXCLUDE_ENT_TYPE,
-            min_token_length,
-            max_token_length,
-            extractors,
-        )
+#         super(Word2VecCleaner, self).__init__(
+#             config,
+#             Word2VecCleaner.EMBEDDING_INCLUDE_POS_TAGS,
+#             Word2VecCleaner.EMBEDDING_EXCLUDE_ENT_TYPE,
+#             min_token_length,
+#             max_token_length,
+#             extractors,
+#         )
 
 
 class SimpleCleaner(BaseCleaner):
@@ -454,22 +460,22 @@ if __name__ == "__main__":
     config = load_config(dir_manager.get_path_from_root(
         'configs', 'cleaning', 'default.yml'), 'cleaner_config', None)
 
-    bc = LDACleaner(config)
-    test_txt = """Hello world, why are you all here at the World Bank?
-        We need to do something about the linear regresion.
-        The bayesian information is not liot here."""
+    # bc = LDACleaner(config)
+    # test_txt = """Hello world, why are you all here at the World Bank?
+    #     We need to do something about the linear regresion.
+    #     The bayesian information is not liot here."""
 
-    print([(i.text, i.pos_, i.lemma_) for i in nlp(test_txt)])
+    # print([(i.text, i.pos_, i.lemma_) for i in nlp(test_txt)])
 
-    t = bc.get_clean_tokens(test_txt)
+    # t = bc.get_clean_tokens(test_txt)
 
-    print(t)
+    # print(t)
 
-    assert t == [
-        "world",
-        "need",
-        "linear",
-        "regression",
-        "bayesian",
-        "information",
-    ]
+    # assert t == [
+    #     "world",
+    #     "need",
+    #     "linear",
+    #     "regression",
+    #     "bayesian",
+    #     "information",
+    # ]
