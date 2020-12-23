@@ -177,7 +177,7 @@ class Respeller:
     to efficiently cache data for parallel computing.
     """
 
-    def __init__(self, dictionary_file=None, spell_threshold=0.25,
+    def __init__(self, config=None, dictionary_file=None, spell_threshold=0.25,
                  allow_proper=False, spell_cache=None):
         """This respelling module tries to recover some misspelled words.
         This is done using enchant and text mining methods.
@@ -191,10 +191,31 @@ class Respeller:
                 have already been applied prior to the respelling.
 
         """
-        self.spell_cache = spell_cache if spell_cache is not None else {}  # pd.Series()
-        self.dictionary_file = dictionary_file
-        self.spell_threshold = spell_threshold
-        self.allow_proper = allow_proper
+        if config:
+            self.config = config
+        else:
+            self.config = dict(respeller=dict(
+                dictionary_file=dictionary_file,
+                spell_threshold=spell_threshold,
+                allow_proper=allow_proper,
+                spell_cache=spell_cache,
+            ))
+
+        respeller_conf = self.config['respeller']
+
+        self.spell_cache = respeller_conf.get(
+            'spell_cache', spell_cache)
+        self.spell_cache = self.spell_cache if self.spell_cache is not None else {}  # pd.Series()
+
+        self.dictionary_file = respeller_conf.get(
+            'dictionary_file', dictionary_file)
+
+        self.spell_threshold = respeller_conf.get(
+            'spell_threshold', spell_threshold)
+
+        self.allow_proper = respeller_conf.get(
+            'allow_proper', allow_proper)
+
         self.stopwords = set(stopwords)
 
         """
@@ -214,8 +235,8 @@ class Respeller:
         pd.Series(self.spell_cache).to_csv(self.dictionary_file)
 
     def infer_correct_word(
-            self, word, sim_thresh=0.0, print_log=False,
-            min_len=3, use_suggest_score=True):
+            self, word, sim_thresh: float = 0.0, print_log: bool = False,
+            min_len: int = 3, use_suggest_score: bool = True) -> dict:
         """Try to infer the correct word for a single misspelled word.
 
         Args:
@@ -239,6 +260,17 @@ class Respeller:
             A dictionary containing the payload for the word.
 
         """
+
+        # if ('infer_correct_word' in self.config['respeller']) and not override_config:
+        #     sim_thresh = self.config['respeller']['infer_correct_word'].get(
+        #         'sim_thresh', sim_thresh)
+        #     print_log = self.config['respeller']['infer_correct_word'].get(
+        #         'print_log', print_log)
+        #     min_len = self.config['respeller']['infer_correct_word'].get(
+        #         'min_len', min_len)
+        #     use_suggest_score = self.config['respeller']['infer_correct_word'].get(
+        #         'use_suggest_score', use_suggest_score)
+
         if word not in self.spell_cache:
             # Implement internal caching as well since Memory is still slow
             # due to its utilization of disk.
@@ -300,6 +332,7 @@ class Respeller:
                 and value the fixed word.
 
         """
+
         respelled_set = {}
         unfixed_words = set([])
 
@@ -341,10 +374,28 @@ class OptimizedSpellChecker(SpellChecker):
 
     dict_words = set()
 
-    def __init__(self, lang=None, text=None,
+    def __init__(self, config=None, lang=None, text=None,
                  tokenize=None, chunkers=None, filters=None):
+
+        if config:
+            self.config = config
+        else:
+            self.config = dict(spell_checker=dict(
+                lang=lang,
+                text=text,
+                tokenize=tokenize,
+                chunkers=chunkers,
+                filters=filters
+            ))
+
+        spell_checker_conf = self.config['spell_checker']
+
         super().__init__(
-            lang=lang, text=text, tokenize=tokenize, chunkers=chunkers, filters=filters
+            lang=spell_checker_conf.get('lang', lang),
+            text=spell_checker_conf.get('text', text),
+            tokenize=spell_checker_conf.get('tokenize', tokenize),
+            chunkers=spell_checker_conf.get('chunkers', chunkers),
+            filters=spell_checker_conf.get('filter', filters)
         )
 
     def set_tokens(self, tokens):
@@ -400,11 +451,13 @@ class SpellingModels:
 
     def __init__(self, config: dict):
         self.config = config
+        assert 'spell_checker' in self.config
+        assert 'respeller' in self.config
 
         self.spell_checker = OptimizedSpellChecker(
-            **self.config["spell_checker"]["__init__"]
-        )
-        self.respeller = Respeller(**self.config["respeller"]["__init__"])
+            config=self.config)
+        self.respeller = Respeller(
+            config=self.config)
 
     def fix_spellings(self, tokens: list) -> list:
         """This is the main method that handles the fixing of misspelled words.
@@ -422,8 +475,8 @@ class SpellingModels:
 
         unfixed_tokens, fixed_tokens_map = self.respeller.infer_correct_words(
             [err_word.word for err_word in self.spell_checker],
-            infer_correct_word_params=self.config["respeller"]["infer_correct_word"],
-            **self.config["respeller"]["infer_correct_words"],
+            return_tokens_as_list=self.config["respeller"]["infer_correct_words"]["return_tokens_as_list"],
+            infer_correct_word_params=self.config["respeller"]["infer_correct_words"]["infer_correct_word_params"]
         )
 
         tokens = list(
