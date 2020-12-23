@@ -18,6 +18,7 @@ import joblib
 import wb_nlp
 from wb_nlp.cleaning import cleaner
 from wb_nlp.utils.scripts import configure_logger, load_config, create_dask_cluster
+from wb_nlp.types.cleaning import CleaningConfig
 
 en_dict = enchant.Dict('en_US')
 
@@ -139,15 +140,10 @@ def main(cfg_path: Path, input_dir: Path, output_dir_name: str, log_level: int, 
     client = create_dask_cluster(_logger, n_workers=n_workers)
     _logger.info(client)
 
-    config = load_config(cfg_path, 'cleaner_config', _logger)
+    config = load_config(cfg_path, 'cleaning_config', _logger)
+    config = CleaningConfig(**config).dict()
 
-    cleaner_object = cleaner.BaseCleaner(
-        config=config,
-        include_pos=config['include_pos_tags'],
-        exclude_entities=config['exclude_entity_types'],
-        min_token_length=config['min_token_length'],
-        max_token_length=config['max_token_length']
-    )
+    cleaner_object = cleaner.BaseCleaner(config=config)
 
     _logger.info('Starting joblib tasks...')
     files_count = 0

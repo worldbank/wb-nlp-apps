@@ -456,26 +456,30 @@ class CorpusCleaner:
 if __name__ == "__main__":
     from wb_nlp.utils.scripts import load_config
     from wb_nlp import dir_manager
+    from wb_nlp.types.cleaning import CleaningConfig
 
     config = load_config(dir_manager.get_path_from_root(
-        'configs', 'cleaning', 'default.yml'), 'cleaner_config', None)
+        'configs', 'cleaning', 'default.yml'), 'cleaning_config', None)
 
-    # bc = LDACleaner(config)
-    # test_txt = """Hello world, why are you all here at the World Bank?
-    #     We need to do something about the linear regresion.
-    #     The bayesian information is not liot here."""
+    config = CleaningConfig(**config).dict()
+    print(config)
 
-    # print([(i.text, i.pos_, i.lemma_) for i in nlp(test_txt)])
+    bc = BaseCleaner(config=config)
+    test_txt = """Hello world, why are you all here at the World Bank?
+        We need to do something about the linear regresion.
+        The bayesian information is not liot here."""
 
-    # t = bc.get_clean_tokens(test_txt)
+    print([(i.text, i.pos_, i.lemma_) for i in nlp(test_txt)])
 
-    # print(t)
+    t = bc.get_clean_tokens(test_txt)
 
-    # assert t == [
-    #     "world",
-    #     "need",
-    #     "linear",
-    #     "regression",
-    #     "bayesian",
-    #     "information",
-    # ]
+    print(t)
+
+    assert t == [
+        "world",
+        "need",
+        "linear",
+        "regression",
+        "bayesian",
+        "information",
+    ]
