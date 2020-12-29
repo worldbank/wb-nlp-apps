@@ -85,3 +85,13 @@ services:
       - ${REMOTE_PATH}/milvus/conf:/var/lib/milvus/conf
       - ${REMOTE_PATH}/milvus/logs:/var/lib/milvus/logs
       - ${REMOTE_PATH}/milvus/wal:/var/lib/milvus/wal
+
+  es01:
+    volumes:
+      - ${REMOTE_PATH}/elasticsearch/data/01:/usr/share/elasticsearch/data
+  es02:
+    volumes:
+      - ${REMOTE_PATH}/elasticsearch/data/02:/usr/share/elasticsearch/data
+  es03:
+    volumes:
+      - ${REMOTE_PATH}/elasticsearch/data/03:/usr/share/elasticsearch/data
