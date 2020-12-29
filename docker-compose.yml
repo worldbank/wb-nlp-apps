@@ -21,11 +21,13 @@ services:
       - web
       - app
       - api
+      - es01
     depends_on:
       - mongodb
       - web
       - app
       - api
+      - es01
     # ports:
     #   - "8000:8000"
     # deploy:
