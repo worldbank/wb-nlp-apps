@@ -209,6 +209,45 @@ services:
     # networks:
     #   - elastic
 
+  nlp_api:
+    build:
+      context: ./
+      dockerfile: ./app/nlp_api/Dockerfile
+      args:
+        ENV_ID: prod
+        ENV_PROD_FILE: "environment.prod.api.yml"
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/models:/workspace/models
+      - ${LOCAL_PATH}/data/preprocessed:/workspace/data/preprocessed
+      - ${LOCAL_PATH}/data/whitelists:/workspace/data/whitelists
+    ports:
+      - "8991:8910"
+    links:
+      - mongodb
+      - es01
+    depends_on:
+      - mongodb
+      - es01
+
+  app_label:
+    build:
+      context: ./app/app_label
+    ports:
+      - "8998:80"
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/app/app_label:/app
+      - ${LOCAL_PATH}/app/app_label/site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - api
+      - nlp_api
+    depends_on:
+      - api
+      - nlp_api
+
 # networks:
 #   elastic:
 #     driver: bridge

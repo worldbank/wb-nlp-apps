@@ -95,3 +95,14 @@ services:
   es03:
     volumes:
       - ${REMOTE_PATH}/elasticsearch/data/03:/usr/share/elasticsearch/data
+
+  nlp_api:
+    volumes:
+      - ${REMOTE_PATH}/models:/workspace/models
+      - ${REMOTE_PATH}/data/preprocessed:/workspace/data/preprocessed
+      - ${REMOTE_PATH}/data/whitelists:/workspace/data/whitelists
+
+  app_label:
+    volumes:
+      - ${REMOTE_PATH}/app/app_label:/app
+      - ${REMOTE_PATH}/app/app_label/site.conf:/etc/nginx/conf.d/site.conf
