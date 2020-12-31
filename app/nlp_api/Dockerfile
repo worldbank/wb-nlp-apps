@@ -21,7 +21,7 @@ RUN apt-get update \
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=dialog
 
-ARG ENV_ID=prod
+ARG ENV_ID=nlp_api
 ARG ENV_PROD_FILE=environment.nlp_api.yml
 
 ENV ENV_ID=$ENV_ID

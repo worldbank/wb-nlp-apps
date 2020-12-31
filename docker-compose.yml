@@ -214,8 +214,8 @@ services:
       context: ./
       dockerfile: ./app/nlp_api/Dockerfile
       args:
-        ENV_ID: prod
-        ENV_PROD_FILE: "environment.prod.api.yml"
+        ENV_ID: nlp_api
+        ENV_PROD_FILE: "environment.nlp_api.yml"
         PORT: 8919
     env_file:
       - .env
