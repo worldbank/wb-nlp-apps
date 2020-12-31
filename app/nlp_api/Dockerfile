@@ -27,7 +27,7 @@ ARG ENV_PROD_FILE=environment.nlp_api.yml
 ENV ENV_ID=$ENV_ID
 ENV ENV_PROD_FILE=$ENV_PROD_FILE
 
-COPY ./app/api/${ENV_PROD_FILE} /tmp/${ENV_PROD_FILE}
+COPY ./app/nlp_api/${ENV_PROD_FILE} /tmp/${ENV_PROD_FILE}
 RUN conda init bash && conda env create -f /tmp/${ENV_PROD_FILE}
 
 WORKDIR /workspace
