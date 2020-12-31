@@ -17,4 +17,6 @@ def read_root():
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, port=8080, host='0.0.0.0')
+    # Default port is 8000
+    # uvicorn app.nlp_api.main:app --reload --timeout-keep-alive 120 --port 8919
+    uvicorn.run(app, port=8919, host='0.0.0.0')

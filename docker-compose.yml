@@ -216,6 +216,7 @@ services:
       args:
         ENV_ID: prod
         ENV_PROD_FILE: "environment.prod.api.yml"
+        PORT: 8919
     env_file:
       - .env
     volumes:
@@ -223,7 +224,7 @@ services:
       - ${LOCAL_PATH}/data/preprocessed:/workspace/data/preprocessed
       - ${LOCAL_PATH}/data/whitelists:/workspace/data/whitelists
     ports:
-      - "8991:8910"
+      - "8991:8919"
     links:
       - mongodb
       - es01

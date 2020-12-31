@@ -22,7 +22,7 @@ RUN apt-get update \
 ENV DEBIAN_FRONTEND=dialog
 
 ARG ENV_ID=prod
-ARG ENV_PROD_FILE=environment.prod.api.yml
+ARG ENV_PROD_FILE=environment.nlp_api.yml
 
 ENV ENV_ID=$ENV_ID
 ENV ENV_PROD_FILE=$ENV_PROD_FILE
@@ -33,19 +33,17 @@ RUN conda init bash && conda env create -f /tmp/${ENV_PROD_FILE}
 WORKDIR /workspace
 COPY . .
 
-# COPY setup.* ./
-# COPY ./src ./src/
-# COPY ./app/api ./app/api
-
-RUN /opt/conda/envs/${ENV_ID}/bin/python setup.py develop
+RUN /opt/conda/envs/${ENV_ID}/bin/python setup.py develop \
+    && /opt/conda/envs/${ENV_ID}/bin/python -m nltk.downloader popular \
+    && /opt/conda/envs/${ENV_ID}/bin/python -m spacy download en_core_web_sm
 
 # # Always try to install the latest prod env file.
 # # This is useful when you installed new packages and updated the env file with
 # # conda env export -n ${ENV_ID} --no-builds | grep -v "prefix" > /workspace/${ENV_DEV_FILE}
 # RUN conda env update -n ${ENV_ID} --file /tmp/conda-tmp/${ENV_DEV_FILE}  --prune && rm -rf /opt/conda/pkg/*
 
-# Add this so that the container doesn't exit prematurely
-# CMD ["tail", "-f", "/dev/null"]
-CMD /opt/conda/envs/prod/bin/gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200
+# Start the server
+ARG PORT=8919
+ENV PORT=$PORT
 
-
+CMD /opt/conda/envs/prod/bin/uvicorn app.nlp_api.main:app  --reload --timeout-keep-alive 1200 --port ${PORT}
