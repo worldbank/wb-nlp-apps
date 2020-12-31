@@ -47,4 +47,4 @@ RUN /opt/conda/envs/${ENV_ID}/bin/python setup.py develop \
 ARG PORT=8919
 ENV PORT=$PORT
 
-CMD /opt/conda/envs/prod/bin/uvicorn app.nlp_api.main:app  --reload --timeout-keep-alive 1200 --port ${PORT}
+CMD /opt/conda/envs/nlp_api/bin/uvicorn app.nlp_api.main:app  --reload --timeout-keep-alive 1200 --port ${PORT}
