@@ -245,9 +245,11 @@ services:
     links:
       - api
       - nlp_api
+      - dfr
     depends_on:
       - api
       - nlp_api
+      - dfr
 
 # networks:
 #   elastic:

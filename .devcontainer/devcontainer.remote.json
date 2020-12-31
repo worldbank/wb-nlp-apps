@@ -20,7 +20,9 @@
         "milvus",
         "es01",
         "es02",
-        "es03"
+        "es03",
+        "app_label",
+        "nlp_api"
     ],
     // Set *default* container specific settings.json values on container create.
     "settings": {
@@ -49,7 +51,9 @@
         8880,
         8088,
         19530,
-        19121
+        19121,
+        8998,
+        8991
     ],
     // Use 'postCreateCommand' to run commands after the container is created.
     "postCreateCommand": "cp /tmp/conda-tmp/${ENV_DEV_FILE} ./ && /opt/conda/envs/${ENV_ID}/bin/python -m ipykernel install --user --name=wb_nlp && /opt/conda/envs/${ENV_ID}/bin/python setup.py develop",
