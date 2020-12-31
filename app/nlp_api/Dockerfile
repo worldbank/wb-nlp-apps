@@ -11,7 +11,8 @@ RUN apt-get update \
     #
     # Install enchant libraries for pyenchant
     && apt-get install -y enchant 2>&1 \
-    #
+    # Install gcc
+    && apt-get install -y gcc g++ 2>&1 \
     #
     # Clean up
     && apt-get autoremove -y \
