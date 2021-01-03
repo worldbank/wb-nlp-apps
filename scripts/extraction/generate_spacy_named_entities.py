@@ -133,6 +133,6 @@ if __name__ == '__main__':
     # python -u ./scripts/extraction/generate_spacy_named_entities.py --input-dir ./data/raw/sample_data/TXT_SAMPLE --output-dir ./data/preprocessed/sample_data/spacy_entities -v --n-workers 6 |& tee ./logs/generate_spacy_named_entities.py.log
 
     # Use in w1lxbdatad07
-    # python -u ./scripts/extraction/generate_spacy_named_entities.py --input-dir /data/wb536061/wb_nlp/data/raw/<txt_orig_directory> --output-dir /data/wb536061/wb_nlp/data/preprocessed/sample_data/spacy_entities -v --n-workers 48 |& tee ./logs/generate_spacy_named_entities.py.log
+    # python -u ./scripts/extraction/generate_spacy_named_entities.py --input-dir /data/wb536061/wb_nlp/data/raw/CORPUS/<corpus_id>/TXT_ORIG --output-dir /data/wb536061/wb_nlp/data/preprocessed/CORPUS/<corpus_id>/spacy_entities -v --n-workers 48 |& tee ./logs/generate_spacy_named_entities.py.log
 
     main()
