@@ -272,9 +272,12 @@ class PDFToTextProcessor:
         return s
 
     @staticmethod
-    def read_pdf(fname: str) -> List[str]:
+    def read_pdf(fname: str, use_stream: bool = True) -> List[str]:
+        command = ["pdftotext", str(fname), "-"]
+        if use_stream:
+            command.append('-raw')
         output = subprocess.run(
-            ["pdftotext", str(fname), "-"], stdout=subprocess.PIPE, shell=False)
+            command, stdout=subprocess.PIPE, shell=False)
         pages = output.stdout.decode(errors="ignore").split("\f")
         pages = pages[:-1]  # the last page in the split is always empty.
 
