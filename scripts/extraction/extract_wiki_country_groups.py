@@ -52,8 +52,8 @@ for h2 in h2_list:
         else:
             country_group = dict(
                 group_name=group_name,
-                countries=list(filter(lambda ent: ent.label_ ==
-                                      'GPE' and ent.text[0].isupper(), nlp(li.text).ents)),
+                countries=', '.join(list(map(str, filter(lambda ent: ent.label_ ==
+                                                         'GPE' and ent.text[0].isupper(), nlp(li.text.replace('[', ' [').replace('.', ' .')).ents)))),
                 orig=li.text
             )
             country_groups.append(country_group)
