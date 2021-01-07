@@ -8,6 +8,7 @@ from pathlib import Path
 from collections import Counter
 import gzip
 import json
+import re
 
 import click
 
@@ -112,9 +113,36 @@ def main(input_dir: Path, output_dir: Path, log_level: int, n_workers: int = Non
     with joblib.parallel_backend('dask'):
         batch_size = 'auto' if batch_size is None else int(batch_size)
 
-        res = Parallel(verbose=1, batch_size=batch_size)(
+        res = Parallel(verbose=10, batch_size=batch_size)(
             delayed(joblib_extract_spacy_named_entities)(
                 ix, i, output_dir) for ix, i in enumerate(input_dir.glob('*.txt'), 1))
+
+    entity_by_doc = Counter()
+    entity_by_freq = Counter()
+
+    for json_gz in output_dir.glob('*.json.gz'):
+        with gzip.open(json_gz) as gz_file:
+            json_data = json.load(gz_file)
+            ents = json_data.get('entities', {})
+            ents_count = Counter()
+
+            for k, v in ents.items():
+                ents_count.update({
+                    re.sub(r'\s+', ' ', k).replace(
+                        ':the ', ':').replace(':The ', ':').strip(): v})
+
+            entity_by_doc.update(set(ents))
+            entity_by_freq.update(ents)
+
+    with gzip.open(output_dir / 'entity_by_doc.json.gzip', mode='wt', encoding='utf-8') as gz_file:
+        json.dump(dict(entity_by_doc.most_common()), gz_file)
+
+    with gzip.open(output_dir / 'entity_by_freq.json.gzip', mode='wt', encoding='utf-8') as gz_file:
+        json.dump(dict(entity_by_freq.most_common()), gz_file)
+
+    # Example analysis
+    # climate = Counter(dict(filter(lambda x: 'paris climate' in x[0].lower() or 'paris agreement' in x[0].lower(), entity_by_doc.most_common())))
+    # gpe = Counter(dict(filter(lambda x: x[0].startswith('GPE'), entity_by_doc.most_common())))
 
     _logger.info('Processed all: %s', all(res))
 
