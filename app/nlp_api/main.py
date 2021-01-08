@@ -4,11 +4,24 @@ import uvicorn
 from fastapi import FastAPI
 
 from .routers import cleaner, models
+from .routers.subrouters import lda, word2vec
 
 app = FastAPI()
 
 app.include_router(cleaner.router)
 app.include_router(models.router)
+app.include_router(
+    word2vec.router,
+    prefix="/models",
+    # tags=["word2vec"],
+    responses={404: {"description": "Not found"}},
+)
+app.include_router(
+    lda.router,
+    prefix="/models",
+    # tags=["lda"],
+    responses={404: {"description": "Not found"}},
+)
 
 
 @app.get("/")
