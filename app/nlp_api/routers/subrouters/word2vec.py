@@ -10,7 +10,9 @@ from pydantic import BaseModel, Field
 
 
 from wb_nlp.dir_manager import get_path_from_root
-from wb_nlp.types.models import Word2VecTransformParams
+from wb_nlp.types.models import (
+    ModelTypes, Word2VecGetVectorParams,
+)
 
 
 router = APIRouter(
@@ -21,15 +23,21 @@ router = APIRouter(
 )
 
 
-@ router.get("/get_text_vector")
-async def get_text_vector(transform_params: Word2VecTransformParams):
+@ router.post("/get_text_vector")
+async def get_text_vector(transform_params: Word2VecGetVectorParams):
     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
     '''
+
+    model_id = transform_params.model_id
+    raw_text = transform_params.raw_text
+    assert transform_params.model_type == ModelTypes.word2vec
+
+    print(model_id, raw_text)
 
     return dict(transform_params=transform_params)
 
 
-@ router.get("/get_file_vector")
+@ router.post("/get_file_vector")
 async def get_file_vector(file: UploadFile = File(None, description='File to upload.')):
     '''This endpoint converts the `file` provided into a vector transformed using the specified word2vec model.
     '''

@@ -21,7 +21,7 @@ router = APIRouter(
 )
 
 
-@ router.get("/get_topics")
+@ router.post("/get_text_topics")
 async def get_topics(model_type: str = None):
     '''This endpoint returns the configurations used to train the available models of the given `model_type`.
 

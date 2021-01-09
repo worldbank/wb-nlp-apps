@@ -21,14 +21,25 @@ class ModelTypes(enum.Enum):
     word2vec = "word2vec"  # Gensim Word2vec implementation
 
 
-class Word2VecTransformParams(BaseModel):
-    raw_text: str = Field(
-        '', description="Input text to transform. If a file is uploaded, this will be ignored.")
-    # file: UploadFile = File(None, description='File to upload.')
+class TextInputParams(BaseModel):
     model_id: str = Field(
         ..., description="Identification of the desired model configuration to use for the operation. The cleaning pipeline associated with this model will also be applied.")
     model_type: ModelTypes = Field(
-        ModelTypes.lda, description="Model type. Set as LDA model.")
+        ..., description="Model type.")
+
+
+class Word2VecGetVectorParams(TextInputParams):
+    raw_text: str = Field(
+        ..., description="Input text to transform.")
+    model_type: ModelTypes = ModelTypes.word2vec
+
+
+class Word2VecTransformParams(TextInputParams):
+    raw_text: str = Field(
+        ..., description="Input text to transform.")
+
+    # file: UploadFile = File(None, description='File to upload.')
+
     topn_words: int = Field(
         10, ge=1, description='Number of similar words to return.')
     topn_docs: int = Field(
@@ -47,14 +58,8 @@ class Word2VecTransformParams(BaseModel):
     )
 
 
-class LDATransformParams(BaseModel):
-    raw_text: str = Field(
-        '', description="Input text to transform. If a file is uploaded, this will be ignored.")
+class LDATransformParams(TextInputParams):
     # file: UploadFile = File(None, description='File to upload.')
-    model_id: str = Field(
-        ..., description="Identification of the desired model configuration to use for the operation. The cleaning pipeline associated with this model will also be applied.")
-    model_type: ModelTypes = Field(
-        ModelTypes.lda, description="Model type. Set as LDA model.")
     topn_words: int = Field(
         10, ge=1, description='Number of similar words to return.')
     topn_docs: int = Field(
