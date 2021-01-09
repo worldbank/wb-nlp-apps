@@ -35,6 +35,9 @@ def get_int_id(hex_id: str):
 
 
 def get_collection_ids(collection_name, partition_tag=None):
+    '''Get all ids present in the collection. This is useful to check which ids exist to prevent duplicated items.
+    https://github.com/milvus-io/milvus/issues/2393#issuecomment-633236922
+    '''
     client = get_milvus_client()
 
     collection_info = client.get_collection_stats(

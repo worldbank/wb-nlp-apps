@@ -5,6 +5,7 @@ import numpy as np
 import multiprocessing as mp
 import gc
 from sklearn.metrics.pairwise import cosine_similarity
+import joblib
 from joblib import Parallel, delayed
 
 from milvus import DataType
@@ -58,7 +59,7 @@ class Word2VecModel:
 
         self.collection_params = {
             "fields": [
-                {"name": "vector", "type": DataType.FLOAT_VECTOR,
+                {"name": "embedding", "type": DataType.FLOAT_VECTOR,
                     "params": {"dim": self.dim}},
             ],
             "segment_row_limit": 4096,
@@ -84,7 +85,6 @@ class Word2VecModel:
 
     def save(self):
         self.save_model()
-        self.save_vecs()
 
     def load(self):
         self.load_model()
@@ -94,9 +94,6 @@ class Word2VecModel:
             print(
                 'Warning: dimension declared is not aligned with loaded model. Using loaded model dim.')
             self.dim = self.model.wv.vector_size
-
-    def save_vecs(self):
-        self.check_wvecs()
 
     def save_model(self):
         self.check_model()
@@ -116,7 +113,7 @@ class Word2VecModel:
         else:
             print('Warning: Model already trained. Not doing anything...')
 
-    def transform_doc(self, document):
+    def transform_doc(self, document, normalize=True):
         # document: cleaned string
 
         self.check_model()
@@ -126,6 +123,8 @@ class Word2VecModel:
             tokens = [i for i in document.split() if i in self.model.wv.vocab]
             word_vecs = self.model.wv[tokens]
             word_vecs = word_vecs.mean(axis=0).reshape(1, -1)
+            if normalize:
+                word_vecs /= np.linalg.norm(word_vecs, ord=2)
 
         except Exception as e:
             success = False
@@ -148,7 +147,7 @@ class Word2VecModel:
 
         collection_doc_ids = set(get_collection_ids(collection_name))
 
-        int_ids = list(map(get_hex_id, ids))
+        int_ids = list(map(get_int_id, ids))
         self.docs['int_ids'] = int_ids
 
         ids_for_processing = {
@@ -168,13 +167,13 @@ class Word2VecModel:
                 sub_int_ids = sub_docs.iloc[list(locs)]['int_ids']
 
                 entities = [
-                    {"name": "vector", "values": vectors,
+                    {"name": "embedding", "values": vectors,
                         "type": DataType.FLOAT_VECTOR},
                 ]
 
                 ids = client.insert(collection_name, entities,
                                     sub_int_ids, partition_tag=partition_group)
-                assert len(set(ids).difference(sub_in_ids)) == 0
+                assert len(set(ids).difference(sub_int_ids)) == 0
 
     def get_similar_documents(self, document, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False):
         # document: any text
@@ -185,17 +184,45 @@ class Word2VecModel:
         # show_duplicates: option if exact duplicates of documents are to be considered as return documents
         self.check_wvecs()
 
-        doc_vec = self.transform_doc(document)
+        doc_vec_payload = self.transform_doc(document, normalize=True)
+
+        if doc_vec_payload['success']:
+            doc_vec = doc_vec_payload['word_vecs']
+        else:
+            raise ValueError("Document was mapped to the zero vector!")
+
+        topk = 2 * topn  # Add buffer
+        dsl = {
+            "bool": {
+                "must": [
+                    {
+                        "vector": {
+                            "embedding": {
+                                "topk": topk,
+                                "query": [doc_vec.flatten()],
+                                "metric_type": "IP"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+
+        results = get_milvus_client().search(self.model_collection_id, dsl)
+
+        entities = results[0]
+        payload = []
+
+        for rank, ent in enumerate(entities, 1):
+            if not show_duplicates:
+                if ent.distance > duplicate_threshold:
+                    continue
+
+            hex_id = get_hex_id(ent.id)
+            payload.append({'id': hex_id, 'score': np.round(
+                ent.distance, decimals=5), 'rank': rank})
 
         sim = cosine_similarity(doc_vec, np.vstack(self.vecs.wvecs)).flatten()
-
-        if not show_duplicates:
-            sim[sim > duplicate_threshold] = 0
-
-        payload = []
-        for rank, top_sim_ix in enumerate(sim.argsort()[-topn:][::-1], 1):
-            payload.append({'id': self.vecs.iloc[top_sim_ix][return_data], 'score': np.round(
-                sim[top_sim_ix], decimals=5), 'rank': rank})
 
         payload = sorted(payload, key=lambda x: x['rank'])
         if serialize:
@@ -205,7 +232,7 @@ class Word2VecModel:
 
     def get_similar_words(self, document, topn=10, return_similarity=False, serialize=False):
 
-        doc_vec = self.transform_doc(document)
+        doc_vec = self.transform_doc(document, normalize=True)
         sim = cosine_similarity(doc_vec, self.model.wv.vectors).flatten()
 
         payload = []
@@ -263,7 +290,9 @@ class Word2VecModel:
             raise ValueError('Model not trained!')
 
     def check_wvecs(self):
-        if 'wvecs' not in self.vecs.columns:
+        collection_doc_ids = get_collection_ids(self.model_collection_id)
+
+        if len(collection_doc_ids) == 0:
             raise ValueError('Document vectors not available!')
 
     def rescue_code(self, function):
