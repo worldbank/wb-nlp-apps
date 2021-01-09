@@ -11,7 +11,7 @@ from joblib import Parallel, delayed
 from milvus import DataType
 from wb_nlp.milvus.client import (
     get_milvus_client, get_hex_id, get_int_id,
-    get_collection_ids,
+    get_collection_ids, get_embedding_dsl,
 )
 
 from wb_nlp.utils.scripts import create_dask_cluster
@@ -175,6 +175,8 @@ class Word2VecModel:
                                     sub_int_ids, partition_tag=partition_group)
                 assert len(set(ids).difference(sub_int_ids)) == 0
 
+                client.flush([collection_name])
+
     def get_similar_documents(self, document, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False):
         # document: any text
         # topn: number of returned related documents in the database
@@ -192,22 +194,7 @@ class Word2VecModel:
             raise ValueError("Document was mapped to the zero vector!")
 
         topk = 2 * topn  # Add buffer
-        dsl = {
-            "bool": {
-                "must": [
-                    {
-                        "vector": {
-                            "embedding": {
-                                "topk": topk,
-                                "query": [doc_vec.flatten()],
-                                "metric_type": "IP"
-                            }
-                        }
-                    }
-                ]
-            }
-        }
-
+        dsl = get_embedding_dsl(doc_vec, topk, metric_type="IP")
         results = get_milvus_client().search(self.model_collection_id, dsl)
 
         entities = results[0]
@@ -222,7 +209,8 @@ class Word2VecModel:
             payload.append({'id': hex_id, 'score': np.round(
                 ent.distance, decimals=5), 'rank': rank})
 
-        sim = cosine_similarity(doc_vec, np.vstack(self.vecs.wvecs)).flatten()
+            if len(payload) == topn:
+                break
 
         payload = sorted(payload, key=lambda x: x['rank'])
         if serialize:
@@ -248,18 +236,33 @@ class Word2VecModel:
 
     def get_similar_docs_by_id(self, doc_id, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False):
         self.check_wvecs()
-        doc_vec = np.array(
-            self.vecs[self.vecs['id'] == doc_id]['wvecs'].iloc[0]).reshape(1, -1)
 
-        sim = cosine_similarity(doc_vec, np.vstack(self.vecs.wvecs)).flatten()
+        int_id = get_int_id(doc_id)
+        doc = get_milvus_client().get_entity_by_id(
+            self.model_collection_id, ids=[int_id])[0]
+        if doc is None:
+            raise ValueError(
+                f'Document id `{doc_id}` not found in the vector index `{self.model_collection_id}`.')
 
-        if not show_duplicates:
-            sim[sim > duplicate_threshold] = 0
+        topk = 2 * topn
+        dsl = get_embedding_dsl(np.array(doc.embedding),
+                                topk, metric_type="IP")
+        results = get_milvus_client().search(self.model_collection_id, dsl)
 
+        entities = results[0]
         payload = []
-        for rank, top_sim_ix in enumerate(sim.argsort()[-topn:][::-1], 1):
-            payload.append({'id': self.vecs.iloc[top_sim_ix][return_data], 'score': np.round(
-                sim[top_sim_ix], decimals=5), 'rank': rank})
+
+        for rank, ent in enumerate(entities, 1):
+            if not show_duplicates:
+                if ent.distance > duplicate_threshold:
+                    continue
+
+            hex_id = get_hex_id(ent.id)
+            payload.append({'id': hex_id, 'score': np.round(
+                ent.distance, decimals=5), 'rank': rank})
+
+            if len(payload) == topn:
+                break
 
         payload = sorted(payload, key=lambda x: x['rank'])
         if serialize:
