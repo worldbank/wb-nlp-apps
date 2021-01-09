@@ -244,8 +244,9 @@ class Word2VecModel:
             raise ValueError(
                 f'Document id `{doc_id}` not found in the vector index `{self.model_collection_id}`.')
 
+        doc_vec = np.array(doc.embedding)
         topk = 2 * topn
-        dsl = get_embedding_dsl(np.array(doc.embedding),
+        dsl = get_embedding_dsl(doc_vec,
                                 topk, metric_type="IP")
         results = get_milvus_client().search(self.model_collection_id, dsl)
 
@@ -272,8 +273,15 @@ class Word2VecModel:
 
     def get_similar_words_by_id(self, doc_id, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False):
         self.check_wvecs()
-        doc_vec = np.array(
-            self.vecs[self.vecs['id'] == doc_id]['wvecs'].iloc[0]).reshape(1, -1)
+
+        int_id = get_int_id(doc_id)
+        doc = get_milvus_client().get_entity_by_id(
+            self.model_collection_id, ids=[int_id])[0]
+        if doc is None:
+            raise ValueError(
+                f'Document id `{doc_id}` not found in the vector index `{self.model_collection_id}`.')
+
+        doc_vec = np.array(doc.embedding).reshape(1, -1)
 
         sim = cosine_similarity(doc_vec, self.model.wv.vectors).flatten()
 
