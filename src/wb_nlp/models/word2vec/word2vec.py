@@ -5,6 +5,15 @@ import numpy as np
 import multiprocessing as mp
 import gc
 from sklearn.metrics.pairwise import cosine_similarity
+from joblib import Parallel, delayed
+
+from milvus import DataType
+from wb_nlp.milvus.client import (
+    get_milvus_client, get_hex_id, get_int_id,
+    get_collection_ids,
+)
+
+from wb_nlp.utils.scripts import create_dask_cluster
 
 
 class Word2VecModel:
@@ -12,6 +21,7 @@ class Word2VecModel:
         self,
         corpus_id,
         model_id,
+        cleaning_config_id,
         doc_df=None,
         dim=100,
         window=10,
@@ -24,6 +34,7 @@ class Word2VecModel:
         iter=10,
         raise_empty_doc_status=True
     ):
+        self.cleaning_config_id = cleaning_config_id
         self.corpus_id = corpus_id
         self.model_id = model_id
         self.model = None
@@ -38,14 +49,27 @@ class Word2VecModel:
 
         self.model_path = model_path
 
-        self.model_data_id = f'{self.corpus_id.lower()}-w2vec_{self.model_id}'
-        self.vecs_path = os.path.join(
-            self.model_path, f'{self.model_data_id}.hdf')
+        self.model_collection_id = f'word2vec_{self.model_id}'
         self.model_path = os.path.join(
-            self.model_path, f'{self.model_data_id}.mm')
+            self.model_path, f'{self.model_collection_id}.mm')
 
         self.vecs = None
         self.docs = doc_df.copy() if doc_df is not None else doc_df
+
+        self.collection_params = {
+            "fields": [
+                {"name": "vector", "type": DataType.FLOAT_VECTOR,
+                    "params": {"dim": self.dim}},
+            ],
+            "segment_row_limit": 4096,
+            "auto_id": False
+        }
+
+        client = get_milvus_client()
+
+        if self.model_collection_id not in client.list_collections():
+            client.create_collection(
+                self.model_collection_id, self.collection_params)
 
     def clear(self):
         del(self.vecs)
@@ -63,7 +87,6 @@ class Word2VecModel:
         self.save_vecs()
 
     def load(self):
-        self.load_vecs()
         self.load_model()
 
         # Make sure that the dimensionality uses the one in the trained model.
@@ -74,7 +97,6 @@ class Word2VecModel:
 
     def save_vecs(self):
         self.check_wvecs()
-        self.vecs.to_hdf(self.vecs_path, 'vecs')
 
     def save_model(self):
         self.check_model()
@@ -82,9 +104,6 @@ class Word2VecModel:
 
     def load_model(self):
         self.model = Word2Vec.load(self.model_path)
-
-    def load_vecs(self):
-        self.vecs = pd.read_hdf(self.vecs_path, 'vecs')
 
     def train_model(self):
         if self.model is None:
@@ -101,6 +120,7 @@ class Word2VecModel:
         # document: cleaned string
 
         self.check_model()
+        success = True
 
         try:
             tokens = [i for i in document.split() if i in self.model.wv.vocab]
@@ -108,29 +128,53 @@ class Word2VecModel:
             word_vecs = word_vecs.mean(axis=0).reshape(1, -1)
 
         except Exception as e:
+            success = False
             if self.raise_empty_doc_status:
                 raise(e)
             else:
                 word_vecs = np.zeros(self.model.vector_size).reshape(1, -1)
 
-        return word_vecs
+        return dict(word_vecs=word_vecs, success=success)
 
     def build_doc_vecs(self, pool_workers=None):
-        self.vecs = self.docs[['id']]
+        # Input is a dataframe containing the following columns:
+        # - text
+        # - corpus (corpus code corresponding to which corpus the text came from)
+        # - id (some hash value (max of 15-hex value) - we will convert this to its decimal equivalent)
+        client = get_milvus_client()
+        collection_name = self.model_collection_id
 
-        if pool_workers is None:
-            self.vecs['wvecs'] = self.docs.text.map(self.transform_doc)
-        else:
-            pool = mp.Pool(processes=pool_workers)
-            self.vecs['wvecs'] = pool.map(self.transform_doc, self.docs.text)
-            pool.close()
-            pool.join()
+        ids = self.docs['id'].values
 
-#         if self.docs.index.max() != (self.docs.shape[0] - 1):
-#             self.docs = self.docs.reset_index(drop='index')
+        collection_doc_ids = set(get_collection_ids(collection_name))
 
-        if self.vecs.index.max() != (self.vecs.shape[0] - 1):
-            self.vecs = self.vecs.reset_index(drop='index')
+        int_ids = list(map(get_hex_id, ids))
+        self.docs['int_ids'] = int_ids
+
+        ids_for_processing = {
+            hid: iid for hid, iid in zip(ids, int_ids) if iid not in collection_doc_ids}
+
+        docs = self.docs[self.docs['id'].isin(list(ids_for_processing))]
+
+        dask_client = create_dask_cluster(logger=None, n_workers=pool_workers)
+
+        with joblib.parallel_backend('dask'):
+            for partition_group, sub_docs in docs.groupby('corpus'):
+                results = Parallel(verbose=10, batch_size='auto')(
+                    delayed(self.transform_doc)(text) for text in sub_docs.text)
+
+                locs, vectors = list(zip(
+                    *[(ix, p['word_vecs'].flatten()) for ix, p in enumerate(results) if p['success']]))
+                sub_int_ids = sub_docs.iloc[list(locs)]['int_ids']
+
+                entities = [
+                    {"name": "vector", "values": vectors,
+                        "type": DataType.FLOAT_VECTOR},
+                ]
+
+                ids = client.insert(collection_name, entities,
+                                    sub_int_ids, partition_tag=partition_group)
+                assert len(set(ids).difference(sub_in_ids)) == 0
 
     def get_similar_documents(self, document, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False):
         # document: any text
