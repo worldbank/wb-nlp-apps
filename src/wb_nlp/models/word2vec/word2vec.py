@@ -1,9 +1,11 @@
+'''This module implements the word2vec model service that is responsible
+for training the model as well as a backend interface for the API.
+'''
+import gc
 import os
 import pandas as pd
 from gensim.models import Word2Vec
 import numpy as np
-import multiprocessing as mp
-import gc
 from sklearn.metrics.pairwise import cosine_similarity
 import joblib
 from joblib import Parallel, delayed
@@ -31,7 +33,6 @@ class Word2VecModel:
         sg=1,
         workers=4,
         model_path='./',
-        optimize_interval=0,
         iter=10,
         raise_empty_doc_status=True
     ):
@@ -119,6 +120,9 @@ class Word2VecModel:
         else:
             print('Warning: Model already trained. Not doing anything...')
 
+    def combine_word_vectors(self, word_vecs):
+        return word_vecs.mean(axis=0).reshape(1, -1)
+
     def transform_doc(self, document, normalize=True):
         # document: cleaned string
 
@@ -128,7 +132,8 @@ class Word2VecModel:
         try:
             tokens = [i for i in document.split() if i in self.model.wv.vocab]
             word_vecs = self.model.wv[tokens]
-            word_vecs = word_vecs.mean(axis=0).reshape(1, -1)
+            word_vecs = self.combine_word_vectors(word_vecs)
+
             if normalize:
                 word_vecs /= np.linalg.norm(word_vecs, ord=2)
 

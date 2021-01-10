@@ -65,7 +65,7 @@ def get_collection_ids(collection_name, partition_tag=None):
     return collection_ids
 
 
-def get_embedding_dsl(query_vec, topk, metric_type="IP"):
+def get_embedding_dsl(query_vec, topk, vector_field_name, metric_type="IP"):
     """This method creates a dsl query for the given query vector.
     The distance metric is specified by the `metric_type` parameter.
     """
@@ -75,7 +75,7 @@ def get_embedding_dsl(query_vec, topk, metric_type="IP"):
             "must": [
                 {
                     "vector": {
-                        "embedding": {
+                        vector_field_name: {
                             "topk": topk,
                             "query": [query_vec.flatten()],
                             "metric_type": metric_type
