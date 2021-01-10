@@ -27,7 +27,7 @@ es = Elasticsearch(hosts=[{"host": "es01", "port": 9200}])  # ,
 INDEX_NAME = 'raw-documents'
 INDEX_SETTINGS = {
     "settings": {
-        "number_of_shards": 1,
+        "number_of_shards": 2,
         "number_of_replicas": 1
     }
 }
@@ -57,10 +57,6 @@ def gen_doc_data(index, doc_path, corpus):
                 ),
                 _op_type="index",
             )
-
-
-# if es.indices.exists(index=INDEX_NAME):
-#     es.indices.delete(index=INDEX_NAME)
 
 
 if not es.indices.exists(index=INDEX_NAME):
