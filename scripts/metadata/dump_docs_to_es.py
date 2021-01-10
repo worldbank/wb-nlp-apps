@@ -25,84 +25,87 @@ es = Elasticsearch(hosts=[{"host": "es01", "port": 9200}])  # ,
 #    request_timeout=60, timeout=60, max_retries=1, retry_on_timeout=True)
 
 INDEX_NAME = 'raw-documents'
-# INDEX_SETTINGS = {
-#     "settings": {
-#         "number_of_shards": 1,
-#         "number_of_replicas": 1
-#     }
-# }
+INDEX_SETTINGS = {
+    "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 1
+    }
+}
 
 
-# def gen_doc_data(index, doc_path, corpus):
-#     '''Load text data in `doc_path` into the `index`.
-#     Reference: https://elasticsearch-py.readthedocs.io/en/master/helpers.html
-#     '''
-#     for ix, p in enumerate(Path(doc_path).glob('*.txt'), 1):
-#         kb_fsize = p.stat().st_size / 1000
-#         print(ix, p, kb_fsize)
-#         with open(p, 'rb') as open_file:
-#             hex_id = hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
-#             # doc = open_file.read().decode('utf-8', errors='ignore')
-#             yield dict(
-#                 _index=index,
-#                 _id=hex_id,
-#                 _source=dict(
-#                     # doc=doc,
-#                     ix=ix,
-#                     doc_fname=str(p),
-#                     doc_id=hex_id,
-#                     file_size=kb_fsize,
-#                     timestamp=datetime.now(),
-#                     corpus=corpus,
-#                 ),
-#                 _op_type="index",
-#             )
+def gen_doc_data(index, doc_path, corpus):
+    '''Load text data in `doc_path` into the `index`.
+    Reference: https://elasticsearch-py.readthedocs.io/en/master/helpers.html
+    '''
+    for ix, p in enumerate(Path(doc_path).glob('*.txt'), 1):
+        kb_fsize = p.stat().st_size / 1000
+        print(ix, p, kb_fsize)
+        with open(p, 'rb') as open_file:
+            hex_id = hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
+            doc = open_file.read().decode('utf-8', errors='ignore')
+            yield dict(
+                _index=index,
+                _id=hex_id,
+                _source=dict(
+                    doc=doc,
+                    ix=ix,
+                    doc_fname=str(p),
+                    doc_id=hex_id,
+                    file_size=kb_fsize,
+                    timestamp=datetime.now(),
+                    corpus=corpus,
+                ),
+                _op_type="index",
+            )
 
 
-if es.indices.exists(index=INDEX_NAME):
-    es.indices.delete(index=INDEX_NAME)
-
-
-# if not es.indices.exists(index=INDEX_NAME):
-#     es.indices.create(index=INDEX_NAME, body=INDEX_SETTINGS)
-# else:
+# if es.indices.exists(index=INDEX_NAME):
 #     es.indices.delete(index=INDEX_NAME)
-#     es.indices.create(index=INDEX_NAME, body=INDEX_SETTINGS)
 
-# p_bulk = helpers.parallel_bulk(
-#     es, actions=gen_doc_data(
-#         INDEX_NAME,
-#         get_data_dir(
-#             'raw', 'sample_data', 'TXT_ORIG'),
-#         corpus='WB'
-#     ),
-#     thread_count=4, chunk_size=10)
 
-# for success, info in p_bulk:
-#     if not success:
-#         print('A document failed:', info)
+if not es.indices.exists(index=INDEX_NAME):
+    es.indices.create(index=INDEX_NAME, body=INDEX_SETTINGS)
+else:
+    es.indices.delete(index=INDEX_NAME)
+    es.indices.create(index=INDEX_NAME, body=INDEX_SETTINGS)
 
-doc_path = get_data_dir('raw', 'sample_data', 'TXT_ORIG')
-corpus = "WB"
+p_bulk = helpers.parallel_bulk(
+    es, actions=gen_doc_data(
+        INDEX_NAME,
+        get_data_dir(
+            'raw', 'sample_data', 'TXT_ORIG'),
+        corpus='WB'
+    ),
+    thread_count=4, chunk_size=10)
 
-for ix, p in enumerate(Path(doc_path).glob('*.txt'), 1):
-    kb_fsize = p.stat().st_size / 1000
-    print(ix, p, kb_fsize)
-    with open(p, 'rb') as open_file:
-        hex_id = hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
-        int_id = int(hex_id, 16)
-        doc = open_file.read().decode('utf-8', errors='ignore')
-        body = dict(
-            # doc=doc,
-            ix=ix,
-            doc_fname=str(p),
-            doc_id=hex_id,
-            file_size=kb_fsize,
-            # timestamp=datetime.now(),
-            corpus=corpus,
-        )
+for success, info in p_bulk:
+    if not success:
+        print('A document failed:', info)
 
-        res = es.index(INDEX_NAME, body=body, id=hex_id)
+es.indices.refresh(INDEX_NAME)
+print(es.cat.count(INDEX_NAME, params={"format": "json"}))
+
+# doc_path = get_data_dir('raw', 'sample_data', 'TXT_ORIG')
+# corpus = "WB"
+
+# for ix, p in enumerate(Path(doc_path).glob('*.txt'), 1):
+#     kb_fsize = p.stat().st_size / 1000
+#     print(ix, p, kb_fsize)
+#     with open(p, 'rb') as open_file:
+#         hex_id = hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
+#         int_id = int(hex_id, 16)
+#         doc = open_file.read().decode('utf-8', errors='ignore')
+#         body = dict(
+#             # doc=doc,
+#             ix=ix,
+#             doc_fname=str(p),
+#             doc_id=hex_id,
+#             file_size=kb_fsize,
+#             # timestamp=datetime.now(),
+#             corpus=corpus,
+#         )
+
+#         res = es.index(INDEX_NAME, body=body, id=hex_id)
 
 
 # res = es.get(index="test-index", id=1)
