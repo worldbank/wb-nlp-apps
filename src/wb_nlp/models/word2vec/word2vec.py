@@ -54,7 +54,6 @@ class Word2VecModel:
         self.model_path = os.path.join(
             self.model_path, f'{self.model_collection_id}.mm')
 
-        self.vecs = None
         self.docs = doc_df.copy() if doc_df is not None else doc_df
 
         self.collection_params = {
@@ -73,11 +72,9 @@ class Word2VecModel:
                 self.model_collection_id, self.collection_params)
 
     def clear(self):
-        del(self.vecs)
         del(self.docs)
         del(self.model)
 
-        self.vecs = None
         self.docs = None
         self.model = None
 
@@ -102,14 +99,21 @@ class Word2VecModel:
     def load_model(self):
         self.model = Word2Vec.load(self.model_path)
 
-    def train_model(self):
-        if self.model is None:
+    def train_model(self, retrain=False):
+        if self.model is None or retrain:
             self.model = Word2Vec(
                 self.docs.text.str.split().values,
                 size=self.dim, min_count=self.min_count,
                 workers=self.workers, iter=self.iter,
                 window=self.window, negative=self.negative, sg=self.sg
             )
+
+            client = get_milvus_client()
+            collection_name = self.model_collection_id
+
+            if collection_name in client.list_collections():
+                client.drop_collection(collection_name)
+
         else:
             print('Warning: Model already trained. Not doing anything...')
 
@@ -140,8 +144,13 @@ class Word2VecModel:
         # - text
         # - corpus (corpus code corresponding to which corpus the text came from)
         # - id (some hash value (max of 15-hex value) - we will convert this to its decimal equivalent)
+        self.check_model()
+
         client = get_milvus_client()
         collection_name = self.model_collection_id
+
+        if collection_name not in client.list_collections():
+            client.create_collection(collection_name, self.collection_params)
 
         ids = self.docs['id'].values
 
@@ -157,25 +166,42 @@ class Word2VecModel:
 
         dask_client = create_dask_cluster(logger=None, n_workers=pool_workers)
 
-        with joblib.parallel_backend('dask'):
-            for partition_group, sub_docs in docs.groupby('corpus'):
-                results = Parallel(verbose=10, batch_size='auto')(
-                    delayed(self.transform_doc)(text) for text in sub_docs.text)
+        try:
+            with joblib.parallel_backend('dask'):
+                for partition_group, sub_docs in docs.groupby('corpus'):
+                    results = Parallel(verbose=10, batch_size='auto')(
+                        delayed(self.transform_doc)(text) for text in sub_docs.text)
 
-                locs, vectors = list(zip(
-                    *[(ix, p['word_vecs'].flatten()) for ix, p in enumerate(results) if p['success']]))
-                sub_int_ids = sub_docs.iloc[list(locs)]['int_ids']
+                    locs, vectors = list(zip(
+                        *[(ix, p['word_vecs'].flatten()) for ix, p in enumerate(results) if p['success']]))
+                    sub_int_ids = sub_docs.iloc[list(
+                        locs)]['int_ids'].tolist()
 
-                entities = [
-                    {"name": "embedding", "values": vectors,
-                        "type": DataType.FLOAT_VECTOR},
-                ]
+                    entities = [
+                        {"name": "embedding", "values": vectors,
+                            "type": DataType.FLOAT_VECTOR},
+                    ]
 
-                ids = client.insert(collection_name, entities,
-                                    sub_int_ids, partition_tag=partition_group)
-                assert len(set(ids).difference(sub_int_ids)) == 0
+                    if not client.has_partition(collection_name, partition_group):
+                        client.create_partition(
+                            collection_name, partition_group)
 
-                client.flush([collection_name])
+                    ids = client.insert(collection_name, entities,
+                                        sub_int_ids, partition_tag=partition_group)
+                    assert len(set(ids).difference(sub_int_ids)) == 0
+
+                    client.flush([collection_name])
+        finally:
+            dask_client.close()
+
+    def get_doc_vec(self, document, normalize=True, assert_success=True, flatten=True):
+        doc_vec_payload = self.transform_doc(document, normalize=normalize)
+        doc_vec = doc_vec_payload['word_vecs']
+
+        if assert_success and not doc_vec_payload['success']:
+            raise ValueError("Document was mapped to the zero vector!")
+
+        return doc_vec.flatten() if flatten else doc_vec
 
     def get_similar_documents(self, document, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False):
         # document: any text
@@ -186,12 +212,8 @@ class Word2VecModel:
         # show_duplicates: option if exact duplicates of documents are to be considered as return documents
         self.check_wvecs()
 
-        doc_vec_payload = self.transform_doc(document, normalize=True)
-
-        if doc_vec_payload['success']:
-            doc_vec = doc_vec_payload['word_vecs']
-        else:
-            raise ValueError("Document was mapped to the zero vector!")
+        doc_vec = self.get_doc_vec(
+            document, normalize=True, assert_success=True, flatten=True)
 
         topk = 2 * topn  # Add buffer
         dsl = get_embedding_dsl(doc_vec, topk, metric_type="IP")
@@ -220,7 +242,9 @@ class Word2VecModel:
 
     def get_similar_words(self, document, topn=10, return_similarity=False, serialize=False):
 
-        doc_vec = self.transform_doc(document, normalize=True)
+        doc_vec = self.get_doc_vec(
+            document, normalize=True, assert_success=True, flatten=False)
+
         sim = cosine_similarity(doc_vec, self.model.wv.vectors).flatten()
 
         payload = []
@@ -311,3 +335,31 @@ class Word2VecModel:
         import inspect
         get_ipython().set_next_input(
             "".join(inspect.getsourcelines(function)[0]))
+
+
+"""
+import glob
+from pathlib import Path
+import hashlib
+import pandas as pd
+
+from wb_nlp.models.word2vec import word2vec
+
+doc_fnames = list(Path('./data/raw/sample_data/TXT_ORIG').glob('*.txt'))
+doc_ids = [hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15] for p in doc_fnames]
+corpus = ['WB'] * len(doc_ids)
+
+doc_df = pd.DataFrame()
+doc_df['id'] = doc_ids
+doc_df['corpus'] = corpus
+doc_df['text'] = [open(fn, 'rb').read().decode('utf-8', errors='ignore') for fn in doc_fnames]
+
+wvec_model = word2vec.Word2VecModel(corpus_id='WB', model_id='ALL_50', cleaning_config_id='cid', doc_df=doc_df, model_path='./models/', iter=10)
+%time wvec_model.train_model()
+
+wvec_model.build_doc_vecs(pool_workers=3)
+wvec_model.get_similar_words('bank')
+wvec_model.get_similar_documents('bank')
+wvec_model.get_similar_docs_by_id(doc_id='8314385c25c7c5e')
+wvec_model.get_similar_words_by_id(doc_id='8314385c25c7c5e')
+"""
