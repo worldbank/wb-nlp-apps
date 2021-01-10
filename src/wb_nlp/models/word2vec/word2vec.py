@@ -56,19 +56,21 @@ class Word2VecModel:
 
         self.docs = doc_df.copy() if doc_df is not None else doc_df
 
+        self.milvus_vector_field_name = "embedding"
+
         self.collection_params = {
             "fields": [
-                {"name": "embedding", "type": DataType.FLOAT_VECTOR,
+                {"name": self.milvus_vector_field_name, "type": DataType.FLOAT_VECTOR,
                     "params": {"dim": self.dim}},
             ],
             "segment_row_limit": 4096,
             "auto_id": False
         }
 
-        client = get_milvus_client()
+        milvus_client = get_milvus_client()
 
-        if self.model_collection_id not in client.list_collections():
-            client.create_collection(
+        if self.model_collection_id not in milvus_client.list_collections():
+            milvus_client.create_collection(
                 self.model_collection_id, self.collection_params)
 
     def clear(self):
@@ -108,11 +110,11 @@ class Word2VecModel:
                 window=self.window, negative=self.negative, sg=self.sg
             )
 
-            client = get_milvus_client()
+            milvus_client = get_milvus_client()
             collection_name = self.model_collection_id
 
-            if collection_name in client.list_collections():
-                client.drop_collection(collection_name)
+            if collection_name in milvus_client.list_collections():
+                milvus_client.drop_collection(collection_name)
 
         else:
             print('Warning: Model already trained. Not doing anything...')
@@ -146,11 +148,12 @@ class Word2VecModel:
         # - id (some hash value (max of 15-hex value) - we will convert this to its decimal equivalent)
         self.check_model()
 
-        client = get_milvus_client()
+        milvus_client = get_milvus_client()
         collection_name = self.model_collection_id
 
-        if collection_name not in client.list_collections():
-            client.create_collection(collection_name, self.collection_params)
+        if collection_name not in milvus_client.list_collections():
+            milvus_client.create_collection(
+                collection_name, self.collection_params)
 
         ids = self.docs['id'].values
 
@@ -178,19 +181,20 @@ class Word2VecModel:
                         locs)]['int_ids'].tolist()
 
                     entities = [
-                        {"name": "embedding", "values": vectors,
+                        {"name": self.milvus_vector_field_name, "values": vectors,
                             "type": DataType.FLOAT_VECTOR},
                     ]
 
-                    if not client.has_partition(collection_name, partition_group):
-                        client.create_partition(
+                    if not milvus_client.has_partition(collection_name, partition_group):
+                        milvus_client.create_partition(
                             collection_name, partition_group)
 
-                    ids = client.insert(collection_name, entities,
-                                        sub_int_ids, partition_tag=partition_group)
+                    ids = milvus_client.insert(collection_name, entities,
+                                               sub_int_ids, partition_tag=partition_group)
+
                     assert len(set(ids).difference(sub_int_ids)) == 0
 
-                    client.flush([collection_name])
+                    milvus_client.flush([collection_name])
         finally:
             dask_client.close()
 
@@ -216,7 +220,8 @@ class Word2VecModel:
             document, normalize=True, assert_success=True, flatten=True)
 
         topk = 2 * topn  # Add buffer
-        dsl = get_embedding_dsl(doc_vec, topk, metric_type="IP")
+        dsl = get_embedding_dsl(
+            doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type="IP")
         results = get_milvus_client().search(self.model_collection_id, dsl)
 
         entities = results[0]
@@ -271,7 +276,7 @@ class Word2VecModel:
         doc_vec = np.array(doc.embedding)
         topk = 2 * topn
         dsl = get_embedding_dsl(doc_vec,
-                                topk, metric_type="IP")
+                                topk, vector_field_name=self.milvus_vector_field_name, metric_type="IP")
         results = get_milvus_client().search(self.model_collection_id, dsl)
 
         entities = results[0]
@@ -337,29 +342,65 @@ class Word2VecModel:
             "".join(inspect.getsourcelines(function)[0]))
 
 
-"""
-import glob
-from pathlib import Path
-import hashlib
-import pandas as pd
+if __name__ == '__main__':
+    """
+    import glob
+    from pathlib import Path
+    import hashlib
+    import pandas as pd
 
-from wb_nlp.models.word2vec import word2vec
+    from wb_nlp.models.word2vec import word2vec
 
-doc_fnames = list(Path('./data/raw/sample_data/TXT_ORIG').glob('*.txt'))
-doc_ids = [hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15] for p in doc_fnames]
-corpus = ['WB'] * len(doc_ids)
+    doc_fnames = list(Path('./data/raw/sample_data/TXT_ORIG').glob('*.txt'))
+    doc_ids = [hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15] for p in doc_fnames]
+    corpus = ['WB'] * len(doc_ids)
 
-doc_df = pd.DataFrame()
-doc_df['id'] = doc_ids
-doc_df['corpus'] = corpus
-doc_df['text'] = [open(fn, 'rb').read().decode('utf-8', errors='ignore') for fn in doc_fnames]
+    doc_df = pd.DataFrame()
+    doc_df['id'] = doc_ids
+    doc_df['corpus'] = corpus
+    doc_df['text'] = [open(fn, 'rb').read().decode('utf-8', errors='ignore') for fn in doc_fnames]
 
-wvec_model = word2vec.Word2VecModel(corpus_id='WB', model_id='ALL_50', cleaning_config_id='cid', doc_df=doc_df, model_path='./models/', iter=10)
-%time wvec_model.train_model()
+    wvec_model = word2vec.Word2VecModel(corpus_id='WB', model_id='ALL_50', cleaning_config_id='cid', doc_df=doc_df, model_path='./models/', iter=10)
+    %time wvec_model.train_model()
 
-wvec_model.build_doc_vecs(pool_workers=3)
-wvec_model.get_similar_words('bank')
-wvec_model.get_similar_documents('bank')
-wvec_model.get_similar_docs_by_id(doc_id='8314385c25c7c5e')
-wvec_model.get_similar_words_by_id(doc_id='8314385c25c7c5e')
-"""
+    wvec_model.build_doc_vecs(pool_workers=3)
+    wvec_model.get_similar_words('bank')
+    wvec_model.get_similar_documents('bank')
+    wvec_model.get_similar_docs_by_id(doc_id='8314385c25c7c5e')
+    wvec_model.get_similar_words_by_id(doc_id='8314385c25c7c5e')
+    """
+
+    import glob
+    from pathlib import Path
+    import hashlib
+    import pandas as pd
+
+    from wb_nlp.models.word2vec import word2vec
+
+    doc_fnames = list(Path('./data/raw/sample_data/TXT_ORIG').glob('*.txt'))
+    doc_ids = [hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
+               for p in doc_fnames]
+    corpus = ['WB'] * len(doc_ids)
+
+    doc_df = pd.DataFrame()
+    doc_df['id'] = doc_ids
+    doc_df['corpus'] = corpus
+    doc_df['text'] = [open(fn, 'rb').read().decode(
+        'utf-8', errors='ignore') for fn in doc_fnames]
+
+    wvec_model = word2vec.Word2VecModel(
+        corpus_id='WB', model_id='ALL_50', cleaning_config_id='cid', doc_df=doc_df, model_path='./models/', iter=10)
+    # %time
+    wvec_model.train_model()
+
+    wvec_model.build_doc_vecs(pool_workers=3)
+    print(wvec_model.get_similar_words('bank'))
+    print(wvec_model.get_similar_documents('bank'))
+    print(wvec_model.get_similar_docs_by_id(doc_id='8314385c25c7c5e'))
+    print(wvec_model.get_similar_words_by_id(doc_id='8314385c25c7c5e'))
+
+    milvus_client = get_milvus_client()
+    collection_name = wvec_model.model_collection_id
+
+    if collection_name in milvus_client.list_collections():
+        milvus_client.drop_collection(collection_name)
