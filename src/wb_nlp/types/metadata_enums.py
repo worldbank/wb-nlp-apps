@@ -47,7 +47,7 @@ class Corpus(enum.Enum):
     wb = "WB"
 
 
-class GeographicRegions(enum.Enum):
+class WBGeographicRegions(enum.Enum):
     '''Curated list of geographic regions.
     '''
     africa = "Africa"
@@ -80,7 +80,7 @@ class GeographicRegions(enum.Enum):
     world = "World"
 
 
-class AdminRegions(enum.Enum):
+class WBAdminRegions(enum.Enum):
     '''Curated list of administrative regions.
     '''
     africa = "Africa"
@@ -99,7 +99,7 @@ class AdminRegions(enum.Enum):
     the_world_region = "The World Region"
 
 
-class DocTypes(enum.Enum):
+class WBDocTypes(enum.Enum):
     '''Curated list of document types.
     '''
     # _ = "0"
@@ -202,3 +202,156 @@ class DocTypes(enum.Enum):
     working_paper_numbered_series = "Working Paper (Numbered Series)"
     world_bank_annual_report = "World Bank Annual Report"
     world_development_report = "World Development Report"
+
+
+class WBMajorDocTypes(enum.Enum):
+    '''Curated list of major document types.
+    '''
+    board_documents = "Board Documents"
+    country_focus = "Country Focus"
+    economic_sector_work = "Economic & Sector Work"
+    economic_amp_sector_work = "Economic &amp; Sector Work"
+    project_documents = "Project Documents"
+    publications = "Publications"
+    publications_research = "Publications & Research"
+    publications_amp_research = "Publications &amp; Research"
+
+
+class WBTopics(enum.Enum):
+    '''Curated list of topics.
+    '''
+    agriculture = "Agriculture"
+    communities_and_human_settlements = "Communities and Human Settlements"
+    conflict_and_development = "Conflict and Development"
+    culture_and_development = "Culture and Development"
+    education = "Education"
+    energy = "Energy"
+    environment = "Environment"
+    finance_and_financial_sector_development = "Finance and Financial Sector Development"
+    gender = "Gender"
+    governance = "Governance"
+    health_nutrition_and_population = "Health; Nutrition and Population"
+    industry = "Industry"
+    informatics = "Informatics"
+    information_and_communication_technologies = "Information and Communication Technologies"
+    infrastructure_economics_and_finance = "Infrastructure Economics and Finance"
+    international_economics_trade = "International Economics & Trade"
+    international_economics_and_trade = "International Economics and Trade"
+    law_and_development = "Law and Development"
+    macroeconomics_and_economic_growth = "Macroeconomics and Economic Growth"
+    poverty_reduction = "Poverty Reduction"
+    private_sector_development = "Private Sector Development"
+    public_sector_development = "Public Sector Development"
+    rural_development = "Rural Development"
+    science_and_technology_development = "Science and Technology Development"
+    social_development = "Social Development"
+    social_protections_and_labor = "Social Protections and Labor"
+    transport = "Transport"
+    urban_development = "Urban Development"
+    water_resources = "Water Resources"
+    water_supply_and_sanitation = "Water Supply and Sanitation"
+
+
+class WBSubTopics(enum.Enum):
+    '''Curated list of sub-topics.
+    '''
+    access_of_poor_to_social_services = "Access of Poor to Social Services"
+    agricultural_growth_and_rural_development = "Agricultural Growth and Rural Development"
+    bankruptcy_and_resolution_of_financial_distress = "Bankruptcy and Resolution of Financial Distress"
+    banks_banking_reform = "Banks & Banking Reform"
+    brown_issues_and_health = "Brown Issues and Health"
+    business_cycles_and_stabilization_policies = "Business Cycles and Stabilization Policies"
+    climate_change_mitigation_and_green_house_gases = "Climate Change Mitigation and Green House Gases"
+    climate_change_and_agriculture = "Climate Change and Agriculture"
+    coastal_and_marine_resources = "Coastal and Marine Resources"
+    common_carriers_industry = "Common Carriers Industry"
+    communicable_diseases = "Communicable Diseases"
+    construction_industry = "Construction Industry"
+    crops_and_crop_management_systems = "Crops and Crop Management Systems"
+    de_facto_governments = "De Facto Governments"
+    debt_markets = "Debt Markets"
+    democratic_government = "Democratic Government"
+    disability = "Disability"
+    disease_control_prevention = "Disease Control & Prevention"
+    economic_adjustment_and_lending = "Economic Adjustment and Lending"
+    economic_assistance = "Economic Assistance"
+    economic_growth = "Economic Growth"
+    economic_theory_research = "Economic Theory & Research"
+    economics_and_finance_of_public_institution_development = "Economics and Finance of Public Institution Development"
+    education_for_all = "Education For All"
+    educational_institutions_facilities = "Educational Institutions & Facilities"
+    educational_sciences = "Educational Sciences"
+    effective_schools_and_teachers = "Effective Schools and Teachers"
+    energy_demand = "Energy Demand"
+    energy_policies_economics = "Energy Policies & Economics"
+    energy_and_environment = "Energy and Environment"
+    energy_and_mining = "Energy and Mining"
+    energy_and_natural_resources = "Energy and Natural Resources"
+    engineering = "Engineering"
+    environmental_engineering = "Environmental Engineering"
+    environmental_protection = "Environmental Protection"
+    financial_sector_policy = "Financial Sector Policy"
+    food_beverage_industry = "Food & Beverage Industry"
+    food_security = "Food Security"
+    gender_and_development = "Gender and Development"
+    general_manufacturing = "General Manufacturing"
+    global_environment = "Global Environment"
+    government_policies = "Government Policies"
+    health_care_services_industry = "Health Care Services Industry"
+    health_service_management_and_delivery = "Health Service Management and Delivery"
+    health_and_sanitation = "Health and Sanitation"
+    hydrology = "Hydrology"
+    industrial_economics = "Industrial Economics"
+    inequality = "Inequality"
+    inflation = "Inflation"
+    information_technology = "Information Technology"
+    intelligent_transport_systems = "Intelligent Transport Systems"
+    international_trade_and_trade_rules = "International Trade and Trade Rules"
+    judicial_system_reform = "Judicial System Reform"
+    labor_markets = "Labor Markets"
+    legal_products = "Legal Products"
+    legal_reform = "Legal Reform"
+    legislation = "Legislation"
+    livestock_and_animal_husbandry = "Livestock and Animal Husbandry"
+    macro_fiscal_policy = "Macro-Fiscal Policy"
+    macroeconomic_management = "Macroeconomic Management"
+    marketing = "Marketing"
+    microfinance = "Microfinance"
+    municipal_management_and_reform = "Municipal Management and Reform"
+    national_governance = "National Governance"
+    natural_disasters = "Natural Disasters"
+    nutrition = "Nutrition"
+    plastics_rubber_industry = "Plastics & Rubber Industry"
+    pollution_management_control = "Pollution Management & Control"
+    post_conflict_reconstruction = "Post Conflict Reconstruction"
+    private_sector_development_law = "Private Sector Development Law"
+    private_sector_economics = "Private Sector Economics"
+    public_finance_decentralization_and_poverty_reduction = "Public Finance Decentralization and Poverty Reduction"
+    public_health_promotion = "Public Health Promotion"
+    public_sector_administrative_civil_service_reform = "Public Sector Administrative & Civil Service Reform"
+    public_sector_administrative_and_civil_service_reform = "Public Sector Administrative and Civil Service Reform"
+    public_sector_corruption_anticorruption_measures = "Public Sector Corruption & Anticorruption Measures"
+    public_sector_economics = "Public Sector Economics"
+    pulp_paper_industry = "Pulp & Paper Industry"
+    regulatory_regimes = "Regulatory Regimes"
+    renewable_energy = "Renewable Energy"
+    roads_highways = "Roads & Highways"
+    rural_labor_markets = "Rural Labor Markets"
+    rural_settlements = "Rural Settlements"
+    rural_and_renewable_energy = "Rural and Renewable Energy"
+    sanitary_environmental_engineering = "Sanitary Environmental Engineering"
+    sanitation_and_sewerage = "Sanitation and Sewerage"
+    services_transfers_to_poor = "Services & Transfers to Poor"
+    small_private_water_supply_providers = "Small Private Water Supply Providers"
+    social_assessment = "Social Assessment"
+    social_policy = "Social Policy"
+    state_owned_enterprise_reform = "State Owned Enterprise Reform"
+    town_water_supply_and_sanitation = "Town Water Supply and Sanitation"
+    transport_services = "Transport Services"
+    urban_governance_and_management = "Urban Governance and Management"
+    urban_housing = "Urban Housing"
+    urban_housing_and_land_settlements = "Urban Housing and Land Settlements"
+    water_supply_and_sanitation_economics = "Water Supply and Sanitation Economics"
+    water_and_food_supply = "Water and Food Supply"
+    water_and_human_health = "Water and Human Health"
+    youth_and_governance = "Youth and Governance"
