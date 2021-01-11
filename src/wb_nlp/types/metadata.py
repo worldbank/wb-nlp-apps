@@ -5,8 +5,9 @@ from typing import Optional, List
 from datetime import date
 from pydantic import BaseModel, Field, validator
 
-from wb_nlp.types.wb_lists import (
+from wb_nlp.types.metadata_enums import (
     AdminRegions,
+    Corpus,
     GeographicRegions
 )
 
@@ -22,7 +23,7 @@ class MetadataModel(BaseModel):
     author: Optional[List[str]]
 
     collection: str
-    corpus: str
+    corpus: List[Corpus]
     country: Optional[List[str]]
 
     date_published: date
