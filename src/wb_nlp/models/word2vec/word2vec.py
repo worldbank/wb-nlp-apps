@@ -11,7 +11,7 @@ import joblib
 from joblib import Parallel, delayed
 
 from milvus import DataType
-from wb_nlp.milvus.client import (
+from wb_nlp.interfaces.milvus import (
     get_milvus_client, get_hex_id, get_int_id,
     get_collection_ids, get_embedding_dsl,
 )
@@ -103,6 +103,9 @@ class Word2VecModel:
         self.model = Word2Vec.load(self.model_path)
 
     def train_model(self, retrain=False):
+        # TODO: Add a way to augment the content of the docs
+        # with an external dataset without metadata.
+
         if self.model is None or retrain:
             self.model = Word2Vec(
                 self.docs.text.str.split().values,
@@ -340,11 +343,18 @@ class Word2VecModel:
         if len(collection_doc_ids) == 0:
             raise ValueError('Document vectors not available!')
 
-    def rescue_code(self, function):
-        # http://blog.rtwilson.com/how-to-rescue-lost-code-from-a-jupyteripython-notebook/
-        import inspect
-        get_ipython().set_next_input(
-            "".join(inspect.getsourcelines(function)[0]))
+    # def rescue_code(self, function):
+    #     # http://blog.rtwilson.com/how-to-rescue-lost-code-from-a-jupyteripython-notebook/
+    #     import inspect
+    #     get_ipython().set_next_input(
+    #         "".join(inspect.getsourcelines(function)[0]))
+
+    def augment_query(self):
+        """Implements an augmented query using a pretrained
+        word2vec model, e.g., wikipedia, in the event that a zero vector
+        is generated.
+        """
+        pass
 
 
 if __name__ == '__main__':
