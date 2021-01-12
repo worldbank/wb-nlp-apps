@@ -192,19 +192,19 @@ parser_word2vec.add_argument(
     required=False, help='Flag indicating an option to log output.'
 )
 parser_word2vec.add_argument(
-    'translate', type=boolean, default=True,
+    'translate', type=boolean, default=False,
     required=False, help='Flag indicating an option to translate the input data.'
 )
 
 
 def check_translate_text(text, apply_translate):
-    if apply_translate:
-        lang = langdetect.detect(text)
+    # if apply_translate:
+    #     lang = langdetect.detect(text)
 
-        if lang != 'en':
-            result = translate(text)
-            if 'translated' in result:
-                text = result['translated']
+    #     if lang != 'en':
+    #         result = translate(text)
+    #         if 'translated' in result:
+    #             text = result['translated']
 
     return text
 
