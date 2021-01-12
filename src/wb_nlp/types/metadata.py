@@ -75,6 +75,12 @@ def migrate_nlp_schema(body):
     body["wb_subtopic_src"] = make_list_or_null(
         body["wb_subtopic_src"], delimiter=",")
 
+    return body
+
+
+def make_metadata_model_from_nlp_schema(body):
+    body = migrate_nlp_schema(body)
+
     return MetadataModel(**body)
 
 
