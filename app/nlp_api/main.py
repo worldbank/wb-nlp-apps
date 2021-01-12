@@ -3,11 +3,12 @@ from enum import Enum
 import uvicorn
 from fastapi import FastAPI
 
-from .routers import cleaner, models
+from .routers import cleaner, models, metadata
 from .routers.subrouters import lda, word2vec
 
 app = FastAPI()
 
+app.include_router(metadata.corpus)
 app.include_router(cleaner.router)
 app.include_router(models.router)
 app.include_router(
