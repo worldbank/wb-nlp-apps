@@ -5,7 +5,7 @@ from typing import Optional, List
 from datetime import date, datetime
 from pydantic import BaseModel, Field, validator, AnyUrl
 from hashlib import md5
-from dateutils import parser
+from dateutil import parser
 
 from wb_nlp.types.metadata_enums import (
     WBAdminRegions,
