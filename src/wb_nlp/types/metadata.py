@@ -42,8 +42,8 @@ def migrate_nlp_schema(body):
     body["corpus"] = body["corpus"].upper()
     body["country"] = make_list_or_null(body["country"], delimiter=",")
 
-    body["date_published"] = parser.parse(
-        body["date_published"]).date() or None
+    body["date_published"] = (parser.parse(body["date_published"]).date(
+    ) if body["date_published"] not in ["", "NaT"] else None)
 
     body["der_countries"] = body.get("countries") or None
 
@@ -75,6 +75,8 @@ def migrate_nlp_schema(body):
     body["wb_subtopic_src"] = make_list_or_null(
         body["wb_subtopic_src"], delimiter=",")
 
+    body["year"] = body["year"] or None
+
     return body
 
 
@@ -82,6 +84,20 @@ def make_metadata_model_from_nlp_schema(body):
     body = migrate_nlp_schema(body)
 
     return MetadataModel(**body)
+
+# e = nlp_coll.find({"path_original": {"$nin": ["", None]}})
+# for ix, ee in enumerate(e):
+#     try:
+#         metadata.make_metadata_model_from_nlp_schema(ee)
+#     except Exception as exc:
+#         errors = exc.raw_errors
+
+#         for n1 in errors:
+#             for n2 in n1:
+#                 field_name = n2.loc_tuple()[0]
+
+#                 if field_name != "doc_type":
+#                     raise(exc)
 
 
 class CountryCounts(BaseModel):
