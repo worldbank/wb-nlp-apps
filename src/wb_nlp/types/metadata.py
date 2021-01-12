@@ -17,6 +17,16 @@ from wb_nlp.types.metadata_enums import (
 
 
 class MetadataModel(BaseModel):
+    """
+    Summary of required fields:
+        - hex_id
+        - int_id
+        - corpus
+        - filename_original
+        - last_update_date
+        - path_original
+        - title
+    """
     hex_id: str = Field(
         ..., description="")
     int_id: int = Field(
