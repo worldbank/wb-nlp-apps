@@ -5,7 +5,7 @@ from wb_nlp.types import metadata_enums as me
 nlp_coll = get_metadata_collection()
 
 
-def get_invalid_values(field, enum_type):
+def get_invalid_values(field, enum_type, delimiter):
     """
     field: "doc_type"
     enum_type: me.WBDocTypes
@@ -16,9 +16,27 @@ def get_invalid_values(field, enum_type):
     invalid_values = {}
 
     for d, c in dc.most_common():
-        try:
-            enum_type(d)
-        except ValueError:
-            invalid_values[d] = c
+
+        # Apply this correction for `topics_src` field
+        if "Health, Nutrition and Population" in d:
+            d = d.replace("Health, Nutrition and Population",
+                          "Health; Nutrition and Population")
+
+        if delimiter:
+            d_split = d.split(delimiter)
+            if len(d_split) == 0:
+                d_split = [""]
+        else:
+            d_split = [d]
+
+        for dd in d_split:
+            dd = dd.strip()
+            try:
+                enum_type(dd)
+            except ValueError:
+                if dd in invalid_values:
+                    invalid_values[dd] += c
+                else:
+                    invalid_values[dd] = c
 
     return invalid_values

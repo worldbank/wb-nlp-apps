@@ -14,7 +14,7 @@ from wb_nlp.types.metadata_enums import (
     WBGeographicRegions,
     WBMajorDocTypes,
     WBTopics,
-    WBSubTopics,
+    # WBSubTopics,  # Don't normalize subtopics since we don't have a reliable curated list yet.
 )
 
 
@@ -154,7 +154,7 @@ class MetadataModel(BaseModel):
         None, description="")
     wb_sector: str = Field(
         None, description="")
-    wb_subtopic_src: List[WBSubTopics] = Field(
+    wb_subtopic_src: List[str] = Field(
         None, description="")
     wb_theme: str = Field(
         None, description="")
