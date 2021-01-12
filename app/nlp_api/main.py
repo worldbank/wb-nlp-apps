@@ -6,9 +6,13 @@ from fastapi import FastAPI
 from .routers import cleaner, models, metadata
 from .routers.subrouters import lda, word2vec
 
-app = FastAPI()
+app = FastAPI(
+    title="KCP/JDC NLP API",
+    description="The KCP/JDC NLP REST API provides a suite of endpoints to interact with the underlying data via the `/corpus` enpoints, cleaning pipelines via the `/cleaner` endpoints, and NLP models via the `/models` endpoint of the KCP/JDC project.",
+    version="2.5.0",
+)
 
-app.include_router(metadata.corpus)
+app.include_router(metadata.router)
 app.include_router(cleaner.router)
 app.include_router(models.router)
 app.include_router(
