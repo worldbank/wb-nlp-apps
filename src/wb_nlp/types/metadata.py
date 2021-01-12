@@ -27,13 +27,13 @@ def migrate_nlp_schema(body):
     body["hex_id"] = md5(body['_id'].encode('utf-8')).hexdigest()[:15]
     body["int_id"] = int(body["hex_id"], 16)
 
-    body["adm_region"] = body["adm_region"].split(",")
+    body["adm_region"] = body["adm_region"].split(WBAdminRegions.delimiter)
     body["author"] = body["author"].split(",")
 
     body["corpus"] = body["corpus"].upper()
     body["country"] = body["country"].split(",")
 
-    body["date_published"] = parser.parse(body["date_published"])
+    body["date_published"] = parser.parse(body["date_published"]).date()
 
     body["der_countries"] = body.get("countries")
 
@@ -42,9 +42,22 @@ def migrate_nlp_schema(body):
 
     body["der_clean_token_count"] = body.get("tokens")
 
-    body["doc_type"] = body["doc_type"].split(",")
+    body["doc_type"] = body["doc_type"].split(WBDocTypes.delimiter)
 
-    body["geo_region"] = body["geo_region"].split("|")
+    body["geo_region"] = body["geo_region"].split(
+        WBGeographicRegions.delimiter)
+
+    body["last_update_date"] = datetime.now()
+
+    body["major_doc_type"] = body["major_doc_type"].split(
+        WBMajorDocTypes.delimiter)
+
+    body["topics_src"] = body["topics_src"].replace(
+        "Health, Nutrition and Population",
+        "Health; Nutrition and Population").split(
+        WBTopics.delimiter)
+
+    body["wb_subtopic_src"] = body["wb_subtopic_src"].split(",")
 
     return MetadataModel(**body)
 

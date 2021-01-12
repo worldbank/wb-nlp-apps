@@ -21,7 +21,7 @@ def get_wb_curated_list(list_id):
     b = BeautifulSoup(r.content, 'html.parser')
 
     item_list = b.find('select', id=list_id).find_all('option')
-    g = {re.sub(r'[^a-z]+', '_', o.text.lower()).strip('_'): o.text for o in item_list}
+    g = {re.sub(r'[^a-z]+', '_', o.text.lower()).strip('_')         : o.text for o in item_list}
 
     for k, v in g.items():
         print(f'{k} = "{v}"')
@@ -48,6 +48,7 @@ class Corpus(enum.Enum):
 
 
 class WBEnum(enum.Enum):
+
     @classmethod
     @abc.abstractmethod
     def clean(cls, raw):
@@ -171,7 +172,7 @@ class WBAdminRegions(WBEnum):
 class WBDocTypes(WBEnum):
     '''Curated list of document types.
 
-    delimiter: ","
+    delimiter = ","
 
     TODO: For further review
 
@@ -769,3 +770,10 @@ class WBTopics(enum.Enum):
 #     water_and_food_supply = "Water and Food Supply"
 #     water_and_human_health = "Water and Human Health"
 #     youth_and_governance = "Youth and Governance"
+
+
+WBGeographicRegions.delimiter = "|"
+WBAdminRegions.delimiter = ","
+WBDocTypes.delimiter = ","
+WBMajorDocTypes.delimiter = ","
+WBTopics.delimiter = ","
