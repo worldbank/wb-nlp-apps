@@ -21,13 +21,36 @@ def get_wb_curated_list(list_id):
     b = BeautifulSoup(r.content, 'html.parser')
 
     item_list = b.find('select', id=list_id).find_all('option')
-    g = {re.sub(r'[^a-z]+', '_', o.text.lower()).strip('_')         : o.text for o in item_list}
+    g = {re.sub(r'[^a-z]+', '_', o.text.lower()).strip('_'): o.text for o in item_list}
 
     for k, v in g.items():
         print(f'{k} = "{v}"')
 
 
-class Corpus(enum.Enum):
+class WBEnum(enum.Enum):
+
+    @classmethod
+    @abc.abstractmethod
+    def clean(cls, value):
+        """This method allows us to perform cleaning of the metadata.
+        """
+        return
+
+    @classmethod
+    def _missing_(cls, value):
+        """Use the `clean` method to perform the normalization of input values.
+        """
+        enum_values = set(e.value for e in cls)
+
+        value = cls.clean(value)
+
+        if value not in enum_values:
+            raise ValueError("%r is not a valid %s" % (value, cls.__name__))
+
+        return cls(value)
+
+
+class Corpus(WBEnum):
     ADB = "ADB"
     AFDB = "AFDB"
     ECLAC = "ECLAC"
@@ -36,6 +59,7 @@ class Corpus(enum.Enum):
     FAO = "FAO"
     IDB = "IDB"
     IIEP = "IIEP"
+    IMF = "IMF"
     OECD = "OECD"
     UNECA = "UNECA"
     UNESCWA = "UNESCWA"
@@ -46,22 +70,11 @@ class Corpus(enum.Enum):
     WFP = "WFP"
     WB = "WB"
 
-
-class WBEnum(enum.Enum):
-
     @classmethod
-    @abc.abstractmethod
-    def clean(cls, raw):
-        """This method allows us to perform cleaning of the metadata.
-        """
-        return
+    def clean(cls, value):
+        value = value.upper()
 
-    @classmethod
-    def _missing_(cls, raw):
-        """Use the `clean` method to perform the normalization of input values.
-        """
-
-        return cls.clean(raw)
+        return value
 
 
 class WBGeographicRegions(WBEnum):
@@ -116,14 +129,15 @@ class WBGeographicRegions(WBEnum):
     world = "World"
 
     @classmethod
-    def clean(cls, raw):
+    def clean(cls, value):
         mappings = {
             "Latin America & Caribbean": "Latin America and Caribbean",
+            None: "",
         }
 
-        raw = mappings.get(raw, raw)
+        value = mappings.get(value, value)
 
-        return cls(raw)
+        return value
 
 
 class WBAdminRegions(WBEnum):
@@ -155,18 +169,20 @@ class WBAdminRegions(WBEnum):
     the_world_region = "The World Region"
 
     @classmethod
-    def clean(cls, raw):
+    def clean(cls, value):
+
         mappings = {
             "Latin America & Caribbean": "Latin America and Caribbean",
             "Latin America &amp; Caribbean": "Latin America and Caribbean",
             "OTH": "Others",
             "Other": "Others",
             "OTHER": "Others",
+            None: "",
         }
 
-        raw = mappings.get(raw, raw)
+        value = mappings.get(value, value)
 
-        return cls(raw)
+        return value
 
 
 class WBDocTypes(WBEnum):
@@ -535,18 +551,20 @@ class WBDocTypes(WBEnum):
     world_bank_annual_report = "World Bank Annual Report"
     world_development_report = "World Development Report"
 
-    @classmethod
-    def clean(cls, raw):
-        if raw.strip().startswith("Implementation Status and Results Report"):
-            raw = "Implementation Status and Results Report"
-        elif raw.strip().startswith("Project Paper"):
-            raw = "Project Paper"
+    @ classmethod
+    def clean(cls, value):
+        if value.strip().startswith("Implementation Status and Results Report"):
+            value = "Implementation Status and Results Report"
+        elif value.strip().startswith("Project Paper"):
+            value = "Project Paper"
 
-        mappings = {}
+        mappings = {
+            None: "",
+        }
 
-        raw = mappings.get(raw, raw)
+        value = mappings.get(value, value)
 
-        return cls(raw)
+        return value
 
 
 class WBMajorDocTypes(WBEnum):
@@ -572,19 +590,20 @@ class WBMajorDocTypes(WBEnum):
     # publications_research = "Publications & Research"
     # publications_amp_research = "Publications &amp; Research"
 
-    @classmethod
-    def clean(cls, raw):
+    @ classmethod
+    def clean(cls, value):
 
         mappings = {
             "Publications & Research": "Publications and Research",
             "Publications &amp; Research": "Publications and Research",
             "Economic & Sector Work": "Economic and Sector Work",
             "Economic &amp; Sector Work": "Economic and Sector Work",
+            None: "",
         }
 
-        raw = mappings.get(raw, raw)
+        value = mappings.get(value, value)
 
-        return cls(raw)
+        return value
 
 
 class WBTopics(enum.Enum):
@@ -653,18 +672,18 @@ class WBTopics(enum.Enum):
     water_resources = "Water Resources"
     water_supply_and_sanitation = "Water Supply and Sanitation"
 
-    @classmethod
-    def clean(cls, raw):
+    @ classmethod
+    def clean(cls, value):
 
         mappings = {
             "Health, Nutrition and Population": "Health; Nutrition and Population",
             "International Economics & Trade": "International Economics and Trade",
-
+            None: "",
         }
 
-        raw = mappings.get(raw, raw)
+        value = mappings.get(value, value)
 
-        return cls(raw)
+        return value
 
 
 # class WBSubTopics(enum.Enum):

@@ -18,6 +18,14 @@ from wb_nlp.types.metadata_enums import (
 )
 
 
+def make_list_or_null(value, delimiter):
+    value = value.split(delimiter)
+    if value == ['']:
+        value = None
+
+    return value
+
+
 def migrate_nlp_schema(body):
     """This method updates the data under the previous schema into
     the pydantic MetadataModel schema.
@@ -27,37 +35,45 @@ def migrate_nlp_schema(body):
     body["hex_id"] = md5(body['_id'].encode('utf-8')).hexdigest()[:15]
     body["int_id"] = int(body["hex_id"], 16)
 
-    body["adm_region"] = body["adm_region"].split(WBAdminRegions.delimiter)
-    body["author"] = body["author"].split(",")
+    body["adm_region"] = make_list_or_null(
+        body["adm_region"], delimiter=WBAdminRegions.delimiter)
+    body["author"] = make_list_or_null(body["author"], delimiter=",")
 
     body["corpus"] = body["corpus"].upper()
-    body["country"] = body["country"].split(",")
+    body["country"] = make_list_or_null(body["country"], delimiter=",")
 
-    body["date_published"] = parser.parse(body["date_published"]).date()
+    body["date_published"] = parser.parse(
+        body["date_published"]).date() or None
 
-    body["der_countries"] = body.get("countries")
+    body["der_countries"] = body.get("countries") or None
 
-    body["der_language_detected"] = body.get("language_detected")
-    body["der_language_score"] = body.get("language_score")
+    body["der_language_detected"] = body.get("language_detected") or None
+    body["der_language_score"] = body.get("language_score") or None
 
-    body["der_clean_token_count"] = body.get("tokens")
+    body["der_clean_token_count"] = body.get("tokens") or None
 
-    body["doc_type"] = body["doc_type"].split(WBDocTypes.delimiter)
+    body["doc_type"] = make_list_or_null(
+        body["doc_type"], delimiter=WBDocTypes.delimiter)
 
-    body["geo_region"] = body["geo_region"].split(
-        WBGeographicRegions.delimiter)
+    body["geo_region"] = make_list_or_null(
+        body["geo_region"], delimiter=WBGeographicRegions.delimiter)
 
     body["last_update_date"] = datetime.now()
 
-    body["major_doc_type"] = body["major_doc_type"].split(
-        WBMajorDocTypes.delimiter)
+    body["major_doc_type"] = make_list_or_null(
+        body["major_doc_type"], delimiter=WBMajorDocTypes.delimiter)
 
-    body["topics_src"] = body["topics_src"].replace(
-        "Health, Nutrition and Population",
-        "Health; Nutrition and Population").split(
-        WBTopics.delimiter)
+    body["topics_src"] = make_list_or_null(
+        body["topics_src"].replace(
+            "Health, Nutrition and Population",
+            "Health; Nutrition and Population"),
+        delimiter=WBTopics.delimiter)
 
-    body["wb_subtopic_src"] = body["wb_subtopic_src"].split(",")
+    body["url_pdf"] = body["url_pdf"] or None
+    body["url_txt"] = body["url_txt"] or None
+
+    body["wb_subtopic_src"] = make_list_or_null(
+        body["wb_subtopic_src"], delimiter=",")
 
     return MetadataModel(**body)
 
