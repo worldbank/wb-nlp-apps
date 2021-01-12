@@ -1,6 +1,7 @@
 """This module contains the curated list of values found in the
 WB docs API as well as other constants used in the metadata fields.
 """
+import abc
 import enum
 import re
 import requests
@@ -20,34 +21,49 @@ def get_wb_curated_list(list_id):
     b = BeautifulSoup(r.content, 'html.parser')
 
     item_list = b.find('select', id=list_id).find_all('option')
-    g = {re.sub(r'[^a-z]+', '_', o.text.lower()).strip('_')
-                : o.text for o in item_list}
+    g = {re.sub(r'[^a-z]+', '_', o.text.lower()).strip('_'): o.text for o in item_list}
 
     for k, v in g.items():
         print(f'{k} = "{v}"')
 
 
 class Corpus(enum.Enum):
-    adb = "ADB"
-    afdb = "AFDB"
-    eclac = "ECLAC"
-    epdc = "EPDC"
-    escap = "ESCAP"
-    fao = "FAO"
-    idb = "IDB"
-    iiep = "IIEP"
-    oecd = "OECD"
-    uneca = "UNECA"
-    unescwa = "UNESCWA"
-    unhcr = "UNHCR"
-    unido = "UNIDO"
-    unodc = "UNODC"
-    unpd = "UNPD"
-    wfp = "WFP"
-    wb = "WB"
+    ADB = "ADB"
+    AFDB = "AFDB"
+    ECLAC = "ECLAC"
+    EPDC = "EPDC"
+    ESCAP = "ESCAP"
+    FAO = "FAO"
+    IDB = "IDB"
+    IIEP = "IIEP"
+    OECD = "OECD"
+    UNECA = "UNECA"
+    UNESCWA = "UNESCWA"
+    UNHCR = "UNHCR"
+    UNIDO = "UNIDO"
+    UNODC = "UNODC"
+    UNPD = "UNPD"
+    WFP = "WFP"
+    WB = "WB"
 
 
-class WBGeographicRegions(enum.Enum):
+class WBEnum(enum.Enum):
+    @classmethod
+    @abc.abstractmethod
+    def clean(cls, raw):
+        """This method allows us to perform cleaning of the metadata.
+        """
+        return
+
+    @classmethod
+    def _missing_(cls, raw):
+        """Use the `clean` method to perform the normalization of input values.
+        """
+
+        return cls.clean(raw)
+
+
+class WBGeographicRegions(WBEnum):
     '''Curated list of geographic regions.
 
     delimiter = "|"
@@ -61,8 +77,14 @@ class WBGeographicRegions(enum.Enum):
     'Middle East and North Africa': 3559}
 
     '''
+    # Manually defined
     EMPTY = ""
+    latin_america_and_caribbean = "Latin America and Caribbean"
+    east_asia_and_pacific = "East Asia and Pacific"
+    south_eastern_europe_and_balkans = "South Eastern Europe and Balkans"
+    middle_east_and_north_africa = "Middle East and North Africa"
 
+    # From WB docs API curated list
     africa = "Africa"
     america = "America"
     asia = "Asia"
@@ -92,8 +114,18 @@ class WBGeographicRegions(enum.Enum):
     west_africa = "West Africa"
     world = "World"
 
+    @classmethod
+    def clean(cls, raw):
+        mappings = {
+            "Latin America & Caribbean": "Latin America and Caribbean",
+        }
 
-class WBAdminRegions(enum.Enum):
+        raw = mappings.get(raw, raw)
+
+        return cls(raw)
+
+
+class WBAdminRegions(WBEnum):
     '''Curated list of administrative regions.
 
     delimiter = ","
@@ -103,24 +135,40 @@ class WBAdminRegions(enum.Enum):
     {'': 14150, 'OTHER': 1}
 
     '''
+    # Manually defined
     EMPTY = ""
+
+    # From WB docs API curated list
     africa = "Africa"
     africa_east = "Africa East"
     africa_west = "Africa West"
     east_asia_and_pacific = "East Asia and Pacific"
     europe_and_central_asia = "Europe and Central Asia"
-    latin_america_caribbean = "Latin America & Caribbean"
-    latin_america_amp_caribbean = "Latin America &amp; Caribbean"
+    latin_america_and_caribbean = "Latin America and Caribbean"
     middle_east_and_north_africa = "Middle East and North Africa"
-    oth = "OTH"
-    other = "Other"
+    # oth = "OTH"
+    # other = "Other"
     others = "Others"
     rest_of_the_world = "Rest Of The World"
     south_asia = "South Asia"
     the_world_region = "The World Region"
 
+    @classmethod
+    def clean(cls, raw):
+        mappings = {
+            "Latin America & Caribbean": "Latin America and Caribbean",
+            "Latin America &amp; Caribbean": "Latin America and Caribbean",
+            "OTH": "Others",
+            "Other": "Others",
+            "OTHER": "Others",
+        }
 
-class WBDocTypes(enum.Enum):
+        raw = mappings.get(raw, raw)
+
+        return cls(raw)
+
+
+class WBDocTypes(WBEnum):
     '''Curated list of document types.
 
     delimiter: ","
@@ -215,13 +263,13 @@ class WBDocTypes(enum.Enum):
     'Price Prospects for Major Primary Commodities': 4,
     'Legal Opinion': 3,
     'Environmental Action Plan': 3,
-    'Implementation Status and Results ReportPacific Resilience Program': 3,
+    # 'Implementation Status and Results ReportPacific Resilience Program': 3,
     'Memorandum,Agreement': 3,
     'Human Capital Working Paper': 3,
     'President&apos;s Report': 3,
     'Decision Point Document': 2,
     'CAS Public Information Note': 2,
-    'Implementation Status and Results ReportNational Immunization Support Project': 2,
+    # 'Implementation Status and Results ReportNational Immunization Support Project': 2,
     'Project Concept Note': 2,
     'P4R-AF-DRFT-ESSA': 2,
     'Social Action Plan': 2,
@@ -235,142 +283,142 @@ class WBDocTypes(enum.Enum):
     'RP-SP-FULL': 1,
     'Guideline': 1,
     'PROJ-PAP-SP': 1,
-    'Implementation Status and Results ReportTrade and Logistics Services Competitiveness Project': 1,
-    'Implementation Status and Results ReportVinh Phuc Flood Risk and Water Management Project': 1,
-    'Project PaperHigher Education Science and Technology': 1,
-    'Implementation Status and Results ReportModernization and restructuring of the road sector': 1,
-    'Implementation Status and Results ReportSecond Serbia Health Project': 1,
-    'Project PaperEqual Access and Simplified Environment for Investment (EASE) in Egypt': 1,
-    'Implementation Status and Results ReportEthiopia Rural Productive Safety Net Project': 1,
-    'Project Paper Capacity Development Support to the Commission on Audit': 1,
-    'Project PaperStrengthening Tax Systems and Building Tax Policy Analysis Capacity': 1,
-    'Implementation Status and Results ReportUrban Development Project': 1,
-    'Project Paper Integrated Single Window Office for Social Assistance and Employment Services': 1,
-    'Project Paper Survey on Household Living Conditions': 1,
-    'Implementation Status and Results ReportDRC Catalytic Project to Strengthen the INS': 1,
-    'Implementation Status and Results ReportDTF: MA-Support New Governance Framework': 1,
-    'Implementation Status and Results ReportGZ-Integrated Cities and Urban Development Project': 1,
-    'Implementation Status and Results ReportURBAN DEVELOPMENT SUPPORT PROJECT': 1,
-    'Project Paper Public Procurement Modernisation Technical Assistance': 1,
-    'Implementation Status and Results ReportTransforming Health Systems for Universal Care': 1,
-    'Implementation Status and Results ReportExport Competitiveness for Jobs': 1,
-    'Implementation Status and Results ReportEmergency Safety Nets project (Jigis?m?jiri)': 1,
-    'Project PaperSecond Agricultural Growth Project': 1,
-    'Project PaperFIP - DECENTRALIZED FOREST AND WOODLAND MANAGEMENT PROJECT': 1,
-    'Project PaperGuinea Agricultural Support Project': 1,
-    'Implementation Status and Results ReportHorticulture Development Project': 1,
-    'Project PaperDTF: MA-Local Government Support Program': 1,
-    'Implementation Status and Results ReportCommunity Driven Nutrition Improvement': 1,
-    'Implementation Status and Results ReportChile - Public Health Sector Support Project': 1,
-    'Implementation Status and Results Report Identity and Targeting for Social Protection Project': 1,
-    'Project PaperSecond Dushanbe Water Supply Project': 1,
-    'Project PaperCentral Asia Hydrometeorology Modernization Project': 1,
-    'Implementation Status and Results ReportNicaragua Strengthening the Public Health Care System': 1,
-    'Project PaperTax Administration Modernization Project': 1,
-    'Implementation Status and Results Report Municipal Governance and Services Project': 1,
-    'Implementation Status and Results ReportMetro Colombo Urban Development Project': 1,
-    'Implementation Status and Results ReportTransport Connectivity and Asset Management Project': 1,
-    'Implementation Status and Results ReportNorthwestern Road Development Corridor Project': 1,
-    'Implementation Status and Results ReportSindh Enhancing Response to Reduce Stunting': 1,
-    'Implementation Status and Results ReportKarachi Neighborhood Improvement Project': 1,
-    'Implementation Status and Results ReportRegional Sahel Pastoralism Support Project': 1,
-    'Implementation Status and Results ReportEgypt: Sustainable POPs Management Project': 1,
-    'Implementation Status and Results ReportEthiopia Water Supply, Sanitation and Hygiene Project': 1,
-    'Implementation Status and Results ReportCF-Health System Support Project': 1,
-    'Project PaperELECTRICITY ACCESS EXPANSION PROJECT': 1,
-    'Implementation Status and Results ReportAndhra Pradesh Disaster Recovery Project': 1,
-    'Implementation Status and Results ReportEC Ibarra Transport Infrastructure Improvement Project': 1,
-    'Implementation Status and Results ReportGuyana Education Sector Improvement Project': 1,
-    'Implementation Status and Results ReportEconomic Management Strengthening': 1,
-    'Implementation Status and Results ReportServing People, Improving Health Project': 1,
-    'Implementation Status and Results ReportHaiti - Education for All Project - Phase II': 1,
-    'Implementation Status and Results ReportTogo Agricultural Sector Support Project': 1,
-    'Implementation Status and Results ReportAgricultural Productivity and Diversification': 1,
-    'Project PaperGuarding the Integrity of the Conditional Cash Transfer Program': 1,
-    'Implementation Status and Results ReportMZ-Education Sector Support Program': 1,
-    'Implementation Status and Results ReportRajasthan Rural Livelihoods Project (RRLP)': 1,
-    'Implementation Status and Results ReportSUSTAINABLE CITIES': 1,
-    'Implementation Status and Results ReportProviding an Education of Quality in Haiti (PEQH)': 1,
-    'Implementation Status and Results Report Vietnam Climate Innovation Center (VCIC) RETF': 1,
-    'Implementation Status and Results ReportLivestock and Fisheries Sector Development Project': 1,
-    'Project Paper Madagascar Scaling Renewable Energy Program (SREP) Investment Plan (IP)': 1,
-    'Project PaperThe Tanzania - Housing Finance Project': 1,
-    'Project PaperSwaziland Health, HIV/AIDS and TB Project': 1,
-    'Implementation Status and Results ReportMozambique Forest Investment Project': 1,
-    'Project PaperRural Alliances Project II': 1,
-    'Implementation Status and Results ReportJamaica Integrated Community Development Project': 1,
-    'Implementation Status and Results Report Caribbean Energy Statistics Capacity Enhancement': 1,
-    'Project PaperSouth Sudan Health Rapid Results Project': 1,
-    'Project Paper Renewable Energy Integration Technical Assistance Project': 1,
-    'Implementation Status and Results ReportInclusive Partnerships for Agricultural Competitiveness': 1,
-    'Project PaperNepal Agriculture and Food Security Project': 1,
-    'Implementation Status and Results ReportRoad Sector Development Project': 1,
-    'Implementation Status and Results Report OBA SANITATION MICROFINANCE PROGRAM': 1,
-    'Project PaperAssam State Roads Project': 1,
-    'Project PaperMW: Mining Governance and Growth Support Project': 1,
-    'Implementation Status and Results ReportGuyana Early Childhood Education Project': 1,
-    'Implementation Status and Results ReportInnovative Startups Fund Project': 1,
-    'Project PaperSouth Africa - Eskom Renewables Support Project': 1,
-    'Project PaperSecond Regional Development Project': 1,
-    'Implementation Status and Results ReportHealth System Resiliency Strengthening': 1,
-    'Implementation Status and Results ReportGhana - Maternal, Child Health and Nutrition Project': 1,
-    'Project PaperInclusive Development in Post-Conflict Bougainville Project': 1,
-    'Project PaperShandong Energy Efficiency Project': 1,
-    'Implementation Status and Results ReportLAKE VICTORIA TRANSPORT PROGRAM - SOP1, RWANDA': 1,
-    'Implementation Status and Results ReportMozambique - Integrated Growth Poles Project': 1,
-    'Implementation Status and Results ReportSocial Protection Project': 1,
-    'Project PaperStrengthening micro-entrepreneurship for disadvantaged youth': 1,
-    'Implementation Status and Results ReportClimate Smart Agriculture Support Project': 1,
-    'Implementation Status and Results ReportEskom Investment Support Project': 1,
-    'Project PaperCameroon:NGOYLA MINTOM PROJECT': 1,
-    'Implementation Status and Results ReportBolivia Climate Resilience - Integrated Basin Management': 1,
-    'Implementation Status and Results ReportSudan Budgeting Capacity Strengthening Project': 1,
-    'Implementation Status and Results ReportWater and Sanitation in Tourist Areas': 1,
-    'Implementation Status and Results ReportHonduras Rural Competitiveness Project': 1,
-    'Project PaperUrban Scale Building Energy Efficiency and Renewable Energy': 1,
-    'Implementation Status and Results ReportRwanda Public Sector Governance Program For Results': 1,
-    'Implementation Status and Results ReportEnhancing the Climate Resilience of the West Coast Road': 1,
-    'Implementation Status and Results ReportSecond Public Investment Reform Sppt Cr.': 1,
-    'Implementation Status and Results ReportNorte Grande Road Infrastructure': 1,
-    'Implementation Status and Results ReportPY Transport Connectivity': 1,
-    'Implementation Status and Results ReportCongo: Forest and Economic Diversification Project': 1,
-    'Implementation Status and Results ReportEssential Health Services Access Project': 1,
-    'Implementation Status and Results ReportBangladesh - Skills and Training Enhancement Project': 1,
-    'Implementation Status and Results ReportSerbia Competitiveness and Jobs': 1,
-    'Implementation Status and Results ReportETHIOPIA EDUCATION RESULTS BASED FINANCING PROJECT': 1,
-    'Implementation Status and Results ReportEthiopia-Transport Sector Project in Support of RSDP4': 1,
-    'Implementation Status and Results ReportTN-Road Transport Corridors': 1,
-    'Implementation Status and Results ReportAlliance for Education Quality Project': 1,
-    'Implementation Status and Results ReportGuyana Secondary Education Improvement': 1,
-    'Implementation Status and Results ReportZambia: Livestock Development and Animal Health Project': 1,
-    'Implementation Status and Results ReportMultisectoral Nutrition and Child Development Project': 1,
-    'Implementation Status and Results ReportSecond Support to the Education Sector Project PASEN II': 1,
-    'Implementation Status and Results ReportBanking Sector Strengthening Project': 1,
-    'Implementation Status and Results ReportCameroon - Multimodal Transport Project': 1,
-    'Implementation Status and Results ReportBangladesh Regional Waterway Transport Project 1': 1,
-    'Implementation Status and Results ReportUrban Water Supply Project': 1,
-    'Implementation Status and Results ReportMA-Rural Water Supply': 1,
-    'Implementation Status and Results ReportSustainable Land Management Project': 1,
-    'Implementation Status and Results ReportWater Supply and Sanitation Project': 1,
-    'Implementation Status and Results ReportIndonesia National Slum Upgrading Project': 1,
-    'Project PaperAgricultural Development Support Project': 1,
-    "Implementation Status and Results ReportEmergency Nat'l Poverty Targeting Proj": 1,
-    'Implementation Status and Results ReportCentral Highlands Connectivity Improvement Project': 1,
-    'Implementation Status and Results ReportMobile Innovation Project under EPIC': 1,
-    'Implementation Status and Results ReportAmazon Sustainable Landscapes Project': 1,
-    'Implementation Status and Results Report Digital Entrepreneurship Senegal': 1,
-    'Implementation Status and Results Report Digital Entrepreneurship Kenya': 1,
-    'Implementation Status and Results ReportChildren and Youth Protection Project': 1,
-    'Implementation Status and Results ReportLilongwe Water and Sanitation Project': 1,
-    'Implementation Status and Results ReportHealth Sector Support Project': 1,
-    'Implementation Status and Results ReportRoad Sector Support Project': 1,
-    'Implementation Status and Results ReportSecond Rural Transport Improvement Project': 1,
-    'Implementation Status and Results ReportTurkey Geothermal Development Project': 1,
-    'Implementation Status and Results ReportCameroon:NGOYLA MINTOM PROJECT': 1,
-    'Implementation Status and Results ReportForest Dependent Communities Support Project': 1,
-    'Implementation Status and Results ReportMN: SMART Government': 1,
-    'Implementation Status and Results ReportEthiopia - Expressway Development Support Project': 1,
-    'Implementation Status and Results ReportSecond Rural Investment Project': 1,
+    # 'Implementation Status and Results ReportTrade and Logistics Services Competitiveness Project': 1,
+    # 'Implementation Status and Results ReportVinh Phuc Flood Risk and Water Management Project': 1,
+    # 'Project PaperHigher Education Science and Technology': 1,
+    # 'Implementation Status and Results ReportModernization and restructuring of the road sector': 1,
+    # 'Implementation Status and Results ReportSecond Serbia Health Project': 1,
+    # 'Project PaperEqual Access and Simplified Environment for Investment (EASE) in Egypt': 1,
+    # 'Implementation Status and Results ReportEthiopia Rural Productive Safety Net Project': 1,
+    # 'Project Paper Capacity Development Support to the Commission on Audit': 1,
+    # 'Project PaperStrengthening Tax Systems and Building Tax Policy Analysis Capacity': 1,
+    # 'Implementation Status and Results ReportUrban Development Project': 1,
+    # 'Project Paper Integrated Single Window Office for Social Assistance and Employment Services': 1,
+    # 'Project Paper Survey on Household Living Conditions': 1,
+    # 'Implementation Status and Results ReportDRC Catalytic Project to Strengthen the INS': 1,
+    # 'Implementation Status and Results ReportDTF: MA-Support New Governance Framework': 1,
+    # 'Implementation Status and Results ReportGZ-Integrated Cities and Urban Development Project': 1,
+    # 'Implementation Status and Results ReportURBAN DEVELOPMENT SUPPORT PROJECT': 1,
+    # 'Project Paper Public Procurement Modernisation Technical Assistance': 1,
+    # 'Implementation Status and Results ReportTransforming Health Systems for Universal Care': 1,
+    # 'Implementation Status and Results ReportExport Competitiveness for Jobs': 1,
+    # 'Implementation Status and Results ReportEmergency Safety Nets project (Jigis?m?jiri)': 1,
+    # 'Project PaperSecond Agricultural Growth Project': 1,
+    # 'Project PaperFIP - DECENTRALIZED FOREST AND WOODLAND MANAGEMENT PROJECT': 1,
+    # 'Project PaperGuinea Agricultural Support Project': 1,
+    # 'Implementation Status and Results ReportHorticulture Development Project': 1,
+    # 'Project PaperDTF: MA-Local Government Support Program': 1,
+    # 'Implementation Status and Results ReportCommunity Driven Nutrition Improvement': 1,
+    # 'Implementation Status and Results ReportChile - Public Health Sector Support Project': 1,
+    # 'Implementation Status and Results Report Identity and Targeting for Social Protection Project': 1,
+    # 'Project PaperSecond Dushanbe Water Supply Project': 1,
+    # 'Project PaperCentral Asia Hydrometeorology Modernization Project': 1,
+    # 'Implementation Status and Results ReportNicaragua Strengthening the Public Health Care System': 1,
+    # 'Project PaperTax Administration Modernization Project': 1,
+    # 'Implementation Status and Results Report Municipal Governance and Services Project': 1,
+    # 'Implementation Status and Results ReportMetro Colombo Urban Development Project': 1,
+    # 'Implementation Status and Results ReportTransport Connectivity and Asset Management Project': 1,
+    # 'Implementation Status and Results ReportNorthwestern Road Development Corridor Project': 1,
+    # 'Implementation Status and Results ReportSindh Enhancing Response to Reduce Stunting': 1,
+    # 'Implementation Status and Results ReportKarachi Neighborhood Improvement Project': 1,
+    # 'Implementation Status and Results ReportRegional Sahel Pastoralism Support Project': 1,
+    # 'Implementation Status and Results ReportEgypt: Sustainable POPs Management Project': 1,
+    # 'Implementation Status and Results ReportEthiopia Water Supply, Sanitation and Hygiene Project': 1,
+    # 'Implementation Status and Results ReportCF-Health System Support Project': 1,
+    # 'Project PaperELECTRICITY ACCESS EXPANSION PROJECT': 1,
+    # 'Implementation Status and Results ReportAndhra Pradesh Disaster Recovery Project': 1,
+    # 'Implementation Status and Results ReportEC Ibarra Transport Infrastructure Improvement Project': 1,
+    # 'Implementation Status and Results ReportGuyana Education Sector Improvement Project': 1,
+    # 'Implementation Status and Results ReportEconomic Management Strengthening': 1,
+    # 'Implementation Status and Results ReportServing People, Improving Health Project': 1,
+    # 'Implementation Status and Results ReportHaiti - Education for All Project - Phase II': 1,
+    # 'Implementation Status and Results ReportTogo Agricultural Sector Support Project': 1,
+    # 'Implementation Status and Results ReportAgricultural Productivity and Diversification': 1,
+    # 'Project PaperGuarding the Integrity of the Conditional Cash Transfer Program': 1,
+    # 'Implementation Status and Results ReportMZ-Education Sector Support Program': 1,
+    # 'Implementation Status and Results ReportRajasthan Rural Livelihoods Project (RRLP)': 1,
+    # 'Implementation Status and Results ReportSUSTAINABLE CITIES': 1,
+    # 'Implementation Status and Results ReportProviding an Education of Quality in Haiti (PEQH)': 1,
+    # 'Implementation Status and Results Report Vietnam Climate Innovation Center (VCIC) RETF': 1,
+    # 'Implementation Status and Results ReportLivestock and Fisheries Sector Development Project': 1,
+    # 'Project Paper Madagascar Scaling Renewable Energy Program (SREP) Investment Plan (IP)': 1,
+    # 'Project PaperThe Tanzania - Housing Finance Project': 1,
+    # 'Project PaperSwaziland Health, HIV/AIDS and TB Project': 1,
+    # 'Implementation Status and Results ReportMozambique Forest Investment Project': 1,
+    # 'Project PaperRural Alliances Project II': 1,
+    # 'Implementation Status and Results ReportJamaica Integrated Community Development Project': 1,
+    # 'Implementation Status and Results Report Caribbean Energy Statistics Capacity Enhancement': 1,
+    # 'Project PaperSouth Sudan Health Rapid Results Project': 1,
+    # 'Project Paper Renewable Energy Integration Technical Assistance Project': 1,
+    # 'Implementation Status and Results ReportInclusive Partnerships for Agricultural Competitiveness': 1,
+    # 'Project PaperNepal Agriculture and Food Security Project': 1,
+    # 'Implementation Status and Results ReportRoad Sector Development Project': 1,
+    # 'Implementation Status and Results Report OBA SANITATION MICROFINANCE PROGRAM': 1,
+    # 'Project PaperAssam State Roads Project': 1,
+    # 'Project PaperMW: Mining Governance and Growth Support Project': 1,
+    # 'Implementation Status and Results ReportGuyana Early Childhood Education Project': 1,
+    # 'Implementation Status and Results ReportInnovative Startups Fund Project': 1,
+    # 'Project PaperSouth Africa - Eskom Renewables Support Project': 1,
+    # 'Project PaperSecond Regional Development Project': 1,
+    # 'Implementation Status and Results ReportHealth System Resiliency Strengthening': 1,
+    # 'Implementation Status and Results ReportGhana - Maternal, Child Health and Nutrition Project': 1,
+    # 'Project PaperInclusive Development in Post-Conflict Bougainville Project': 1,
+    # 'Project PaperShandong Energy Efficiency Project': 1,
+    # 'Implementation Status and Results ReportLAKE VICTORIA TRANSPORT PROGRAM - SOP1, RWANDA': 1,
+    # 'Implementation Status and Results ReportMozambique - Integrated Growth Poles Project': 1,
+    # 'Implementation Status and Results ReportSocial Protection Project': 1,
+    # 'Project PaperStrengthening micro-entrepreneurship for disadvantaged youth': 1,
+    # 'Implementation Status and Results ReportClimate Smart Agriculture Support Project': 1,
+    # 'Implementation Status and Results ReportEskom Investment Support Project': 1,
+    # 'Project PaperCameroon:NGOYLA MINTOM PROJECT': 1,
+    # 'Implementation Status and Results ReportBolivia Climate Resilience - Integrated Basin Management': 1,
+    # 'Implementation Status and Results ReportSudan Budgeting Capacity Strengthening Project': 1,
+    # 'Implementation Status and Results ReportWater and Sanitation in Tourist Areas': 1,
+    # 'Implementation Status and Results ReportHonduras Rural Competitiveness Project': 1,
+    # 'Project PaperUrban Scale Building Energy Efficiency and Renewable Energy': 1,
+    # 'Implementation Status and Results ReportRwanda Public Sector Governance Program For Results': 1,
+    # 'Implementation Status and Results ReportEnhancing the Climate Resilience of the West Coast Road': 1,
+    # 'Implementation Status and Results ReportSecond Public Investment Reform Sppt Cr.': 1,
+    # 'Implementation Status and Results ReportNorte Grande Road Infrastructure': 1,
+    # 'Implementation Status and Results ReportPY Transport Connectivity': 1,
+    # 'Implementation Status and Results ReportCongo: Forest and Economic Diversification Project': 1,
+    # 'Implementation Status and Results ReportEssential Health Services Access Project': 1,
+    # 'Implementation Status and Results ReportBangladesh - Skills and Training Enhancement Project': 1,
+    # 'Implementation Status and Results ReportSerbia Competitiveness and Jobs': 1,
+    # 'Implementation Status and Results ReportETHIOPIA EDUCATION RESULTS BASED FINANCING PROJECT': 1,
+    # 'Implementation Status and Results ReportEthiopia-Transport Sector Project in Support of RSDP4': 1,
+    # 'Implementation Status and Results ReportTN-Road Transport Corridors': 1,
+    # 'Implementation Status and Results ReportAlliance for Education Quality Project': 1,
+    # 'Implementation Status and Results ReportGuyana Secondary Education Improvement': 1,
+    # 'Implementation Status and Results ReportZambia: Livestock Development and Animal Health Project': 1,
+    # 'Implementation Status and Results ReportMultisectoral Nutrition and Child Development Project': 1,
+    # 'Implementation Status and Results ReportSecond Support to the Education Sector Project PASEN II': 1,
+    # 'Implementation Status and Results ReportBanking Sector Strengthening Project': 1,
+    # 'Implementation Status and Results ReportCameroon - Multimodal Transport Project': 1,
+    # 'Implementation Status and Results ReportBangladesh Regional Waterway Transport Project 1': 1,
+    # 'Implementation Status and Results ReportUrban Water Supply Project': 1,
+    # 'Implementation Status and Results ReportMA-Rural Water Supply': 1,
+    # 'Implementation Status and Results ReportSustainable Land Management Project': 1,
+    # 'Implementation Status and Results ReportWater Supply and Sanitation Project': 1,
+    # 'Implementation Status and Results ReportIndonesia National Slum Upgrading Project': 1,
+    # 'Project PaperAgricultural Development Support Project': 1,
+    # "Implementation Status and Results ReportEmergency Nat'l Poverty Targeting Proj": 1,
+    # 'Implementation Status and Results ReportCentral Highlands Connectivity Improvement Project': 1,
+    # 'Implementation Status and Results ReportMobile Innovation Project under EPIC': 1,
+    # 'Implementation Status and Results ReportAmazon Sustainable Landscapes Project': 1,
+    # 'Implementation Status and Results Report Digital Entrepreneurship Senegal': 1,
+    # 'Implementation Status and Results Report Digital Entrepreneurship Kenya': 1,
+    # 'Implementation Status and Results ReportChildren and Youth Protection Project': 1,
+    # 'Implementation Status and Results ReportLilongwe Water and Sanitation Project': 1,
+    # 'Implementation Status and Results ReportHealth Sector Support Project': 1,
+    # 'Implementation Status and Results ReportRoad Sector Support Project': 1,
+    # 'Implementation Status and Results ReportSecond Rural Transport Improvement Project': 1,
+    # 'Implementation Status and Results ReportTurkey Geothermal Development Project': 1,
+    # 'Implementation Status and Results ReportCameroon:NGOYLA MINTOM PROJECT': 1,
+    # 'Implementation Status and Results ReportForest Dependent Communities Support Project': 1,
+    # 'Implementation Status and Results ReportMN: SMART Government': 1,
+    # 'Implementation Status and Results ReportEthiopia - Expressway Development Support Project': 1,
+    # 'Implementation Status and Results ReportSecond Rural Investment Project': 1,
     'Issues Paper': 1,
     'The Environmental and Social Review Summary': 1,
     'DRFT-ENV-ASMT-SHP': 1,
@@ -381,8 +429,11 @@ class WBDocTypes(enum.Enum):
     'MADIA Discussion Paper': 1,
     'Recent Economic Developments in Infrastructure (REDI)': 1}
     '''
-    # _ = "0"
+    # Manually defined
     EMPTY = ""
+
+    # From WB docs API curated list
+    # _ = "0"
     accounting_and_auditing_assessment_rosc = "Accounting and Auditing Assessment (ROSC)"
     agenda = "Agenda"
     agreement = "Agreement"
@@ -483,8 +534,21 @@ class WBDocTypes(enum.Enum):
     world_bank_annual_report = "World Bank Annual Report"
     world_development_report = "World Development Report"
 
+    @classmethod
+    def clean(cls, raw):
+        if raw.strip().startswith("Implementation Status and Results Report"):
+            raw = "Implementation Status and Results Report"
+        elif raw.strip().startswith("Project Paper"):
+            raw = "Project Paper"
 
-class WBMajorDocTypes(enum.Enum):
+        mappings = {}
+
+        raw = mappings.get(raw, raw)
+
+        return cls(raw)
+
+
+class WBMajorDocTypes(WBEnum):
     '''Curated list of major document types.
 
     TODO: For further review
@@ -492,15 +556,34 @@ class WBMajorDocTypes(enum.Enum):
     {'': 14158}
 
     '''
+    # Manually defined
     EMPTY = ""
+
+    # From WB docs API curated list
     board_documents = "Board Documents"
     country_focus = "Country Focus"
-    economic_sector_work = "Economic & Sector Work"
-    economic_amp_sector_work = "Economic &amp; Sector Work"
+    economic_and_sector_work = "Economic and Sector Work"
+    # economic_sector_work = "Economic & Sector Work"
+    # economic_amp_sector_work = "Economic &amp; Sector Work"
     project_documents = "Project Documents"
     publications = "Publications"
-    publications_research = "Publications & Research"
-    publications_amp_research = "Publications &amp; Research"
+    publications_and_research = "Publications and Research"
+    # publications_research = "Publications & Research"
+    # publications_amp_research = "Publications &amp; Research"
+
+    @classmethod
+    def clean(cls, raw):
+
+        mappings = {
+            "Publications & Research": "Publications and Research",
+            "Publications &amp; Research": "Publications and Research",
+            "Economic & Sector Work": "Economic and Sector Work",
+            "Economic &amp; Sector Work": "Economic and Sector Work",
+        }
+
+        raw = mappings.get(raw, raw)
+
+        return cls(raw)
 
 
 class WBTopics(enum.Enum):
@@ -534,7 +617,10 @@ class WBTopics(enum.Enum):
     {'': 68000}
 
     '''
+    # Manually defined
     EMPTY = ""
+
+    # From WB docs API curated list
     agriculture = "Agriculture"
     communities_and_human_settlements = "Communities and Human Settlements"
     conflict_and_development = "Conflict and Development"
@@ -550,7 +636,7 @@ class WBTopics(enum.Enum):
     informatics = "Informatics"
     information_and_communication_technologies = "Information and Communication Technologies"
     infrastructure_economics_and_finance = "Infrastructure Economics and Finance"
-    international_economics_trade = "International Economics & Trade"
+    # international_economics_trade = "International Economics & Trade"
     international_economics_and_trade = "International Economics and Trade"
     law_and_development = "Law and Development"
     macroeconomics_and_economic_growth = "Macroeconomics and Economic Growth"
@@ -565,6 +651,19 @@ class WBTopics(enum.Enum):
     urban_development = "Urban Development"
     water_resources = "Water Resources"
     water_supply_and_sanitation = "Water Supply and Sanitation"
+
+    @classmethod
+    def clean(cls, raw):
+
+        mappings = {
+            "Health, Nutrition and Population": "Health; Nutrition and Population",
+            "International Economics & Trade": "International Economics and Trade",
+
+        }
+
+        raw = mappings.get(raw, raw)
+
+        return cls(raw)
 
 
 # class WBSubTopics(enum.Enum):
