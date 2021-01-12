@@ -101,6 +101,24 @@ class WBAdminRegions(enum.Enum):
 
 class WBDocTypes(enum.Enum):
     '''Curated list of document types.
+
+    For further review:
+
+    Counter({'General Economy, Macroeconomics and Growth Study': 78,
+            'Foreign Trade, FDI, and Capital Flows Study': 58,
+            'PSD, Privatization and Industrial Policy': 38,
+            'Auditing Document,Financial Monitoring Report,Memorandum,Letter': 138,
+            'Memorandum,Financial Monitoring Report,Letter,Auditing Document': 16,
+            'Memorandum,Financial Monitoring Report,Auditing Document,Letter': 1,
+            'Auditing/Financial Management,Auditing Document': 1,
+            'Implementation Status and Results ReportEthiopia Water Supply, Sanitation and Hygiene Project': 1,
+            'Implementation Status and Results ReportServing People, Improving Health Project': 1,
+            'Project PaperSwaziland Health, HIV/AIDS and TB Project': 1,
+            'Implementation Status and Results ReportGhana - Maternal, Child Health and Nutrition Project': 1,
+            'Implementation Status and Results ReportLAKE VICTORIA TRANSPORT PROGRAM - SOP1, RWANDA': 1,
+            'Financial Statement,Auditing Document': 1,
+            'Memorandum,Agreement': 3,
+            'Environmental Action Plan,Social Action Plan': 2})
     '''
     # _ = "0"
     accounting_and_auditing_assessment_rosc = "Accounting and Auditing Assessment (ROSC)"

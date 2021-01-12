@@ -4,6 +4,8 @@ import enum
 from typing import Optional, List
 from datetime import date, datetime
 from pydantic import BaseModel, Field, validator, AnyUrl
+from hashlib import md5
+from dateutils import parser
 
 from wb_nlp.types.metadata_enums import (
     WBAdminRegions,
@@ -14,6 +16,42 @@ from wb_nlp.types.metadata_enums import (
     WBTopics,
     WBSubTopics,
 )
+
+
+def migrate_nlp_schema(body):
+    """This method updates the data under the previous schema into
+    the pydantic MetadataModel schema.
+    """
+    body = dict(body)
+
+    body["hex_id"] = md5(body['_id'].encode('utf-8')).hexdigest()[:15]
+    body["int_id"] = int(body["hex_id"], 16)
+
+    body["adm_region"] = body["adm_region"].split(",")
+    body["author"] = body["author"].split(",")
+
+    body["corpus"] = body["corpus"].upper()
+    body["country"] = body["country"].split(",")
+
+    body["date_published"] = parser.parse(body["date_published"])
+
+    body["der_countries"] = body.get("countries")
+
+    body["der_language_detected"] = body.get("language_detected")
+    body["der_language_score"] = body.get("language_score")
+
+    body["der_clean_token_count"] = body.get("tokens")
+
+    body["doc_type"] = body["doc_type"].split(",")
+
+    body["geo_region"] = body["geo_region"].split("|")
+
+    return MetadataModel(**body)
+
+
+class CountryCounts(BaseModel):
+    country_code: str
+    count: int
 
 
 class MetadataModel(BaseModel):
@@ -28,9 +66,9 @@ class MetadataModel(BaseModel):
         - title
     """
     hex_id: str = Field(
-        ..., description="")
+        ..., description="This id will be the basis for the `int_id` that will be used in the Milvus index.")
     int_id: int = Field(
-        ..., description="")
+        ..., description="This will be the id derived from the `hex_id` that will be used in the Milvus index.")
 
     adm_region: List[WBAdminRegions] = Field(
         None, description="List of administrative regions. Example: Africa.")
@@ -50,9 +88,9 @@ class MetadataModel(BaseModel):
     date_published: date = Field(
         None, description="")
     der_acronyms: List[str] = Field(
-        None, description="List of extracted acronyms from the document.")
-    der_countries: List[str] = Field(
-        None, description="List of extracted countries from the document.")
+        None, description="Frequency of extracted acronyms from the document.")
+    der_countries: dict = Field(
+        None, description="Frequency of extracted countries from the document.")
     der_language_detected: str = Field(
         None, description="")
     der_language_score: float = Field(
