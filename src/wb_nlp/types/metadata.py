@@ -19,7 +19,7 @@ from wb_nlp.types.metadata_enums import (
 
 
 def make_list_or_null(value, delimiter):
-    value = value.split(delimiter)
+    value = [v.strip() for v in value.split(delimiter)]
     if value == ['']:
         value = None
 
