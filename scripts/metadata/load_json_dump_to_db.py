@@ -5,6 +5,8 @@ from wb_nlp.types import metadata
 
 # Save the validated data to `docs_metadata` collection
 collection = mongodb.get_docs_metadata_collection()
+print(f"Emptying collection {collection} before loading dump...")
+collection.delete_many({})
 
 # client = pymongo.MongoClient(host='mongodb', port=27017)
 # db = client['nlp']
@@ -33,6 +35,7 @@ with open(DUMP_FILE, "r") as open_file:
         except KeyError:
             unloaded_data.append(body["_id"])
 
+print(f"Loading data to db...")
 if isinstance(dump_data, list):
     collection.insert_many(dump_data)
 else:
