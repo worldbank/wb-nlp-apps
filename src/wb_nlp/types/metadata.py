@@ -26,32 +26,51 @@ def make_list_or_null(value, delimiter):
     return value
 
 
+def pop_get(body, key):
+    try:
+        value = body.pop(key)
+        if value == "":
+            value = None
+    except KeyError:
+        value = None
+
+    return value
+
+
 def migrate_nlp_schema(body):
     """This method updates the data under the previous schema into
     the pydantic MetadataModel schema.
     """
     body = dict(body)
 
-    body["hex_id"] = md5(body['_id'].encode('utf-8')).hexdigest()[:15]
+    try:
+        int(body["_id"], 16)
+        hex_id = body["_id"][:15]
+    except ValueError:
+        hex_id = md5(body['_id'].encode('utf-8')).hexdigest()[:15]
+
+    body["id"] = pop_get(body, "_id")
+    body["hex_id"] = hex_id
     body["int_id"] = int(body["hex_id"], 16)
 
     body["adm_region"] = make_list_or_null(
         body["adm_region"], delimiter=WBAdminRegions.delimiter)
     body["author"] = make_list_or_null(body["author"], delimiter=",")
 
+    body["cleaning_config_id"] = pop_get(body, "cleaning_config_id")
+    body["collection"] = pop_get(body, "collection")
     body["corpus"] = body["corpus"].upper()
     body["country"] = make_list_or_null(body["country"], delimiter=",")
 
     body["date_published"] = (parser.parse(body["date_published"]).date(
     ) if body["date_published"] not in ["", "NaT"] else None)
-
-    body["der_countries"] = body.get("countries") or None
-
-    body["der_language_detected"] = body.get("language_detected") or None
-    body["der_language_score"] = body.get("language_score") or None
-
-    body["der_clean_token_count"] = body.get("tokens") or None
-
+    body["der_acronyms"] = pop_get(body, "der_acronyms")
+    body["der_countries"] = pop_get(body, "countries")
+    body["der_language_detected"] = pop_get(body, "language_detected")
+    body["der_language_score"] = pop_get(body, "language_score")
+    body["der_raw_token_count"] = pop_get(body, "der_raw_token_count")
+    body["der_clean_token_count"] = pop_get(body, "tokens")
+    body["digital_identifier"] = pop_get(body, "digital_identifier")
     body["doc_type"] = make_list_or_null(
         WBDocTypes.clean(body["doc_type"]).replace(
             "General Economy, Macroeconomics and Growth Study",
@@ -64,14 +83,23 @@ def migrate_nlp_schema(body):
             "PSD; Privatization and Industrial Policy"
         ), delimiter=WBDocTypes.delimiter)
 
+    # body["filename_original"] = pop_get(body, "filename_original")
+
     body["geo_region"] = make_list_or_null(
         body["geo_region"], delimiter=WBGeographicRegions.delimiter)
 
+    body["journal"] = pop_get(body, "journal")
+
+    body["language_src"] = pop_get(body, "language_src")
     body["last_update_date"] = datetime.now()
 
     body["major_doc_type"] = make_list_or_null(
         body["major_doc_type"], delimiter=WBMajorDocTypes.delimiter)
 
+    body["path_clean"] = pop_get(body, "path_clean")
+    # body["path_original"] = pop_get(body, "path_original")
+
+    # body["title"] = pop_get(body, "path_original")
     body["topics_src"] = make_list_or_null(
         body["topics_src"].replace(
             "Health, Nutrition and Population",
@@ -79,13 +107,20 @@ def migrate_nlp_schema(body):
         ),
         delimiter=WBTopics.delimiter)
 
-    body["url_pdf"] = body["url_pdf"] or None
-    body["url_txt"] = body["url_txt"] or None
+    body["url_pdf"] = pop_get(body, "url_pdf")
+    body["url_txt"] = pop_get(body, "url_txt")
 
+    body["volume"] = pop_get(body, "volume")
+    body["wb_lending_instrument"] = pop_get(body, "wb_lending_instrument")
+    body["wb_major_theme"] = pop_get(body, "wb_major_theme")
+    body["wb_product_line"] = pop_get(body, "wb_product_line")
+    body["wb_project_id"] = pop_get(body, "wb_project_id")
+    body["wb_sector"] = pop_get(body, "wb_sector")
     body["wb_subtopic_src"] = make_list_or_null(
         body["wb_subtopic_src"], delimiter=",")
+    body["wb_theme"] = pop_get(body, "wb_theme")
 
-    body["year"] = body["year"] or None
+    body["year"] = pop_get(body, "year")
 
     return body
 
@@ -142,6 +177,8 @@ class MetadataModel(BaseModel):
         - path_original
         - title
     """
+    id: str = Field(
+        ..., description="Unique identifier for the document. Derived identifiers such as `hex_id` will be based on this.")
     hex_id: str = Field(
         ..., description="This id will be the basis for the `int_id` that will be used in the Milvus index.")
     int_id: int = Field(
