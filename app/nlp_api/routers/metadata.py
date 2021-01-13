@@ -21,6 +21,8 @@ router = APIRouter(
 
 @ router.get("/get_metadata_by_id", response_model=metadata.MetadataModel)
 def get_doc_metadata_by_id(id: str):
+    """This enpoint fetches the metadata corresponding to the given `id`.
+    """
 
     doc = mongodb.get_docs_metadata_collection().find_one({"id": id})
     doc = metadata.MetadataModel(**doc)
