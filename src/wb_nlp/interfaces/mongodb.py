@@ -52,3 +52,11 @@ def get_metadata_collection(host=None, port=None):
     collection = db['metadata']
 
     return collection
+
+
+def get_docs_metadata_collection(host=None, port=None):
+    client = get_mongodb_client(host, port)
+    db = client['nlp']
+    collection = db['docs_metadata']
+
+    return collection

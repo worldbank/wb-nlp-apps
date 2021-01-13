@@ -1,9 +1,10 @@
 import json
-import pymongo
 from wb_nlp.dir_manager import get_data_dir
 from wb_nlp.interfaces import mongodb
+from wb_nlp.types import metadata
 
-collection = mongodb.get_metadata_collection()
+# Save the validated data to `docs_metadata` collection
+collection = mongodb.get_docs_metadata_collection()
 
 # client = pymongo.MongoClient(host='mongodb', port=27017)
 # db = client['nlp']
@@ -15,11 +16,27 @@ DUMP_FILE = get_data_dir('raw', 'nlp-metadata-wbes2474-20201007.json')
 
 print(f"Start loading data dump {DUMP_FILE} to collection: {collection}")
 
-dump_data = [json.loads(line) for line in open(DUMP_FILE, 'r')]
+# dump_data = [json.loads(metadata.make_metadata_model_from_nlp_schema(
+#     json.loads(line)).json()) for line in open(DUMP_FILE, 'r')]
+
+dump_data = []
+unloaded_data = []
+
+with open(DUMP_FILE, "r") as open_file:
+    for line in open_file:
+        body = json.loads(line)
+        try:
+            dump_data.append(
+                json.loads(
+                    metadata.make_metadata_model_from_nlp_schema(
+                        body).json()))
+        except KeyError:
+            unloaded_data.append(body["_id"])
 
 if isinstance(dump_data, list):
     collection.insert_many(dump_data)
 else:
     collection.insert_one(dump_data)
 
-print(f"Finished loading data dump to collection: {collection}")
+print(
+    f"Finished loading {len(dump_data)} data dump to collection: {collection} with {len(unloaded_data)} unloaded data...")
