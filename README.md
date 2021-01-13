@@ -80,6 +80,19 @@ The resulting topics learned by the model are used to characterize documents. Wi
 
 The Gensim implementation for the word2vec model is used in this project. We extract the learned word embeddings and use them to represent documents by taking the mean of the word vectors in the document. This simple strategy allows us to have a semantic based search of documents using keywords or full document inputs.
 
+## Guide for reproducibility
+
+1. Upload the document metadata into the mongodb `nlp` database under the `docs_metadata` collection. Refer to [load_json_dump_to_db.py](/scripts/metadata/load_json_dump_to_db.py) for an example.
+
+2. Configure the cleaning config file ([lda.yml](/configs/cleaning/lda.yml)) for the LDA model.
+
+3. Run the [clean_corpus.py](/scripts/cleaning/clean_corpus.py) script to perform the cleaning of the documents to be used by the LDA model.
+
+4. Configure the model config file ([lda/default.yml](/configs/models/lda/default.yml)) for the LDA model.
+
+5. Run the [train_lda_model.py](/scripts/models/train_lda_model.py) to train the LDA model with the cleaned text.
+
+
 ## Instruction for contributors
 
 Please read the [DEVELOPERS.md](/DEVELOPERS.md) for more details about the development workflow.
