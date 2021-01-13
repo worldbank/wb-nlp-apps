@@ -21,8 +21,7 @@ def get_wb_curated_list(list_id):
     b = BeautifulSoup(r.content, 'html.parser')
 
     item_list = b.find('select', id=list_id).find_all('option')
-    g = {re.sub(r'[^a-z]+', '_', o.text.lower()).strip('_')
-                : o.text for o in item_list}
+    g = {re.sub(r'[^a-z]+', '_', o.text.lower()).strip('_'): o.text for o in item_list}
 
     for k, v in g.items():
         print(f'{k} = "{v}"')
@@ -310,34 +309,6 @@ class WBDocTypes(WBEnum):
     'MADIA Discussion Paper': 1,
     'Recent Economic Developments in Infrastructure (REDI)': 1}
     '''
-    mappings = {
-        "Financial Sector Assessment Program (FSAP)": "Financial Sector Assessment Program",
-        "Investment Climate Assessment (ICA)": "Investment Climate Assessment",
-        "Corporate Governance Assessment (ROSC)": "Corporate Governance Assessment",
-        "Foreign Trade, FDI, and Capital Flows Study": "Foreign Trade; FDI; and Capital Flows Study",
-        "Country Procurement Assessment (CPAR)": "Country Procurement Assessment",
-        "Development Policy Review (DPR)": "Development Policy Review",
-        "Country Environmental Analysis (CEA)": "Country Environmental Analysis",
-        "Water & Sanitation Discussion Paper": "Water and Sanitation Discussion Paper",
-        "City Development Strategy (CDS)": "City Development Strategy",
-        "Institutional and Governance Review (IGR)": "Institutional and Governance Review",
-        "Country Gender Assessment (CGA)": "Country Gender Assessment",
-        "Memorandum & Recommendation of the Director": "Memorandum and Recommendation of the Director",
-        "LAC Human & Social Development Group Paper Series": "LAC Human and Social Development Group Paper Series",
-        "Memorandum & Recommendation of the Managing Director": "Memorandum and Recommendation of the Managing Director",
-        "Insolvency Assessment (ROSC)": "Insolvency Assessment",
-        "Memorandum &amp; Recommendation of the President": "Memorandum and Recommendation of the President",
-        "President&apos;s Report": "President's Report",
-        "Public Environmental Expenditure Review (PEER)": "Public Environmental Expenditure Review",
-        "Poverty & Social Policy Working Paper": "Poverty and Social Policy Working Paper",
-        "Disclosable Project Appraisal Document (PAD)": "Disclosable Project Appraisal Document",
-        "Recent Economic Developments in Infrastructure (REDI)": "Recent Economic Developments in Infrastructure",
-
-        # Cleaning doc type from WB API
-        "Accounting and Auditing Assessment (ROSC)": "Accounting and Auditing Assessment",
-        "Memorandum & Recommendation of the President": "Memorandum and Recommendation of the President",
-        "Poverty Reduction Strategy Paper (PRSP)": "Poverty Reduction Strategy Paper"
-    }
 
     # Manually defined
     EMPTY = ""
@@ -381,7 +352,7 @@ class WBDocTypes(WBEnum):
     foreign_trade_fdi_and_capital_flows_study = "Foreign Trade; FDI; and Capital Flows Study"
     gef_project_brief = "GEF Project Brief"
     gef_project_document = "GEF Project Document"
-    general_economy = "General Economy"
+    general_economy_macroeconomics_and_growth_study = "General Economy; Macroeconomics and Growth Study"
     global_development_finance_formerly_world_debt_tables = "Global Development Finance - formerly World Debt Tables"
     global_environment_facility_working_paper = "Global Environment Facility Working Paper"
     governors_statement = "Governor's Statement"
@@ -409,7 +380,6 @@ class WBDocTypes(WBEnum):
     manual = "Manual"
     memorandum_and_recommendation_of_the_director = "Memorandum and Recommendation of the Director"
     memorandum_and_recommendation_of_the_managing_director = "Memorandum and Recommendation of the Managing Director"
-    memorandum_and_recommendation_of_the_president = "Memorandum and Recommendation of the President"
     mining_oil_and_gas = "Mining/Oil and Gas"
     other_education_study = "Other Education Study"
     other_financial_accountability_study = "Other Financial Accountability Study"
@@ -422,7 +392,6 @@ class WBDocTypes(WBEnum):
     policy_paper = "Policy Paper"
     poverty_and_social_policy_working_paper = "Poverty and Social Policy Working Paper"
     preliminary_decision_point_document = "Preliminary Decision Point Document"
-    presidents_report = "President's Report"
     price_prospects_for_major_primary_commodities = "Price Prospects for Major Primary Commodities"
     program_for_results_fiduciary_systems_assessment = "Program-for-Results Fiduciary Systems Assessment"
     program_for_results_technical_assessment = "Program-for-Results Technical Assessment"
@@ -560,6 +529,35 @@ class WBDocTypes(WBEnum):
             value = "Project Paper"
 
         mappings = {
+            "Financial Sector Assessment Program (FSAP)": "Financial Sector Assessment Program",
+            "Investment Climate Assessment (ICA)": "Investment Climate Assessment",
+            "Corporate Governance Assessment (ROSC)": "Corporate Governance Assessment",
+            "Foreign Trade, FDI, and Capital Flows Study": "Foreign Trade; FDI; and Capital Flows Study",
+            "Country Procurement Assessment (CPAR)": "Country Procurement Assessment",
+            "Development Policy Review (DPR)": "Development Policy Review",
+            "Country Environmental Analysis (CEA)": "Country Environmental Analysis",
+            "Water & Sanitation Discussion Paper": "Water and Sanitation Discussion Paper",
+            "City Development Strategy (CDS)": "City Development Strategy",
+            "Institutional and Governance Review (IGR)": "Institutional and Governance Review",
+            "Country Gender Assessment (CGA)": "Country Gender Assessment",
+            "Memorandum & Recommendation of the Director": "Memorandum and Recommendation of the Director",
+            "LAC Human & Social Development Group Paper Series": "LAC Human and Social Development Group Paper Series",
+            "Memorandum & Recommendation of the Managing Director": "Memorandum and Recommendation of the Managing Director",
+            "Insolvency Assessment (ROSC)": "Insolvency Assessment",
+            "Memorandum &amp; Recommendation of the President": "Memorandum and Recommendation of the President",
+            "President&apos;s Report": "President's Report",
+            "Public Environmental Expenditure Review (PEER)": "Public Environmental Expenditure Review",
+            "Poverty & Social Policy Working Paper": "Poverty and Social Policy Working Paper",
+            "Disclosable Project Appraisal Document (PAD)": "Disclosable Project Appraisal Document",
+            "Recent Economic Developments in Infrastructure (REDI)": "Recent Economic Developments in Infrastructure",
+            "General Economy, Macroeconomics and Growth Study": "General Economy; Macroeconomics and Growth Study",
+            "PSD, Privatization and Industrial Policy": "PSD; Privatization and Industrial Policy",
+
+            # Cleaning doc type from WB API
+            "Accounting and Auditing Assessment (ROSC)": "Accounting and Auditing Assessment",
+            "Memorandum & Recommendation of the President": "Memorandum and Recommendation of the President",
+            "Poverty Reduction Strategy Paper (PRSP)": "Poverty Reduction Strategy Paper",
+
             None: "",
         }
 

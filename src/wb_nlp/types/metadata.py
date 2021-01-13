@@ -53,7 +53,16 @@ def migrate_nlp_schema(body):
     body["der_clean_token_count"] = body.get("tokens") or None
 
     body["doc_type"] = make_list_or_null(
-        body["doc_type"], delimiter=WBDocTypes.delimiter)
+        WBDocTypes.clean(body["doc_type"]).replace(
+            "General Economy, Macroeconomics and Growth Study",
+            "General Economy; Macroeconomics and Growth Study"
+        ).replace(
+            'Foreign Trade, FDI, and Capital Flows Study',
+            'Foreign Trade; FDI; and Capital Flows Study'
+        ).replace(
+            "PSD, Privatization and Industrial Policy",
+            "PSD; Privatization and Industrial Policy"
+        ), delimiter=WBDocTypes.delimiter)
 
     body["geo_region"] = make_list_or_null(
         body["geo_region"], delimiter=WBGeographicRegions.delimiter)
@@ -66,7 +75,8 @@ def migrate_nlp_schema(body):
     body["topics_src"] = make_list_or_null(
         body["topics_src"].replace(
             "Health, Nutrition and Population",
-            "Health; Nutrition and Population"),
+            "Health; Nutrition and Population"
+        ),
         delimiter=WBTopics.delimiter)
 
     body["url_pdf"] = body["url_pdf"] or None
@@ -87,6 +97,22 @@ def make_metadata_model_from_nlp_schema(body):
 
 # e = nlp_coll.find({"path_original": {"$nin": ["", None]}})
 # for ix, ee in enumerate(e):
+#     try:
+#         metadata.make_metadata_model_from_nlp_schema(ee)
+#     except Exception as exc:
+#         errors = exc.raw_errors
+
+#         for n1 in errors:
+#             for n2 in n1:
+#                 field_name = n2.loc_tuple()[0]
+
+#                 if field_name != "doc_type":
+#                     raise(exc)
+
+
+# e = nlp_coll.find({"path_original": {"$nin": ["", None]}})
+# for ix, ee in enumerate(e):
+#     metadata.make_metadata_model_from_nlp_schema(ee)
 #     try:
 #         metadata.make_metadata_model_from_nlp_schema(ee)
 #     except Exception as exc:
