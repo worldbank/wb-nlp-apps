@@ -241,6 +241,7 @@ class WBDocTypes(WBEnum):
     'Memorandum & Recommendation of the Director': 22,
     'Global Environment Facility Working Paper': 20,
     'Corporate Evaluation': 19,
+
     'Women in Development and Gender Study': 19,
     'Rural Development Assessment': 19,
     'Risk and Vulnerability Assessment': 17,
@@ -308,12 +309,149 @@ class WBDocTypes(WBEnum):
     'MADIA Discussion Paper': 1,
     'Recent Economic Developments in Infrastructure (REDI)': 1}
     '''
+    mappings = {
+        "Financial Sector Assessment Program (FSAP)": "Financial Sector Assessment Program",
+        "Investment Climate Assessment (ICA)": "Investment Climate Assessment",
+        "Corporate Governance Assessment (ROSC)": "Corporate Governance Assessment",
+        "Foreign Trade, FDI, and Capital Flows Study": "Foreign Trade; FDI; and Capital Flows Study",
+        "Country Procurement Assessment (CPAR)": "Country Procurement Assessment",
+        "Development Policy Review (DPR)": "Development Policy Review",
+        "Country Environmental Analysis (CEA)": "Country Environmental Analysis",
+        "Water & Sanitation Discussion Paper": "Water and Sanitation Discussion Paper",
+        "City Development Strategy (CDS)": "City Development Strategy",
+        "Institutional and Governance Review (IGR)": "Institutional and Governance Review",
+        "Country Gender Assessment (CGA)": "Country Gender Assessment",
+        "Memorandum & Recommendation of the Director": "Memorandum and Recommendation of the Director",
+        "LAC Human & Social Development Group Paper Series": "LAC Human and Social Development Group Paper Series",
+        "Memorandum & Recommendation of the Managing Director": "Memorandum and Recommendation of the Managing Director",
+        "Insolvency Assessment (ROSC)": "Insolvency Assessment",
+        "Memorandum &amp; Recommendation of the President": "Memorandum and Recommendation of the President",
+        "President&apos;s Report": "President's Report",
+        "Public Environmental Expenditure Review (PEER)": "Public Environmental Expenditure Review",
+        "Poverty & Social Policy Working Paper": "Poverty and Social Policy Working Paper",
+        "Disclosable Project Appraisal Document (PAD)": "Disclosable Project Appraisal Document",
+        "Recent Economic Developments in Infrastructure (REDI)": "Recent Economic Developments in Infrastructure",
+
+        # Cleaning doc type from WB API
+        "Accounting and Auditing Assessment (ROSC)": "Accounting and Auditing Assessment",
+        "Memorandum & Recommendation of the President": "Memorandum and Recommendation of the President",
+        "Poverty Reduction Strategy Paper (PRSP)": "Poverty Reduction Strategy Paper"
+    }
+
     # Manually defined
     EMPTY = ""
+    financial_sector_assessment_program = "Financial Sector Assessment Program"
+    ieg_approach_paper = "IEG Approach Paper"
+    investment_climate_assessment = "Investment Climate Assessment"
+    economic_updates_and_modeling = "Economic Updates and Modeling"
+    energy_study = "Energy Study"
+    other_education_study = "Other Education Study"
+    inspection_panel_notice_of_registration = "Inspection Panel Notice of Registration"
+    general_economy = "General Economy"
+    safeguards_diagnostic_review = "Safeguards Diagnostic Review"
+    interim_strategy_note = "Interim Strategy Note"
+    world_development_indicators = "World Development Indicators"
+    country_financial_accountability_assessment = "Country Financial Accountability Assessment"
+    corporate_governance_assessment = "Corporate Governance Assessment"
+    social_analysis = "Social Analysis"
+    other_rural_study = "Other Rural Study"
+    foreign_trade_fdi_and_capital_flows_study = "Foreign Trade; FDI; and Capital Flows Study"
+    country_procurement_assessment = "Country Procurement Assessment"
+    other_urban_study = "Other Urban Study"
+    gef_project_brief = "GEF Project Brief"
+    development_policy_review = "Development Policy Review"
+    country_environmental_analysis = "Country Environmental Analysis"
+    integrative_fiduciary_assessment = "Integrative Fiduciary Assessment"
+    education_sector_review = "Education Sector Review"
+    manual = "Manual"
+    investigation_report = "Investigation Report"
+    health_sector_review = "Health Sector Review"
+    sector_or_thematic_evaluation = "Sector or Thematic Evaluation"
+    tranche_release_document = "Tranche Release Document"
+    country_assistance_evaluation = "Country Assistance Evaluation"
+    commodity_working_paper = "Commodity Working Paper"
+    program_for_results_fiduciary_systems_assessment = "Program-for-Results Fiduciary Systems Assessment"
+    psd_privatization_and_industrial_policy = "PSD; Privatization and Industrial Policy"
+    program_for_results_technical_assessment = "Program-for-Results Technical Assessment"
+    mining_oil_and_gas = "Mining/Oil and Gas"
+    water_and_sanitation_discussion_paper = "Water and Sanitation Discussion Paper"
+    country_partnership_framework = "Country Partnership Framework"
+    knowledge_economy_study = "Knowledge Economy Study"
+    global_development_finance_formerly_world_debt_tables = "Global Development Finance - formerly World Debt Tables"
+    other_financial_accountability_study = "Other Financial Accountability Study"
+    city_development_strategy = "City Development Strategy"
+    institutional_and_governance_review = "Institutional and Governance Review"
+    country_gender_assessment = "Country Gender Assessment"
+    internal_discussion_paper = "Internal Discussion Paper"
+    environment_working_paper = "Environment Working Paper"
+    memorandum_and_recommendation_of_the_director = "Memorandum and Recommendation of the Director"
+    global_environment_facility_working_paper = "Global Environment Facility Working Paper"
+    corporate_evaluation = "Corporate Evaluation"
+    women_in_development_and_gender_study = "Women in Development and Gender Study"
+    rural_development_assessment = "Rural Development Assessment"
+    risk_and_vulnerability_assessment = "Risk and Vulnerability Assessment"
+    governors_statement = "Governor's Statement"
+    lac_human_and_social_development_group_paper_series = "LAC Human and Social Development Group Paper Series"
+    memorandum_and_recommendation_of_the_managing_director = "Memorandum and Recommendation of the Managing Director"
+    project_appraisal_document_data_sheet = "Project Appraisal Document Data Sheet"
+    strategic_environmental_assessment_analysis = "Strategic Environmental Assessment/Analysis"
+    legal_and_judicial_sector_assessment = "Legal and Judicial Sector Assessment"
+    energy_environment_review = "Energy-Environment Review"
+    policy_paper = "Policy Paper"
+    country_portfolio_performance_review = "Country Portfolio Performance Review"
+    law_and_justice_study = "Law and Justice Study"
+    impact_evaluation_report = "Impact Evaluation Report"
+    country_infrastructure_framework = "Country Infrastructure Framework"
+    report_on_the_world_bank_research_program = "Report on the World Bank Research Program"
+    country_engagement_note = "Country Engagement Note"
+    completion_point_document = "Completion Point Document"
+    other_procurement_study = "Other Procurement Study"
+    commodities_study = "Commodities Study"
+    gef_project_document = "GEF Project Document"
+    preliminary_decision_point_document = "Preliminary Decision Point Document"
+    insolvency_assessment = "Insolvency Assessment"
+    annual_report_on_portfolio_performance = "Annual Report on Portfolio Performance"
+    public_investment_review = "Public Investment Review"
+    deliverable_document = "Deliverable Document"
+    transitional_support_strategy = "Transitional Support Strategy"
+    memorandum_and_recommendation_of_the_president = "Memorandum and Recommendation of the President"
+    directory = "Directory"
+    country_reengagement_note = "Country Re-engagement Note"
+    environmental_and_social_framework = "Environmental and Social Framework"
+    financial_flows = "Financial Flows"
+    world_bank_atlas = "World Bank Atlas"
+    debt_and_creditworthiness_study = "Debt and Creditworthiness Study"
+    financial_assessment = "Financial Assessment"
+    price_prospects_for_major_primary_commodities = "Price Prospects for Major Primary Commodities"
+    legal_opinion = "Legal Opinion"
+    environmental_action_plan = "Environmental Action Plan"
+    human_capital_working_paper = "Human Capital Working Paper"
+    presidents_report = "President's Report"
+    decision_point_document = "Decision Point Document"
+    cas_public_information_note = "CAS Public Information Note"
+    project_concept_note = "Project Concept Note"
+    p_r_af_drft_essa = "P4R-AF-DRFT-ESSA"
+    social_action_plan = "Social Action Plan"
+    managing_directors_report = "Managing Director's Report"
+    public_environmental_expenditure_review = "Public Environmental Expenditure Review"
+    poverty_and_social_policy_working_paper = "Poverty and Social Policy Working Paper"
+    economic_report = "Economic Report"
+    auditing_financial_management = "Auditing/Financial Management"
+    rp_sp_full = "RP-SP-FULL"
+    guideline = "Guideline"
+    proj_pap_sp = "PROJ-PAP-SP"
+    issues_paper = "Issues Paper"
+    the_environmental_and_social_review_summary = "The Environmental and Social Review Summary"
+    drft_env_asmt_shp = "DRFT-ENV-ASMT-SHP"
+    p_r_af_app_pid = "P4R-AF-APP-PID"
+    p_r_af_fin_essa = "P4R-AF-FIN-ESSA"
+    disclosable_project_appraisal_document = "Disclosable Project Appraisal Document"
+    madia_discussion_paper = "MADIA Discussion Paper"
+    recent_economic_developments_in_infrastructure = "Recent Economic Developments in Infrastructure"
 
     # From WB docs API curated list
     # _ = "0"
-    accounting_and_auditing_assessment_rosc = "Accounting and Auditing Assessment (ROSC)"
+    accounting_and_auditing_assessment = "Accounting and Auditing Assessment"
     agenda = "Agenda"
     agreement = "Agreement"
     aide_memoire = "Aide Memoire"
@@ -338,7 +476,7 @@ class WBDocTypes(WBEnum):
     environmental_and_social_commitment_plan = "Environmental and Social Commitment Plan"
     environmental_and_social_management_plan = "Environmental and Social Management Plan"
     environmental_and_social_review_summary = "Environmental and Social Review Summary"
-    executive_director_s_statement = "Executive Director's Statement"
+    executive_directors_statement = "Executive Director's Statement"
     financial_monitoring_report = "Financial Monitoring Report"
     financial_statement = "Financial Statement"
     financing_agreement = "Financing Agreement"
@@ -357,7 +495,7 @@ class WBDocTypes(WBEnum):
     letter_of_development_policy = "Letter of Development Policy"
     loan_agreement = "Loan Agreement"
     memorandum = "Memorandum"
-    memorandum_recommendation_of_the_president = "Memorandum & Recommendation of the President"
+    memorandum_and_recommendation_of_the_president = "Memorandum and Recommendation of the President"
     minutes = "Minutes"
     monthly_operational_summary = "Monthly Operational Summary"
     newsletter = "Newsletter"
@@ -373,10 +511,10 @@ class WBDocTypes(WBEnum):
     policy_note = "Policy Note"
     policy_research_working_paper = "Policy Research Working Paper"
     poverty_assessment = "Poverty Assessment"
-    poverty_reduction_strategy_paper_prsp = "Poverty Reduction Strategy Paper (PRSP)"
+    poverty_reduction_strategy_paper = "Poverty Reduction Strategy Paper"
     pre_economic_or_sector_report = "Pre-2003 Economic or Sector Report"
-    president_s_report = "President's Report"
-    president_s_speech = "President's Speech"
+    presidents_report = "President's Report"
+    presidents_speech = "President's Speech"
     procedure_and_checklist = "Procedure and Checklist"
     procurement_plan = "Procurement Plan"
     program_document = "Program Document"
