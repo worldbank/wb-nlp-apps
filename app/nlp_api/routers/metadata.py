@@ -24,7 +24,7 @@ router = APIRouter(
     "/get_metadata_by_id",
     response_model=metadata.MetadataModel,
     summary="Get metadata by id")
-def get_doc_metadata_by_id(id: str):
+def get_doc_metadata_by_id(id: str = "wb_725385"):
     """This enpoint fetches the metadata corresponding to the given `id`.
     """
 
