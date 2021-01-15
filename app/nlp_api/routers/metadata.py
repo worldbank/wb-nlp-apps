@@ -39,7 +39,12 @@ def get_doc_metadata_by_id(id: str):
     # response_model=metadata.MetadataModel,
     # summary="Get count of documents based on arbitrary grouping fields.")
 )
-def get_doc_count(group_by: List[str] = ["year", "country"], sort_by: List[metadata.SortOn] = [metadata.SortOn(field="year", order=metadata.SortOrder.desc), metadata.SortOn(field="count", order=metadata.SortOrder.desc)], limit: int = 10):
+def get_doc_count(
+        group_by: List[str] = ["year", "country"],
+        sort_by: List[metadata.SortOn] = [
+            metadata.SortOn(field="year", order=metadata.SortOrder.desc),
+            metadata.SortOn(field="count", order=metadata.SortOrder.desc)],
+        limit: int = 10):
     """This endpoint provides a generic interface to get the count of documents given an arbitrary set of `group_fields`. The return value can be sorted based on the `sort_field` input. The number of returned groups is limited by the `limit` parameter.
     """
 
@@ -48,15 +53,11 @@ def get_doc_count(group_by: List[str] = ["year", "country"], sort_by: List[metad
 
     group_id = {b: f"${b}" for b in group_by}
 
-    # sort_by = {s: v for s, v in sort_by.items()}
     sort_by = SON(
         [(so.field, -1 if so.order == metadata.SortOrder.desc else 1) for so in sort_by])
-    # sort_by = SON(sort_by.items())
     projection = {b: f"$_id.{b}" for b in group_by}
     projection["count"] = "$count"
     projection["_id"] = 0
-
-    print(projection)
 
     # Identify fields that needs unwinding, if any
     list_fields = set(["adm_region", "author", "country", "der_acronyms", "doc_type",
@@ -76,8 +77,6 @@ def get_doc_count(group_by: List[str] = ["year", "country"], sort_by: List[metad
         {"$limit": limit},
     ])
 
-    print(pipeline)
-
     agg = mongodb.get_docs_metadata_collection().aggregate(
         pipeline
     )
@@ -92,23 +91,26 @@ def get_doc_count(group_by: List[str] = ["year", "country"], sort_by: List[metad
     # response_model=metadata.MetadataModel,
     # summary="Get count of documents based on arbitrary grouping fields.")
 )
-def get_normalized_doc_count(group_by: List[str] = ["year", "country"], sort_on: dict = {"year": -1, "count": -1}, normalize_by: str = "year", limit: int = 10):
+def get_normalized_doc_count(
+        group_by: List[str] = ["year", "country"],
+        sort_by: List[metadata.SortOn] = [
+            metadata.SortOn(field="year", order=metadata.SortOrder.desc),
+            metadata.SortOn(field="count", order=metadata.SortOrder.desc)],
+        normalize_by: str = "year",
+        limit: int = 10):
 
-    assert len(set(sort_on).difference(group_by + ['count'])) == 0
+    assert len(set(so.field
+                   for so in sort_by).difference(group_by + ['count'])) == 0
 
     group_id = {b: f"${b}" for b in group_by}
 
-    # sort_on = {f"_id.{s}" if s !=
-    #    "count" else s: v for s, v in sort_on.items()}
-    sort_on = {s: v for s, v in sort_on.items()}
+    sort_by = SON(
+        [(so.field, -1 if so.order == metadata.SortOrder.desc else 1) for so in sort_by])
 
-    sort_on = SON(sort_on.items())
     projection = {b: f"$results._id.{b}" for b in group_by}
     projection["count"] = "$results.count"
     projection["proportion"] = "$results.proportion"
     projection["_id"] = 0
-
-    print(projection)
 
     # Identify fields that needs unwinding, if any
     list_fields = set(["adm_region", "author", "country", "der_acronyms", "doc_type",
@@ -144,41 +146,9 @@ def get_normalized_doc_count(group_by: List[str] = ["year", "country"], sort_on:
         }},
         {"$unwind": "$results"},
         {"$project": projection},
-        {"$sort": sort_on},
+        {"$sort": sort_by},
         {"$limit": limit},
-        # {"$project": projection}
     ])
-
-    #     {"$project": projection},
-    # ])
-
-
-#     $project : {
-#         _id : 0,
-#         docs : {
-#             $map : {
-#                 "input" : "$docs",
-#                 "as" : "e",
-#                 "in" : {                    // retrieve each element
-#                     _id : "$$e._id",
-#                     count : "$$e.count",
-#                     rate : {                // add the normalized value here
-#                         $divide : [ "$$e.count", "$maxCount"]
-#                     }
-#                 }
-#             }
-#         }
-#     }
-# }, {
-#     $unwind : "$docs"
-# }, {
-#     $project : {
-#         _id : "$docs._id",
-#         count : "$docs.count",
-#         rate : "$docs.rate"
-#     }
-
-    print(pipeline)
 
     agg = mongodb.get_docs_metadata_collection().aggregate(
         pipeline
@@ -187,20 +157,3 @@ def get_normalized_doc_count(group_by: List[str] = ["year", "country"], sort_on:
     values = [{"rank": ix, **result} for ix, result in enumerate(agg, 1)]
 
     return values
-
-
-# pipeline = [
-#     {"$unwind": "$country"},
-#     {"$group": {"_id": {"date_published": "$date_published",
-#                         "country": "$country"}, "count": {"$sum": 1}}},
-#     {"$sort": SON([("_id.date_published", -1), ("count", -1)])}]
-
-
-# pipeline = [
-#     {"$unwind": "$country"},
-#     {"$group": {"_id": {"year": "$year",
-#                         "country": "$country"}, "count": {"$sum": 1}}},
-#     {"$sort": SON([("_id.year", -1), ("count", -1)])},
-#     {"$project": {"_id": 0, "year": "$_id.year",
-#                   "country": "$_id.country", "count": "$count"}}
-# ]
