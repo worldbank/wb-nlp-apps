@@ -45,7 +45,7 @@ def get_doc_count(
             metadata.SortOn(field="year", order=metadata.SortOrder.desc),
             metadata.SortOn(field="count", order=metadata.SortOrder.desc)],
         limit: int = 10):
-    """This endpoint provides a generic interface to get the count of documents given an arbitrary set of `group_fields`. The return value can be sorted based on the `sort_field` input. The number of returned groups is limited by the `limit` parameter.
+    """This endpoint provides a generic interface to get the count of documents given an arbitrary set of `group_by` fields. The return value can be sorted based on the `sort_by` fields input. The number of returned groups is limited by the `limit` parameter.
     """
 
     assert len(set(so.field
@@ -98,6 +98,8 @@ def get_normalized_doc_count(
             metadata.SortOn(field="count", order=metadata.SortOrder.desc)],
         normalize_by: str = "year",
         limit: int = 10):
+    """This endpoint provides a generic interface to get the count of documents and normalized values given an arbitrary set of `group_by` fields and a `normalize_by` field to normalize the counts with. The return value can be sorted based on the `sort_by` fields input. The number of returned groups is limited by the `limit` parameter.
+    """
 
     assert len(set(so.field
                    for so in sort_by).difference(group_by + ['count'])) == 0
