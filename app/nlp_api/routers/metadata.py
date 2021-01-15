@@ -39,19 +39,20 @@ def get_doc_metadata_by_id(id: str):
     # response_model=metadata.MetadataModel,
     # summary="Get count of documents based on arbitrary grouping fields.")
 )
-def get_doc_count(group_fields: List[str] = ["year", "country"], sort_field: dict = {"year": -1, "count": -1}, limit: int = 10):
+def get_doc_count(group_by: List[str] = ["year", "country"], sort_by: List[metadata.SortOn] = [metadata.SortOn(field="year", order=metadata.SortOrder.desc), metadata.SortOn(field="count", order=metadata.SortOrder.desc)], limit: int = 10):
     """This endpoint provides a generic interface to get the count of documents given an arbitrary set of `group_fields`. The return value can be sorted based on the `sort_field` input. The number of returned groups is limited by the `limit` parameter.
     """
 
-    assert len(set(sort_field).difference(group_fields + ['count'])) == 0
+    assert len(set(so.field
+                   for so in sort_by).difference(group_by + ['count'])) == 0
 
-    group_id = {b: f"${b}" for b in group_fields}
+    group_id = {b: f"${b}" for b in group_by}
 
-    # sort_field = {f"_id.{s}" if s !=
-    #               "count" else s: v for s, v in sort_field.items()}
-    sort_field = {s: v for s, v in sort_field.items()}
-    sort_field = SON(sort_field.items())
-    projection = {b: f"$_id.{b}" for b in group_fields}
+    # sort_by = {s: v for s, v in sort_by.items()}
+    sort_by = SON(
+        [(so.field, -1 if so.order == metadata.SortOrder.desc else 1) for so in sort_by])
+    # sort_by = SON(sort_by.items())
+    projection = {b: f"$_id.{b}" for b in group_by}
     projection["count"] = "$count"
     projection["_id"] = 0
 
@@ -61,7 +62,7 @@ def get_doc_count(group_fields: List[str] = ["year", "country"], sort_field: dic
     list_fields = set(["adm_region", "author", "country", "der_acronyms", "doc_type",
                        "geo_region", "major_doc_type", "topics_src", "wb_subtopic_src"])
     unwind_fields = [{"$unwind": f"${b}"}
-                     for b in list_fields.intersection(group_fields)]
+                     for b in list_fields.intersection(group_by)]
 
     pipeline = []
 
@@ -71,7 +72,7 @@ def get_doc_count(group_fields: List[str] = ["year", "country"], sort_field: dic
     pipeline.extend([
         {"$group": {"_id": group_id, "count": {"$sum": 1}}},
         {"$project": projection},
-        {"$sort": sort_field},
+        {"$sort": sort_by},
         {"$limit": limit},
     ])
 

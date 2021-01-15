@@ -160,6 +160,15 @@ def make_metadata_model_from_nlp_schema(body):
 #                 if field_name != "doc_type":
 #                     raise(exc)
 
+class SortOrder(enum.Enum):
+    asc = "ascending"
+    desc = "descending"
+
+
+class SortOn(BaseModel):
+    field: str
+    order: SortOrder = SortOrder.desc
+
 
 class CountryCounts(BaseModel):
     country_code: str
