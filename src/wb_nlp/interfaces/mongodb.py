@@ -46,17 +46,27 @@ def get_mongodb_client(host=None, port=None):
     return MONGODB_CLIENT
 
 
-def get_metadata_collection(host=None, port=None):
+def get_collection(db_name, collection_name, host=None, port=None):
+    """This is a generic function to get an interface to a given collection.
+    """
     client = get_mongodb_client(host, port)
-    db = client['nlp']
-    collection = db['metadata']
+    db = client[db_name]
+    collection = db[collection_name]
 
     return collection
+
+
+def get_metadata_collection(host=None, port=None):
+    return get_collection(host=host, port=port, db_name="nlp", collection_name="metadata")
 
 
 def get_docs_metadata_collection(host=None, port=None):
-    client = get_mongodb_client(host, port)
-    db = client['nlp']
-    collection = db['docs_metadata']
+    return get_collection(host=host, port=port, db_name="nlp", collection_name="docs_metadata")
 
-    return collection
+
+def get_cleaning_config_collection(host=None, port=None):
+    return get_collection(host=host, port=port, db_name="nlp", collection_name="cleaning_config")
+
+
+def get_models_config_collection(host=None, port=None):
+    return get_collection(host=host, port=port, db_name="nlp", collection_name="model_config")
