@@ -90,6 +90,26 @@ class LDATransformParams(TextInputParams):
     )
 
 
+class DictionaryParamsConfig(BaseModel):
+    no_below: int = Field(
+        10,
+        description="""Used in `filter_extremes`. Keep tokens which are contained in at least no_below documents."""
+    )
+
+    no_above: float = Field(
+        0.98,
+        description="""Used in `filter_extremes`. Keep tokens which are contained in no more than no_above documents (fraction of total corpus size, not an absolute number)."""
+    )
+    keep_n: int = Field(
+        200000,
+        description="""Used in `filter_extremes`. Keep only the first keep_n most frequent tokens."""
+    )
+    keep_tokens: list = Field(
+        None,
+        description="""Used in `filter_extremes`. Iterable of tokens that must stay in dictionary after filtering."""
+    )
+
+
 class LDAConfig(BaseModel):
     '''Definition of parameters for the Gensim LDA model.
 
@@ -193,6 +213,9 @@ the string ‘auto’ to learn the asymmetric prior from the data."""
         False,
         description="""If True, the model also computes a list of topics, sorted in descending order of most likely topics for each word, along with their phi values multiplied by the feature length (i.e. word count)."""
     )
+
+# class LDAModelConfig(BaseModel):
+#     min_tokens
 
 
 # model_config:
