@@ -45,3 +45,45 @@ async def get_file_vector(file: UploadFile = File(None, description='File to upl
     # Word2VecTransformParams
 
     return dict(file=file)
+
+
+@ router.post("/get_related_words")
+async def get_related_words(transform_params: Word2VecGetVectorParams):
+    '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
+    '''
+
+    model_id = transform_params.model_id
+    raw_text = transform_params.raw_text
+    assert transform_params.model_type == ModelTypes.word2vec
+
+    print(model_id, raw_text)
+
+    return dict(transform_params=transform_params)
+
+
+@ router.post("/get_similar_docs_by_id")
+async def get_similar_docs_by_id(transform_params: Word2VecGetVectorParams):
+    '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
+    '''
+
+    model_id = transform_params.model_id
+    raw_text = transform_params.raw_text
+    assert transform_params.model_type == ModelTypes.word2vec
+
+    print(model_id, raw_text)
+
+    return dict(transform_params=transform_params)
+
+
+@ router.post("/get_similar_docs")
+async def get_similar_docs(transform_params: Word2VecGetVectorParams):
+    '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
+    '''
+
+    model_id = transform_params.model_id
+    raw_text = transform_params.raw_text
+    assert transform_params.model_type == ModelTypes.word2vec
+
+    print(model_id, raw_text)
+
+    return dict(transform_params=transform_params)

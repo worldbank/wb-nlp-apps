@@ -275,6 +275,9 @@ class CleaningConfig(BaseModel):
     spell_checker: SpellChecker = Field(
         SpellChecker(),
         description="Parameters for the spell checking algorithm.")
+    meta: Any = Field(
+        None, description="Metadata that may provide additional information about the cleaner."
+    )
 
     def __init__(self, **data: Any) -> None:
         temp_data = dict(data)
