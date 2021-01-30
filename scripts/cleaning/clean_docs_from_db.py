@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 '''
-Script that runs the cleaning of raw text data given a configuration file.
+Script that runs the cleaning of raw text data given a configuration id available in mongodb collection `nlp/cleaning_config`.
 '''
 import logging
 from pathlib import Path
@@ -14,8 +14,7 @@ import joblib
 import wb_nlp
 from wb_nlp.dir_manager import get_data_dir
 from wb_nlp.cleaning import cleaner
-from wb_nlp.utils.scripts import configure_logger, load_config, create_dask_cluster
-from wb_nlp.types.cleaning import CleaningConfig
+from wb_nlp.utils.scripts import configure_logger, create_dask_cluster
 from wb_nlp.interfaces import mongodb
 
 
@@ -86,30 +85,8 @@ def main(cleaning_config_id: str, log_level: int, n_workers: int = None, batch_s
     # Get the root location /
     root_dir = target_dir.parent.parent.parent.parent
 
-    # source_dirs = [input_dir]
-    # target_dirs = []
-    # if recursive:
-    #     # Assume that the input_directory is at the corpus level.
-    #     # Example: input_dir = '/data/raw/CORPUS'
-    #     # /data/raw/CORPUS/ADB/TXT_ORIG
-    #     # /data/raw/CORPUS/WB/TXT_ORIG
-    #     # Also, the output dir will be stored in the same path as the
-    #     # parent of the input dir under the directory specified in the
-    #     # output_dir parameter.
-    #     source_dirs = sorted(input_dir.glob('*/TXT_ORIG'))
-    #     target_dirs = [i.resolve().parent /
-    #                    output_dir_name for i in source_dirs]
-    #     _logger.info('List of source dirs... %s', source_dirs)
-    #     _logger.info('List of target dirs... %s', target_dirs)
-    #     assert source_dirs, "No source_dirs found. Aborting!"
-    # else:
-    #     target_dirs.append(input_dir.resolve().parent / output_dir_name)
-
     client = create_dask_cluster(_logger, n_workers=n_workers)
     _logger.info(client)
-
-    # config = load_config(cfg_path, 'cleaning_config', _logger)
-    # config = CleaningConfig(**config).dict()
 
     cleaner_object = cleaner.BaseCleaner(config=config)
 
@@ -129,13 +106,6 @@ def main(cleaning_config_id: str, log_level: int, n_workers: int = None, batch_s
         files_count += len(res)
         _logger.info('Processed all %s files with success status %s and saved in %s', len(res),
                      all(res), target_dir)
-
-    # _logger.info('Processed a total of %s files across %s source dirs...',
-    #              files_count, len(source_dirs))
-# Parameters:
-# - Location of input data
-# - Directory of * .txt files
-# - MongoDB database
 
 
 if __name__ == '__main__':
