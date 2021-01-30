@@ -88,3 +88,168 @@ class LDATransformParams(TextInputParams):
     translate: bool = Field(
         True, description='Flag indicating an option to translate the input data.'
     )
+
+
+class LDAConfig(BaseModel):
+    '''Definition of parameters for the Gensim LDA model.
+
+    Parameter descriptions are based from the official documentation https://radimrehurek.com/gensim/models/ldamulticore.html.
+    '''
+
+    num_topics: int = Field(
+        100,
+        description="""The number of requested latent topics to be extracted from the training corpus."""
+    )
+
+    id2word: dict = Field(
+        None,
+        description="""Mapping from word IDs to words. It is used to determine the vocabulary size, as well as for debugging and topic printing."""
+    )
+
+    workers: int = Field(
+        4,
+        description="""Number of workers processes to be used for parallelization. If None all available cores (as estimated by workers=cpu_count()-1 will be used. Note however that for hyper-threaded CPUs, this estimation returns a too high number – set workers directly to the number of your real cores (not hyperthreads) minus one, for optimal performance.
+
+Note: Use 1/2 of virtual cores - 1: (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)"""
+    )
+
+    chunksize: int = Field(
+        250,
+        description="""Number of documents to be used in each training chunk. Note: Update size is chunksize * number of workers -> Update every 10,000 documents processed."""
+    )
+
+    passes: int = Field(
+        5,
+        description="""Number of passes through the corpus during training."""
+    )
+
+    batch: bool = Field(
+        False,
+        description=""
+    )
+
+    alpha: str = Field(
+        "symmetric",
+        description="""Can be set to an 1D array of length equal to the number of expected topics that expresses our a-priori belief for the each topics’ probability. Alternatively default prior selecting strategies can be employed by supplying a string:
+
+’asymmetric’: Uses a fixed normalized asymmetric prior of 1.0 / topicno.
+
+Note: The auto value is not supported by LdaMulticore."""
+    )
+
+    eta: str = Field(
+        None,
+        description="""A-priori belief on word probability, this can be:
+
+scalar for a symmetric prior over topic/word probability,
+
+vector of length num_words to denote an asymmetric user defined probability for each word,
+
+matrix of shape (num_topics, num_words) to assign a probability for each word-topic combination,
+
+the string ‘auto’ to learn the asymmetric prior from the data."""
+    )
+
+    decay: float = Field(
+        0.5,
+        description="""A number between (0.5, 1] to weight what percentage of the previous lambda value is forgotten when each new document is examined."""
+    )
+
+    offset: float = Field(
+        1.0,
+        description="""Hyper-parameter that controls how much we will slow down the first steps the first few iterations."""
+    )
+    eval_every: int = Field(
+        5,
+        description="""Log perplexity is estimated every that many updates. Setting this to one slows down training by ~2x."""
+    )
+
+    iterations: int = Field(
+        1000,
+        description="""Maximum number of iterations through the corpus when inferring the topic distribution of a corpus."""
+    )
+
+    gamma_threshold: float = Field(
+        0.001,
+        description="""Minimum change in the value of the gamma parameters to continue iterating."""
+    )
+
+    random_state: int = Field(
+        1029,
+        description="""Either a randomState object or a seed to generate one. Useful for reproducibility."""
+    )
+
+    minimum_probability: float = Field(
+        0.01,
+        description="""Topics with a probability lower than this threshold will be filtered out."""
+    )
+
+    minimum_phi_value: float = Field(
+        0.01,
+        description="""if per_word_topics is True, this represents a lower bound on the term probabilities."""
+    )
+
+    per_word_topics: bool = Field(
+        False,
+        description="""If True, the model also computes a list of topics, sorted in descending order of most likely topics for each word, along with their phi values multiplied by the feature length (i.e. word count)."""
+    )
+
+
+# model_config:
+#   meta:
+#     model_id: null  # To be filled up in the model training
+#     library: Gensim
+#     model_implementation: LDA Multicore
+#     library_version: 3.8.3
+#     docs: https://radimrehurek.com/gensim/models/ldamulticore.html#module-gensim.models.ldamulticore
+#     references:
+#       - https://markroxor.github.io/gensim/static/notebooks/lda_training_tips.html
+#   params:
+#     min_tokens: 50
+#     dictionary:
+#       no_below: 10
+#       no_above: 0.98
+#       keep_n: 200000
+#       keep_tokens: null
+#     lda:
+#       num_topics:
+#         # - 50
+#         - 75
+#         # - 100
+#         # - 150
+#       id2word: null
+#       workers: -41  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
+#       chunksize: 250  # Update size is chunksize * number of workers -> Update every 10,000 documents processed.
+#       passes:
+#         - 5
+#         # - 10
+#         # - 10
+#         # - 20
+#       batch: False
+#       alpha:
+#         - symmetric
+#         # - auto  # The auto value is not supported by LdaMulticore
+#       eta:
+#         - auto
+#         - null
+#       decay: 0.5
+#       offset: 1.0
+#       eval_every: 5
+#       iterations:
+#         - 1000
+#         # - 2000
+#       gamma_threshold: 0.001
+#       random_state: 1029
+#       minimum_probability: 0.01
+#       minimum_phi_value: 0.01
+#       per_word_topics: False
+#   paths:
+#     base_dir: /data/wb536061/wb_nlp/data/raw/CORPUS
+#     source_dir_name: TXT_LDA
+#     corpus_path: /data/wb536061/wb_nlp/data/raw/CORPUS/bow_corpus-TXT_LDA.mm
+#     dictionary_path: /data/wb536061/wb_nlp/data/raw/CORPUS/dictionary-TXT_LDA.gensim.dict
+#     model_dir: /data/wb536061/wb_nlp/models/lda
+#     dfr_files:
+#       tw: tw.json
+#       dt: dt.json
+#       info: info.json
