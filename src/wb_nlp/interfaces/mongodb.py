@@ -69,4 +69,4 @@ def get_cleaning_config_collection(host=None, port=None):
 
 
 def get_models_config_collection(host=None, port=None):
-    return get_collection(host=host, port=port, db_name="nlp", collection_name="model_config")
+    return get_collection(host=host, port=port, db_name="nlp", collection_name="models_config")

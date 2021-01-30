@@ -1,4 +1,4 @@
-"""This scripts generates a dummy data set to test the end-to-end implementation of the
+"""This script generates a dummy data set to test the end-to-end implementation of the
 metadata preparation, document management, cleaning, model training, and API development.
 """
 import json
@@ -44,4 +44,4 @@ for doc_path in sample_doc_path.glob("*.txt"):
         # Make sure the data conforms with the expected schema.
         data = json.loads(metadata.MetadataModel(**data).json())
 
-        test_docs_metadata.insert(data)
+        test_docs_metadata.insert_one(data)
