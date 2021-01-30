@@ -67,8 +67,14 @@ def load_config(config_path: Path, config_root: str, logger=None) -> dict:
 def generate_model_hash(config: dict) -> str:
     '''
     Computes an md5 hash of a config which can be used as a unique identifier.
+
+    NOTE: Changing the hashing algorithm below will essentially reset any stateful
+    processes that use ids based on this method. Example, cleaning configurations with the
+    same values will appear on the database simply because the algorithm for computing the
+    unique id is using this.
     '''
-    return hashlib.md5(json.dumps(config, sort_keys=True).encode('utf-8')).hexdigest()
+    # return hashlib.md5(json.dumps(config, sort_keys=True).encode('utf-8')).hexdigest()
+    return hashlib.md5(''.join(sorted(json.dumps(config))).encode('utf-8')).hexdigest()
 
 
 def create_get_directory(parent: Path, child: str) -> Path:
