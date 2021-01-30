@@ -95,13 +95,13 @@ The Gensim implementation for the word2vec model is used in this project. We ext
 
 ## Alternative workflow
 
-1. Upload the document metadata into the mongodb `nlp` database under the `docs_metadata` collection. Refer to [load_json_dump_to_db.py](/scripts/metadata/load_json_dump_to_db.py) for an example.
+1. Upload the document metadata into the mongodb `nlp` database under the `docs_metadata` collection. Refer to [load_json_dump_to_db.py](/scripts/metadata/load_json_dump_to_db.py) for an example. Make sure that the `path_original` field corresponds to the path where the corresponding document is stored. Documents should ideally be stored following this convention: `/data/corpus/<corpus_id>/*.txt`.
 
-2. Create a cleaning config based on the `/configs/cleaning/default.yml` and upload to mongodb at the `nlp/cleaning_config` collection.
+2. Create a cleaning config based on the `/configs/cleaning/default.yml` and upload to mongodb at the `nlp/cleaning_config` collection. It is recommended to add some description about the configuration in the `meta` field of the configuration file. You can use the `/scripts/configs/load_configs_to_db.py` script to load the configuration into the database.
 
-3. To start the cleaning of the corpus, provide the `cleaning_config_id` of the configuration that you want to use for cleaning the documents. This assumes that all the documents in the `docs_metadata` will be cleaned.
+3. To start the cleaning of the corpus, provide the `cleaning_config_id` of the configuration that you want to use in cleaning the documents. This assumes that all the documents in the `docs_metadata` will be cleaned.
 
-4. The cleaning script will store the cleaned data at `dir_clean`/`cleaning_config_id`/`file_name`.
+4. The cleaning script will store the cleaned data at `dir_clean`/`cleaning_config_id`/`file_name`. The `dir_clean` and `cleaning_config_id` are parameters that will need to be provided to the script. The `file_name` will be extracted from the `docs_metadata`.
 
 5. When you want to run a model, you need to first generate a valid configuration. This configuration must be uploaded to mongodb under the `nlp/model_config` collection.
 

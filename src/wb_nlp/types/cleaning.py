@@ -263,7 +263,7 @@ class SpellChecker(BaseModel):
 
 
 class CleaningConfig(BaseModel):
-    config_id: str = Field(
+    cleaning_config_id: str = Field(
         '', description="Configuration id derived from the combination of the parameters.")
     cleaner: Cleaner = Field(
         Cleaner(),
@@ -282,11 +282,11 @@ class CleaningConfig(BaseModel):
     def __init__(self, **data: Any) -> None:
         temp_data = dict(data)
 
-        if 'config_id' in temp_data:
-            # Remove `config_id` if exists since it will be
+        if 'cleaning_config_id' in temp_data:
+            # Remove `cleaning_config_id` if exists since it will be
             # computed as unique id from other fields.
-            temp_data.pop('config_id')
+            temp_data.pop('cleaning_config_id')
 
         super().__init__(**temp_data)
 
-        self.config_id = generate_model_hash(self.dict())
+        self.cleaning_config_id = generate_model_hash(self.dict())

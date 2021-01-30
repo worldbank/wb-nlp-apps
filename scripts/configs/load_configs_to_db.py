@@ -18,7 +18,7 @@ for cfg_path in Path(get_configs_dir('cleaning')).glob('*.yml'):
 
     CFG_PATH = str(cfg_path)
 
-    config["_id"] = config["config_id"]
+    config["_id"] = config["cleaning_config_id"]
 
     try:
         cleaning_config_collection.insert_one(config)
