@@ -93,6 +93,20 @@ The Gensim implementation for the word2vec model is used in this project. We ext
 5. Run the [train_lda_model.py](/scripts/models/train_lda_model.py) to train the LDA model with the cleaned text.
 
 
+## Alternative workflow
+
+1. Upload the document metadata into the mongodb `nlp` database under the `docs_metadata` collection. Refer to [load_json_dump_to_db.py](/scripts/metadata/load_json_dump_to_db.py) for an example.
+
+2. Create a cleaning config based on the `/configs/cleaning/default.yml` and upload to mongodb at the `nlp/cleaning_config` collection.
+
+3. To start the cleaning of the corpus, provide the `cleaning_config_id` of the configuration that you want to use for cleaning the documents. This assumes that all the documents in the `docs_metadata` will be cleaned.
+
+4. The cleaning script will store the cleaned data at `dir_clean`/`cleaning_config_id`/`file_name`.
+
+5. When you want to run a model, you need to first generate a valid configuration. This configuration must be uploaded to mongodb under the `nlp/model_config` collection.
+
+6. After the config is uploaded, select which cleaned documents (defined by the `cleaning_config_id`) will be used. Also provide the `model_config_id` that will be used for the model.
+
 ## Instruction for contributors
 
 Please read the [DEVELOPERS.md](/DEVELOPERS.md) for more details about the development workflow.
