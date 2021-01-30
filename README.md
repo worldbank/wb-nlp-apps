@@ -103,9 +103,9 @@ The Gensim implementation for the word2vec model is used in this project. We ext
 
 4. The cleaning script will store the cleaned data at `dir_clean`/`cleaning_config_id`/`file_name`. The `dir_clean` and `cleaning_config_id` are parameters that will need to be provided to the script. The `file_name` will be extracted from the `docs_metadata`.
 
-5. When you want to run a model, you need to first generate a valid configuration. This configuration must be uploaded to mongodb under the `nlp/model_config` collection.
+5. When you want to train a model, you need to first generate a valid configuration. This configuration must be uploaded to mongodb under the `nlp/models_config` collection. You can use the `/scripts/configs/load_configs_to_db.py` script to load the configuration into the database.
 
-6. After the config is uploaded, select which cleaned documents (defined by the `cleaning_config_id`) will be used. Also provide the `model_config_id` that will be used for the model.
+6. After the configuration is uploaded, select which cleaned documents (defined by the `cleaning_config_id`) will be used. Also provide the `models_config_id` that will be used for the model.
 
 ## Instruction for contributors
 
