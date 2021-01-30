@@ -109,7 +109,7 @@ def main(cfg_path: Path, input_dir: Path, output_dir_name: str, log_level: int, 
             if not output_dir.exists():
                 output_dir.mkdir(parents=True)
 
-            res = Parallel(verbose=1, batch_size=batch_size)(
+            res = Parallel(verbose=10, batch_size=batch_size)(
                 delayed(joblib_clean_file)(
                     cleaner_object.get_clean_tokens,
                     ix, i, output_dir) for ix, i in enumerate(input_dir.glob('*.txt'), 1))

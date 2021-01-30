@@ -16,8 +16,6 @@ for cfg_path in Path(get_configs_dir('cleaning')).glob('*.yml'):
     config = load_config(cfg_path, 'cleaning_config')
     config = json.loads(CleaningConfig(**config).json())
 
-    CFG_PATH = str(cfg_path)
-
     config["_id"] = config["cleaning_config_id"]
 
     try:

@@ -12,6 +12,7 @@ from wb_nlp.types import metadata
 
 test_docs_metadata = mongodb.get_collection(
     db_name="test_nlp", collection_name="docs_metadata")
+test_docs_metadata.delete_many({})
 
 docs_metadata = mongodb.get_docs_metadata_collection()
 
@@ -34,8 +35,16 @@ for doc_path in sample_doc_path.glob("*.txt"):
 
         DOC_CORPUS_PATH = str(doc_corpus_path)
 
+        # Use data/ and not /data/. Note that using the latter will have adverse effect when we use pathlib.
+        # Essentially, the rightmost absolute path is used by pathlib as the anchor.
+        # Example:
+        # p = Path('./scripts)
+        # w = '/data/corpus/WB/wb_891710.txt'
+        # pt = p / w  # -> This results to `/data/corpus/WB/wb_891710.txt` and not `./scripts/data/corpus/WB/wb_891710.txt`.
         data["path_original"] = DOC_CORPUS_PATH[DOC_CORPUS_PATH.index(
-            "/data"):]
+            "/data/") + 1:]
+
+        assert data["path_original"].startswith("data/")
 
         data["_id"] = data["id"]
         data["last_update_date"] = datetime.now()
