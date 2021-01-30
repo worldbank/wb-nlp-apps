@@ -90,7 +90,14 @@ class LDATransformParams(TextInputParams):
     )
 
 
-class DictionaryParamsConfig(BaseModel):
+class ModelMeta(BaseModel):
+    pass
+
+
+class DictionaryConfig(BaseModel):
+    dictionary_config_id: str = Field(
+        '', description="Configuration id derived from the combination of the parameters.")
+
     no_below: int = Field(
         10,
         description="""Used in `filter_extremes`. Keep tokens which are contained in at least no_below documents."""
@@ -109,12 +116,27 @@ class DictionaryParamsConfig(BaseModel):
         description="""Used in `filter_extremes`. Iterable of tokens that must stay in dictionary after filtering."""
     )
 
+    def __init__(self, **data: Any) -> None:
+        temp_data = dict(data)
+
+        if 'dictionary_config_id' in temp_data:
+            # Remove `cleaner_config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('dictionary_config_id')
+
+        super().__init__(**temp_data)
+
+        self.dictionary_config_id = generate_model_hash(self.dict())
+
 
 class LDAConfig(BaseModel):
     '''Definition of parameters for the Gensim LDA model.
 
     Parameter descriptions are based from the official documentation https://radimrehurek.com/gensim/models/ldamulticore.html.
     '''
+
+    lda_config_id: str = Field(
+        '', description="Configuration id derived from the combination of the parameters.")
 
     num_topics: int = Field(
         100,
@@ -214,8 +236,29 @@ the string ‘auto’ to learn the asymmetric prior from the data."""
         description="""If True, the model also computes a list of topics, sorted in descending order of most likely topics for each word, along with their phi values multiplied by the feature length (i.e. word count)."""
     )
 
-# class LDAModelConfig(BaseModel):
-#     min_tokens
+    def __init__(self, **data: Any) -> None:
+        temp_data = dict(data)
+
+        if 'lda_config_id' in temp_data:
+            # Remove `cleaner_config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('lda_config_id')
+
+        super().__init__(**temp_data)
+
+        self.lda_config_id = generate_model_hash(self.dict())
+
+
+class DFRConfig(BaseModel):
+    pass
+
+
+class LDAModelConfig(BaseModel):
+    min_tokens: int
+    lda_config: LDAConfig
+    dictionary_config: DictionaryConfig
+    meta: ModelMeta
+    dfr_config: DFRConfig
 
 
 # model_config:
