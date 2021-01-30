@@ -7,7 +7,7 @@ FastAPI.
 '''
 
 import enum
-from typing import List, Any
+from typing import List, Any, AnyUrl
 from pydantic import BaseModel, Field, validator
 from wb_nlp.utils.scripts import generate_model_hash
 from fastapi import File, UploadFile
@@ -91,7 +91,26 @@ class LDATransformParams(TextInputParams):
 
 
 class ModelMeta(BaseModel):
-    pass
+    library: str = Field(
+        ...,
+        description="Name of the library where the model comes from. Example: Gensim."
+    )
+    model_implementation: str = Field(
+        ...,
+        description="Name of the specific model implementation selected. Example: `LDA Multicore` if the multicore implementation is used."
+    )
+    library_version: str = Field(
+        ...,
+        description="The exact version of the library that was used. Example: 3.8.3"
+    )
+    docs: AnyUrl = Field(
+        ...,
+        description="Link to the documentation of the model. Example: https://radimrehurek.com/gensim/models/ldamulticore.html"
+    )
+    references: List[str] = Field(
+        None,
+        description="List of other references. Could be links to resources or brief notes on the model. Example: https: // markroxor.github.io/gensim/static/notebooks/lda_training_tips.html"
+    )
 
 
 class DictionaryConfig(BaseModel):
