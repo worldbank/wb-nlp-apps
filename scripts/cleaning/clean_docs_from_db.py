@@ -109,6 +109,6 @@ def main(cleaning_config_id: str, log_level: int, n_workers: int = None, batch_s
 
 
 if __name__ == '__main__':
-    # python -u ./scripts/cleaning/clean_docs_from_db.py --cleaning-config-id 016f5ee5908dc5f9b257f4f7ed4ec156 -vv |& tee ./logs/clean_docs_from_db.py.log
+    # python -u ./scripts/cleaning/clean_docs_from_db.py --cleaning-config-id 23f78350192d924e4a8f75278aca0e1c -vv |& tee ./logs/clean_docs_from_db.py.log
 
     main()

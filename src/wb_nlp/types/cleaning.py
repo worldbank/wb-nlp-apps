@@ -7,6 +7,7 @@ FastAPI.
 '''
 
 import enum
+import json
 from typing import List, Any
 from pydantic import BaseModel, Field, validator
 from wb_nlp.utils.scripts import generate_model_hash
@@ -198,7 +199,7 @@ class Cleaner(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.cleaner_config_id = generate_model_hash(self.dict())
+        self.cleaner_config_id = generate_model_hash(json.loads(self.json()))
 
 
 class RespellerInferCorrectWord(BaseModel):
@@ -237,7 +238,7 @@ class Respeller(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.respeller_config_id = generate_model_hash(self.dict())
+        self.respeller_config_id = generate_model_hash(json.loads(self.json()))
 
 
 class SpellChecker(BaseModel):
@@ -259,7 +260,8 @@ class SpellChecker(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.spell_checker_config_id = generate_model_hash(self.dict())
+        self.spell_checker_config_id = generate_model_hash(
+            json.loads(self.json()))
 
 
 class CleaningConfig(BaseModel):
@@ -289,4 +291,4 @@ class CleaningConfig(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.cleaning_config_id = generate_model_hash(self.dict())
+        self.cleaning_config_id = generate_model_hash(json.loads(self.json()))

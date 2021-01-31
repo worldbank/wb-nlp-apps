@@ -29,6 +29,7 @@ from wb_nlp.utils.scripts import (
 
 from wb_nlp.processing.corpus import MultiDirGenerator
 from wb_nlp.interfaces import mongodb
+from wb_nlp.types.models import ModelRunInfo, LDAModelConfig
 
 _logger = logging.getLogger(__file__)
 
@@ -69,6 +70,9 @@ def main(model_config_id: str, cleaning_config_id: str, log_level: int):
         model_config = model_configs_collection.find_one(
             {"_id": model_config_id})
 
+        # Do this to make sure that the config is consistent with the expected schema.
+        LDAModelConfig(**model_config)
+
         model_name = model_config["meta"]["model_name"]
 
         assert model_name == "lda"
@@ -76,14 +80,13 @@ def main(model_config_id: str, cleaning_config_id: str, log_level: int):
 
         # corpus_path = paths_conf['corpus_path']
         file_generator = MultiDirGenerator(
-            base_dir=cleaned_docs_dir.parent,
-            source_dir_name=cleaned_docs_dir.name,
+            base_dir=cleaned_docs_dir,
+            source_dir_name='',
             split=True,
             min_tokens=model_config['min_tokens'],
             logger=_logger
         )
 
-        _logger.info('Training dictionary...')
         dictionary_params = model_config['dictionary_config']
 
         processed_corpus_id = f"{cleaned_corpus_id}_{dictionary_params['dictionary_config_id']}"
@@ -92,48 +95,8 @@ def main(model_config_id: str, cleaning_config_id: str, log_level: int):
             f"dictionary-{processed_corpus_id}.gensim.dict"
         corpus_path = cleaned_docs_dir / f"bow_corpus-{processed_corpus_id}.mm"
 
-        checkpoint_log(
-            timer, _logger, message='Loading or generating dictionary...')
-
-        if corpus_path.exists():
-            _logger.info('Loading saved corpus and dictionary...')
-            assert dictionary_file.exists()
-
-            g_dict = Dictionary.load(str(dictionary_file))
-            corpus = MmCorpus(corpus_path)
-
-        else:
-            if dictionary_file.exists():
-                g_dict = Dictionary.load(str(dictionary_file))
-            else:
-                g_dict = Dictionary(file_generator)
-
-                g_dict.filter_extremes(
-                    no_below=dictionary_params['no_below'],
-                    no_above=dictionary_params['no_above'],
-                    keep_n=dictionary_params['keep_n'],
-                    keep_tokens=dictionary_params['keep_tokens'])
-
-                g_dict.id2token = {id: token for token,
-                                   id in g_dict.token2id.items()}
-
-                g_dict.save(str(dictionary_file))
-
-            _logger.info('Generating corpus...')
-            corpus = [g_dict.doc2bow(d) for d in file_generator]
-
-            _logger.info('Saving corpus to %s...', corpus_path)
-            MmCorpus.serialize(corpus_path, corpus)
-
-        checkpoint_log(
-            timer, _logger, message='Loading or generating corpus...')
-
-        lda_params = model_config["lda_config"]
-        lda_params['id2word'] = dict(g_dict.id2token)
-
-        lda = LdaMulticore(corpus, **lda_params)
-
         model_run_info = dict(
+            model_run_info_id="",
             model_name=model_name,
             model_config_id=model_config_id,
             processed_corpus_id=processed_corpus_id,
@@ -141,71 +104,81 @@ def main(model_config_id: str, cleaning_config_id: str, log_level: int):
         model_run_info_id = generate_model_hash(
             model_run_info)
 
-        model_run_info["model_run_info_id"] = model_run_info_id
+        model_run_info = json.loads(ModelRunInfo(**model_run_info).json())
 
-        model_dir = dir_manager.get_path_from_root(
-            "models", "lda", model_run_info_id)
+        assert model_run_info["model_run_info_id"] == model_run_info_id
 
-        # TODO: Find a better strategy to name models.
-        # It can be a hash of the config values for easier tracking?
-        lda.save(str(model_dir / f'model_{model_run_info_id}.lda.bz2'))
+        model_dir = Path(dir_manager.get_path_from_root(
+            "models", model_name, model_run_info_id))
 
-        _logger.info(lda.print_topics())
-        checkpoint_log(
-            timer, _logger, message=f'Finished running {model_name} model for model_config {model_config_id} with run id {model_run_info_id}...')
+        model_file_name = model_dir / f'model_{model_run_info_id}.lda.bz2'
 
-        # _logger.info('Generating model configurations...')
-        # # Find parameters that are lists
-        # lda_params = config['params']['lda']
-        # list_params = sorted(
-        #     filter(lambda x: isinstance(lda_params[x], list), lda_params))
-        # _logger.info(list_params)
+        if not model_file_name.exists():
+            checkpoint_log(
+                timer, _logger, message='Loading or generating dictionary...')
 
-        # lda_params['workers'] = max(1, os.cpu_count() + lda_params['workers'])
+            if corpus_path.exists():
+                _logger.info('Loading saved corpus and dictionary...')
+                assert dictionary_file.exists()
 
-        # lda_params_set = []
+                g_dict = Dictionary.load(str(dictionary_file))
+                corpus = MmCorpus(str(corpus_path))
 
-        # for vals in itertools.product(*[lda_params[lp] for lp in list_params]):
-        #     _lda_params = dict(lda_params)
-        #     for k, val in zip(list_params, vals):
-        #         _lda_params[k] = val
-        #     lda_params_set.append(_lda_params)
+            else:
+                if dictionary_file.exists():
+                    g_dict = Dictionary.load(str(dictionary_file))
+                else:
+                    _logger.info('Training dictionary...')
+                    g_dict = Dictionary(file_generator)
 
-        # _logger.info('Training models...')
-        # checkpoint_log(timer, _logger, message='Starting now...')
-        # models_count = len(lda_params_set)
+                    g_dict.filter_extremes(
+                        no_below=dictionary_params['no_below'],
+                        no_above=dictionary_params['no_above'],
+                        keep_n=dictionary_params['keep_n'],
+                        keep_tokens=dictionary_params['keep_tokens'])
 
-        # model_dir = Path(dir_manager.get_path_from_root(
-        #     paths_conf['model_dir']))
-        # if not model_dir.exists():
-        #     model_dir.mkdir(parents=True)
+                    g_dict.id2token = {id: token for token,
+                                       id in g_dict.token2id.items()}
 
-        # for model_num, model_params in enumerate(lda_params_set, 1):
-        #     record_config = dict(config)
-        #     record_config['params']['lda'] = dict(model_params)
-        #     record_config['meta']['model_id'] = ''
+                    g_dict.save(str(dictionary_file))
 
-        #     model_hash = generate_model_hash(record_config)
-        #     sub_model_dir = create_get_directory(model_dir, model_hash)
+                _logger.info('Generating corpus...')
+                corpus = [g_dict.doc2bow(d) for d in file_generator]
 
-        #     with open(sub_model_dir / f'model_config_{model_hash}.json', 'w') as open_file:
-        #         json.dump(record_config, open_file)
+                _logger.info('Saving corpus to %s...', corpus_path)
+                MmCorpus.serialize(str(corpus_path), corpus)
 
-        #     _logger.info("Training model_id: %s", model_hash)
-        #     _logger.info(model_params)
-        #     model_params['id2word'] = dict(g_dict.id2token)
+            checkpoint_log(
+                timer, _logger, message='Loading or generating corpus...')
 
-        #     lda = LdaMulticore(corpus, **model_params)
+            lda_params = model_config["lda_config"]
+            lda_params['id2word'] = dict(g_dict.id2token)
+            lda_params.pop('lda_config_id')
 
-        #     # TODO: Find a better strategy to name models.
-        #     # It can be a hash of the config values for easier tracking?
-        #     lda.save(str(sub_model_dir / f'model_{model_hash}.lda.bz2'))
+            lda = LdaMulticore(corpus, **lda_params)
 
-        #     _logger.info(lda.print_topics())
-        #     checkpoint_log(
-        #         timer, _logger, message=f'Finished running model {model_num}/{models_count}...')
-        #     # lda.update(corpus)
-        #     # break
+            if not model_file_name.parent.exists():
+                model_file_name.parent.mkdir(parents=True)
+
+            model_file_name = str(model_file_name)
+
+            lda.save(model_file_name)
+
+            model_runs_info_collection = mongodb.get_model_runs_info_collection()
+
+            model_run_info['_id'] = model_run_info["model_run_info_id"]
+            model_run_info['model_file_name'] = model_file_name[model_file_name.index(
+                "/models/") + 1:]
+
+            model_runs_info_collection.insert_one(model_run_info)
+
+            _logger.info(lda.print_topics())
+            checkpoint_log(
+                timer, _logger, message=f'Finished running {model_name} model for model_config {model_config_id} corresponding to model run info {model_run_info}...')
+
+        else:
+            checkpoint_log(
+                timer, _logger, message=f"Trained model {model_file_name} corresponding to model run info {model_run_info} already available, skipping!")
 
 
 if __name__ == '__main__':
@@ -216,5 +189,7 @@ if __name__ == '__main__':
     # Use in w1lxbdatad07
     # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -vv |& tee ./logs/train_lda_model.py.log
     # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -vv --load-dictionary --from-dump |& tee ./logs/train_lda_model.py.log
+
+    # python -u ./scripts/models/train_lda_model_from_db.py --model-config-id ef0ab0459e9c28de8657f3c4f5b2cd86 --cleaning-config-id 23f78350192d924e4a8f75278aca0e1c -vv |& tee ./logs/train_lda_model_from_db.py.log
 
     main()

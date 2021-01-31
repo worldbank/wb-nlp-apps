@@ -7,6 +7,7 @@ FastAPI.
 '''
 
 import enum
+import json
 from typing import List, Any
 from pydantic import BaseModel, Field, validator, AnyUrl
 from wb_nlp.utils.scripts import generate_model_hash
@@ -149,7 +150,8 @@ class DictionaryConfig(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.dictionary_config_id = generate_model_hash(self.dict())
+        self.dictionary_config_id = generate_model_hash(
+            json.loads(self.json()))
 
 
 class LDAConfig(BaseModel):
@@ -269,7 +271,7 @@ the string ‘auto’ to learn the asymmetric prior from the data."""
 
         super().__init__(**temp_data)
 
-        self.lda_config_id = generate_model_hash(self.dict())
+        self.lda_config_id = generate_model_hash(json.loads(self.json()))
 
 
 class DFRConfig(BaseModel):
@@ -310,7 +312,38 @@ class LDAModelConfig(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.model_config_id = generate_model_hash(self.dict())
+        self.model_config_id = generate_model_hash(json.loads(self.json()))
+
+
+class ModelRunInfo(BaseModel):
+    model_run_info_id: str = Field(
+        "", description="Unique identifier derived from the combination of the experiment components.")
+
+    model_name: ModelTypes = Field(
+        ...,
+        description="Name of model."
+    )
+    model_config_id: str = Field(
+        ...,
+        description="Configuration of the model used in the experiment."
+    )
+    processed_corpus_id: str = Field(
+        ...,
+        description="Some unique identifier of the input data. Example: dictionary_id + hash of the cleaned corpus."
+    )
+
+    def __init__(self, **data: Any) -> None:
+        temp_data = dict(data)
+
+        if 'model_run_info_id' in temp_data:
+            # Remove `cleaner_config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('model_run_info_id')
+
+        super().__init__(**temp_data)
+
+        self.model_run_info_id = generate_model_hash(json.loads(self.json()))
+
 
 # model_config:
 #   meta:
