@@ -1,5 +1,6 @@
-lda_model_config:
+model_config:
   meta:
+    model_name: lda
     library: Gensim
     model_implementation: LDA Multicore
     library_version: 3.8.3

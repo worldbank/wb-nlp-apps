@@ -91,6 +91,10 @@ class LDATransformParams(TextInputParams):
 
 
 class ModelMeta(BaseModel):
+    model_name: ModelTypes = Field(
+        ...,
+        description="Short name of the model."
+    )
     library: str = Field(
         ...,
         description="Name of the library where the model comes from. Example: Gensim."
@@ -284,7 +288,7 @@ class DFRConfig(BaseModel):
 
 
 class LDAModelConfig(BaseModel):
-    lda_model_config_id: str = Field(
+    model_config_id: str = Field(
         '', description="Configuration id derived from the combination of the parameters.")
 
     min_tokens: int = Field(
@@ -299,14 +303,14 @@ class LDAModelConfig(BaseModel):
     def __init__(self, **data: Any) -> None:
         temp_data = dict(data)
 
-        if 'lda_model_config_id' in temp_data:
+        if 'model_config_id' in temp_data:
             # Remove `cleaner_config_id` if exists since it will be
             # computed as unique id from other fields.
-            temp_data.pop('lda_model_config_id')
+            temp_data.pop('model_config_id')
 
         super().__init__(**temp_data)
 
-        self.lda_model_config_id = generate_model_hash(self.dict())
+        self.model_config_id = generate_model_hash(self.dict())
 
 # model_config:
 #   meta:

@@ -10,7 +10,7 @@ from wb_nlp.utils.scripts import load_config
 from wb_nlp.types.cleaning import CleaningConfig
 from pymongo.errors import DuplicateKeyError
 
-cleaning_config_collection = mongodb.get_cleaning_config_collection()
+cleaning_configs_collection = mongodb.get_cleaning_configs_collection()
 
 for cfg_path in Path(get_configs_dir('cleaning')).glob('*.yml'):
     config = load_config(cfg_path, 'cleaning_config')
@@ -19,7 +19,7 @@ for cfg_path in Path(get_configs_dir('cleaning')).glob('*.yml'):
     config["_id"] = config["cleaning_config_id"]
 
     try:
-        cleaning_config_collection.insert_one(config)
+        cleaning_configs_collection.insert_one(config)
         print(config)
     except DuplicateKeyError:
         print(f"Config {cfg_path} already in database...")

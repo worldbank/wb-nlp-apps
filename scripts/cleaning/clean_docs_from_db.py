@@ -66,12 +66,12 @@ def main(cleaning_config_id: str, log_level: int, n_workers: int = None, batch_s
     '''
     configure_logger(log_level)
 
-    cleaning_config_collection = mongodb.get_cleaning_config_collection()
+    cleaning_configs_collection = mongodb.get_cleaning_configs_collection()
     # docs_metadata_collection = mongodb.get_docs_metadata_collection()
     docs_metadata_collection = mongodb.get_collection(
         db_name="test_nlp", collection_name="docs_metadata")
 
-    config = cleaning_config_collection.find_one({"_id": cleaning_config_id})
+    config = cleaning_configs_collection.find_one({"_id": cleaning_config_id})
 
     assert config
 

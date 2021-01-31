@@ -97,13 +97,13 @@ The Gensim implementation for the word2vec model is used in this project. We ext
 
 1. Upload the document metadata into the mongodb `nlp` database under the `docs_metadata` collection. Refer to [load_json_dump_to_db.py](/scripts/metadata/load_json_dump_to_db.py) for an example. Make sure that the `path_original` field corresponds to the path where the corresponding document is stored. Documents should ideally be stored following this convention: `/data/corpus/<corpus_id>/*.txt`.
 
-2. Create a cleaning config based on the `/configs/cleaning/default.yml` and upload to mongodb at the `nlp/cleaning_config` collection. It is recommended to add some description about the configuration in the `meta` field of the configuration file. You can use the `/scripts/configs/load_configs_to_db.py` script to load the configuration into the database.
+2. Create a cleaning config based on the `/configs/cleaning/default.yml` and upload to mongodb at the `nlp/cleaning_configs` collection. It is recommended to add some description about the configuration in the `meta` field of the configuration file. You can use the `/scripts/configs/load_configs_to_db.py` script to load the configuration into the database.
 
 3. To start the cleaning of the corpus, run the script `scripts/cleaning/clean_docs_from_db.py`. Provide the `cleaning_config_id` of the configuration that you want to use in cleaning the documents. This assumes that all the documents in the `docs_metadata` will be cleaned. The cleaning script will store the cleaned data at `/data/corpus/cleaned/<cleaning_config_id>/<corpus>/<file_name>`. The `file_name` and the `corpus` will be extracted from the metadata corresponding to the document in the `nlp/docs_metadata` collection.
 
-4. When you want to train a model, you need to first generate a valid configuration. This configuration must be uploaded to mongodb under the `nlp/models_config` collection. You can use the `/scripts/configs/load_configs_to_db.py` script to load the configuration into the database.
+4. When you want to train a model, you need to first generate a valid configuration. This configuration must be uploaded to mongodb under the `nlp/model_configs` collection. You can use the `/scripts/configs/load_configs_to_db.py` script to load the configuration into the database.
 
-5. After the configuration is uploaded, select which cleaned documents (defined by the `cleaning_config_id`) will be used. Also provide the `models_config_id` that will be used for the model.
+5. After the configuration is uploaded, select which cleaned documents (defined by the `cleaning_config_id`) will be used. Also provide the `model_config_id` that will be used for the model.
 
 ## Instruction for contributors
 

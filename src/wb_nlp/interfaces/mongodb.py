@@ -64,9 +64,13 @@ def get_docs_metadata_collection(host=None, port=None):
     return get_collection(host=host, port=port, db_name="nlp", collection_name="docs_metadata")
 
 
-def get_cleaning_config_collection(host=None, port=None):
-    return get_collection(host=host, port=port, db_name="nlp", collection_name="cleaning_config")
+def get_cleaning_configs_collection(host=None, port=None):
+    return get_collection(host=host, port=port, db_name="nlp", collection_name="cleaning_configs")
 
 
-def get_models_config_collection(host=None, port=None):
-    return get_collection(host=host, port=port, db_name="nlp", collection_name="models_config")
+def get_model_configs_collection(host=None, port=None):
+    return get_collection(host=host, port=port, db_name="nlp", collection_name="model_configs")
+
+
+def get_model_runs_info_collection(host=None, port=None):
+    return get_collection(host=host, port=port, db_name="nlp", collection_name="model_runs_info")
