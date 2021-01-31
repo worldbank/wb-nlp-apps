@@ -7,8 +7,8 @@ FastAPI.
 '''
 
 import enum
-from typing import List, Any, AnyUrl
-from pydantic import BaseModel, Field, validator
+from typing import List, Any
+from pydantic import BaseModel, Field, validator, AnyUrl
 from wb_nlp.utils.scripts import generate_model_hash
 from fastapi import File, UploadFile
 
@@ -269,16 +269,44 @@ the string ‘auto’ to learn the asymmetric prior from the data."""
 
 
 class DFRConfig(BaseModel):
-    pass
+    tw_file: str = Field(
+        "tw.json",
+        description=""
+    )
+    dt_file: str = Field(
+        "dt.json",
+        description=""
+    )
+    info_file: str = Field(
+        "info.json",
+        description=""
+    )
 
 
 class LDAModelConfig(BaseModel):
-    min_tokens: int
+    lda_model_config_id: str = Field(
+        '', description="Configuration id derived from the combination of the parameters.")
+
+    min_tokens: int = Field(
+        50,
+        description="Minimum number of tokens that a cleaned document must have in order to be included in the training of the model."
+    )
     lda_config: LDAConfig
     dictionary_config: DictionaryConfig
     meta: ModelMeta
     dfr_config: DFRConfig
 
+    def __init__(self, **data: Any) -> None:
+        temp_data = dict(data)
+
+        if 'lda_model_config_id' in temp_data:
+            # Remove `cleaner_config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('lda_model_config_id')
+
+        super().__init__(**temp_data)
+
+        self.lda_model_config_id = generate_model_hash(self.dict())
 
 # model_config:
 #   meta:
