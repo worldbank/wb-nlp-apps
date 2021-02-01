@@ -8,6 +8,8 @@ import click
 from IPython.core import ultratb
 
 import wb_nlp
+from wb_nlp.models.word2vec import Word2VecModel
+
 
 # fallback to debugger on error
 sys.excepthook = ultratb.FormattedTB(
