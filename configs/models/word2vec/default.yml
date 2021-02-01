@@ -1,6 +1,6 @@
 model_config:
   meta:
-    model_name: mallet  # To be filled up in the model training
+    model_name: word2vec  # To be filled up in the model training
     library: Gensim
     model_implementation: Gensim Word2Vec
     library_version: 3.8.3

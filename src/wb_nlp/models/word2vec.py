@@ -3,7 +3,9 @@ for training the model as well as a backend interface for the API.
 '''
 import subprocess
 import gc
+import json
 import os
+from pathlib import Path
 import pandas as pd
 import gensim
 from gensim.models import Word2Vec
@@ -19,19 +21,20 @@ from wb_nlp.interfaces.milvus import (
 )
 from wb_nlp.interfaces import mongodb
 from wb_nlp.utils.scripts import create_dask_cluster
-from wb_nlp.types.models import Word2VecModelConfig
+from wb_nlp.types.models import Word2VecModelConfig, ModelRunInfo
 from wb_nlp import dir_manager
+from wb_nlp.processing.corpus import MultiDirGenerator
+from wb_nlp.utils.scripts import (
+    load_config, generate_model_hash,
+    create_get_directory
+)
 
 
 class Word2VecModel:
     def __init__(
         self,
-        corpus_id,
-        model_id,
         model_config_id,
         cleaning_config_id,
-        doc_df=None,
-        model_path='./',
         raise_empty_doc_status=True
     ):
         cleaned_docs_dir = Path(dir_manager.get_data_dir(
@@ -47,6 +50,7 @@ class Word2VecModel:
 
         self.cleaning_config_id = cleaning_config_id
         self.cleaned_corpus_id = cleaned_corpus_id
+        self.cleaned_docs_dir = cleaned_docs_dir
 
         model_configs_collection = mongodb.get_model_configs_collection()
         model_config = model_configs_collection.find_one(
@@ -64,18 +68,30 @@ class Word2VecModel:
         self.model_config = model_config
         self.dim = self.model_config["word2vec_config"]["size"]
 
-        self.corpus_id = corpus_id
-        self.model_id = model_id
+        model_run_info = dict(
+            model_run_info_id="",
+            model_name=model_name,
+            model_config_id=self.model_config_id,
+            processed_corpus_id=self.cleaned_corpus_id,
+        )
+        model_run_info_id = generate_model_hash(
+            model_run_info)
+
+        model_run_info = json.loads(ModelRunInfo(**model_run_info).json())
+
+        assert model_run_info["model_run_info_id"] == model_run_info_id
+        self.model_run_info = model_run_info
+
+        self.model_id = model_run_info["model_run_info_id"]
         self.model = None
         self.raise_empty_doc_status = raise_empty_doc_status
 
-        self.model_path = model_path
+        self.model_collection_id = f'{model_name}_{self.model_id}'
 
-        self.model_collection_id = f'word2vec_{self.model_id}'
-        self.model_path = os.path.join(
-            self.model_path, f'{self.model_collection_id}.mm')
+        model_dir = Path(dir_manager.get_path_from_root(
+            "models", model_name, model_run_info_id))
 
-        self.docs = doc_df.copy() if doc_df is not None else doc_df
+        self.model_path = model_dir / f'{self.model_collection_id}.mm'
 
         self.milvus_vector_field_name = "embedding"
 
@@ -95,10 +111,8 @@ class Word2VecModel:
                 self.model_collection_id, self.collection_params)
 
     def clear(self):
-        del(self.docs)
         del(self.model)
 
-        self.docs = None
         self.model = None
 
         gc.collect()
@@ -117,23 +131,46 @@ class Word2VecModel:
 
     def save_model(self):
         self.check_model()
-        self.model.save(self.model_path)
+        if not self.model_path.parent.exists():
+            self.model_path.parent.mkdir(parents=True)
+
+        model_file_name = str(self.model_path)
+        self.model.save(model_file_name)
+
+        model_runs_info_collection = mongodb.get_model_runs_info_collection()
+        model_run_info = dict(self.model_run_info)
+
+        model_run_info['_id'] = self.model_run_info["model_run_info_id"]
+        model_run_info['model_file_name'] = model_file_name[model_file_name.index(
+            "/models/") + 1:]
+
+        model_runs_info_collection.insert_one(model_run_info)
 
     def load_model(self):
-        self.model = Word2Vec.load(self.model_path)
+        model_file_name = str(self.model_path)
+        self.model = Word2Vec.load(model_file_name)
 
-    def train_model(self, retrain=False):
+    def train_model(self, retrain=False, logger=None):
         # TODO: Add a way to augment the content of the docs
         # with an external dataset without metadata.
 
-        if self.model is None or retrain:
+        if self.model_path.exists():
+            print(
+                'Warning: A model with the same configuration is available on disk. Loading...')
+            self.load_model()
+        elif self.model is None or retrain:
+            file_generator = MultiDirGenerator(
+                base_dir=self.cleaned_docs_dir,
+                source_dir_name='',
+                split=True,
+                min_tokens=0,
+                logger=logger
+            )
             word2vec_params = self.model_config["word2vec_config"]
             word2vec_params.pop('word2vec_config_id')
             self.model = Word2Vec(
-                self.docs.text.str.split().values,
-                size=self.dim, min_count=self.min_count,
-                workers=self.workers, iter=self.iter,
-                window=self.window, negative=self.negative, sg=self.sg
+                sentences=file_generator,
+                **word2vec_params
             )
 
             milvus_client = get_milvus_client()
@@ -141,6 +178,8 @@ class Word2VecModel:
 
             if collection_name in milvus_client.list_collections():
                 milvus_client.drop_collection(collection_name)
+
+            self.save()
 
         else:
             print('Warning: Model already trained. Not doing anything...')
@@ -171,12 +210,26 @@ class Word2VecModel:
 
         return dict(word_vecs=word_vecs, success=success)
 
+    def process_doc(self, doc, normalize=True):
+        text = doc.get('text')
+
+        if not text:
+            fname = self.cleaned_docs_dir / doc["corpus"] / f"{doc['id']}.txt"
+            with open(fname, "rb") as open_file:
+                text = open_file.read().decode("utf-8", errors="ignore")
+
+        return self.transform_doc(text, normalize=normalize)
+
     def build_doc_vecs(self, pool_workers=None):
         # Input is a dataframe containing the following columns:
         # - text
         # - corpus (corpus code corresponding to which corpus the text came from)
         # - id (some hash value (max of 15-hex value) - we will convert this to its decimal equivalent)
         self.check_model()
+
+        # docs_metadata_collection = mongodb.get_docs_metadata_collection()
+        docs_metadata_collection = mongodb.get_collection(
+            db_name="test_nlp", collection_name="docs_metadata")
 
         milvus_client = get_milvus_client()
         collection_name = self.model_collection_id
@@ -185,30 +238,29 @@ class Word2VecModel:
             milvus_client.create_collection(
                 collection_name, self.collection_params)
 
-        ids = self.docs['id'].values
-
         collection_doc_ids = set(get_collection_ids(collection_name))
 
-        int_ids = list(map(get_int_id, ids))
-        self.docs['int_ids'] = int_ids
+        projection = ["id", "int_id", "hex_id", "corpus"]
 
-        ids_for_processing = {
-            hid: iid for hid, iid in zip(ids, int_ids) if iid not in collection_doc_ids}
+        docs_metadata_df = pd.DataFrame(
+            list(docs_metadata_collection.find(projection=projection)), columns=projection)
 
-        docs = self.docs[self.docs['id'].isin(list(ids_for_processing))]
+        docs_for_processing = docs_metadata_df[
+            ~docs_metadata_df['int_id'].isin(collection_doc_ids)]
 
-        dask_client = create_dask_cluster(logger=None, n_workers=pool_workers)
+        dask_client = create_dask_cluster(
+            logger=None, n_workers=pool_workers)
 
         try:
             with joblib.parallel_backend('dask'):
-                for partition_group, sub_docs in docs.groupby('corpus'):
+                for partition_group, sub_docs in docs_for_processing.groupby('corpus'):
                     results = Parallel(verbose=10, batch_size='auto')(
-                        delayed(self.transform_doc)(text) for text in sub_docs.text)
+                        delayed(self.process_doc)(doc) for idx, doc in sub_docs.iterrows())
 
                     locs, vectors = list(zip(
                         *[(ix, p['word_vecs'].flatten()) for ix, p in enumerate(results) if p['success']]))
                     sub_int_ids = sub_docs.iloc[list(
-                        locs)]['int_ids'].tolist()
+                        locs)]['int_id'].tolist()
 
                     entities = [
                         {"name": self.milvus_vector_field_name, "values": vectors,
@@ -412,29 +464,33 @@ if __name__ == '__main__':
     import hashlib
     import pandas as pd
 
-    from wb_nlp.models.word2vec import word2vec
+    from wb_nlp.models import word2vec
 
-    doc_fnames = list(Path('./data/raw/sample_data/TXT_ORIG').glob('*.txt'))
-    doc_ids = [hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
-               for p in doc_fnames]
-    corpus = ['WB'] * len(doc_ids)
+    # doc_fnames = list(Path('./data/raw/sample_data/TXT_ORIG').glob('*.txt'))
+    # doc_ids = [hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
+    #            for p in doc_fnames]
+    # corpus = ['WB'] * len(doc_ids)
 
-    doc_df = pd.DataFrame()
-    doc_df['id'] = doc_ids
-    doc_df['corpus'] = corpus
-    doc_df['text'] = [open(fn, 'rb').read().decode(
-        'utf-8', errors='ignore') for fn in doc_fnames]
+    # doc_df = pd.DataFrame()
+    # doc_df['id'] = doc_ids
+    # doc_df['corpus'] = corpus
+    # doc_df['text'] = [open(fn, 'rb').read().decode(
+    #     'utf-8', errors='ignore') for fn in doc_fnames]
 
     wvec_model = word2vec.Word2VecModel(
-        corpus_id='WB', model_id='ALL_50', cleaning_config_id='cid', doc_df=doc_df, model_path='./models/', iter=10)
+        model_config_id="702984027cfedde344961b8b9461bfd3", cleaning_config_id="23f78350192d924e4a8f75278aca0e1c",
+        raise_empty_doc_status=False)
     # %time
     wvec_model.train_model()
 
     wvec_model.build_doc_vecs(pool_workers=3)
     print(wvec_model.get_similar_words('bank'))
     print(wvec_model.get_similar_documents('bank'))
-    print(wvec_model.get_similar_docs_by_id(doc_id='8314385c25c7c5e'))
-    print(wvec_model.get_similar_words_by_id(doc_id='8314385c25c7c5e'))
+    print(wvec_model.get_similar_docs_by_id(doc_id='092d1961ab4f9a7'))
+    print(wvec_model.get_similar_words_by_id(doc_id='092d1961ab4f9a7'))
+
+    # print(wvec_model.get_similar_docs_by_id(doc_id='8314385c25c7c5e'))
+    # print(wvec_model.get_similar_words_by_id(doc_id='8314385c25c7c5e'))
 
     milvus_client = get_milvus_client()
     collection_name = wvec_model.model_collection_id
