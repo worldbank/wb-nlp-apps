@@ -182,14 +182,6 @@ def main(model_config_id: str, cleaning_config_id: str, log_level: int):
 
 
 if __name__ == '__main__':
-    # Use in local machine
-    # python -u scripts/models/train_lda_model.py -c configs/models/lda/test.yml -vv |& tee ./logs/train_lda_model.py.log
-    # python -u scripts/models/train_lda_model.py -c configs/models/lda/test.yml -vv --load-dictionary --from-dump |& tee ./logs/train_lda_model.py.log
-
-    # Use in w1lxbdatad07
-    # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -vv |& tee ./logs/train_lda_model.py.log
-    # python -u scripts/models/train_lda_model.py -c configs/models/lda/default.yml -vv --load-dictionary --from-dump |& tee ./logs/train_lda_model.py.log
-
     # python -u ./scripts/models/train_lda_model_from_db.py --model-config-id ef0ab0459e9c28de8657f3c4f5b2cd86 --cleaning-config-id 23f78350192d924e4a8f75278aca0e1c -vv |& tee ./logs/train_lda_model_from_db.py.log
 
     main()
