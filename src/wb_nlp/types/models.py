@@ -274,6 +274,78 @@ the string ‘auto’ to learn the asymmetric prior from the data."""
         self.lda_config_id = generate_model_hash(json.loads(self.json()))
 
 
+class MalletConfig(BaseModel):
+    '''Definition of parameters for the Gensim LDA model.
+
+    Parameter descriptions are based from the official documentation https://radimrehurek.com/gensim/models/ldamulticore.html.
+    '''
+
+    mallet_config_id: str = Field(
+        '', description="Configuration id derived from the combination of the parameters.")
+
+    mallet_path: str = Field(
+        "models/mallet/mallet-2.0.8/bin/mallet",
+        description="""Path to the mallet binary, e.g. /home/username/mallet-2.0.7/bin/mallet."""
+    )
+
+    num_topics: int = Field(
+        100,
+        description="""Number of topics."""
+    )
+
+    alpha: int = Field(
+        5,
+        description="""Alpha parameter of LDA."""
+    )
+
+    id2word: dict = Field(
+        None,
+        description="""Mapping between tokens ids and words from corpus, if not specified - will be inferred from corpus."""
+    )
+
+    workers: int = Field(
+        7,
+        description="""Number of threads that will be used for training."""
+    )
+
+    prefix: str = Field(
+        "models/mallet/tmp/tmp_",
+        description="""Prefix for produced temporary files."""
+    )
+
+    optimize_interval: int = Field(
+        10,
+        description="""Optimize hyperparameters every optimize_interval iterations (sometimes leads to Java exception 0 to switch off hyperparameter optimization)."""
+    )
+
+    iterations: int = Field(
+        1000,
+        description="""Number of training iterations."""
+    )
+
+    topic_threshold: float = Field(
+        0.0,
+        description="""Threshold of the probability above which we consider a topic."""
+    )
+
+    random_seed: int = Field(
+        1029,
+        description="""Random seed to ensure consistent results, if 0 - use system clock."""
+    )
+
+    def __init__(self, **data: Any) -> None:
+        temp_data = dict(data)
+
+        if 'mallet_config_id' in temp_data:
+            # Remove `cleaner_config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('mallet_config_id')
+
+        super().__init__(**temp_data)
+
+        self.mallet_config_id = generate_model_hash(json.loads(self.json()))
+
+
 class DFRConfig(BaseModel):
     tw_file: str = Field(
         "tw.json",
@@ -298,6 +370,32 @@ class LDAModelConfig(BaseModel):
         description="Minimum number of tokens that a cleaned document must have in order to be included in the training of the model."
     )
     lda_config: LDAConfig
+    dictionary_config: DictionaryConfig
+    meta: ModelMeta
+    dfr_config: DFRConfig
+
+    def __init__(self, **data: Any) -> None:
+        temp_data = dict(data)
+
+        if 'model_config_id' in temp_data:
+            # Remove `cleaner_config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('model_config_id')
+
+        super().__init__(**temp_data)
+
+        self.model_config_id = generate_model_hash(json.loads(self.json()))
+
+
+class MalletModelConfig(BaseModel):
+    model_config_id: str = Field(
+        '', description="Configuration id derived from the combination of the parameters.")
+
+    min_tokens: int = Field(
+        50,
+        description="Minimum number of tokens that a cleaned document must have in order to be included in the training of the model."
+    )
+    mallet_config: MalletConfig
     dictionary_config: DictionaryConfig
     meta: ModelMeta
     dfr_config: DFRConfig
