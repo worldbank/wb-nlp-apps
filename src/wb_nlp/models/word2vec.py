@@ -1,9 +1,11 @@
 '''This module implements the word2vec model service that is responsible
 for training the model as well as a backend interface for the API.
 '''
+import subprocess
 import gc
 import os
 import pandas as pd
+import gensim
 from gensim.models import Word2Vec
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -15,8 +17,10 @@ from wb_nlp.interfaces.milvus import (
     get_milvus_client, get_hex_id, get_int_id,
     get_collection_ids, get_embedding_dsl,
 )
-
+from wb_nlp.interfaces import mongodb
 from wb_nlp.utils.scripts import create_dask_cluster
+from wb_nlp.types.models import Word2VecModelConfig
+from wb_nlp import dir_manager
 
 
 class Word2VecModel:
@@ -24,29 +28,45 @@ class Word2VecModel:
         self,
         corpus_id,
         model_id,
+        model_config_id,
         cleaning_config_id,
         doc_df=None,
-        dim=100,
-        window=10,
-        negative=10,
-        min_count=5,
-        sg=1,
-        workers=4,
         model_path='./',
-        iter=10,
         raise_empty_doc_status=True
     ):
+        cleaned_docs_dir = Path(dir_manager.get_data_dir(
+            "corpus", "cleaned", cleaning_config_id))
+
+        assert cleaned_docs_dir.exists()
+
+        cleaned_corpus_id = subprocess.check_output("md5sum " + cleaned_docs_dir.resolve().__str__(
+        ) + "/*/*.txt | awk '{print $1}' | md5sum | awk '{print $1}'", shell=True)
+
+        # The previous command returns a binary value like this: `b'07591edc636a73eafe9bea6eb2aaf3a6\n'` so we convert to str.
+        cleaned_corpus_id = cleaned_corpus_id.strip().decode('utf-8')
+
         self.cleaning_config_id = cleaning_config_id
+        self.cleaned_corpus_id = cleaned_corpus_id
+
+        model_configs_collection = mongodb.get_model_configs_collection()
+        model_config = model_configs_collection.find_one(
+            {"_id": model_config_id})
+
+        # Do this to make sure that the config is consistent with the expected schema.
+        Word2VecModelConfig(**model_config)
+
+        model_name = model_config["meta"]["model_name"]
+
+        assert model_name == "word2vec"
+        assert gensim.__version__ == model_config['meta']['library_version']
+
+        self.model_config_id = model_config_id
+        self.model_config = model_config
+        self.dim = self.model_config["word2vec_config"]["size"]
+
         self.corpus_id = corpus_id
         self.model_id = model_id
         self.model = None
-        self.workers = workers
-        self.iter = iter
-        self.dim = dim
-        self.window = window
-        self.negative = negative
-        self.min_count = min_count
-        self.sg = sg
         self.raise_empty_doc_status = raise_empty_doc_status
 
         self.model_path = model_path
@@ -107,6 +127,8 @@ class Word2VecModel:
         # with an external dataset without metadata.
 
         if self.model is None or retrain:
+            word2vec_params = self.model_config["word2vec_config"]
+            word2vec_params.pop('word2vec_config_id')
             self.model = Word2Vec(
                 self.docs.text.str.split().values,
                 size=self.dim, min_count=self.min_count,

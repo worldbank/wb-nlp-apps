@@ -8,7 +8,7 @@ from wb_nlp.dir_manager import get_configs_dir
 from wb_nlp.interfaces import mongodb
 from wb_nlp.utils.scripts import load_config
 from wb_nlp.types.cleaning import CleaningConfig
-from wb_nlp.types.models import LDAModelConfig, MalletModelConfig
+from wb_nlp.types.models import LDAModelConfig, MalletModelConfig, Word2VecModelConfig
 
 from pymongo.errors import DuplicateKeyError
 
@@ -34,7 +34,8 @@ model_configs_collection = mongodb.get_model_configs_collection()
 
 model_config_set = [
     (LDAModelConfig, "lda"),
-    (MalletModelConfig, "mallet")
+    (MalletModelConfig, "mallet"),
+    (Word2VecModelConfig, "word2vec"),
 ]
 
 for model_config_type, model_name in model_config_set:
