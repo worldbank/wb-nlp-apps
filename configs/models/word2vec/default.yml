@@ -1,0 +1,30 @@
+model_config:
+  meta:
+    model_name: mallet  # To be filled up in the model training
+    library: Gensim
+    model_implementation: Gensim Word2Vec
+    library_version: 3.8.3
+    docs: https://radimrehurek.com/gensim_3.8.3/models/word2vec.html
+    references: null
+  word2vec_config:
+    size: 100
+    alpha: 0.025
+    window: 5
+    min_count: 5
+    max_vocab_size: null
+    sample: 0.001
+    seed: 1029
+    workers: 4
+    min_alpha: 0.0001
+    sg: 1
+    hs: 0
+    negative: 5
+    ns_exponent: 0.75
+    cbow_mean: 1
+    iter: 5
+    null_word: 0
+    trim_rule: null
+    sorted_vocab: 1
+    batch_words: 10000
+    compute_loss: False
+    max_final_vocab: null
