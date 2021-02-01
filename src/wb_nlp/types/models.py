@@ -275,7 +275,7 @@ the string ‘auto’ to learn the asymmetric prior from the data."""
 
 
 class MalletConfig(BaseModel):
-    '''Definition of parameters for the Gensim LDA model.
+    '''Definition of parameters for the Gensim Mallet LDA model.
 
     Parameter descriptions are based from the official documentation https://radimrehurek.com/gensim/models/ldamulticore.html.
     '''
@@ -346,6 +346,123 @@ class MalletConfig(BaseModel):
         self.mallet_config_id = generate_model_hash(json.loads(self.json()))
 
 
+class Word2VecConfig(BaseModel):
+    '''Definition of parameters for the Gensim Word2Vec model.
+
+    Parameter descriptions are based from the official documentation https://radimrehurek.com/gensim_3.8.3/models/word2vec.html.
+    '''
+
+    word2vec_config_id: str = Field(
+        '', description="Configuration id derived from the combination of the parameters.")
+
+    size: int = Field(
+        100,
+        description="""Dimensionality of the word vectors."""
+    )
+
+    window: int = Field(
+        5,
+        description="""Maximum distance between the current and predicted word within a sentence."""
+    )
+
+    min_count: int = Field(
+        5,
+        description="""Ignores all words with total frequency lower than this."""
+    )
+
+    workers: int = Field(
+        4,
+        description="""Use these many worker threads to train the model (=faster training with multicore machines)."""
+    )
+
+    sg: int = Field(
+        1,
+        description="""Training algorithm: 1 for skip-gram; otherwise CBOW."""
+    )
+
+    hs: int = Field(
+        0,
+        description="""If 1, hierarchical softmax will be used for model training. If 0, and negative is non-zero, negative sampling will be used."""
+    )
+
+    negative: int = Field(
+        5,
+        description="""If > 0, negative sampling will be used, the int for negative specifies how many “noise words” should be drawn (usually between 5-20). If set to 0, no negative sampling is used."""
+    )
+
+    ns_exponent: float = Field(
+        0.75,
+        description="""The exponent used to shape the negative sampling distribution. A value of 1.0 samples exactly in proportion to the frequencies, 0.0 samples all words equally, while a negative value samples low-frequency words more than high-frequency words. The popular default value of 0.75 was chosen by the original Word2Vec paper. More recently, in https://arxiv.org/abs/1804.04212, Caselles-Dupré, Lesaint, & Royo-Letelier suggest that other values may perform better for recommendation applications."""
+    )
+
+    cbow_mean: int = Field(
+        1,
+        description="""If 0, use the sum of the context word vectors. If 1, use the mean, only applies when cbow is used."""
+    )
+
+    alpha: float = Field(
+        0.025,
+        description="""The initial learning rate."""
+    )
+
+    min_alpha: float = Field(
+        0.0001,
+        description="""Learning rate will linearly drop to min_alpha as training progresses."""
+    )
+
+    seed: int = Field(
+        1029,
+        description="""Seed for the random number generator. Initial vectors for each word are seeded with a hash of the concatenation of word + str(seed). Note that for a fully deterministically-reproducible run, you must also limit the model to a single worker thread (workers=1), to eliminate ordering jitter from OS thread scheduling. (In Python 3, reproducibility between interpreter launches also requires use of the PYTHONHASHSEED environment variable to control hash randomization)."""
+    )
+
+    max_vocab_size: int = Field(
+        None,
+        description="""Limits the RAM during vocabulary building; if there are more unique words than this, then prune the infrequent ones. Every 10 million word types need about 1GB of RAM. Set to None for no limit."""
+    )
+
+    max_final_vocab: int = Field(
+        None,
+        description="""Limits the vocab to a target vocab size by automatically picking a matching min_count. If the specified min_count is more than the calculated min_count, the specified min_count will be used. Set to None if not required."""
+    )
+
+    sample: float = Field(
+        0.001,
+        description="""The threshold for configuring which higher-frequency words are randomly downsampled, useful range is (0, 1e-5)."""
+    )
+
+    iter: int = Field(
+        5,
+        description="""Number of iterations (epochs) over the corpus."""
+    )
+
+    sorted_vocab: int = Field(
+        1,
+        description="""If 1, sort the vocabulary by descending frequency before assigning word indexes. See https://radimrehurek.com/gensim_3.8.3/models/word2vec.html#gensim.models.word2vec.Word2VecVocab.sort_vocab."""
+    )
+
+    batch_words: int = Field(
+        10000,
+        description="""Target size (in words) for batches of examples passed to worker threads (and thus cython routines).(Larger batches will be passed if individual texts are longer than 10000 words, but the standard cython code truncates to that maximum.)"""
+    )
+
+    compute_loss: bool = Field(
+        False,
+        description="""If True, computes and stores loss value which can be retrieved using get_latest_training_loss()."""
+    )
+
+    def __init__(self, **data: Any) -> None:
+        temp_data = dict(data)
+
+        if 'word2vec_config_id' in temp_data:
+            # Remove `cleaner_config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('word2vec_config_id')
+
+        super().__init__(**temp_data)
+
+        self.word2vec_config_id = generate_model_hash(json.loads(self.json()))
+
+
 class DFRConfig(BaseModel):
     tw_file: str = Field(
         "tw.json",
@@ -399,6 +516,26 @@ class MalletModelConfig(BaseModel):
     dictionary_config: DictionaryConfig
     meta: ModelMeta
     dfr_config: DFRConfig
+
+    def __init__(self, **data: Any) -> None:
+        temp_data = dict(data)
+
+        if 'model_config_id' in temp_data:
+            # Remove `cleaner_config_id` if exists since it will be
+            # computed as unique id from other fields.
+            temp_data.pop('model_config_id')
+
+        super().__init__(**temp_data)
+
+        self.model_config_id = generate_model_hash(json.loads(self.json()))
+
+
+class Word2VecModelConfig(BaseModel):
+    model_config_id: str = Field(
+        '', description="Configuration id derived from the combination of the parameters.")
+
+    word2vec_config: Word2VecConfig
+    meta: ModelMeta
 
     def __init__(self, **data: Any) -> None:
         temp_data = dict(data)
