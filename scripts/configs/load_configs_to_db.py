@@ -8,7 +8,7 @@ from wb_nlp.dir_manager import get_configs_dir
 from wb_nlp.interfaces import mongodb
 from wb_nlp.utils.scripts import load_config
 from wb_nlp.types.cleaning import CleaningConfig
-from wb_nlp.types.models import LDAModelConfig, MalletConfig
+from wb_nlp.types.models import LDAModelConfig, MalletModelConfig
 
 from pymongo.errors import DuplicateKeyError
 
@@ -31,31 +31,23 @@ for cfg_path in Path(get_configs_dir('cleaning')).glob('*.yml'):
 
 model_configs_collection = mongodb.get_model_configs_collection()
 
-for cfg_path in Path(get_configs_dir('models', 'lda')).glob('*.yml'):
-    config = load_config(cfg_path, 'model_config')
-    config = json.loads(LDAModelConfig(**config).json())
 
-    config["_id"] = config["model_config_id"]
+model_config_set = [
+    (LDAModelConfig, "lda"),
+    (MalletModelConfig, "mallet")
+]
 
-    try:
-        model_configs_collection.insert_one(config)
-        print(config)
-    except DuplicateKeyError:
-        print(f"Config {cfg_path} already in database...")
+for model_config_type, model_name in model_config_set:
+    for cfg_path in Path(get_configs_dir('models', model_name)).glob('*.yml'):
+        config = load_config(cfg_path, 'model_config')
+        config = json.loads(model_config_type(**config).json())
 
-    print()
+        config["_id"] = config["model_config_id"]
 
+        try:
+            model_configs_collection.insert_one(config)
+            print(config)
+        except DuplicateKeyError:
+            print(f"Config {cfg_path} already in database...")
 
-for cfg_path in Path(get_configs_dir('models', 'mallet')).glob('*.yml'):
-    config = load_config(cfg_path, 'model_config')
-    config = json.loads(MalletConfig(**config).json())
-
-    config["_id"] = config["model_config_id"]
-
-    try:
-        model_configs_collection.insert_one(config)
-        print(config)
-    except DuplicateKeyError:
-        print(f"Config {cfg_path} already in database...")
-
-    print()
+        print()
