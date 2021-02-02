@@ -116,27 +116,40 @@ class BaseModel:
         self.cleaned_docs_dir = Path(dir_manager.get_data_dir(
             "corpus", "cleaned", self.cleaning_config_id))
 
+        # Make sure that the directory where we expect the cleaned files are exists.
         assert self.cleaned_docs_dir.exists()
 
+        # We get the unique identifier for the corpus. This is based on the
+        # hash of the hashes of the individual files.
         self.cleaned_corpus_id = get_cleaned_corpus_id(self.cleaned_docs_dir)
 
+        # Get the configuration of the model from mongodb.
         model_configs_collection = mongodb.get_model_configs_collection()
         self.model_config = model_configs_collection.find_one(
             {"_id": self.model_config_id})
 
         # Do this to make sure that the config is consistent with the expected schema.
         self.model_config_type(**self.model_config)
-
         self.model_name = self.model_config["meta"]["model_name"]
 
+        # Perform basic validation of the configuration.
         assert self.model_name == self.expected_model_name
         assert gensim.__version__ == self.model_config['meta']['library_version']
 
+        # Set the `dim` attribute to be used when creating the milvus
+        # index for the model.
         params = self.model_config[f"{self.model_name}_config"]
         self.dim = params.get("num_topics", params.get("size"))
 
+        # Generate an identifier corresponding to the processed data.
+        # If no additional processing is needed such as in word2vec,
+        # this is set to the cleaned_corpus_id, otherwise we compute
+        # additional identifiers.
         self.set_processed_corpus_id()
 
+        # Define the metadata corresponding to the model.
+        # The model_run_info specifies the set of metadata
+        # necessary to replicate the model from scratch.
         self.model_run_info = dict(
             model_run_info_id="",
             model_name=self.model_name,
@@ -151,6 +164,8 @@ class BaseModel:
 
         assert self.model_run_info["model_run_info_id"] == self.model_id
 
+        # Set attributes corresponding where we want the trained model
+        # will be saved.
         self.model_collection_id = f'{self.model_name}_{self.model_id}'
 
         self.model_dir = Path(dir_manager.get_path_from_root(
