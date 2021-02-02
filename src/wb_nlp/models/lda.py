@@ -220,13 +220,18 @@ class LDAModel:
 
     def save_model(self):
         self.check_model()
-        if not self.model_file_name.parent.exists():
-            self.model_file_name.parent.mkdir(parents=True)
+        model_runs_info_collection = mongodb.get_model_runs_info_collection()
+
+        if not self.model_file_name.exists():
+            model_runs_info_collection.delete_one(
+                {"_id": self.model_run_info["model_run_info_id"]})
+
+            if not self.model_file_name.parent.exists():
+                self.model_file_name.parent.mkdir(parents=True)
 
         model_file_name = str(self.model_file_name)
         self.model.save(model_file_name)
 
-        model_runs_info_collection = mongodb.get_model_runs_info_collection()
         model_run_info = dict(self.model_run_info)
 
         model_run_info['_id'] = self.model_run_info["model_run_info_id"]
@@ -826,42 +831,26 @@ if __name__ == '__main__':
     wvec_model.get_similar_docs_by_id(doc_id='8314385c25c7c5e')
     wvec_model.get_similar_words_by_id(doc_id='8314385c25c7c5e')
     """
+    import logging
+    from wb_nlp.models import lda
 
-    import glob
-    from pathlib import Path
-    import hashlib
-    import pandas as pd
-
-    from wb_nlp.models import word2vec
-
-    # doc_fnames = list(Path('./data/raw/sample_data/TXT_ORIG').glob('*.txt'))
-    # doc_ids = [hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
-    #            for p in doc_fnames]
-    # corpus = ['WB'] * len(doc_ids)
-
-    # doc_df = pd.DataFrame()
-    # doc_df['id'] = doc_ids
-    # doc_df['corpus'] = corpus
-    # doc_df['text'] = [open(fn, 'rb').read().decode(
-    #     'utf-8', errors='ignore') for fn in doc_fnames]
-
-    wvec_model = word2vec.Word2VecModel(
-        model_config_id="702984027cfedde344961b8b9461bfd3", cleaning_config_id="23f78350192d924e4a8f75278aca0e1c",
-        raise_empty_doc_status=False)
+    lda_model = lda.LDAModel(
+        model_config_id="ef0ab0459e9c28de8657f3c4f5b2cd86", cleaning_config_id="23f78350192d924e4a8f75278aca0e1c",
+        raise_empty_doc_status=False, log_level=logging.DEBUG)
     # %time
-    wvec_model.train_model()
+    lda_model.train_model()
 
-    wvec_model.build_doc_vecs(pool_workers=3)
-    print(wvec_model.get_similar_words('bank'))
-    print(wvec_model.get_similar_documents('bank'))
-    print(wvec_model.get_similar_docs_by_id(doc_id='092d1961ab4f9a7'))
-    print(wvec_model.get_similar_words_by_id(doc_id='092d1961ab4f9a7'))
+    # lda_model.build_doc_vecs(pool_workers=3)
+    # print(lda_model.get_similar_words('bank'))
+    # print(lda_model.get_similar_documents('bank'))
+    # print(lda_model.get_similar_docs_by_id(doc_id='092d1961ab4f9a7'))
+    # print(lda_model.get_similar_words_by_id(doc_id='092d1961ab4f9a7'))
 
     # print(wvec_model.get_similar_docs_by_id(doc_id='8314385c25c7c5e'))
     # print(wvec_model.get_similar_words_by_id(doc_id='8314385c25c7c5e'))
 
     milvus_client = get_milvus_client()
-    collection_name = wvec_model.model_collection_id
+    collection_name = lda_model.model_collection_id
 
     if collection_name in milvus_client.list_collections():
         milvus_client.drop_collection(collection_name)

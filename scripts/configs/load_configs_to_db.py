@@ -24,7 +24,8 @@ for cfg_path in Path(get_configs_dir('cleaning')).glob('*.yml'):
         cleaning_configs_collection.insert_one(config)
         print(config)
     except DuplicateKeyError:
-        print(f"Config {cfg_path} already in database...")
+        print(
+            f"Config {cfg_path} already in database with id: {config['_id']}...")
 
     print()
 
@@ -49,6 +50,7 @@ for model_config_type, model_name in model_config_set:
             model_configs_collection.insert_one(config)
             print(config)
         except DuplicateKeyError:
-            print(f"Config {cfg_path} already in database...")
+            print(
+                f"Config {cfg_path} already in database with id: {config['_id']}...")
 
         print()
