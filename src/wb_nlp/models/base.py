@@ -9,6 +9,7 @@ import pandas as pd
 import gensim
 from gensim.models.ldamulticore import LdaMulticore
 from gensim.corpora import Dictionary, MmCorpus
+from gensim.models.wrappers.ldamallet import malletmodel2ldamodel
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -22,7 +23,7 @@ from wb_nlp.interfaces.milvus import (
 )
 from wb_nlp.interfaces import mongodb
 from wb_nlp.utils.scripts import create_dask_cluster
-from wb_nlp.types.models import LDAModelConfig, ModelRunInfo
+from wb_nlp.types.models import LDAModelConfig, ModelRunInfo, ModelTypes
 from wb_nlp import dir_manager
 from wb_nlp.processing.corpus import MultiDirGenerator
 from wb_nlp.utils.scripts import (
@@ -96,7 +97,7 @@ class BaseModel:
             get_milvus_client().drop_collection(self.model_collection_id)
 
     def set_processed_corpus_id(self):
-        if self.model_name in ["lda", "mallet"]:
+        if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
             self.dictionary_params = self.model_config['dictionary_config']
             processed_corpus_ids = [self.cleaned_corpus_id,
                                     self.dictionary_params['dictionary_config_id']]
@@ -106,7 +107,7 @@ class BaseModel:
                 f"dictionary-{self.processed_corpus_id}.gensim.dict"
             self.corpus_path = self.cleaned_docs_dir / \
                 f"bow_corpus-{self.processed_corpus_id}.mm"
-        elif self.model_name == "word2vec":
+        elif self.model_name == ModelTypes.word2vec.value:
             self.processed_corpus_id = self.cleaned_corpus_id
         else:
             raise ValueError(f"Unknown model name: {self.model_name}...")
@@ -164,7 +165,7 @@ class BaseModel:
         This is specifically designed to dump the transformed corpus to disk and load it if available.
         There is an implicit assumption that the compute resources is large enough to handle the data.
         """
-        if self.model_name in ["lda", "mallet"]:
+        if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
             checkpoint_log(
                 self.logger, timer=None, message='Loading or generating dictionary...')
 
@@ -211,7 +212,7 @@ class BaseModel:
                 self.logger, timer=None, message='Loading or generating corpus...')
 
             self.g_dict = g_dict
-        elif self.model_name == "word2vec":
+        elif self.model_name == ModelTypes.word2vec.value:
             corpus = MultiDirGenerator(
                 base_dir=self.cleaned_docs_dir,
                 source_dir_name='',
@@ -236,11 +237,16 @@ class BaseModel:
         self.load_model()
 
         if self.model:
+            if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
+                dim = self.model.num_topics
+            elif self.model_name == ModelTypes.word2vec.value:
+                dim = self.model.wv.vector_size
+
             # Make sure that the dimensionality uses the one in the trained model.
-            if self.dim != self.model.num_topics:
-                print(
+            if self.dim != dim:
+                self.log(
                     'Warning: dimension declared is not aligned with loaded model. Using loaded model dim.')
-                self.dim = self.model.num_topics
+                self.dim = dim
 
     def save_model(self):
         self.check_model()
@@ -263,17 +269,24 @@ class BaseModel:
             "/models/") + 1:]
 
         model_runs_info_collection.insert_one(model_run_info)
-        # self.logger.info(self.model.print_topics())
+
+        if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
+            self.logger.info(self.model.print_topics())
 
     def load_model(self):
         model_file_name = str(self.model_file_name)
         try:
-            self.model = LdaMulticore.load(model_file_name)
+            self.model = self.model_class.load(model_file_name)
+            if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
 
-            self.g_dict = Dictionary()
-            self.g_dict.id2token = self.model.id2word
-            self.g_dict.token2id = {k: v for v,
-                                    k in self.g_dict.id2token.items()}
+                self.g_dict = Dictionary()
+                self.g_dict.id2token = self.model.id2word
+                self.g_dict.token2id = {k: v for v,
+                                        k in self.g_dict.id2token.items()}
+
+                if self.model_name == ModelTypes.mallet.value:
+                    self.model = malletmodel2ldamodel(
+                        self.model, iterations=self.model.iterations)
 
         except FileNotFoundError:
             self.model = None
@@ -282,7 +295,7 @@ class BaseModel:
         params = dict(self.model_config[f"{self.model_name}_config"])
         params.pop(f'{self.model_name}_config_id')
 
-        if self.model_name in ["lda", "mallet"]:
+        if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
             params['id2word'] = dict(self.g_dict.id2token)
 
         return params
@@ -291,7 +304,7 @@ class BaseModel:
         # TODO: Add a way to augment the content of the docs
         # with an external dataset without metadata.
         if self.model_file_name.exists():
-            print(
+            self.log(
                 'Warning: A model with the same configuration is available on disk. Loading...')
             self.load_model()
         elif self.model is None or retrain:
@@ -305,7 +318,7 @@ class BaseModel:
             self.save()
 
         else:
-            print('Warning: Model already trained. Not doing anything...')
+            self.log('Warning: Model already trained. Not doing anything...')
 
     def check_model(self):
         if self.model is None:
