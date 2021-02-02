@@ -1,11 +1,9 @@
 '''This module implements the word2vec model service that is responsible
 for training the model as well as a backend interface for the API.
 '''
-import subprocess
 import gc
 import json
-import os
-import contexttimer
+import logging
 from pathlib import Path
 import pandas as pd
 import gensim
@@ -28,8 +26,8 @@ from wb_nlp.types.models import LDAModelConfig, ModelRunInfo
 from wb_nlp import dir_manager
 from wb_nlp.processing.corpus import MultiDirGenerator
 from wb_nlp.utils.scripts import (
-    load_config, generate_model_hash,
-    create_get_directory,
+    configure_logger,
+    generate_model_hash,
     checkpoint_log,
     get_cleaned_corpus_id
 )
@@ -41,9 +39,11 @@ class LDAModel:
         model_config_id,
         cleaning_config_id,
         raise_empty_doc_status=True,
-        logger=None,
+        log_level=logging.WARNING,
     ):
-        self.logger = None
+        configure_logger(log_level)
+        self.logger = logging.getLogger(__file__)
+
         self.cleaning_config_id = cleaning_config_id
         self.model_config_id = model_config_id
 
@@ -52,13 +52,12 @@ class LDAModel:
         self.model = None
         self.raise_empty_doc_status = raise_empty_doc_status
 
-        model_dir = Path(dir_manager.get_path_from_root(
-            "models", self.model_name, self.model_run_info))
+        # Try to load the model
+        self.load()
 
         self.create_milvus_collection()
 
     def create_milvus_collection(self):
-
         self.milvus_vector_field_name = "embedding"
 
         self.collection_params = {
@@ -73,6 +72,10 @@ class LDAModel:
         if self.model_collection_id not in get_milvus_client().list_collections():
             get_milvus_client().create_collection(
                 self.model_collection_id, self.collection_params)
+
+    def drop_milvus_collection(self):
+        if self.model_collection_id in get_milvus_client().list_collections():
+            get_milvus_client().drop_collection(self.model_collection_id)
 
     def validate_and_prepare_requirements(self):
         self.cleaned_docs_dir = Path(dir_manager.get_data_dir(
@@ -128,7 +131,7 @@ class LDAModel:
         self.model_file_name = self.model_dir / \
             f'{self.model_collection_id}.bz2'
 
-    def get_training_corpus(self):
+    def get_training_data(self):
         """
         This method returns a transformed corpus that can be used to train the model.
         This is specifically designed to dump the transformed corpus to disk and load it if available.
@@ -197,11 +200,12 @@ class LDAModel:
     def load(self):
         self.load_model()
 
-        # Make sure that the dimensionality uses the one in the trained model.
-        if self.dim != self.model.num_topics:
-            print(
-                'Warning: dimension declared is not aligned with loaded model. Using loaded model dim.')
-            self.dim = self.model.num_topics
+        if self.model:
+            # Make sure that the dimensionality uses the one in the trained model.
+            if self.dim != self.model.num_topics:
+                print(
+                    'Warning: dimension declared is not aligned with loaded model. Using loaded model dim.')
+                self.dim = self.model.num_topics
 
     def save_model(self):
         self.check_model()
@@ -223,9 +227,12 @@ class LDAModel:
 
     def load_model(self):
         model_file_name = str(self.model_file_name)
-        self.model = LdaMulticore.load(model_file_name)
+        try:
+            self.model = LdaMulticore.load(model_file_name)
+        except FileNotFoundError:
+            self.model = None
 
-    def train_model(self, retrain=False, logger=None):
+    def train_model(self, retrain=False):
         # TODO: Add a way to augment the content of the docs
         # with an external dataset without metadata.
         if self.model_file_name.exists():
@@ -233,15 +240,7 @@ class LDAModel:
                 'Warning: A model with the same configuration is available on disk. Loading...')
             self.load_model()
         elif self.model is None or retrain:
-            file_generator = MultiDirGenerator(
-                base_dir=self.cleaned_docs_dir,
-                source_dir_name='',
-                split=True,
-                min_tokens=0,
-                logger=logger
-            )
-
-            corpus_data = self.get_training_corpus()
+            corpus_data = self.get_training_data()
 
             lda_params = dict(self.model_config[f"{self.model_name}_config"])
             lda_params['id2word'] = dict(corpus_data["g_dict"].id2token)
@@ -249,11 +248,7 @@ class LDAModel:
 
             self.model = LdaMulticore(corpus_data["corpus"], **lda_params)
 
-            milvus_client = get_milvus_client()
-            collection_name = self.model_collection_id
-
-            if collection_name in milvus_client.list_collections():
-                milvus_client.drop_collection(collection_name)
+            self.drop_milvus_collection()
 
             self.save()
 
