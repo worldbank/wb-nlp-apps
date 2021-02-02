@@ -5,25 +5,18 @@ import gc
 import json
 import logging
 from pathlib import Path
-import pandas as pd
 import gensim
-from gensim.models.ldamulticore import LdaMulticore
 from gensim.corpora import Dictionary, MmCorpus
 from gensim.models.wrappers.ldamallet import malletmodel2ldamodel
 
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-import joblib
-from joblib import Parallel, delayed
 
 from milvus import DataType
 from wb_nlp.interfaces.milvus import (
-    get_milvus_client, get_hex_id, get_int_id,
-    get_collection_ids, get_embedding_dsl,
+    get_milvus_client,
+    get_collection_ids,
 )
 from wb_nlp.interfaces import mongodb
-from wb_nlp.utils.scripts import create_dask_cluster
-from wb_nlp.types.models import LDAModelConfig, ModelRunInfo, ModelTypes
+from wb_nlp.types.models import ModelRunInfo, ModelTypes
 from wb_nlp import dir_manager
 from wb_nlp.processing.corpus import MultiDirGenerator
 from wb_nlp.utils.scripts import (
@@ -60,11 +53,11 @@ class BaseModel:
         self.model = None
         self.raise_empty_doc_status = raise_empty_doc_status
 
-        # Try to load the model
-        self.load()
-        self.set_model_specific_attributes()
+        # # Try to load the model
+        # self.load()
+        # self.set_model_specific_attributes()
 
-        self.create_milvus_collection()
+        # self.create_milvus_collection()
 
     def log(self, message):
 
