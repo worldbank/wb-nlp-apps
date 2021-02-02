@@ -97,7 +97,6 @@ class BaseModel:
 
     def set_processed_corpus_id(self):
         if self.model_name in ["lda", "mallet"]:
-
             self.dictionary_params = self.model_config['dictionary_config']
             processed_corpus_ids = [self.cleaned_corpus_id,
                                     self.dictionary_params['dictionary_config_id']]
@@ -109,6 +108,8 @@ class BaseModel:
                 f"bow_corpus-{self.processed_corpus_id}.mm"
         elif self.model_name == "word2vec":
             self.processed_corpus_id = self.cleaned_corpus_id
+        else:
+            raise ValueError(f"Unknown model name: {self.model_name}...")
 
     def validate_and_prepare_requirements(self):
         self.cleaned_docs_dir = Path(dir_manager.get_data_dir(
@@ -130,7 +131,9 @@ class BaseModel:
         assert self.model_name == self.expected_model_name
         assert gensim.__version__ == self.model_config['meta']['library_version']
 
-        self.dim = self.model_config[f"{self.model_name}_config"]["num_topics"]
+        params = self.model_config[f"{self.model_name}_config"]
+        self.dim = params.get("num_topics", params.get("size"))
+
         self.set_processed_corpus_id()
 
         self.model_run_info = dict(
@@ -260,7 +263,7 @@ class BaseModel:
             "/models/") + 1:]
 
         model_runs_info_collection.insert_one(model_run_info)
-        self.logger.info(self.model.print_topics())
+        # self.logger.info(self.model.print_topics())
 
     def load_model(self):
         model_file_name = str(self.model_file_name)
