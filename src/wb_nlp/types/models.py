@@ -11,7 +11,7 @@ import json
 from typing import List, Any
 from pydantic import BaseModel, Field, validator, AnyUrl
 from wb_nlp.utils.scripts import generate_model_hash
-from fastapi import File, UploadFile
+from fastapi import File, UploadFile, Query
 
 
 class ModelTypes(enum.Enum):
@@ -34,6 +34,43 @@ class MilvusMetricTypes(enum.Enum):
     '''
     IP = "IP"
     L2 = "L2"
+
+
+DEFAULT_QUERY_FIELDS = dict(
+    model_id=Query(..., description="Identification of the desired model configuration to use for the operation. The cleaning pipeline associated with this model will also be applied."),
+    raw_text=Query(..., description="Input text to transform."),
+    normalize=Query(
+        True, description="Indicates whether the vectors will be normalized."),
+    topn_words=Query(
+        10, ge=1, description='Number of similar words to return.'),
+    metric=Query(MetricTypes.cosine_similarity,
+                 description='Similarity metric to use.'),
+
+    topn_docs=Query(
+        10, ge=1, description='Number of similar words to return.'),
+
+    show_duplicates=Query(
+        False, description='Flag that indicates whether to return highly similar or possibly duplicate documents.'),
+    duplicate_threshold=Query(
+        0.98, ge=0, description='Threshold to use to indicate whether a document is highly similar or possibly a duplicate of the input.'),
+    metric_type=Query(MilvusMetricTypes.IP,
+                      description='The distance metric to use in Milvus to get similar documents.'),
+
+
+    # LDA specific fields.
+    lda=dict(
+        topn_words=Query(
+            10, description="The number of top words that will be returned for each topic."),
+        total_word_score=Query(
+            None, description="This will return the words representing the topic with at least `total_word_score` of cumulative score (order from largest value.)"),
+        topic_id=Query(..., description="Topic id of interest."),
+        text=Query(..., description="Input text for topic inference."),
+        topn_topics=Query(
+            10, description="The number of topics that will be returned."),
+        total_topic_score=Query(
+            None, description="This will return the topics representing the text with at least `total_topic_score` of cumulative score (order from largest value.)"),
+    )
+)
 
 
 class TextInputParams(BaseModel):

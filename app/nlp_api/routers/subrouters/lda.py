@@ -50,11 +50,9 @@ async def get_topics(model_type: str = None):
 
 @ router.get("/get_model_topic_words")
 async def get_model_topic_words(
-    model_id: str = Query(..., description="Model id"),
-    topn_words: int = Query(
-        10, description="The number of top words that will be returned for each topic."),
-    total_word_score: float = Query(
-        None, description="This will return the words representing the topic with at least `total_word_score` of cumulative score (order from largest value.)")
+    model_id: str = DEFAULT_QUERY_FIELDS["model_id"],
+    topn_words: int = DEFAULT_QUERY_FIELDS["topn_words"],
+    total_word_score: float = DEFAULT_QUERY_FIELDS["total_word_score"]
 ):
     model = get_validated_model(LDA_MODEL_NAME, model_id)
 
@@ -65,12 +63,10 @@ async def get_model_topic_words(
 
 @ router.get("/get_topic_words")
 async def get_topic_words(
-    model_id: str = Query(..., description="Model id"),
-    topic_id: int = Query(..., description="Topic id of interest."),
-    topn_words: int = Query(
-        10, description="The number of top words that will be returned for each topic."),
-    total_word_score: float = Query(
-        None, description="This will return the words representing the topic with at least `total_word_score` of cumulative score (order from largest value.)")
+    model_id: str = DEFAULT_QUERY_FIELDS["model_id"],
+    topic_id: int = DEFAULT_QUERY_FIELDS["topic_id"],
+    topn_words: int = DEFAULT_QUERY_FIELDS["topn_words"],
+    total_word_score: float = DEFAULT_QUERY_FIELDS["total_word_score"]
 ):
 
     model = get_validated_model(LDA_MODEL_NAME, model_id)
@@ -83,16 +79,12 @@ async def get_topic_words(
 
 @ router.get("/get_doc_topic_words")
 async def get_doc_topic_words(
-    model_id: str = Query(..., description="Model id"),
+    model_id: str = DEFAULT_QUERY_FIELDS["model_id"],
     text: str = Query(..., description="Input text for topic inference."),
-    topn_topics: int = Query(
-        10, description="The number of topics that will be returned."),
-    topn_words: int = Query(
-        10, description="The number of top words that will be returned for each topic."),
-    total_topic_score: float = Query(
-        None, description="This will return the topics representing the text with at least `total_topic_score` of cumulative score (order from largest value.)"),
-    total_word_score: float = Query(
-        None, description="This will return the words representing the topic with at least `total_word_score` of cumulative score (order from largest value.)")
+    topn_topics: int = DEFAULT_QUERY_FIELDS["topn_topics"],
+    topn_words: int = DEFAULT_QUERY_FIELDS["topn_words"],
+    total_topic_score: float = DEFAULT_QUERY_FIELDS["total_topic_score"],
+    total_word_score: float = DEFAULT_QUERY_FIELDS["total_word_score"]
 ):
 
     model = get_validated_model(LDA_MODEL_NAME, model_id)
