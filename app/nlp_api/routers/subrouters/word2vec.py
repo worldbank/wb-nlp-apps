@@ -12,7 +12,7 @@ from wb_nlp.interfaces import mongodb
 
 from wb_nlp.dir_manager import get_path_from_root
 from wb_nlp.types.models import (
-    ModelTypes, Word2VecGetVectorParams,
+    ModelTypes, Word2VecGetVectorParams, Word2VecSimilarWordsParams
 )
 from wb_nlp.models import word2vec_base, lda_base
 
@@ -29,6 +29,7 @@ router = APIRouter(
 def get_model_by_model_id(model_id):
     model_runs_info_collection = mongodb.get_model_runs_info_collection()
     model_run_info = model_runs_info_collection.find_one({"_id": model_id})
+    print(model_run_info)
 
     if model_run_info["model_name"] == ModelTypes.word2vec.value:
 
@@ -61,8 +62,7 @@ async def get_text_vector(transform_params: Word2VecGetVectorParams):
     assert transform_params.model_type == ModelTypes.word2vec
 
     model = get_model_by_model_id(model_id)
-
-    return model.transform_doc(raw_text, normalize=normalize)
+    return model.transform_doc(raw_text, normalize=normalize, tolist=True)
 
 
 @ router.post("/get_file_vector")
@@ -75,18 +75,24 @@ async def get_file_vector(file: UploadFile = File(None, description='File to upl
     return dict(file=file)
 
 
-@ router.post("/get_related_words")
-async def get_related_words(transform_params: Word2VecGetVectorParams):
+@ router.post("/get_similar_words")
+async def get_similar_words(transform_params: Word2VecSimilarWordsParams):
     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
     '''
 
     model_id = transform_params.model_id
     raw_text = transform_params.raw_text
+    topn = transform_params.topn_words
+    metric = transform_params.metric.value
+
     assert transform_params.model_type == ModelTypes.word2vec
 
-    print(model_id, raw_text)
+    model = get_model_by_model_id(model_id)
+    result = model.get_similar_words(raw_text, topn=topn, metric=metric)
 
-    return dict(transform_params=transform_params)
+    print(result)
+
+    return result
 
 
 @ router.post("/get_similar_docs_by_id")

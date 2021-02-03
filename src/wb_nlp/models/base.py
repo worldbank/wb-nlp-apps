@@ -451,30 +451,36 @@ class BaseModel:
 
         try:
             with joblib.parallel_backend('dask'):
-                for partition_group, sub_docs in docs_for_processing.groupby('corpus'):
-                    results = Parallel(verbose=10, batch_size='auto')(
-                        delayed(self.process_doc)(doc) for idx, doc in sub_docs.iterrows())
+                if not docs_for_processing.empty:
+                    for partition_group, sub_docs in docs_for_processing.groupby('corpus'):
+                        results = Parallel(verbose=10, batch_size='auto')(
+                            delayed(self.process_doc)(doc) for idx, doc in sub_docs.iterrows())
 
-                    locs, vectors = list(zip(
-                        *[(ix, p['doc_vec'].flatten()) for ix, p in enumerate(results) if p['success']]))
-                    sub_int_ids = sub_docs.iloc[list(
-                        locs)]['int_id'].tolist()
+                        results = [(ix, p['doc_vec'].flatten())
+                                   for ix, p in enumerate(results) if p['success']]
 
-                    entities = [
-                        {"name": self.milvus_vector_field_name, "values": vectors,
-                            "type": DataType.FLOAT_VECTOR},
-                    ]
+                        if len(results) == 0:
+                            continue
 
-                    if not milvus_client.has_partition(collection_name, partition_group):
-                        milvus_client.create_partition(
-                            collection_name, partition_group)
+                        locs, vectors = list(zip(*results))
+                        sub_int_ids = sub_docs.iloc[list(
+                            locs)]['int_id'].tolist()
 
-                    ids = milvus_client.insert(collection_name, entities,
-                                               sub_int_ids, partition_tag=partition_group)
+                        entities = [
+                            {"name": self.milvus_vector_field_name, "values": vectors,
+                                "type": DataType.FLOAT_VECTOR},
+                        ]
 
-                    assert len(set(ids).difference(sub_int_ids)) == 0
+                        if not milvus_client.has_partition(collection_name, partition_group):
+                            milvus_client.create_partition(
+                                collection_name, partition_group)
 
-                    milvus_client.flush([collection_name])
+                        ids = milvus_client.insert(collection_name, entities,
+                                                   sub_int_ids, partition_tag=partition_group)
+
+                        assert len(set(ids).difference(sub_int_ids)) == 0
+
+                        milvus_client.flush([collection_name])
         finally:
             dask_client.close()
 
@@ -513,8 +519,8 @@ class BaseModel:
                 if ent.distance > duplicate_threshold:
                     continue
 
-            payload.append({'id': self.get_doc_id_from_int_id(ent.id), 'score': np.round(
-                ent.distance, decimals=5), 'rank': rank})
+            payload.append({'id': self.get_doc_id_from_int_id(ent.id), 'score': float(np.round(
+                ent.distance, decimals=5)), 'rank': rank})
 
             if len(payload) == topn:
                 break
@@ -544,8 +550,8 @@ class BaseModel:
 
         payload = []
         for rank, top_sim_ix in enumerate(argidx, 1):
-            payload.append({'word': self.index2word[top_sim_ix], 'score': np.round(
-                sim[top_sim_ix], decimals=5), 'rank': rank})
+            payload.append({'word': self.index2word[top_sim_ix], 'score': float(np.round(
+                sim[top_sim_ix], decimals=5)), 'rank': rank})
 
         payload = sorted(payload, key=lambda x: x['rank'])
         if serialize:
@@ -577,8 +583,8 @@ class BaseModel:
                 if ent.distance > duplicate_threshold:
                     continue
 
-            payload.append({'id': self.get_doc_id_from_int_id(ent.id), 'score': np.round(
-                ent.distance, decimals=5), 'rank': rank})
+            payload.append({'id': self.get_doc_id_from_int_id(ent.id), 'score': float(np.round(
+                ent.distance, decimals=5)), 'rank': rank})
 
             if len(payload) == topn:
                 break
@@ -612,8 +618,8 @@ class BaseModel:
 
         payload = []
         for rank, top_sim_ix in enumerate(argidx, 1):
-            payload.append({'word': self.index2word[top_sim_ix], 'score': np.round(
-                sim[top_sim_ix], decimals=5), 'rank': rank})
+            payload.append({'word': self.index2word[top_sim_ix], 'score': float(np.round(
+                sim[top_sim_ix], decimals=5)), 'rank': rank})
 
         payload = sorted(payload, key=lambda x: x['rank'])
         if serialize:

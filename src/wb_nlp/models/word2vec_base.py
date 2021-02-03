@@ -51,7 +51,7 @@ class Word2VecModel(BaseModel):
     def combine_word_vectors(self, word_vecs):
         return word_vecs.mean(axis=0).reshape(1, -1)
 
-    def transform_doc(self, document, normalize=True):
+    def transform_doc(self, document, normalize=True, tolist=False):
         # document: cleaned string
 
         self.check_model()
@@ -71,6 +71,9 @@ class Word2VecModel(BaseModel):
                 raise(e)
             else:
                 doc_vec = np.zeros(self.dim).reshape(1, -1)
+
+        if tolist:
+            doc_vec = doc_vec.ravel().tolist()
 
         return dict(doc_vec=doc_vec, success=success)
 
@@ -131,8 +134,4 @@ if __name__ == '__main__':
     print(wvec_model.get_similar_docs_by_doc_id(doc_id='wb_725385'))
     print(wvec_model.get_similar_words_by_doc_id(doc_id='wb_725385'))
 
-    milvus_client = get_milvus_client()
-    collection_name = wvec_model.model_collection_id
-
-    if collection_name in milvus_client.list_collections():
-        milvus_client.drop_collection(collection_name)
+    # wvec_model.drop_milvus_collection()

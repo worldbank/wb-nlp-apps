@@ -54,7 +54,7 @@ class LDAModel(BaseModel):
     def set_model_specific_attributes(self):
         self.num_topics = self.dim
 
-    def transform_doc(self, document, normalize=True):
+    def transform_doc(self, document, normalize=True, tolist=False):
         # This function is the primary method of converting a document
         # into its vector representation based on the model.
         # This should be implemented in the respective models.
@@ -79,6 +79,9 @@ class LDAModel(BaseModel):
                 raise(e)
             else:
                 doc_vec = np.zeros(self.dim).reshape(1, -1)
+
+        if tolist:
+            doc_vec = doc_vec.ravel().tolist()
 
         return dict(doc_vec=doc_vec, success=success)
 
