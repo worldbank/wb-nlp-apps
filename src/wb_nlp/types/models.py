@@ -29,6 +29,13 @@ class MetricTypes(enum.Enum):
     euclidean_distances = "euclidean_distances"
 
 
+class MilvusMetricTypes(enum.Enum):
+    '''Type of Milvus distance metrics currently supported.
+    '''
+    IP = "IP"
+    L2 = "L2"
+
+
 class TextInputParams(BaseModel):
     model_id: str = Field(
         ..., description="Identification of the desired model configuration to use for the operation. The cleaning pipeline associated with this model will also be applied.")
@@ -50,28 +57,44 @@ class Word2VecSimilarWordsParams(TextInputParams):
         10, ge=1, description='Number of similar words to return.')
     metric: MetricTypes = MetricTypes.cosine_similarity
 
-    # class Word2VecTransformParams(TextInputParams):
-    #     raw_text: str = Field(
-    #         ..., description="Input text to transform.")
 
-    #     # file: UploadFile = File(None, description='File to upload.')
+class Word2VecSimilarDocsParams(TextInputParams):
+    raw_text: str = Field(
+        ..., description="Input text to transform.")
+    topn_docs: int = Field(
+        10, ge=1, description='Number of similar words to return.')
+    metric: MetricTypes = MetricTypes.cosine_similarity
 
-    #     topn_words: int = Field(
-    #         10, ge=1, description='Number of similar words to return.')
-    #     topn_docs: int = Field(
-    #         10, ge=1, description='Number of similar docs to return.')
+    show_duplicates: bool = Field(
+        False, description='Flag that indicates whether to return highly similar or possibly duplicate documents.'
+    )
+    duplicate_threshold: float = Field(
+        0.98, ge=0, description='Threshold to use to indicate whether a document is highly similar or possibly a duplicate of the input.'
+    )
+    metric_type: MilvusMetricTypes = MilvusMetricTypes.IP
 
-    #     show_duplicates: bool = Field(
-    #         False, description='Flag that indicates whether to return highly similar or possibly duplicate documents.'
-    #     )
-    #     duplicate_threshold: float = Field(
-    #         0.98, ge=0, description='Threshold to use to indicate whether a document is highly similar or possibly a duplicate of the input.'
-    #     )
-    #     return_related_words: bool = Field(
-    #         True, description='Flag indicating an option to return similar or topic words to the document.')
-    #     translate: bool = Field(
-    #         True, description='Flag indicating an option to translate the input data.'
-    #     )
+# class Word2VecTransformParams(TextInputParams):
+#     raw_text: str = Field(
+#         ..., description="Input text to transform.")
+
+#     # file: UploadFile = File(None, description='File to upload.')
+
+#     topn_words: int = Field(
+#         10, ge=1, description='Number of similar words to return.')
+#     topn_docs: int = Field(
+#         10, ge=1, description='Number of similar docs to return.')
+
+#     show_duplicates: bool = Field(
+#         False, description='Flag that indicates whether to return highly similar or possibly duplicate documents.'
+#     )
+#     duplicate_threshold: float = Field(
+#         0.98, ge=0, description='Threshold to use to indicate whether a document is highly similar or possibly a duplicate of the input.'
+#     )
+#     return_related_words: bool = Field(
+#         True, description='Flag indicating an option to return similar or topic words to the document.')
+#     translate: bool = Field(
+#         True, description='Flag indicating an option to translate the input data.'
+#     )
 
 
 class LDATransformParams(TextInputParams):

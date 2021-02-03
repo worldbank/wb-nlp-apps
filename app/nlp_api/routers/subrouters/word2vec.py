@@ -12,7 +12,7 @@ from wb_nlp.interfaces import mongodb
 
 from wb_nlp.dir_manager import get_path_from_root
 from wb_nlp.types.models import (
-    ModelTypes, Word2VecGetVectorParams, Word2VecSimilarWordsParams
+    ModelTypes, Word2VecGetVectorParams, Word2VecSimilarWordsParams, Word2VecSimilarDocsParams
 )
 from wb_nlp.models import word2vec_base, lda_base
 
@@ -95,8 +95,8 @@ async def get_similar_words(transform_params: Word2VecSimilarWordsParams):
     return result
 
 
-@ router.post("/get_similar_docs_by_id")
-async def get_similar_docs_by_id(transform_params: Word2VecGetVectorParams):
+@ router.post("/get_similar_docs_by_doc_id")
+async def get_similar_docs_by_doc_id(transform_params: Word2VecGetVectorParams):
     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
     '''
 
@@ -110,14 +110,21 @@ async def get_similar_docs_by_id(transform_params: Word2VecGetVectorParams):
 
 
 @ router.post("/get_similar_docs")
-async def get_similar_docs(transform_params: Word2VecGetVectorParams):
+async def get_similar_docs(transform_params: Word2VecSimilarDocsParams):
     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
     '''
 
     model_id = transform_params.model_id
     raw_text = transform_params.raw_text
+    topn = transform_params.topn_docs
+    duplicate_threshold = transform_params.duplicate_threshold
+    show_duplicates = transform_params.show_duplicates
+    metric_type = transform_params.metric_type.value
+
     assert transform_params.model_type == ModelTypes.word2vec
 
-    print(model_id, raw_text)
+    model = get_model_by_model_id(model_id)
+    result = model.get_similar_documents(
+        raw_text, topn=topn, duplicate_threshold=duplicate_threshold, show_duplicates=show_duplicates, metric_type=metric_type)
 
-    return dict(transform_params=transform_params)
+    return result
