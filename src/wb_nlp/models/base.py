@@ -49,6 +49,7 @@ class BaseModel:
         log_level=logging.WARNING,
     ):
         configure_logger(log_level)
+        self.log_level = log_level
         self.logger = logging.getLogger(__file__)
 
         self.cleaning_config_id = cleaning_config_id
@@ -337,6 +338,8 @@ class BaseModel:
             self.word_vectors = self.model.expElogbeta
             self.word_vectors = self.word_vectors / \
                 (1e-10 + self.word_vectors.sum(axis=0))
+
+            self.word_vectors = self.word_vectors.T
             self.index2word = self.model.id2word
 
         elif self.model_name == ModelTypes.word2vec.value:
@@ -360,6 +363,8 @@ class BaseModel:
                 'Warning: A model with the same configuration is available on disk. Loading...')
             self.load_model()
         elif self.model is None or retrain:
+            self.log(
+                'Starting model training...')
             corpus = self.get_training_corpus()
             params = self.get_model_params()
 
@@ -523,6 +528,9 @@ class BaseModel:
 
         doc_vec = self.get_doc_vec(
             document, normalize=True, assert_success=True, flatten=False)
+
+        # self.log(
+        #     f"doc_vec shape: {doc_vec.shape}, word_vectors shape: {self.word_vectors.shape}")
 
         if cosine_similarity.__name__ == metric:
             sim = cosine_similarity(doc_vec, self.word_vectors).flatten()
