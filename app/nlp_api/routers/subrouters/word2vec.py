@@ -13,7 +13,7 @@ from wb_nlp.types.models import (
 from ...common.utils import get_model_by_model_id
 
 router = APIRouter(
-    prefix="/word2vec",
+    prefix="/word2vec2",
     tags=["Word2vec Model"],
     dependencies=[],
     responses={404: {"description": "Not found"}},

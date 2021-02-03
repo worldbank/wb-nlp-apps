@@ -39,14 +39,14 @@ class MilvusMetricTypes(enum.Enum):
 class TextInputParams(BaseModel):
     model_id: str = Field(
         ..., description="Identification of the desired model configuration to use for the operation. The cleaning pipeline associated with this model will also be applied.")
-    model_type: ModelTypes = Field(
-        ..., description="Model type.")
+    # model_type: ModelTypes = Field(
+    #     ..., description="Model type.")
 
 
 class GetVectorParams(TextInputParams):
     raw_text: str = Field(
         ..., description="Input text to transform.")
-    model_type: ModelTypes = ModelTypes.word2vec
+    # model_type: ModelTypes = ModelTypes.word2vec
     normalize: bool = True
 
 

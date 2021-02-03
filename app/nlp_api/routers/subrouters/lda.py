@@ -14,7 +14,7 @@ from wb_nlp.types.models import LDATransformParams
 
 
 router = APIRouter(
-    prefix="/lda",
+    prefix="/lda2",
     tags=["LDA Model"],
     dependencies=[],
     responses={404: {"description": "Not found"}},

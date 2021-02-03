@@ -1,3 +1,5 @@
+from pathlib import Path
+import json
 from functools import lru_cache
 
 from wb_nlp.interfaces import mongodb
@@ -6,6 +8,21 @@ from wb_nlp.types.models import (
     ModelTypes,
 )
 from wb_nlp.models import word2vec_base, lda_base
+
+
+@lru_cache(maxsize=64)
+def process_config(path: Path):
+    if not path.exists():
+        return None
+
+    model_id = path.parent.name
+
+    with open(path) as json_file:
+        config = json.load(json_file)
+    config.pop('paths')
+    config['meta']['model_id'] = model_id
+
+    return config
 
 
 @lru_cache(maxsize=32)
@@ -30,4 +47,5 @@ def get_model_by_model_id(model_id):
             raise_empty_doc_status=False,
         )
 
-    return model
+    model_run_info["model"] = model
+    return model_run_info
