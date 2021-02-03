@@ -33,6 +33,7 @@ class Word2VecGetVectorParams(TextInputParams):
     raw_text: str = Field(
         ..., description="Input text to transform.")
     model_type: ModelTypes = ModelTypes.word2vec
+    normalize: bool = True
 
 
 class Word2VecTransformParams(TextInputParams):
@@ -570,6 +571,10 @@ class ModelRunInfo(BaseModel):
         ...,
         description="Some unique identifier of the input data. Example: dictionary_id + hash of the cleaned corpus."
     )
+    description: str = Field(
+        "",
+        description="High-level description of the model."
+    )
 
     def __init__(self, **data: Any) -> None:
         temp_data = dict(data)
@@ -581,7 +586,11 @@ class ModelRunInfo(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.model_run_info_id = generate_model_hash(json.loads(self.json()))
+        temp_data = json.loads(self.json())
+        description = temp_data.pop("description")
+
+        self.model_run_info_id = generate_model_hash(temp_data)
+        self.description = description
 
 
 # model_config:
