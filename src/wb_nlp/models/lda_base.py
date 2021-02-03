@@ -125,7 +125,7 @@ class LDAModel(BaseModel):
 
     def get_model_topic_words(self, topn_words=5, total_word_score=None, serialize=False):
         payload = []
-        for topic_id in range(self.num_topics):
+        for topic_id in range(self.model.num_topics):
             topic_words = self.get_topic_words(
                 topic_id,
                 topn_words=topn_words,

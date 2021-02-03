@@ -1,6 +1,7 @@
 from pathlib import Path
 import json
 from functools import lru_cache
+from fastapi import HTTPException
 
 from wb_nlp.interfaces import mongodb
 
@@ -49,3 +50,14 @@ def get_model_by_model_id(model_id):
 
     model_run_info["model"] = model
     return model_run_info
+
+
+def get_validated_model(model_name, model_id):
+    model_run_info = get_model_by_model_id(model_id)
+
+    if model_name != ModelTypes(model_run_info["model_name"]):
+        run_model_name = model_run_info["model_name"]
+        raise HTTPException(
+            status_code=404, detail=f"Invalid model_id: {model_id} for {model_name.value}. This model_id corresponds to a {run_model_name} model.")
+
+    return model_run_info["model"]

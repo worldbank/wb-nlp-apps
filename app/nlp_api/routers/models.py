@@ -11,7 +11,7 @@ from wb_nlp.types.models import (
     SimilarWordsByDocIDParams, SimilarDocsByDocIDParams, ModelRunInfo
 )
 
-from ..common.utils import get_model_by_model_id
+from ..common.utils import get_validated_model
 
 
 router = APIRouter(
@@ -20,17 +20,6 @@ router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
-
-
-def get_validated_model(model_name, model_id):
-    model_run_info = get_model_by_model_id(model_id)
-
-    if model_name != ModelTypes(model_run_info["model_name"]):
-        run_model_name = model_run_info["model_name"]
-        raise HTTPException(
-            status_code=404, detail=f"Invalid model_id: {model_id} for {model_name.value}. This model_id corresponds to a {run_model_name} model.")
-
-    return model_run_info["model"]
 
 
 @ router.get("/get_available_models")
