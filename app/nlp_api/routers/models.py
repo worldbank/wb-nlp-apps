@@ -1,22 +1,17 @@
 '''This router contains the implementation for the cleaning API.
 '''
-import enum
 import json
-from typing import Optional, List
-from functools import lru_cache
-from pathlib import Path
-from fastapi import APIRouter, Depends, HTTPException, Body, UploadFile, File
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, HTTPException, UploadFile, File, Query
+import pydantic
 
-
-from wb_nlp.dir_manager import get_path_from_root
+from wb_nlp.interfaces import mongodb
 
 from wb_nlp.types.models import (
     ModelTypes, GetVectorParams, SimilarWordsParams, SimilarDocsParams,
-    SimilarWordsByDocIDParams, SimilarDocsByDocIDParams
+    SimilarWordsByDocIDParams, SimilarDocsByDocIDParams, ModelRunInfo
 )
 
-from ..common.utils import get_model_by_model_id, process_config
+from ..common.utils import get_model_by_model_id
 
 
 router = APIRouter(
@@ -37,41 +32,37 @@ def get_validated_model(model_name, model_id):
 
     return model_run_info["model"]
 
-# @lru_cache(maxsize=64)
-# def process_config(path: Path):
-#     if not path.exists():
-#         return None
 
-#     model_id = path.parent.name
-
-#     with open(path) as json_file:
-#         config = json.load(json_file)
-#     config.pop('paths')
-#     config['meta']['model_id'] = model_id
-
-#     return config
-
-
-@ router.get("/get_model_configs")
-async def get_model_configs(model_type: ModelTypes):
-    '''This endpoint returns the configurations used to train the available models of the given `model_type`.
+@ router.get("/get_available_models")
+async def get_available_models(
+    model_type: ModelTypes,
+    expand: bool = Query(
+        False,
+        description="Flag that indicates whether the returned data will only have the ids for the model and cleaning configs or contain the full information."
+    )
+):
+    '''This endpoint returns a list of all the available models. The returned data contains information regarding the configurations used to train a given model.
 
     This can be used in the frontend to generate guidance and information about the available models.
     '''
+    configs = []
 
-    model_path = Path(get_path_from_root('models', model_type.value))
-    config_paths = model_path.glob('*/model_config_*.json')
-    print(config_paths)
+    for conf in mongodb.get_model_runs_info_collection().find({"model_name": model_type.value}):
+        try:
+            info = json.loads(ModelRunInfo(**conf).json())
 
-    configs = map(process_config, config_paths)
+            if expand:
+                info["model_config"] = mongodb.get_model_configs_collection().find_one(
+                    {"_id": info["model_config_id"]})
+                info["cleaning_config"] = mongodb.get_cleaning_configs_collection().find_one(
+                    {"_id": info["cleaning_config_id"]})
 
-    model_configs = list(filter(lambda x: x, configs))
+            configs.append(info)
 
-    return dict(model_configs=model_configs)
+        except pydantic.error_wrappers.ValidationError:
+            pass
 
-
-def infer(model_type: ModelTypes, model_id: str):
-    pass
+    return configs
 
 
 @ router.post("/{model_name}/get_text_vector")

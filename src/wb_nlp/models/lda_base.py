@@ -416,17 +416,4 @@ if __name__ == '__main__':
     print(lda_model.get_similar_docs_by_doc_id(doc_id='wb_725385'))
     print(lda_model.get_similar_words_by_doc_id(doc_id='wb_725385'))
 
-    # lda_model.build_doc_vecs(pool_workers=3)
-    # print(lda_model.get_similar_words('bank'))
-    # print(lda_model.get_similar_documents('bank'))
-    # print(lda_model.get_similar_docs_by_id(doc_id='092d1961ab4f9a7'))
-    # print(lda_model.get_similar_words_by_id(doc_id='092d1961ab4f9a7'))
-
-    # print(wvec_model.get_similar_docs_by_id(doc_id='8314385c25c7c5e'))
-    # print(wvec_model.get_similar_words_by_id(doc_id='8314385c25c7c5e'))
-
-    milvus_client = get_milvus_client()
-    collection_name = lda_model.model_collection_id
-
-    if collection_name in milvus_client.list_collections():
-        milvus_client.drop_collection(collection_name)
+    # lda_model.drop_milvus_collection()
