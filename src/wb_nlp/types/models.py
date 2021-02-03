@@ -43,14 +43,14 @@ class TextInputParams(BaseModel):
         ..., description="Model type.")
 
 
-class Word2VecGetVectorParams(TextInputParams):
+class GetVectorParams(TextInputParams):
     raw_text: str = Field(
         ..., description="Input text to transform.")
     model_type: ModelTypes = ModelTypes.word2vec
     normalize: bool = True
 
 
-class Word2VecSimilarWordsParams(TextInputParams):
+class SimilarWordsParams(TextInputParams):
     raw_text: str = Field(
         ..., description="Input text to transform.")
     topn_words: int = Field(
@@ -58,7 +58,7 @@ class Word2VecSimilarWordsParams(TextInputParams):
     metric: MetricTypes = MetricTypes.cosine_similarity
 
 
-class Word2VecSimilarDocsParams(TextInputParams):
+class SimilarDocsParams(TextInputParams):
     raw_text: str = Field(
         ..., description="Input text to transform.")
     topn_docs: int = Field(
