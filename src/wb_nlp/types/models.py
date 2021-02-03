@@ -73,6 +73,31 @@ class SimilarDocsParams(TextInputParams):
     )
     metric_type: MilvusMetricTypes = MilvusMetricTypes.IP
 
+
+class SimilarWordsByDocIDParams(TextInputParams):
+    doc_id: str = Field(
+        ..., description="ID of the reference document from the `docs_metadata`.")
+    topn_words: int = Field(
+        10, ge=1, description='Number of similar words to return.')
+    metric: MetricTypes = MetricTypes.cosine_similarity
+
+
+class SimilarDocsByDocIDParams(TextInputParams):
+    doc_id: str = Field(
+        ..., description="ID of the reference document from the `docs_metadata`.")
+    topn_docs: int = Field(
+        10, ge=1, description='Number of similar words to return.')
+    metric: MetricTypes = MetricTypes.cosine_similarity
+
+    show_duplicates: bool = Field(
+        False, description='Flag that indicates whether to return highly similar or possibly duplicate documents.'
+    )
+    duplicate_threshold: float = Field(
+        0.98, ge=0, description='Threshold to use to indicate whether a document is highly similar or possibly a duplicate of the input.'
+    )
+    metric_type: MilvusMetricTypes = MilvusMetricTypes.IP
+
+
 # class Word2VecTransformParams(TextInputParams):
 #     raw_text: str = Field(
 #         ..., description="Input text to transform.")
