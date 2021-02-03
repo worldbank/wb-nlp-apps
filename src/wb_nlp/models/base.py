@@ -99,6 +99,15 @@ class BaseModel:
         if self.model_collection_id in get_milvus_client().list_collections():
             get_milvus_client().drop_collection(self.model_collection_id)
 
+    def get_id_from_int_id(self, int_id):
+        # docs_metadata_collection = mongodb.get_docs_metadata_collection()
+        docs_metadata_collection = mongodb.get_collection(
+            db_name="test_nlp", collection_name="docs_metadata")
+
+        res = docs_metadata_collection.find_one(
+            {"int_id": int_id}, projection=["id"])
+        return res["id"]
+
     def set_processed_corpus_id(self):
         if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
             self.dictionary_params = self.model_config['dictionary_config']
@@ -490,8 +499,7 @@ class BaseModel:
                 if ent.distance > duplicate_threshold:
                     continue
 
-            hex_id = get_hex_id(ent.id)
-            payload.append({'id': hex_id, 'score': np.round(
+            payload.append({'id': self.get_id_from_int_id(get_int_id(ent.id)), 'score': np.round(
                 ent.distance, decimals=5), 'rank': rank})
 
             if len(payload) == topn:
@@ -503,15 +511,22 @@ class BaseModel:
 
         return payload
 
-    def get_similar_words(self, document, topn=10, return_similarity=False, serialize=False):
+    def get_similar_words(self, document, topn=10, return_similarity=False, serialize=False, metric="cosine_similarity"):
 
         doc_vec = self.get_doc_vec(
             document, normalize=True, assert_success=True, flatten=False)
 
-        sim = cosine_similarity(doc_vec, self.word_vectors).flatten()
+        if cosine_similarity.__name__ == metric:
+            sim = cosine_similarity(doc_vec, self.word_vectors).flatten()
+            argidx = sim.argsort()[-topn:][::-1]
+        elif euclidean_distances.__name__ == metric:
+            sim = euclidean_distances(doc_vec, self.word_vectors).flatten()
+            argidx = sim.argsort()[:topn]
+        else:
+            raise ValueError(f"Unknow metric: `{metric}")
 
         payload = []
-        for rank, top_sim_ix in enumerate(sim.argsort()[-topn:][::-1], 1):
+        for rank, top_sim_ix in enumerate(argidx, 1):
             payload.append({'word': self.index2word[top_sim_ix], 'score': np.round(
                 sim[top_sim_ix], decimals=5), 'rank': rank})
 
@@ -545,8 +560,7 @@ class BaseModel:
                 if ent.distance > duplicate_threshold:
                     continue
 
-            hex_id = get_hex_id(ent.id)
-            payload.append({'id': hex_id, 'score': np.round(
+            payload.append({'id': self.get_id_from_int_id(get_int_id(ent.id)), 'score': np.round(
                 ent.distance, decimals=5), 'rank': rank})
 
             if len(payload) == topn:
@@ -558,7 +572,7 @@ class BaseModel:
 
         return payload
 
-    def get_similar_words_by_id(self, doc_id, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False):
+    def get_similar_words_by_id(self, doc_id, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric="cosine_similarity"):
         self.check_wvecs()
 
         int_id = get_int_id(doc_id)
@@ -570,10 +584,17 @@ class BaseModel:
 
         doc_vec = np.array(doc.embedding).reshape(1, -1)
 
-        sim = cosine_similarity(doc_vec, self.word_vectors).flatten()
+        if cosine_similarity.__name__ == metric:
+            sim = cosine_similarity(doc_vec, self.word_vectors).flatten()
+            argidx = sim.argsort()[-topn:][::-1]
+        elif euclidean_distances.__name__ == metric:
+            sim = euclidean_distances(doc_vec, self.word_vectors).flatten()
+            argidx = sim.argsort()[:topn]
+        else:
+            raise ValueError(f"Unknow metric: `{metric}")
 
         payload = []
-        for rank, top_sim_ix in enumerate(sim.argsort()[-topn:][::-1], 1):
+        for rank, top_sim_ix in enumerate(argidx, 1):
             payload.append({'word': self.index2word[top_sim_ix], 'score': np.round(
                 sim[top_sim_ix], decimals=5), 'rank': rank})
 

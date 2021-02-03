@@ -68,18 +68,33 @@ class LDAModel(BaseModel):
     def set_model_specific_attributes(self):
         self.num_topics = self.dim
 
-    def load_model(self):
-        model_file_name = str(self.model_file_name)
+    def transform_doc(self, document, normalize=True):
+        # This function is the primary method of converting a document
+        # into its vector representation based on the model.
+        # This should be implemented in the respective models.
+        # The expected output is a dictionary with keys:
+        # - doc_vec  # numpy array of shape (1, self.dim)
+        # - success  # Whether the transformation went successfully
+        self.check_model()
+        success = True
+
         try:
-            self.model = LdaMulticore.load(model_file_name)
 
-            self.g_dict = Dictionary()
-            self.g_dict.id2token = self.model.id2word
-            self.g_dict.token2id = {k: v for v,
-                                    k in self.g_dict.id2token.items()}
+            doc_topics = self.infer_topics(document)
+            doc_vec = np.array([dt["score"] for dt in sorted(
+                doc_topics, key=lambda x: x["topic"])]).reshape(1, -1)
 
-        except FileNotFoundError:
-            self.model = None
+            if normalize:
+                doc_vec /= np.linalg.norm(doc_vec, ord=2)
+
+        except Exception as e:
+            success = False
+            if self.raise_empty_doc_status:
+                raise(e)
+            else:
+                doc_vec = np.zeros(self.dim).reshape(1, -1)
+
+        return dict(doc_vec=doc_vec, success=success)
 
     def infer_topics(self, text, topn_topics=None, total_topic_score=None, serialize=False):
         if isinstance(text, str):
