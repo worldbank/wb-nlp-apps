@@ -8,12 +8,21 @@ from pathlib import Path
 import gensim
 from gensim.corpora import Dictionary, MmCorpus
 from gensim.models.wrappers.ldamallet import malletmodel2ldamodel
+import pandas as pd
+import numpy as np
 
+import joblib
+from joblib import delayed, Parallel
+
+from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from milvus import DataType
 from wb_nlp.interfaces.milvus import (
     get_milvus_client,
     get_collection_ids,
+    get_embedding_dsl,
+    get_hex_id,
+    get_int_id,
 )
 from wb_nlp.interfaces import mongodb
 from wb_nlp.types.models import ModelRunInfo, ModelTypes
@@ -21,6 +30,7 @@ from wb_nlp import dir_manager
 from wb_nlp.processing.corpus import MultiDirGenerator
 from wb_nlp.utils.scripts import (
     configure_logger,
+    create_dask_cluster,
     generate_model_hash,
     checkpoint_log,
     get_cleaned_corpus_id
@@ -281,6 +291,8 @@ class BaseModel:
         if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
             self.logger.info(self.model.print_topics())
 
+        self.set_model_word_vectors()
+
     def load_model(self):
         model_file_name = str(self.model_file_name)
         try:
@@ -296,8 +308,22 @@ class BaseModel:
                     self.model = malletmodel2ldamodel(
                         self.model, iterations=self.model.iterations)
 
+            self.set_model_word_vectors()
+
         except FileNotFoundError:
             self.model = None
+
+    def set_model_word_vectors(self):
+        if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
+
+            self.word_vectors = self.model.expElogbeta
+            self.word_vectors = self.word_vectors / \
+                (1e-10 + self.word_vectors.sum(axis=0))
+            self.index2word = self.model.id2word
+
+        elif self.model_name == ModelTypes.word2vec.value:
+            self.word_vectors = self.model.wv.vectors
+            self.index2word = self.model.wv.index2word
 
     def get_model_params(self):
         params = dict(self.model_config[f"{self.model_name}_config"])
@@ -337,6 +363,225 @@ class BaseModel:
 
         if len(collection_doc_ids) == 0:
             raise ValueError('Document vectors not available!')
+
+    def transform_doc(self, document, normalize=True):
+        # This function is the primary method of converting a document
+        # into its vector representation based on the model.
+        # This should be implemented in the respective models.
+        # The expected output is a dictionary with keys:
+        # - doc_vec  # numpy array of shape (1, self.dim)
+        # - success  # Whether the transformation went successfully
+        self.check_model()
+        return dict(doc_vec=None, success=None)
+
+    def process_doc(self, doc, normalize=True):
+        """
+        This method converts the text described by the `doc` object into its vector representation.
+        This method accepts a `doc` object containing the following fields from the docs_metadata:
+        - id
+        - int_id
+        - hex_id
+        - corpus
+
+        A `text` field could be inserted if available. Otherwise, the text will be loaded from disk.
+        """
+        text = doc.get('text')
+
+        if not text:
+            fname = self.cleaned_docs_dir / doc["corpus"] / f"{doc['id']}.txt"
+            with open(fname, "rb") as open_file:
+                text = open_file.read().decode("utf-8", errors="ignore")
+
+        return self.transform_doc(text, normalize=normalize)
+
+    def build_doc_vecs(self, pool_workers=None):
+        # Input is a dataframe containing the following columns:
+        # - text
+        # - corpus (corpus code corresponding to which corpus the text came from)
+        # - id (some hash value (max of 15-hex value) - we will convert this to its decimal equivalent)
+        self.check_model()
+
+        # docs_metadata_collection = mongodb.get_docs_metadata_collection()
+        docs_metadata_collection = mongodb.get_collection(
+            db_name="test_nlp", collection_name="docs_metadata")
+
+        milvus_client = get_milvus_client()
+        collection_name = self.model_collection_id
+
+        if collection_name not in milvus_client.list_collections():
+            milvus_client.create_collection(
+                collection_name, self.collection_params)
+
+        collection_doc_ids = set(get_collection_ids(collection_name))
+
+        projection = ["id", "int_id", "hex_id", "corpus"]
+
+        docs_metadata_df = pd.DataFrame(
+            list(docs_metadata_collection.find(projection=projection)), columns=projection)
+
+        docs_for_processing = docs_metadata_df[
+            ~docs_metadata_df['int_id'].isin(collection_doc_ids)]
+
+        dask_client = create_dask_cluster(
+            logger=self.logger, n_workers=pool_workers)
+
+        try:
+            with joblib.parallel_backend('dask'):
+                for partition_group, sub_docs in docs_for_processing.groupby('corpus'):
+                    results = Parallel(verbose=10, batch_size='auto')(
+                        delayed(self.process_doc)(doc) for idx, doc in sub_docs.iterrows())
+
+                    locs, vectors = list(zip(
+                        *[(ix, p['doc_vec'].flatten()) for ix, p in enumerate(results) if p['success']]))
+                    sub_int_ids = sub_docs.iloc[list(
+                        locs)]['int_id'].tolist()
+
+                    entities = [
+                        {"name": self.milvus_vector_field_name, "values": vectors,
+                            "type": DataType.FLOAT_VECTOR},
+                    ]
+
+                    if not milvus_client.has_partition(collection_name, partition_group):
+                        milvus_client.create_partition(
+                            collection_name, partition_group)
+
+                    ids = milvus_client.insert(collection_name, entities,
+                                               sub_int_ids, partition_tag=partition_group)
+
+                    assert len(set(ids).difference(sub_int_ids)) == 0
+
+                    milvus_client.flush([collection_name])
+        finally:
+            dask_client.close()
+
+    def get_doc_vec(self, document, normalize=True, assert_success=True, flatten=True):
+        doc_vec_payload = self.transform_doc(document, normalize=normalize)
+        doc_vec = doc_vec_payload['doc_vec']
+
+        if assert_success and not doc_vec_payload['success']:
+            raise ValueError("Document was mapped to the zero vector!")
+
+        return doc_vec.flatten() if flatten else doc_vec
+
+    def get_similar_documents(self, document, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
+        # document: any text
+        # topn: number of returned related documents in the database
+        # return_data: string corresponding to a column in the docs or list of column names
+        # return_similarity: option if similarity scores are to be returned
+        # duplicate_threhold: threshold that defines a duplicate document based on similarity score
+        # show_duplicates: option if exact duplicates of documents are to be considered as return documents
+        self.check_wvecs()
+
+        doc_vec = self.get_doc_vec(
+            document, normalize=True, assert_success=True, flatten=True)
+
+        topk = 2 * topn  # Add buffer
+        dsl = get_embedding_dsl(
+            doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
+        results = get_milvus_client().search(self.model_collection_id, dsl)
+
+        entities = results[0]
+        payload = []
+
+        for rank, ent in enumerate(entities, 1):
+            if not show_duplicates:
+                # TODO: Make sure that this is true for Milvus.
+                # If we change the metric_type, this should be adjusted somehow.
+                if ent.distance > duplicate_threshold:
+                    continue
+
+            hex_id = get_hex_id(ent.id)
+            payload.append({'id': hex_id, 'score': np.round(
+                ent.distance, decimals=5), 'rank': rank})
+
+            if len(payload) == topn:
+                break
+
+        payload = sorted(payload, key=lambda x: x['rank'])
+        if serialize:
+            payload = pd.DataFrame(payload).to_json()
+
+        return payload
+
+    def get_similar_words(self, document, topn=10, return_similarity=False, serialize=False):
+
+        doc_vec = self.get_doc_vec(
+            document, normalize=True, assert_success=True, flatten=False)
+
+        sim = cosine_similarity(doc_vec, self.word_vectors).flatten()
+
+        payload = []
+        for rank, top_sim_ix in enumerate(sim.argsort()[-topn:][::-1], 1):
+            payload.append({'word': self.index2word[top_sim_ix], 'score': np.round(
+                sim[top_sim_ix], decimals=5), 'rank': rank})
+
+        payload = sorted(payload, key=lambda x: x['rank'])
+        if serialize:
+            payload = pd.DataFrame(payload).to_json()
+
+        return payload
+
+    def get_similar_docs_by_id(self, doc_id, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
+        self.check_wvecs()
+
+        int_id = get_int_id(doc_id)
+        doc = get_milvus_client().get_entity_by_id(
+            self.model_collection_id, ids=[int_id])[0]
+        if doc is None:
+            raise ValueError(
+                f'Document id `{doc_id}` not found in the vector index `{self.model_collection_id}`.')
+
+        doc_vec = np.array(doc.embedding)
+        topk = 2 * topn
+        dsl = get_embedding_dsl(doc_vec,
+                                topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
+        results = get_milvus_client().search(self.model_collection_id, dsl)
+
+        entities = results[0]
+        payload = []
+
+        for rank, ent in enumerate(entities, 1):
+            if not show_duplicates:
+                if ent.distance > duplicate_threshold:
+                    continue
+
+            hex_id = get_hex_id(ent.id)
+            payload.append({'id': hex_id, 'score': np.round(
+                ent.distance, decimals=5), 'rank': rank})
+
+            if len(payload) == topn:
+                break
+
+        payload = sorted(payload, key=lambda x: x['rank'])
+        if serialize:
+            payload = pd.DataFrame(payload).to_json()
+
+        return payload
+
+    def get_similar_words_by_id(self, doc_id, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False):
+        self.check_wvecs()
+
+        int_id = get_int_id(doc_id)
+        doc = get_milvus_client().get_entity_by_id(
+            self.model_collection_id, ids=[int_id])[0]
+        if doc is None:
+            raise ValueError(
+                f'Document id `{doc_id}` not found in the vector index `{self.model_collection_id}`.')
+
+        doc_vec = np.array(doc.embedding).reshape(1, -1)
+
+        sim = cosine_similarity(doc_vec, self.word_vectors).flatten()
+
+        payload = []
+        for rank, top_sim_ix in enumerate(sim.argsort()[-topn:][::-1], 1):
+            payload.append({'word': self.index2word[top_sim_ix], 'score': np.round(
+                sim[top_sim_ix], decimals=5), 'rank': rank})
+
+        payload = sorted(payload, key=lambda x: x['rank'])
+        if serialize:
+            payload = pd.DataFrame(payload).to_json()
+
+        return payload
 
     # def rescue_code(self, function):
     #     # http://blog.rtwilson.com/how-to-rescue-lost-code-from-a-jupyteripython-notebook/
