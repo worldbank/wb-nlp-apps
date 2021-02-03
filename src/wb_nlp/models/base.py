@@ -99,7 +99,7 @@ class BaseModel:
         if self.model_collection_id in get_milvus_client().list_collections():
             get_milvus_client().drop_collection(self.model_collection_id)
 
-    def get_id_from_int_id(self, int_id):
+    def get_doc_id_from_int_id(self, int_id):
         # docs_metadata_collection = mongodb.get_docs_metadata_collection()
         docs_metadata_collection = mongodb.get_collection(
             db_name="test_nlp", collection_name="docs_metadata")
@@ -107,6 +107,15 @@ class BaseModel:
         res = docs_metadata_collection.find_one(
             {"int_id": int_id}, projection=["id"])
         return res["id"]
+
+    def get_int_id_from_doc_id(self, doc_id):
+        # docs_metadata_collection = mongodb.get_docs_metadata_collection()
+        docs_metadata_collection = mongodb.get_collection(
+            db_name="test_nlp", collection_name="docs_metadata")
+
+        res = docs_metadata_collection.find_one(
+            {"id": doc_id}, projection=["int_id"])
+        return res["int_id"]
 
     def set_processed_corpus_id(self):
         if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
@@ -472,11 +481,10 @@ class BaseModel:
 
         return doc_vec.flatten() if flatten else doc_vec
 
-    def get_similar_documents(self, document, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
+    def get_similar_documents(self, document, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
         # document: any text
         # topn: number of returned related documents in the database
         # return_data: string corresponding to a column in the docs or list of column names
-        # return_similarity: option if similarity scores are to be returned
         # duplicate_threhold: threshold that defines a duplicate document based on similarity score
         # show_duplicates: option if exact duplicates of documents are to be considered as return documents
         self.check_wvecs()
@@ -499,7 +507,7 @@ class BaseModel:
                 if ent.distance > duplicate_threshold:
                     continue
 
-            payload.append({'id': self.get_id_from_int_id(get_int_id(ent.id)), 'score': np.round(
+            payload.append({'id': self.get_doc_id_from_int_id(ent.id), 'score': np.round(
                 ent.distance, decimals=5), 'rank': rank})
 
             if len(payload) == topn:
@@ -511,7 +519,7 @@ class BaseModel:
 
         return payload
 
-    def get_similar_words(self, document, topn=10, return_similarity=False, serialize=False, metric="cosine_similarity"):
+    def get_similar_words(self, document, topn=10, serialize=False, metric="cosine_similarity"):
 
         doc_vec = self.get_doc_vec(
             document, normalize=True, assert_success=True, flatten=False)
@@ -536,10 +544,10 @@ class BaseModel:
 
         return payload
 
-    def get_similar_docs_by_id(self, doc_id, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
+    def get_similar_docs_by_doc_id(self, doc_id, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
         self.check_wvecs()
 
-        int_id = get_int_id(doc_id)
+        int_id = self.get_int_id_from_doc_id(doc_id)
         doc = get_milvus_client().get_entity_by_id(
             self.model_collection_id, ids=[int_id])[0]
         if doc is None:
@@ -560,7 +568,7 @@ class BaseModel:
                 if ent.distance > duplicate_threshold:
                     continue
 
-            payload.append({'id': self.get_id_from_int_id(get_int_id(ent.id)), 'score': np.round(
+            payload.append({'id': self.get_doc_id_from_int_id(ent.id), 'score': np.round(
                 ent.distance, decimals=5), 'rank': rank})
 
             if len(payload) == topn:
@@ -572,10 +580,10 @@ class BaseModel:
 
         return payload
 
-    def get_similar_words_by_id(self, doc_id, topn=10, return_data='id', return_similarity=False, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric="cosine_similarity"):
+    def get_similar_words_by_doc_id(self, doc_id, topn=10, serialize=False, metric="cosine_similarity"):
         self.check_wvecs()
 
-        int_id = get_int_id(doc_id)
+        int_id = self.get_int_id_from_doc_id(doc_id)
         doc = get_milvus_client().get_entity_by_id(
             self.model_collection_id, ids=[int_id])[0]
         if doc is None:
