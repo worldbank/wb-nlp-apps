@@ -1,35 +1,20 @@
 '''This module implements the word2vec model service that is responsible
 for training the model as well as a backend interface for the API.
 '''
-import gc
 import json
 import logging
-from pathlib import Path
 import pandas as pd
-import gensim
 from gensim.models.ldamulticore import LdaMulticore
-from gensim.corpora import Dictionary, MmCorpus
 
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-import joblib
-from joblib import Parallel, delayed
 
-from milvus import DataType
 from wb_nlp.interfaces.milvus import (
-    get_milvus_client, get_hex_id, get_int_id,
-    get_collection_ids, get_embedding_dsl,
+    get_milvus_client,
 )
-from wb_nlp.interfaces import mongodb
-from wb_nlp.utils.scripts import create_dask_cluster
-from wb_nlp.types.models import LDAModelConfig, ModelRunInfo
-from wb_nlp import dir_manager
-from wb_nlp.processing.corpus import MultiDirGenerator
+
+from wb_nlp.types.models import LDAModelConfig, ModelTypes
 from wb_nlp.utils.scripts import (
     configure_logger,
-    generate_model_hash,
-    checkpoint_log,
-    get_cleaned_corpus_id
 )
 from wb_nlp.models.base import BaseModel
 
@@ -39,9 +24,9 @@ class LDAModel(BaseModel):
         self,
         model_config_id,
         cleaning_config_id,
-        model_class,
-        model_config_type,
-        expected_model_name,
+        model_class=LdaMulticore,
+        model_config_type=LDAModelConfig,
+        expected_model_name=ModelTypes.lda.value,
         raise_empty_doc_status=True,
         log_level=logging.WARNING,
     ):

@@ -562,6 +562,10 @@ class ModelRunInfo(BaseModel):
         ...,
         description="Configuration of the model used in the experiment."
     )
+    cleaning_config_id: str = Field(
+        ...,
+        description="Configuration of the cleaning pipeline used in the experiment."
+    )
     processed_corpus_id: str = Field(
         ...,
         description="Some unique identifier of the input data. Example: dictionary_id + hash of the cleaned corpus."

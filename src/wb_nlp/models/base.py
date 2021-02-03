@@ -176,6 +176,7 @@ class BaseModel:
             model_run_info_id="",
             model_name=self.model_name,
             model_config_id=self.model_config_id,
+            cleaning_config_id=self.cleaning_config_id,
             processed_corpus_id=self.processed_corpus_id,
         )
         self.model_id = generate_model_hash(
