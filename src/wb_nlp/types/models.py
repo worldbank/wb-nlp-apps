@@ -8,7 +8,7 @@ FastAPI.
 
 import enum
 import json
-from typing import List, Any
+from typing import List, Any, Dict
 from pydantic import BaseModel, Field, validator, AnyUrl
 from wb_nlp.utils.scripts import generate_model_hash
 from fastapi import File, UploadFile, Query
@@ -133,6 +133,40 @@ class SimilarDocsByDocIDParams(TextInputParams):
         0.98, ge=0, description='Threshold to use to indicate whether a document is highly similar or possibly a duplicate of the input.'
     )
     metric_type: MilvusMetricTypes = MilvusMetricTypes.IP
+
+
+###########################################
+# START: MODELS FOR RETURN VALUES
+###########################################
+
+class SimilarWordElement(BaseModel):
+    word: str
+    score: float
+    rank: int
+
+
+class SimilarDocElement(BaseModel):
+    id: str
+    score: float
+    rank: int
+
+
+class GetVectorReturns(BaseModel):
+    doc_vec: List[float]
+    success: bool
+
+
+SimilarWordsReturns = List[SimilarWordElement]
+SimilarWordsByDocIDReturns = List[SimilarWordElement]
+
+
+SimilarDocsReturns = List[SimilarDocElement]
+SimilarDocsByDocIDReturns = List[SimilarDocElement]
+
+
+###########################################
+# END: MODELS FOR RETURN VALUES
+###########################################
 
 
 # class Word2VecTransformParams(TextInputParams):
