@@ -48,3 +48,4 @@ ARG PORT=8919
 ENV PORT=$PORT
 
 CMD /opt/conda/envs/nlp_api/bin/uvicorn app.nlp_api.main:app  --reload --timeout-keep-alive 1200 --host 0.0.0.0 --port ${PORT}
+# CMD ["tail", "-f", "/dev/null"]
