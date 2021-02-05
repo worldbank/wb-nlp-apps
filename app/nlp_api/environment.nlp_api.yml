@@ -1,5 +1,6 @@
 name: nlp_api
 channels:
+  - conda-forge
   - defaults
 dependencies:
   - _libgcc_mutex=0.1
