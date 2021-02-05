@@ -1,26 +1,26 @@
 version: '3.6'
 services:
 
-  dev:
-    build:
-      context: ./
-      dockerfile: .devcontainer/Dockerfile.dev.base
-      args:
-        USERNAME: vscode
-        USER_UID: 1000
-        ENV_ID: dev
-        ENV_DEV_BASE_FILE: "environment.dev.base.remote.yml"
-        PROJECT_ID: wb_nlp
-        ENV_DEV_FILE: "environment.dev.remote.yml"
-    volumes:
-      - ${STAGING_PATH}:/workspace
-      # - ./:/workspace
-      # - ${STAGING_PATH}:/workspace:cached
-    # ports:
-    #   - "8000:8000"
-    depends_on:
-      - mongodb
-      - web
+  # dev:
+  #   build:
+  #     context: ./
+  #     dockerfile: .devcontainer/Dockerfile.dev.base
+  #     args:
+  #       USERNAME: vscode
+  #       USER_UID: 1000
+  #       ENV_ID: dev
+  #       ENV_DEV_BASE_FILE: "environment.dev.base.remote.yml"
+  #       PROJECT_ID: wb_nlp
+  #       ENV_DEV_FILE: "environment.dev.remote.yml"
+  #   volumes:
+  #     - ${STAGING_PATH}:/workspace
+  #     # - ./:/workspace
+  #     # - ${STAGING_PATH}:/workspace:cached
+  #   # ports:
+  #   #   - "8000:8000"
+  #   depends_on:
+  #     - mongodb
+  #     - web
 
   app:
     volumes:

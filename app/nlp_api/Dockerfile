@@ -35,8 +35,9 @@ WORKDIR /workspace
 COPY . .
 
 RUN /opt/conda/envs/${ENV_ID}/bin/python setup.py develop \
-    && /opt/conda/envs/${ENV_ID}/bin/python -m nltk.downloader popular \
-    && /opt/conda/envs/${ENV_ID}/bin/python -m spacy download en_core_web_sm
+    && /opt/conda/envs/${ENV_ID}/bin/python -m nltk.downloader popular
+    # \
+    # && /opt/conda/envs/${ENV_ID}/bin/python -m spacy download en_core_web_sm
 
 # # Always try to install the latest prod env file.
 # # This is useful when you installed new packages and updated the env file with
