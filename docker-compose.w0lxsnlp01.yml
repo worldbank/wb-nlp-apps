@@ -100,6 +100,7 @@ services:
   nlp_api:
     volumes:
       - ${STAGING_PATH}/models:/workspace/models
+      - ${STAGING_PATH}/data/raw:/workspace/data/raw
       - ${STAGING_PATH}/data/preprocessed:/workspace/data/preprocessed
       - ${STAGING_PATH}/data/whitelists:/workspace/data/whitelists
 
