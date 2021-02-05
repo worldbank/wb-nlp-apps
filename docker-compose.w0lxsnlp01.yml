@@ -1,7 +1,8 @@
 version: '3.6'
 services:
 
-  # dev:
+  dev:
+    image: hello-world:latest
   #   build:
   #     context: ./
   #     dockerfile: .devcontainer/Dockerfile.dev.base
