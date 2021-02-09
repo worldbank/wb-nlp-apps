@@ -50,6 +50,8 @@ def migrate_nlp_schema(body):
         hex_id = md5(body['_id'].encode('utf-8')).hexdigest()[:15]
 
     body["id"] = pop_get(body, "_id")
+    body["_id"] = body["id"]
+
     body["hex_id"] = hex_id
     body["int_id"] = int(body["hex_id"], 16)
 
