@@ -1,59 +1,49 @@
 model_config:
   meta:
-    model_id: null  # To be filled up in the model training
+    model_name: lda
     library: Gensim
     model_implementation: LDA Multicore
     library_version: 3.8.3
     docs: https://radimrehurek.com/gensim/models/ldamulticore.html#module-gensim.models.ldamulticore
     references:
       - https://markroxor.github.io/gensim/static/notebooks/lda_training_tips.html
-  params:
-    min_tokens: 50
-    dictionary:
-      no_below: 10
-      no_above: 0.98
-      keep_n: 200000
-      keep_tokens: null
-    lda:
-      num_topics:
-        # - 50
-        - 75
-        # - 100
-        # - 150
-      id2word: null
-      workers: -41  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
-      chunksize: 250  # Update size is chunksize * number of workers -> Update every 10,000 documents processed.
-      passes:
-        - 5
-        # - 10
-        # - 10
-        # - 20
-      batch: False
-      alpha:
-        - symmetric
-        # - auto  # The auto value is not supported by LdaMulticore
-      eta:
-        - auto
-        - null
-      decay: 0.5
-      offset: 1.0
-      eval_every: 5
-      iterations:
-        - 1000
-        # - 2000
-      gamma_threshold: 0.001
-      random_state: 1029
-      minimum_probability: 0.01
-      minimum_phi_value: 0.01
-      per_word_topics: False
-  paths:
-    base_dir: /data/wb536061/wb_nlp/data/raw/CORPUS
-    source_dir_name: TXT_LDA
-    corpus_path: /data/wb536061/wb_nlp/data/raw/CORPUS/bow_corpus-TXT_LDA.mm
-    dictionary_path: /data/wb536061/wb_nlp/data/raw/CORPUS/dictionary-TXT_LDA.gensim.dict
-    model_dir: /data/wb536061/wb_nlp/models/lda
-    dfr_files:
-      tw: tw.json
-      dt: dt.json
-      info: info.json
+  min_tokens: 50
+  dictionary_config:
+    no_below: 10
+    no_above: 0.98
+    keep_n: 200000
+    keep_tokens: null
+  lda_config:
+    num_topics: 75
+    id2word: null
+    workers: 4  # -4  # Use 1/2 of virtual cores - 1 (cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l) * (cat /proc/cpuinfo | grep "cpu cores" | uniq)
+    chunksize: 250  # Update size is chunksize * number of workers -> Update every 10,000 documents processed.
+    passes: 5
+    batch: False
+    alpha: symmetric
+    eta: auto
+    decay: 0.5
+    offset: 1.0
+    eval_every: 5
+    iterations: 1000
+    gamma_threshold: 0.001
+    random_state: 1029
+    minimum_probability: 0.01
+    minimum_phi_value: 0.01
+    per_word_topics: False
+  dfr_config:
+    tw_file: tw.json
+    dt_file: dt.json
+    info_file: info.json
+
+  # paths:
+  #   base_dir: /data/wb536061/wb_nlp/data/raw/CORPUS
+  #   source_dir_name: TXT_LDA
+  #   corpus_path: /data/wb536061/wb_nlp/data/raw/CORPUS/bow_corpus-TXT_LDA.mm
+  #   dictionary_path: /data/wb536061/wb_nlp/data/raw/CORPUS/dictionary-TXT_LDA.gensim.dict
+  #   model_dir: /data/wb536061/wb_nlp/models/lda
+  #   dfr_files:
+  #     tw: tw.json
+  #     dt: dt.json
+  #     info: info.json
 

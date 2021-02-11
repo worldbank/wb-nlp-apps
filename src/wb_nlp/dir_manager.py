@@ -13,6 +13,10 @@ def get_data_dir(*args):
     return get_path_from_root('data', *args)
 
 
+def get_configs_dir(*args):
+    return get_path_from_root('configs', *args)
+
+
 def get_model_dir(model_id):
     return get_path_from_root('models', 'PROTO_MODELS', model_id)
 

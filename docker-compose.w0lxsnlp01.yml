@@ -1,7 +1,8 @@
 version: '3.6'
 services:
 
-  # dev:
+  dev:
+    image: hello-world:latest
   #   build:
   #     context: ./
   #     dockerfile: .devcontainer/Dockerfile.dev.base
@@ -9,45 +10,32 @@ services:
   #       USERNAME: vscode
   #       USER_UID: 1000
   #       ENV_ID: dev
-  #       ENV_DEV_BASE_FILE: "environment.dev.base.yml"
+  #       ENV_DEV_BASE_FILE: "environment.dev.base.remote.yml"
   #       PROJECT_ID: wb_nlp
-  #       ENV_DEV_FILE: "environment.dev.yml"
+  #       ENV_DEV_FILE: "environment.dev.remote.yml"
   #   volumes:
-  #     - ./:/workspace
-  #   links:
-  #     - mongodb
-  #     - web
-  #     - app
-  #     - api
+  #     - ${STAGING_PATH}:/workspace
+  #     # - ./:/workspace
+  #     # - ${STAGING_PATH}:/workspace:cached
+  #   # ports:
+  #   #   - "8000:8000"
   #   depends_on:
   #     - mongodb
   #     - web
-  #     - app
-  #     - api
-  #   # ports:
-  #   #   - "8000:8000"
-  #   # deploy:
-  #   #   resources:
-  #   #     limits:
-  #   #       cpus: '4'
-  #   #       memory: 4G
-  #   #     reservations:
-  #   #       cpus: '3'
-  #   #       memory: 3G
+
+  app:
+    volumes:
+      - ${STAGING_PATH}/app/app_vue2:/app
+      - ${STAGING_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
 
   api:
-    build:
-      context: ./
-      dockerfile: ./app/api/Dockerfile
-      args:
-        ENV_ID: prod
-        ENV_PROD_FILE: "environment.prod.api.yml"
     volumes:
-      - /data/wb536061/wb_nlp/models:/workspace/models
-      - /data/wb536061/wb_nlp/data/preprocessed:/workspace/data/preprocessed
-      - /data/wb536061/wb_nlp/data/whitelists:/workspace/data/whitelists
+      - ${STAGING_PATH}/models:/workspace/models
+      - ${STAGING_PATH}/data/preprocessed:/workspace/data/preprocessed
+      - ${STAGING_PATH}/data/whitelists:/workspace/data/whitelists
     # command:
-    #   - /opt/conda/envs/prod/bin/gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200
+      # - "/opt/conda/envs/prod/bin/gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200"
+      # - "tail -f /dev/null"
     ports:
       - "8911:8910"
     links:
@@ -55,70 +43,68 @@ services:
     depends_on:
       - mongodb
 
-  app:
-    build:
-      context: ./app/app_vue2
-    ports:
-    - "8088:80"
-    volumes:
-      - /data/wb536061/wb_nlp/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
-    links:
-      - api
-      - dfr
-    depends_on:
-      - api
-      - dfr
-
   dfr:
-    build:
-      context: ./app/dfr
     ports:
     - "8098:80"
     volumes:
-      - /data/wb536061/wb_nlp/app/dfr/data:/usr/share/nginx/html/data
+      - ${STAGING_PATH}/app/dfr/data:/usr/share/nginx/html/data
 
   web:
-    image: nginx:latest
     ports:
-    - "8880:80"
+      - "8880:80"
     volumes:
-        - /data/wb536061/wb_nlp/app/frontend:/frontend/nlp
-        - /data/wb536061/wb_nlp/app/site.conf:/etc/nginx/conf.d/site.conf
-    links:
-      - php
-      - api
-    depends_on:
-      - php
-      - api
+      - ${STAGING_PATH}/app/frontend:/frontend/nlp
+      - ${STAGING_PATH}/app/site.conf:/etc/nginx/conf.d/site.conf
 
   php:
-    image: php:7-fpm
     volumes:
-      - /data/wb536061/wb_nlp/app/frontend:/frontend/nlp
-
-  tika:
-    image: apache/tika:latest
-
-  redis:
-    image: redis:latest
-
-  selenium:
-    image: selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20200907
-    ports:
-      - "4444:4444"
-    volumes:
-      - /dev/shm:/dev/shm
+      - ${STAGING_PATH}/app/frontend:/frontend/nlp
+      # - ./app/frontend:/frontend/nlp
 
   mongodb:
-    image: mongo:latest
-    environment:
-      - /data/wb536061/wb_nlp/data/mongodb:/data/db
-      # - MONGO_DATA_DIR=/data/db
-      # - MONGO_LOG_DIR=/dev/null
-    # volumes:
-    #   - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
-    # ports:
-    #   - $NLP_APP_MONGODB_PORT:27017
-    # # command: mongod --smallfiles  # --auth
-    # env_file:
-    #   - .env
+    volumes:
+      - ${STAGING_PATH}/data/mongodb:/data/db
+      # - ./data/mongodb:/data/db
+    ports:
+      - 27018:27017
+  # nlp-app-mongodb:
+  #   image: mongo:latest
+  #   environment:
+  #     - MONGO_DATA_DIR=/data/db
+  #     - MONGO_LOG_DIR=/dev/null
+  #   volumes:
+  #     - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
+  #   ports:
+  #     - $NLP_APP_MONGODB_PORT:27017
+  #   # command: mongod --smallfiles  # --auth
+  #   env_file:
+  #     - .env
+
+  milvus:
+    volumes:
+      - ${STAGING_PATH}/milvus/db:/var/lib/milvus/db
+      - ${STAGING_PATH}/milvus/conf:/var/lib/milvus/conf
+      - ${STAGING_PATH}/milvus/logs:/var/lib/milvus/logs
+      - ${STAGING_PATH}/milvus/wal:/var/lib/milvus/wal
+
+  es01:
+    volumes:
+      - ${STAGING_PATH}/elasticsearch/data/01:/usr/share/elasticsearch/data
+  es02:
+    volumes:
+      - ${STAGING_PATH}/elasticsearch/data/02:/usr/share/elasticsearch/data
+  es03:
+    volumes:
+      - ${STAGING_PATH}/elasticsearch/data/03:/usr/share/elasticsearch/data
+
+  nlp_api:
+    volumes:
+      - ${STAGING_PATH}/models:/workspace/models
+      - ${STAGING_PATH}/data/raw:/workspace/data/raw
+      - ${STAGING_PATH}/data/preprocessed:/workspace/data/preprocessed
+      - ${STAGING_PATH}/data/whitelists:/workspace/data/whitelists
+
+  app_label:
+    volumes:
+      - ${STAGING_PATH}/app/app_label:/app
+      - ${STAGING_PATH}/app/app_label/site.conf:/etc/nginx/conf.d/site.conf

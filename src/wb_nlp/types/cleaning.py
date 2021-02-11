@@ -7,6 +7,7 @@ FastAPI.
 '''
 
 import enum
+import json
 from typing import List, Any
 from pydantic import BaseModel, Field, validator
 from wb_nlp.utils.scripts import generate_model_hash
@@ -198,7 +199,7 @@ class Cleaner(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.cleaner_config_id = generate_model_hash(self.dict())
+        self.cleaner_config_id = generate_model_hash(json.loads(self.json()))
 
 
 class RespellerInferCorrectWord(BaseModel):
@@ -237,7 +238,7 @@ class Respeller(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.respeller_config_id = generate_model_hash(self.dict())
+        self.respeller_config_id = generate_model_hash(json.loads(self.json()))
 
 
 class SpellChecker(BaseModel):
@@ -259,11 +260,12 @@ class SpellChecker(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.spell_checker_config_id = generate_model_hash(self.dict())
+        self.spell_checker_config_id = generate_model_hash(
+            json.loads(self.json()))
 
 
 class CleaningConfig(BaseModel):
-    config_id: str = Field(
+    cleaning_config_id: str = Field(
         '', description="Configuration id derived from the combination of the parameters.")
     cleaner: Cleaner = Field(
         Cleaner(),
@@ -275,15 +277,18 @@ class CleaningConfig(BaseModel):
     spell_checker: SpellChecker = Field(
         SpellChecker(),
         description="Parameters for the spell checking algorithm.")
+    meta: Any = Field(
+        None, description="Metadata that may provide additional information about the cleaner."
+    )
 
     def __init__(self, **data: Any) -> None:
         temp_data = dict(data)
 
-        if 'config_id' in temp_data:
-            # Remove `config_id` if exists since it will be
+        if 'cleaning_config_id' in temp_data:
+            # Remove `cleaning_config_id` if exists since it will be
             # computed as unique id from other fields.
-            temp_data.pop('config_id')
+            temp_data.pop('cleaning_config_id')
 
         super().__init__(**temp_data)
 
-        self.config_id = generate_model_hash(self.dict())
+        self.cleaning_config_id = generate_model_hash(json.loads(self.json()))

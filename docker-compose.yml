@@ -116,7 +116,7 @@ services:
     image: redis:latest
 
   selenium:
-    image: selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20200907
+    image: selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210209
     ports:
       - "4444:4444"
     volumes:
@@ -134,12 +134,15 @@ services:
     #   - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
     # ports:
     #   - $NLP_APP_MONGODB_PORT:27017
+    ports:
+      - "27018:27017"
     # # command: mongod --smallfiles  # --auth
     # env_file:
     #   - .env
 
   milvus:
-    image: milvusdb/milvus:cpu-latest
+    # image: milvusdb/milvus:cpu-latest
+    image: milvusdb/milvus:0.11.0-cpu-d101620-4c44c0
     env_file:
       - .env
     volumes:
@@ -160,7 +163,7 @@ services:
       - discovery.seed_hosts=es02,es03
       - cluster.initial_master_nodes=es01,es02,es03
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
     ulimits:
       memlock:
         soft: -1
@@ -181,7 +184,7 @@ services:
       - discovery.seed_hosts=es01,es03
       - cluster.initial_master_nodes=es01,es02,es03
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
     ulimits:
       memlock:
         soft: -1
@@ -199,7 +202,7 @@ services:
       - discovery.seed_hosts=es01,es02
       - cluster.initial_master_nodes=es01,es02,es03
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
     ulimits:
       memlock:
         soft: -1

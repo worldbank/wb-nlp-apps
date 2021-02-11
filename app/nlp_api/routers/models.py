@@ -1,15 +1,20 @@
 '''This router contains the implementation for the cleaning API.
 '''
-import enum
 import json
-from typing import Optional, List
-from functools import lru_cache
-from pathlib import Path
-from fastapi import APIRouter, Depends, HTTPException, Body
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, HTTPException, UploadFile, File, Query
+import pydantic
 
+from wb_nlp.interfaces import mongodb
 
-from wb_nlp.dir_manager import get_path_from_root
+from wb_nlp.types.models import (
+    ModelTypes, GetVectorParams, SimilarWordsParams, SimilarDocsParams,
+    SimilarWordsByDocIDParams, SimilarDocsByDocIDParams, ModelRunInfo, GetVectorReturns, SimilarWordsReturns,
+    SimilarWordsByDocIDReturns,
+    SimilarDocsReturns,
+    SimilarDocsByDocIDReturns
+)
+
+from ..common.utils import get_validated_model
 
 
 router = APIRouter(
@@ -20,51 +25,115 @@ router = APIRouter(
 )
 
 
-############# START: DEFINITION OF DATA TYPES AND MODELS #############
-
-class ModelTypes(enum.Enum):
-    '''Types of models available.
-    '''
-    lda = "lda"  # Gensim LDA implementation
-    mallet = "mallet"  # Mallet LDA implementation
-    word2vec = "word2vec"  # Gensim Word2vec implementation
-
-
-############# END: DEFINITION OF DATA TYPES AND MODELS #############
-
-
-@lru_cache(maxsize=64)
-def process_config(path: Path):
-    if not path.exists():
-        return None
-
-    model_id = path.parent.name
-
-    with open(path) as json_file:
-        config = json.load(json_file)
-    config.pop('paths')
-    config['meta']['model_id'] = model_id
-
-    return config
-
-
-@ router.get("/get_model_configs")
-async def get_model_configs(model_type: ModelTypes):
-    '''This endpoint returns the configurations used to train the available models of the given `model_type`.
+@ router.get("/get_available_models")
+async def get_available_models(
+    model_type: ModelTypes,
+    expand: bool = Query(
+        False,
+        description="Flag that indicates whether the returned data will only have the ids for the model and cleaning configs or contain the full information."
+    )
+):
+    '''This endpoint returns a list of all the available models. The returned data contains information regarding the configurations used to train a given model.
 
     This can be used in the frontend to generate guidance and information about the available models.
     '''
+    configs = []
 
-    model_path = Path(get_path_from_root('models', model_type.value))
-    config_paths = model_path.glob('*/model_config_*.json')
-    print(config_paths)
+    for conf in mongodb.get_model_runs_info_collection().find({"model_name": model_type.value}):
+        try:
+            info = json.loads(ModelRunInfo(**conf).json())
 
-    configs = map(process_config, config_paths)
+            if expand:
+                info["model_config"] = mongodb.get_model_configs_collection().find_one(
+                    {"_id": info["model_config_id"]})
+                info["cleaning_config"] = mongodb.get_cleaning_configs_collection().find_one(
+                    {"_id": info["cleaning_config_id"]})
 
-    model_configs = list(filter(lambda x: x, configs))
+            configs.append(info)
 
-    return dict(model_configs=model_configs)
+        except pydantic.error_wrappers.ValidationError:
+            pass
+
+    return configs
 
 
-def infer(model_type: ModelTypes, model_id: str):
-    pass
+@ router.post("/{model_name}/get_text_vector", response_model=GetVectorReturns)
+async def get_text_vector(model_name: ModelTypes, transform_params: GetVectorParams):
+    '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
+    '''
+
+    model = get_validated_model(model_name, transform_params.model_id)
+
+    return model.transform_doc(
+        document=transform_params.raw_text,
+        normalize=transform_params.normalize,
+        tolist=True)
+
+
+@ router.post("/{model_name}/get_file_vector")
+async def get_file_vector(model_name: ModelTypes, file: UploadFile = File(None, description='File to upload.')):
+    '''This endpoint converts the `file` provided into a vector transformed using the specified word2vec model.
+    '''
+
+    # Word2VecTransformParams
+
+    return dict(file=file)
+
+
+@ router.post("/{model_name}/get_similar_words", response_model=SimilarWordsReturns)
+async def get_similar_words(model_name: ModelTypes, transform_params: SimilarWordsParams):
+    '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
+    '''
+    model = get_validated_model(model_name, transform_params.model_id)
+
+    return model.get_similar_words(
+        document=transform_params.raw_text,
+        topn=transform_params.topn_words,
+        metric=transform_params.metric.value)
+
+
+@ router.post("/{model_name}/get_similar_docs", response_model=SimilarDocsReturns)
+async def get_similar_docs(model_name: ModelTypes, transform_params: SimilarDocsParams):
+    '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
+    '''
+
+    model = get_validated_model(model_name, transform_params.model_id)
+
+    result = model.get_similar_documents(
+        document=transform_params.raw_text,
+        topn=transform_params.topn_docs,
+        duplicate_threshold=transform_params.duplicate_threshold,
+        show_duplicates=transform_params.show_duplicates,
+        metric_type=transform_params.metric_type)
+
+    return result
+
+
+@ router.post("/{model_name}/get_similar_words_by_doc_id", response_model=SimilarWordsByDocIDReturns)
+async def get_similar_words_by_doc_id(model_name: ModelTypes, transform_params: SimilarWordsByDocIDParams):
+    '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
+    '''
+
+    model = get_validated_model(model_name, transform_params.model_id)
+
+    return model.get_similar_words_by_doc_id(
+        doc_id=transform_params.doc_id,
+        topn=transform_params.topn_words,
+        metric=transform_params.metric.value)
+
+
+@ router.post("/{model_name}/get_similar_docs_by_doc_id", response_model=SimilarDocsByDocIDReturns)
+async def get_similar_docs_by_doc_id(model_name: ModelTypes, transform_params: SimilarDocsByDocIDParams):
+    '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
+    '''
+
+    model = get_validated_model(model_name, transform_params.model_id)
+
+    result = model.get_similar_docs_by_doc_id(
+        doc_id=transform_params.doc_id,
+        topn=transform_params.topn_docs,
+        duplicate_threshold=transform_params.duplicate_threshold,
+        show_duplicates=transform_params.show_duplicates,
+        metric_type=transform_params.metric_type)
+
+    return result

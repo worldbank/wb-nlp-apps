@@ -35,8 +35,9 @@ WORKDIR /workspace
 COPY . .
 
 RUN /opt/conda/envs/${ENV_ID}/bin/python setup.py develop \
-    && /opt/conda/envs/${ENV_ID}/bin/python -m nltk.downloader popular \
-    && /opt/conda/envs/${ENV_ID}/bin/python -m spacy download en_core_web_sm
+    && /opt/conda/envs/${ENV_ID}/bin/python -m nltk.downloader popular
+    # \
+    # && /opt/conda/envs/${ENV_ID}/bin/python -m spacy download en_core_web_sm
 
 # # Always try to install the latest prod env file.
 # # This is useful when you installed new packages and updated the env file with
@@ -47,4 +48,5 @@ RUN /opt/conda/envs/${ENV_ID}/bin/python setup.py develop \
 ARG PORT=8919
 ENV PORT=$PORT
 
-CMD /opt/conda/envs/nlp_api/bin/uvicorn app.nlp_api.main:app  --reload --timeout-keep-alive 1200 --port ${PORT}
+CMD /opt/conda/envs/nlp_api/bin/uvicorn app.nlp_api.main:app  --reload --timeout-keep-alive 1200 --host 0.0.0.0 --port ${PORT}
+# CMD ["tail", "-f", "/dev/null"]

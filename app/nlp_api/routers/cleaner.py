@@ -32,8 +32,8 @@ def get_cleaner(config):
 
 @ router.post("/clean")
 async def clean(
-        text: str,
-        cleaning_config: CleaningConfig):
+        cleaning_config: CleaningConfig,
+        text: str = "Forcibly displaced populations including refugees, internally displaced persons, stateless people, asylum seekers, and host populations.",):
     '''This endpoint cleans the given `text` data.
 
     The cleaning pipeline is setup based on the given configuration parameters.

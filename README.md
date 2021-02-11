@@ -80,6 +80,48 @@ The resulting topics learned by the model are used to characterize documents. Wi
 
 The Gensim implementation for the word2vec model is used in this project. We extract the learned word embeddings and use them to represent documents by taking the mean of the word vectors in the document. This simple strategy allows us to have a semantic based search of documents using keywords or full document inputs.
 
+## Guide for reproducibility
+
+1. Upload the document metadata into the mongodb `nlp` database under the `docs_metadata` collection. Refer to [load_json_dump_to_db.py](/scripts/metadata/load_json_dump_to_db.py) for an example.
+
+2. Configure the cleaning config file ([lda.yml](/configs/cleaning/lda.yml)) for the LDA model.
+
+3. Run the [clean_corpus.py](/scripts/cleaning/clean_corpus.py) script to perform the cleaning of the documents to be used by the LDA model.
+
+4. Configure the model config file ([lda/default.yml](/configs/models/lda/default.yml)) for the LDA model.
+
+5. Run the [train_lda_model.py](/scripts/models/train_lda_model.py) to train the LDA model with the cleaned text.
+
+
+## Alternative workflow
+
+1. Upload the document metadata into the mongodb `nlp` database under the `docs_metadata` collection. Refer to [load_json_dump_to_db.py](/scripts/metadata/load_json_dump_to_db.py) for an example. Make sure that the `path_original` field corresponds to the path where the corresponding document is stored. Documents should ideally be stored following this convention: `/data/corpus/<corpus_id>/*.txt`.
+
+2. Create a cleaning config based on the `/configs/cleaning/default.yml` and upload to mongodb at the `nlp/cleaning_configs` collection. It is recommended to add some description about the configuration in the `meta` field of the configuration file. You can use the `/scripts/configs/load_configs_to_db.py` script to load the configuration into the database.
+
+3. To start the cleaning of the corpus, run the script `scripts/cleaning/clean_docs_from_db.py`. Provide the `cleaning_config_id` of the configuration that you want to use in cleaning the documents. This assumes that all the documents in the `docs_metadata` will be cleaned. The cleaning script will store the cleaned data at `/data/corpus/cleaned/<cleaning_config_id>/<corpus>/<file_name>`. The `file_name` and the `corpus` will be extracted from the metadata corresponding to the document in the `nlp/docs_metadata` collection.
+
+## Training a model
+
+### LDA
+
+When you want to train an LDA model, you need to first generate a valid configuration. This configuration must be uploaded to mongodb under the `nlp/model_configs` collection. You can use the `/scripts/configs/load_configs_to_db.py` script to load the configuration into the database.
+
+After the configuration is uploaded, select which cleaned documents (defined by the `cleaning_config_id`) will be used. Also provide the `model_config_id` that will be used for the model.
+
+The script `scripts/models/train_lda_model_from_db.py` can be used to train an LDA model given a valid `cleaning_config_id` and `model_config_id`. Implemented in the script are the following steps:
+
+1. Perform validity checks of the configuration. This is done by making sure that the `model_name = "lda"`. It also checks whether the version of the installed library matches with the one defined in the config. This reduces the likelihood of bugs in model training that may be introduced when updates in the implementation of the model occurs across different versions of the library.
+
+2. Check whether the a processed corpus is already available. If yes, load it. Otherwise, create a dictionary to process the cleaned data. Then, create the corpus and save the dictionary and process the cleaned documents. Save all to disk so that there's no need to recreate the corpus.
+
+3. Create a summary of the model run (`model_run_info`) to summarize the details of the experiment. This will be saved in mongodb for tracking of which models are available.
+
+4. Train the model using the parameters in the `model_config`.
+
+5. Save the model to disk and insert the `model_run_info` into the database.
+
+
 ## Instruction for contributors
 
 Please read the [DEVELOPERS.md](/DEVELOPERS.md) for more details about the development workflow.
