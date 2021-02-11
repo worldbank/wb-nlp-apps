@@ -1,4 +1,8 @@
-import services.googletrans_client as gt
+# import services.googletrans_client as gt
+import googletrans
+from googletrans import client as gt
+
+assert googletrans.__version__ == "3.1.0-alpha"
 
 _trans = gt.Translator()
 

@@ -44,7 +44,6 @@ dependencies:
   - google-crc32c=1.0.0
   - google-resumable-media=1.1.0
   - googleapis-common-protos=1.52.0
-  - googletrans=2.4.0
   - grpcio=1.31.0
   - gst-plugins-base=1.14.0
   - gstreamer=1.14.0
@@ -154,4 +153,5 @@ dependencies:
   - zstd=1.4.5
   - pip:
     - contexttimer==0.3.3
+    - googletrans==3.1.0a0
     - pyenchant==3.1.1

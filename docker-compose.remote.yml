@@ -29,6 +29,7 @@ services:
 
   api:
     volumes:
+      - ${REMOTE_PATH}/app/api:/workspace/app/api
       - ${REMOTE_PATH}/models:/workspace/models
       - ${REMOTE_PATH}/data/preprocessed:/workspace/data/preprocessed
       - ${REMOTE_PATH}/data/whitelists:/workspace/data/whitelists
