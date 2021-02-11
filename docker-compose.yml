@@ -116,7 +116,7 @@ services:
     image: redis:latest
 
   selenium:
-    image: selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20200907
+    image: selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210209
     ports:
       - "4444:4444"
     volumes:
@@ -134,6 +134,8 @@ services:
     #   - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
     # ports:
     #   - $NLP_APP_MONGODB_PORT:27017
+    ports:
+      - "27018:27017"
     # # command: mongod --smallfiles  # --auth
     # env_file:
     #   - .env
