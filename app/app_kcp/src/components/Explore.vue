@@ -188,7 +188,7 @@ export default {
           topPadding = 15;
 
         $window.scroll(function () {
-          if ($window.scrollTop() > offset.top) {
+          if (($window.scrollTop() > offset.top) & ($(window).width() > 768)) {
             $sidebar.stop().animate(
               {
                 marginTop: $window.scrollTop() - offset.top + topPadding,
