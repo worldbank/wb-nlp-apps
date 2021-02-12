@@ -6,15 +6,275 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-  <title><%= htmlWebpackPlugin.options.title %></title>
+  <!-- <title><%= htmlWebpackPlugin.options.title %></title> -->
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+  <meta property="og:title" content="World Bank Group - NLP Projects">
+  <meta property="og:description" content="WBG NLP Projects 2021">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="/">
+  <meta property="og:updated_time" content="2021-02-05T21:05:50+01:00">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="World Bank Group - NLP Projects">
+  <meta name="twitter:description" content="WBG NLP Projects 2021">
+  <meta name="generator" content="Hugo 0.79.0">
+  <link rel="canonical" href="/">
+  <title>World Bank Group - NLP Projects</title>
+  <link href="/static/files/style.css" rel="stylesheet" integrity="" crossorigin="anonymous">
+  <link rel="stylesheet" href="/static/files/all.css" integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" crossorigin="anonymous">
+  <script src="/static/files/1985dc65f3.js" crossorigin="anonymous"></script>
+  <link rel="alternate" type="application/rss+xml" href="/index.xml" title="World Bank Group - NLP Projects">
+  <link href="/static/files/wbg.css" rel="stylesheet" integrity="" crossorigin="anonymous">
+
 </head>
 
-<body>
+<body class="vsc-initialized">
   <noscript>
     <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
       Please enable it to continue.</strong>
   </noscript>
-  <div id="app"></div>
+  <div class="container">
+    <div class="row mb-3">
+      <div class="col-12 col-md-4 col-lg-3 mt-3">
+        <img src="/static/files/logo.svg" height="40px" alt="WBG logo">
+      </div>
+      <div class="col-12 col-md-8 col-lg-3 mt-3 wbg-header-title__block">
+        <div class="wbg-title">Document Explorer</div>
+        <div class="wbg-subtitle">Natural Language Processing for knowledge discovery</div>
+      </div>
+    </div>
+  </div>
+  <div class="blog-masthead wbg-masthead">
+    <div class="container">
+      <nav class="nav blog-nav navbar wbg-navbar navbar-expand-lg">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><i class="fas fa-bars" aria-hidden="true"></i><span class="ml-1">Menu</span></button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-link nav-item active">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-link nav-item">
+              <a class="nav-link" href="/search/" title="Search">Search</a>
+            </li>
+            <li class="nav-link nav-item">
+              <a class="nav-link" href="/explore/explore/" title="Explore">Explore</a>
+            </li>
+            <li class="nav-link nav-item">
+              <a class="nav-link" href="/analyze/analyze/" title="Analyze">Analyze</a>
+            </li>
+            <li class="nav-link nav-item">
+              <a class="nav-link" href="/methods/methods/" title="Methods &amp; Tools">Methods &amp; Tools</a>
+            </li>
+            <li class="nav-link nav-item">
+              <a class="nav-link" href="/api/api/" title="API">API</a>
+            </li>
+            <li class="nav-link nav-item">
+              <a class="nav-link" href="/about/about/" title="About">About</a>
+            </li>
+            <li class="nav-link nav-item">
+              <a class="nav-link" href="/styleguide/" title="Styleguide">Styleguide</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </div>
+  <header class="blog-header wbg-header">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-8">
+          <h1 class="blog-title text-center" dir="auto">Document Explorer</h1>
+        </div>
+        <div class="col-12 col-md-8">
+          <div class="input-group mb-3 mt-3" style="display:flex">
+            <input type="text" class="form-control wbg-search-text pl-4" placeholder="Enter your keywords..." aria-label="Field for search" aria-describedby="basic-addon2">
+            <div class="input-group-append">
+              <button class="btn btn-primary wbg-search-button pr-4 pl-4" type="button">Search</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-8 text-center">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" checked="">
+            <label class="form-check-label" for="inlineRadio1">Keyword search</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+            <label class="form-check-label" for="inlineRadio2">Semantic search</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-12 col-md-10">
+        <h3 class="text-center">Explore our corpus of 300,000 documents</h3>
+        <div class="small text-center">Last updated on Wednesday, January 6, 2021</div>
+        <p class="mt-4 text-center">The Document Explorer puts Natural Language Processing (NLP) at the service of knowledge discovery. We compiled and maintain a <a href="/#">corpus of research</a>, project and other documents from development agencies. Topic and word embeddings models, and other methods are applied to provide information discovery solutions including <a href="/#">lexical and semantic search</a>, filtering by topic composition, and others. A <a href="/#">meta-database</a> is created, which provides a detailed description of all documents and can be used as input to analysis of knowledge on development. All solutions implemented in this project rely on publicly-available documents and on <a href="/#">open source tools</a>. Our solutions are openly accessible in our <a href="/#">GitHub repository</a>.</p></div></div><div class="row mb-2"><div class="col-12 col-md-4"><div class="wbg-homepage-block"><div class="wbg-homepage-block__fa"><i class="fas fa-search fa-lg" aria-hidden="true"></i></div><h3><a href="/#">Search</a></h3><p>Find documents by applying keyword and semantic search and filters</p></div></div><div class="col-12 col-md-4"><div class="wbg-homepage-block"><div class="wbg-homepage-block__fa"><i class="fas fa-book-open fa-lg" aria-hidden="true"></i></div><h3><a href="/#">Explore</a></h3><p>Explore the corpus: topic composition, trends, geographic coverage, word embeddings, etc.</p>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="wbg-homepage-block">
+        <div class="wbg-homepage-block__fa">
+          <i class="fas fa-chart-bar fa-lg" aria-hidden="true"></i>
+        </div>
+        <h3><a href="/#">Analyze</a></h3>
+        <p>Do an analysis in the Corpus of research</p>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="wbg-homepage-block">
+        <div class="wbg-homepage-block__fa">
+          <i class="fas fa-map-marker-alt fa-lg" aria-hidden="true"></i>
+        </div>
+        <h3><a href="/#">Methods &amp; Tools</a></h3>
+        <p>Do an analysis in the Corpus of research</p>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="wbg-homepage-block">
+        <div class="wbg-homepage-block__fa">
+          <i class="fas fa-link fa-lg" aria-hidden="true"></i>
+        </div>
+        <h3><a href="/#">API</a></h3>
+        <p>Learn about, and access, our API services</p>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-5">
+    <div class="col-12">
+      <h2 class="text-center mb-4">Highlights</h2>
+    </div>
+    <div class="col-12 col-md-4 mb-3 mb-md-1">
+      <div class="wbg-homepage-highlight">
+        <img src="/static/files/photo-1532094349884-543bc11b234d" height="220" alt="">
+        <div>
+          <h4><a href="/#">JDC Quarterly Digest</a></h4>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4 mb-3 mb-md-1">
+      <div class="wbg-homepage-highlight">
+        <img src="/static/files/photo-1605962589069-bccdb6e391fe" height="220" alt="">
+        <div>
+          <h4><a href="/#">A Primer: The concsequences of COVID-19 on forced displacement</a></h4>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4 mb-3 mb-md-1">
+      <div class="wbg-homepage-highlight">
+        <img src="/static/files/photo-1533645782036-997947a9d529" height="220" alt="">
+        <div>
+          <h4><a href="/#">Understanding the socioeconomic conditions of refugees in Kenya</a></h4>
+          <p>Lorem ipsum dolor sit amet, consectetur.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 text-center mt-4">
+      <a href="/#">View more highlights</a>
+    </div>
+  </div>
+</div>
+  <footer>
+    <div class="full-row-footer-components">
+      <div class="container">
+        <div class="footer">
+          <div class="footer-top">
+            <div class="row">
+              <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
+                <div class="footer-menu-item">
+                  <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                      <ul>
+                        <li><a href="https://www.worldbank.org/en/about">About</a></li>
+                        <li><a href="http://data.worldbank.org/">Data</a></li>
+                        <li><a href="https://www.worldbank.org/en/research">Research and Publications</a></li>
+                        <li><a href="https://olc.worldbank.org/">Learning</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                      <ul>
+                        <li><a href="https://www.worldbank.org/en/news">News</a></li>
+                        <li><a href="https://projects.worldbank.org/?lang=en">Projects and Operations</a></li>
+                        <li><a href="https://www.worldbank.org/en/where-we-work">Countries</a></li>
+                        <li><a href="https://www.worldbank.org/en/topic">Topics</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                <div class="row">
+                  <div class="col-lg-6 col-md-12 col-sm-6 col-xs-12">
+                    <div class="social-icon">
+                      <h4>follow us</h4>
+                      <ul>
+                        <li><a href="http://www.facebook.com/worldbank" class="social-icon-img" data-customlink="sm:footer" data-text="facebook"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+                        <li><a href="http://www.twitter.com/worldbank" class="social-icon-img" data-customlink="sm:footer" data-text="twitter"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+                        <li><a href="http://www.linkedin.com/company/the-world-bank" class="social-icon-img" data-customlink="sm:footer" data-text="linkedln"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+                        <li><a href="https://instagram.com/worldbank/" class="social-icon-img" data-customlink="sm:footer" data-text="instagram"><i class="fab fa-instagram fa-lg" aria-hidden="true"></i></a></li>
+                        <li><a href="https://www.youtube.com/user/WorldBank" class="social-icon-img" data-customlink="sm:footer" data-text="youtube"><i class="fab fa-youtube fa-lg" aria-hidden="true"></i></a></li>
+                        <li><a href="https://www.flickr.com/photos/worldbank" class="social-icon-img" data-customlink="sm:footer" data-text="flickr"><i class="fab fa-flickr fa-lg" aria-hidden="true"></i></a></li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-12 col-sm-6 col-xs-12">
+                    <div class="footer-newsletter">
+                      <h4>newsletter</h4>
+                      <div class="search-section">
+                        <form action="https://www.worldbank.org/en/newsletter-subscription?worldbankgroup=true" method="get" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate input-group mySignUpFormDesktop" target="_blank" accept-charset="utf-8" novalidate="">
+                          <input type="hidden" name="worldbankgroup" value="true">
+                          <input type="text" onfocus="value=&#39;&#39;" placeholder="Enter email to subscribe..." class="search-input-field-1" id="fields_email" name="email" title="search" data-form="world bank group newsletters:newsletter">
+                        </form>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-12"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-bottom mt-4 mt-md-1">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <div class="list-inline">
+                  <ul>
+                    <li>
+                      <a class="disclaimer" href="https://www.worldbank.org/en/about/legal">Legal</a>
+                      <a class="disclaimer" href="https://www.worldbank.org//en/access-to-information">Access to Information</a>
+                      <a class="disclaimer" href="https://www.worldbank.org/en/about/careers">Jobs</a>
+                      <a class="disclaimer" href="https://www.worldbank.org/en/about/contacts">Contact</a></li></ul></div></div><div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"><div class="footer-fraud"><a href="https://www.worldbank.org//fraudandcorruption?clear">REPORT FRAUD OR CORRUPTION</a></div></div></div></div></div></div></div><div class="full-row-footer-black-components"><div class="footer"><div class="container"><div class="row"><div class="col-12 col-md-6 footer-bottom-left"><ul><li><a href="https://www.worldbank.org//"><img src="/static/files/logo-wbg-footer-en.svg" title="The World Bank Working for a World Free of Poverty" alt="The World Bank Working for a World Free of Poverty"></a></li><li><a class="wbg-partnership" title="International Bank for Reconstruction and Development" href="https://www.worldbank.org//en/who-we-are/ibrd">IBRD</a>
+                      <a class="wbg-partnership" title="International Development Association" href="https://www.worldbank.org//ida">IDA</a>
+                      <a class="wbg-partnership" title="International Finance Corporation" href="http://www.ifc.org/">IFC</a>
+                      <a class="wbg-partnership" title="Multilateral Investment Guarantee Agency" href="http://www.miga.org/">MIGA</a>
+                      <a class="wbg-partnership" title="International Centre for Settlement of Investment Disputes" href="http://icsid.worldbank.org/">ICSID</a>
+                    </li>
+                  </ul>
+                </div>
+                <div class="col-12 col-md-6 footer-bottom-right">
+                  <div class="footer-copy-right">©
+                    <script language="javascript">
+                    var time=new Date();var year=time.getYear();if(year<2000)
+                    year=year+1900;document.write(year);
+                    </script>
+                    2021, The World Bank Group, All Rights Reserved.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+      <script src="/static/files/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script><script src="/static/files/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+      <script src="/static/files/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
+      <div id="app"></div>
   <!-- built files will be auto injected -->
 </body>
 
