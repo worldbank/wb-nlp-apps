@@ -126,7 +126,9 @@
               </h1>
             </header>
             <p>Explore</p> -->
-            <router-view></router-view>
+            <div class="content-row">
+              <router-view></router-view>
+            </div>
             <hr />
             <footer>
               <section>
@@ -176,6 +178,9 @@ export default {
 </script>
 
 <style scoped>
+.content-row {
+  min-height: 50vh;
+}
 /* @media (min-width: 1200px) {
   .container {
     max-width: 1200px;

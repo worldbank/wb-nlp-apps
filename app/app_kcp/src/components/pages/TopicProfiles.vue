@@ -32,9 +32,7 @@
                     readyForSubmit ? 'success' : 'outline-primary'
                   "
                   variant="primary"
-                  :text="
-                    readyForSubmit ? 'Plot topic shares' : 'Data partitions'
-                  "
+                  :text="readyForSubmit ? 'Plot' : 'Select'"
                 >
                   <b-dropdown-form>
                     <b-form-group label="Admin Region">
