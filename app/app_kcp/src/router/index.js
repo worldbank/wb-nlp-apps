@@ -16,6 +16,7 @@ import WordEmbeddings from '../components/explore/WordEmbeddings.vue'
 import Similarity from '../components/explore/Similarity.vue'
 
 // EXPLORE SUBCATEGORIES components
+import Sources from '../components/explore/subcategories/Sources.vue'
 import GeographicCoverage from '../components/explore/subcategories/GeographicCoverage.vue'
 
 
@@ -29,11 +30,18 @@ const main_routes = [{
 }, ]
 
 const explore_subcategories_routes = [{
-    path: "geographic-coverage",
-    name: "geographic-coverage",
-    component: GeographicCoverage,
-    props: { page_title: "Geographic Coverage" },
-}, ]
+        path: "sources",
+        name: "sources",
+        component: Sources,
+        props: { page_title: "Sources" },
+    },
+    {
+        path: "geographic-coverage",
+        name: "geographic-coverage",
+        component: GeographicCoverage,
+        props: { page_title: "Geographic Coverage" },
+    },
+]
 
 const explore_routes = [{
         path: "",

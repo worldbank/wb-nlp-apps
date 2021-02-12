@@ -189,9 +189,12 @@ export default {
 
         $window.scroll(function () {
           if ($window.scrollTop() > offset.top) {
-            $sidebar.stop().animate({
-              marginTop: $window.scrollTop() - offset.top + topPadding,
-            });
+            $sidebar.stop().animate(
+              {
+                marginTop: $window.scrollTop() - offset.top + topPadding,
+              },
+              { easing: "ease", duration: 0 }
+            );
           } else {
             $sidebar.stop().animate({
               marginTop: 0,
