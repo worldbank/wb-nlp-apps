@@ -4,14 +4,19 @@ import ExploreNav from '../components/ExploreNav.vue'
 import Home from '../components/Home.vue'
 import Explore from '../components/Explore.vue'
 
-import Introduction from '../components/pages/Introduction.vue'
-import Corpus from '../components/pages/Corpus.vue'
-import TopicComposition from '../components/pages/TopicComposition.vue'
-import TopicProfiles from '../components/pages/TopicProfiles.vue'
-import TopicRelationships from '../components/pages/TopicRelationships.vue'
-// import EmbeddingViz from '../components/pages/EmbeddingViz.vue'
-import WordEmbeddings from '../components/pages/WordEmbeddings.vue'
-import Similarity from '../components/pages/Similarity.vue'
+
+// EXPLORE components
+import Introduction from '../components/explore/Introduction.vue'
+import Corpus from '../components/explore/Corpus.vue'
+import TopicComposition from '../components/explore/TopicComposition.vue'
+import TopicProfiles from '../components/explore/TopicProfiles.vue'
+import TopicRelationships from '../components/explore/TopicRelationships.vue'
+// import EmbeddingViz from '../components/explore/EmbeddingViz.vue'
+import WordEmbeddings from '../components/explore/WordEmbeddings.vue'
+import Similarity from '../components/explore/Similarity.vue'
+
+// EXPLORE SUBCATEGORIES components
+import GeographicCoverage from '../components/explore/subcategories/GeographicCoverage.vue'
 
 
 Vue.use(VueRouter);
@@ -23,6 +28,12 @@ const main_routes = [{
     props: { page_title: "Home" },
 }, ]
 
+const explore_subcategories_routes = [{
+    path: "geographic-coverage",
+    name: "geographic-coverage",
+    component: GeographicCoverage,
+    props: { page_title: "Geographic Coverage" },
+}, ]
 
 const explore_routes = [{
         path: "",
@@ -101,6 +112,11 @@ const routes = [{
         path: '/explore',
         component: Explore,
         children: explore_routes
+    },
+    {
+        path: '/explore/subcategories',
+        component: Explore,
+        children: explore_subcategories_routes
     },
 ]
 
