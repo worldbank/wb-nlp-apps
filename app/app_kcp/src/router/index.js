@@ -26,7 +26,7 @@ const main_routes = [{
 const explore_routes = [{
         path: "",
         name: "explore",
-        component: Explore,
+        component: Introduction,
         props: { page_title: "Explore" },
     },
     {
@@ -98,7 +98,7 @@ const routes = [{
     },
     {
         path: '/explore',
-        component: ExploreNav,
+        component: Explore,
         children: explore_routes
     },
 ]

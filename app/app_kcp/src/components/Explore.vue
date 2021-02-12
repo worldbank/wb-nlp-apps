@@ -4,11 +4,11 @@
       <div class="container">
         <div class="col-12 mb-2">
           <div id="breadcrumbs">
-            <a href="https://mtt-wb21h.netlify.app/">Home</a>
+            <a href="/">Home</a>
             <span class="wbg-breadcrumb-separator">/</span>
-            <a href="https://mtt-wb21h.netlify.app/explore">Explore</a>
+            <a href="/explore">Explore</a>
             <span class="wbg-breadcrumb-separator">/</span>
-            <a href="https://mtt-wb21h.netlify.app/explore">Explore</a>
+            <a href="/explore">Explore</a>
           </div>
         </div>
         <div class="col-12">
@@ -25,106 +25,90 @@
       </div>
     </header>
     <div class="container">
+      <!-- <div> -->
       <div class="row">
         <aside class="col-sm-3 blog-sidebar">
           <h4>Explore sidebar</h4>
           <section class="sidebar-module">
             <ol class="list-unstyled">
               <li>
-                <a href="https://mtt-wb21h.netlify.app/explore/explore/"
-                  >Explore</a
-                >
+                <a href="/explore/explore/">Explore</a>
               </li>
               <li>
                 <a
-                  href="https://mtt-wb21h.netlify.app/explore/subcategories/sources/"
+                  href="/explore/subcategories/sources/"
                   class="wbg_sidebar second-level"
                   >Sources</a
                 >
               </li>
               <li>
                 <a
-                  href="https://mtt-wb21h.netlify.app/explore/subcategories/geographic_coverage/"
+                  href="/explore/subcategories/geographic-coverage/"
                   class="wbg_sidebar second-level"
                   >Geographic coverage</a
                 >
               </li>
               <li>
                 <a
-                  href="https://mtt-wb21h.netlify.app/explore/subcategories/metadata/"
+                  href="/explore/subcategories/metadata/"
                   class="wbg_sidebar second-level"
                   >Metadata</a
                 >
               </li>
               <li>
                 <a
-                  href="https://mtt-wb21h.netlify.app/explore/subcategories/training_subset/"
+                  href="/explore/subcategories/training-subset/"
                   class="wbg_sidebar second-level"
                   >Training subset</a
                 >
               </li>
               <li>
-                <a
-                  href="https://mtt-wb21h.netlify.app/explore/topic_composition/"
-                  >Topic composition</a
-                >
+                <a href="/explore/topic-composition/">Topic composition</a>
               </li>
               <li>
                 <a
-                  href="https://mtt-wb21h.netlify.app/explore/subcategories/topic_browser/"
+                  href="/explore/subcategories/topic-browser/"
                   class="wbg_sidebar second-level"
                   >Topic browser</a
                 >
               </li>
               <li>
                 <a
-                  href="https://mtt-wb21h.netlify.app/explore/subcategories/filtering_by_topic_share/"
+                  href="/explore/subcategories/filtering-by-topic-share/"
                   class="wbg_sidebar second-level"
                   >Filtering by topic share</a
                 >
               </li>
               <li>
-                <a href="https://mtt-wb21h.netlify.app/explore/topic_profiles/"
-                  >Topic profiles</a
-                >
+                <a href="/explore/topic-profiles/">Topic profiles</a>
               </li>
               <li>
-                <a href="https://mtt-wb21h.netlify.app/explore/topic_taxonomy/"
-                  >Topic taxonomy</a
-                >
+                <a href="/explore/topic-taxonomy/">Topic taxonomy</a>
               </li>
               <li>
-                <a
-                  href="https://mtt-wb21h.netlify.app/explore/topic_relationships/"
-                  >Topic relationships</a
-                >
+                <a href="/explore/topic-relationships/">Topic relationships</a>
               </li>
               <li>
-                <a href="https://mtt-wb21h.netlify.app/explore/word_embeddings/"
-                  >Word embeddings</a
-                >
+                <a href="/explore/word-embeddings/">Word embeddings</a>
               </li>
               <li>
-                <a href="https://mtt-wb21h.netlify.app/explore/similarity/"
-                  >Similarity</a
-                >
+                <a href="/explore/similarity/">Similarity</a>
               </li>
               <li>
-                <a
-                  href="https://mtt-wb21h.netlify.app/explore/knowledge_page_service/"
+                <a href="/explore/knowledge-page-service/"
                   >Knowledge page service</a
                 >
               </li>
               <li>
                 <a
-                  href="https://mtt-wb21h.netlify.app/explore/subcategories/example/"
+                  href="/explore/subcategories/example/"
                   class="wbg_sidebar second-level"
                   >Example</a
                 >
               </li>
               <li>
                 <a
-                  href="https://mtt-wb21h.netlify.app/explore/subcategories/instructions/"
+                  href="/explore/subcategories/instructions/"
                   class="wbg_sidebar second-level"
                   >Instructions</a
                 >
@@ -134,14 +118,15 @@
         </aside>
         <div class="col-sm-9 blog-main">
           <article class="blog-post">
-            <header>
+            <!-- <header>
               <h1 class="blog-post-title mb-3" dir="auto">
-                <a href="https://mtt-wb21h.netlify.app/explore/explore/"
+                <a href="/explore/explore/"
                   >Explore</a
                 >
               </h1>
             </header>
-            <p>Explore</p>
+            <p>Explore</p> -->
+            <router-view></router-view>
             <hr />
             <footer>
               <section>
@@ -181,3 +166,29 @@
     </div>
   </div>
 </template>
+
+
+<script>
+export default {
+  name: "Explore",
+  components: {},
+};
+</script>
+
+<style scoped>
+/* @media (min-width: 1200px) {
+  .container {
+    max-width: 1200px;
+  }
+} */
+/*
+.blog-main {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.blog-sidebar {
+  margin-left: -2rem;
+  padding: 0;
+} */
+</style>
