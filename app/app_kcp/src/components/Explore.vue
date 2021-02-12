@@ -24,10 +24,10 @@
         </div>
       </div>
     </header>
-    <div class="container">
-      <!-- <div> -->
+    <div class="container flowing">
+      <!-- <div class=""> -->
       <div class="row">
-        <aside class="col-sm-3 blog-sidebar">
+        <aside class="col-sm-2 blog-sidebar">
           <h4>Explore sidebar</h4>
           <section class="sidebar-module">
             <ol class="list-unstyled">
@@ -116,7 +116,7 @@
             </ol>
           </section>
         </aside>
-        <div class="col-sm-9 blog-main">
+        <div class="col-sm-10 blog-main">
           <article class="blog-post">
             <!-- <header>
               <h1 class="blog-post-title mb-3" dir="auto">
@@ -183,11 +183,11 @@ export default {
 .content-row {
   min-height: 50vh;
 }
-/* @media (min-width: 1200px) {
-  .container {
-    max-width: 1200px;
+@media (min-width: 1200px) {
+  .flowing {
+    max-width: 1600px;
   }
-} */
+}
 /*
 .blog-main {
   margin: 0;
