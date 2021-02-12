@@ -61,10 +61,8 @@ export default {
     page_title: String,
   },
   data: function () {
-    // http://10.0.0.25:8880/api/related_words?raw_text=poverty&model_id=ALL_50
     return {
-      // api_url: "http://10.0.0.25:8880/api/related_words",
-      api_url: "/api/related_words",
+      nlp_api_url: "/nlp/models/word2vec/get_similar_words",
       related_words: [],
       raw_text: "",
       loading: true,
@@ -79,14 +77,20 @@ export default {
         text = this.raw_text;
       } else {
         this.raw_text = text;
-        text += "&clean_doc=false";
       }
       this.loading = true;
       this.related_words = [];
+      const body = {
+        model_id: "777a9cf47411f6c4932e8941f177f90a",
+        raw_text: text,
+        topn_words: 10,
+        metric: "cosine_similarity",
+      };
+
       this.$http
-        .get(this.api_url + "?model_id=ALL_50&raw_text=" + text)
+        .post(this.nlp_api_url, body)
         .then((response) => {
-          this.related_words = response.data.words;
+          this.related_words = response.data;
         })
         .catch((error) => {
           console.log(error);

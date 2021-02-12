@@ -409,6 +409,8 @@ if __name__ == '__main__':
         raise_empty_doc_status=False, log_level=logging.DEBUG)
     # %time
     lda_model.train_model()
+    # Do this if the model is available in disk but the model_run_info is not. This is to dump the model_run_info to db in case it's not present.
+    # lda_model.save()
 
     lda_model.build_doc_vecs(pool_workers=3)
     print(lda_model.get_similar_words('bank'))

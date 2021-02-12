@@ -39,9 +39,9 @@ app = FastAPI(
     redoc_url="/redoc",  # Set to `None` to disable
 )
 
-app.include_router(metadata.router)
-app.include_router(cleaner.router)
-app.include_router(models.router)
+app.include_router(metadata.router, prefix="/nlp")
+app.include_router(cleaner.router, prefix="/nlp")
+app.include_router(models.router, prefix="/nlp")
 # app.include_router(
 #     word2vec.router,
 #     prefix="/models",
@@ -50,7 +50,7 @@ app.include_router(models.router)
 # )
 app.include_router(
     lda.router,
-    prefix="/models",
+    prefix="/nlp/models",
     # tags=["lda"],
     responses={404: {"description": "Not found"}},
 )
@@ -63,5 +63,5 @@ def read_root():
 
 if __name__ == '__main__':
     # Default port is 8000
-    # uvicorn app.nlp_api.main:app --reload --timeout-keep-alive 120 --port 8919
+    # uvicorn app.nlp_api.main:app --reload --timeout-keep-alive 120 --host 0.0.0.0 --port 8919
     uvicorn.run(app, port=8919, host='0.0.0.0')

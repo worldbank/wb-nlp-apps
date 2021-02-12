@@ -315,8 +315,13 @@ class BaseModel:
 
     def load_model(self):
         model_file_name = str(self.model_file_name)
+
         try:
             self.model = self.model_class.load(model_file_name)
+
+            # model_runs_info_collection = mongodb.get_model_runs_info_collection()
+            # assert model_runs_info_collection.find_one({"_id": self.model_run_info["model_run_info_id"]}), "Trained model present but `model_run_info` not in db, aborting load... Options: You can delete the model and retrain. Alternatively, if `model_run_info` is stored available, please make sure to upload it in the correct collection. Also note that the Milvus table must exist!"
+
             if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
 
                 self.g_dict = Dictionary()
@@ -328,7 +333,9 @@ class BaseModel:
                     self.model = malletmodel2ldamodel(
                         self.model, iterations=self.model.iterations)
 
-            self.set_model_word_vectors()
+            # Force save model to also update the `model_run_info` on db.
+            self.save_model()
+            # self.set_model_word_vectors()
 
         except FileNotFoundError:
             self.model = None

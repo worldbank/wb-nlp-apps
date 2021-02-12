@@ -1,10 +1,10 @@
 module.exports = {
     devServer: {
         proxy: {
-            '^/api': {
-                target: 'http://10.0.0.25:8088',
+            '^/nlp': {
+                target: 'http://10.0.0.25:8991',
             },
-            '^/nlp_api': {
+            '^/api': {
                 target: 'http://10.0.0.25:8088',
             },
             '^/dfr': {
