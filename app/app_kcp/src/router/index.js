@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import ExploreNav from '../components/ExploreNav.vue'
 import Home from '../components/Home.vue'
+import Explore from '../components/Explore.vue'
 
 import Introduction from '../components/pages/Introduction.vue'
 import TopicComposition from '../components/pages/TopicComposition.vue'
@@ -14,11 +15,25 @@ import Similarity from '../components/pages/Similarity.vue'
 
 Vue.use(VueRouter);
 
+// const main_routes = [{
+//     path: "",
+//     name: "home",
+//     component: Home,
+//     props: { page_title: "Home" },
+// }, ]
+
+
 const explore_routes = [{
         path: "",
         name: "home",
         component: Home,
         props: { page_title: "Home" },
+    },
+    {
+        path: "explore",
+        name: "explore",
+        component: Explore,
+        props: { page_title: "Explore" },
     },
     {
         path: "introduction",
@@ -87,11 +102,11 @@ const routes = [{
         component: ExploreNav,
         children: explore_routes
     },
-    {
-        path: '/explore',
-        component: ExploreNav,
-        children: explore_routes
-    },
+    // {
+    //     path: '/explore',
+    //     component: ExploreNav,
+    //     children: explore_routes
+    // },
 ]
 
 // const routes = explore_routes
