@@ -178,6 +178,8 @@ export default {
 </script>
 
 <style scoped>
+@import "../../node_modules/bootstrap-vue/dist/bootstrap-vue.css";
+
 .content-row {
   min-height: 50vh;
 }

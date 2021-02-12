@@ -12,8 +12,7 @@ import router from './router'
 import App from './App.vue'
 
 // CSS files
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+// import 'bootstrap/dist/css/bootstrap.css'
 
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
