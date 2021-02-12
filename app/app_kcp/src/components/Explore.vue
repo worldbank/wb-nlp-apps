@@ -27,12 +27,12 @@
     <div class="container flowing">
       <!-- <div class=""> -->
       <div class="row">
-        <aside class="col-sm-2 blog-sidebar">
+        <aside class="col-sm-3 blog-sidebar">
           <h4>Explore sidebar</h4>
           <section class="sidebar-module">
             <ol class="list-unstyled">
               <li>
-                <a href="/explore/explore/">Explore</a>
+                <a href="/explore/corpus/">Corpus</a>
               </li>
               <li>
                 <a
@@ -116,7 +116,7 @@
             </ol>
           </section>
         </aside>
-        <div class="col-sm-10 blog-main">
+        <div class="col-sm-9 blog-main">
           <article class="blog-post">
             <!-- <header>
               <h1 class="blog-post-title mb-3" dir="auto">
@@ -171,10 +171,31 @@
 
 
 <script>
+// import $ from "jquery";
+
 export default {
   name: "Explore",
   components: {},
 };
+
+// $(function () {
+//   var $sidebar = $("#blog-sidebar"),
+//     $window = $(window),
+//     offset = $sidebar.offset(),
+//     topPadding = 15;
+
+//   $window.scroll(function () {
+//     if ($window.scrollTop() > offset.top) {
+//       $sidebar.stop().animate({
+//         marginTop: $window.scrollTop() - offset.top + topPadding,
+//       });
+//     } else {
+//       $sidebar.stop().animate({
+//         marginTop: 0,
+//       });
+//     }
+//   });
+// });
 </script>
 
 <style scoped>
@@ -185,7 +206,7 @@ export default {
 }
 @media (min-width: 1200px) {
   .flowing {
-    max-width: 1600px;
+    max-width: 1200px;
   }
 }
 /*

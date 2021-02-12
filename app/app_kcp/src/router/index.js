@@ -5,6 +5,7 @@ import Home from '../components/Home.vue'
 import Explore from '../components/Explore.vue'
 
 import Introduction from '../components/pages/Introduction.vue'
+import Corpus from '../components/pages/Corpus.vue'
 import TopicComposition from '../components/pages/TopicComposition.vue'
 import TopicProfiles from '../components/pages/TopicProfiles.vue'
 import TopicRelationships from '../components/pages/TopicRelationships.vue'
@@ -38,7 +39,7 @@ const explore_routes = [{
     {
         path: "corpus",
         name: "corpus",
-        component: Introduction,
+        component: Corpus,
         props: { page_title: "Corpus" },
     },
     {

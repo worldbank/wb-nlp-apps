@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ page_title }}</h1>
+    <h3>{{ page_title }}</h3>
     <br />
 
     <b-container fluid>
