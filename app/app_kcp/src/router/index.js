@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import ExploreNav from '../components/ExploreNav.vue'
+import Home from '../components/Home.vue'
 
 import Introduction from '../components/pages/Introduction.vue'
 import TopicComposition from '../components/pages/TopicComposition.vue'
@@ -13,12 +14,11 @@ import Similarity from '../components/pages/Similarity.vue'
 
 Vue.use(VueRouter);
 
-const explore_routes = [
-    {
+const explore_routes = [{
         path: "",
-        name: "explore",
-        component: Introduction,
-        props: { page_title: "Explore" },
+        name: "home",
+        component: Home,
+        props: { page_title: "Home" },
     },
     {
         path: "introduction",
@@ -82,8 +82,7 @@ const explore_routes = [
     },
 ]
 
-const routes = [
-    {
+const routes = [{
         path: '',
         component: ExploreNav,
         children: explore_routes
