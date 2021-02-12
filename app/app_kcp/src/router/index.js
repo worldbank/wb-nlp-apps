@@ -15,22 +15,16 @@ import Similarity from '../components/pages/Similarity.vue'
 
 Vue.use(VueRouter);
 
-// const main_routes = [{
-//     path: "",
-//     name: "home",
-//     component: Home,
-//     props: { page_title: "Home" },
-// }, ]
+const main_routes = [{
+    path: "",
+    name: "home",
+    component: Home,
+    props: { page_title: "Home" },
+}, ]
 
 
 const explore_routes = [{
         path: "",
-        name: "home",
-        component: Home,
-        props: { page_title: "Home" },
-    },
-    {
-        path: "explore",
         name: "explore",
         component: Explore,
         props: { page_title: "Explore" },
@@ -100,13 +94,13 @@ const explore_routes = [{
 const routes = [{
         path: '',
         component: ExploreNav,
+        children: main_routes
+    },
+    {
+        path: '/explore',
+        component: ExploreNav,
         children: explore_routes
     },
-    // {
-    //     path: '/explore',
-    //     component: ExploreNav,
-    //     children: explore_routes
-    // },
 ]
 
 // const routes = explore_routes
