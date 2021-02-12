@@ -27,7 +27,7 @@
     <div class="container flowing">
       <!-- <div class=""> -->
       <div class="row">
-        <aside class="col-sm-3 blog-sidebar">
+        <aside class="col-sm-3 blog-sidebar" id="blog-sidebar">
           <h4>Explore sidebar</h4>
           <section class="sidebar-module">
             <ol class="list-unstyled">
@@ -171,31 +171,37 @@
 
 
 <script>
-// import $ from "jquery";
+import $ from "jquery";
 
 export default {
   name: "Explore",
   components: {},
+  mounted() {
+    this.flowSideBar();
+  },
+  methods: {
+    flowSideBar: function () {
+      $(function () {
+        var $sidebar = $("#blog-sidebar"),
+          $window = $(window),
+          offset = $sidebar.offset(),
+          topPadding = 15;
+
+        $window.scroll(function () {
+          if ($window.scrollTop() > offset.top) {
+            $sidebar.stop().animate({
+              marginTop: $window.scrollTop() - offset.top + topPadding,
+            });
+          } else {
+            $sidebar.stop().animate({
+              marginTop: 0,
+            });
+          }
+        });
+      });
+    },
+  },
 };
-
-// $(function () {
-//   var $sidebar = $("#blog-sidebar"),
-//     $window = $(window),
-//     offset = $sidebar.offset(),
-//     topPadding = 15;
-
-//   $window.scroll(function () {
-//     if ($window.scrollTop() > offset.top) {
-//       $sidebar.stop().animate({
-//         marginTop: $window.scrollTop() - offset.top + topPadding,
-//       });
-//     } else {
-//       $sidebar.stop().animate({
-//         marginTop: 0,
-//       });
-//     }
-//   });
-// });
 </script>
 
 <style scoped>
