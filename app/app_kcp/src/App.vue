@@ -1,17 +1,29 @@
 <template>
   <div id="app">
+    <Header />
+
     <router-view class="view"></router-view>
   </div>
 </template>
 
 <script>
 // import SidePanel from "./components/SidePanel.vue";
+import Header from "./components/Header.vue";
 
 export default {
   name: "App",
-  // components: {
-  //   SidePanel,
+  // data: function () {
+  //   return { active_el: "home" };
   // },
+  // methods: {
+  //   activate: function (el) {
+  //     this.active_el = el;
+  //   },
+  // },
+  components: {
+    // SidePanel,
+    Header,
+  },
 };
 </script>
 

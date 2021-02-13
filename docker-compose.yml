@@ -76,6 +76,23 @@ services:
     depends_on:
       - api
 
+  app_kcp:
+    build:
+      context: ./app/app_kcp
+    ports:
+      - "8099:80"
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/app/app_kcp:/app
+      - ${LOCAL_PATH}/app/app_kcp/site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - api
+      - nlp_api
+    depends_on:
+      - api
+      - nlp_api
+
   dfr:
     build:
       context: ./app/dfr
