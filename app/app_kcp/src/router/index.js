@@ -26,29 +26,20 @@ const main_routes = [{
     path: "",
     name: "home",
     component: Home,
-    props: { page_title: "Home", nav: "home" },
-    // meta: {
-    //     nav: "home",
-    // }
+    props: { page_title: "Home" },
 }, ]
 
 const explore_subcategories_routes = [{
         path: "sources",
         name: "explore_sources",
         component: Sources,
-        props: { page_title: "Sources", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Sources" },
     },
     {
         path: "geographic-coverage",
         name: "explore_geographic-coverage",
         component: GeographicCoverage,
-        props: { page_title: "Geographic Coverage", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Geographic Coverage" },
     },
 ]
 
@@ -56,64 +47,43 @@ const explore_routes = [{
         path: "",
         name: "explore",
         component: Introduction,
-        props: { page_title: "Explore", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Explore" },
     },
     {
         path: "introduction",
         name: "explore_introduction",
         component: Introduction,
-        props: { page_title: "Introduction", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Introduction" },
     },
     {
         path: "corpus",
         name: "explore_corpus",
         component: Corpus,
-        props: { page_title: "Corpus", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Corpus" },
     },
     {
         path: "topic-composition",
         name: "explore_topic-composition",
         component: TopicComposition,
-        props: { page_title: "Topic Composition", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Topic Composition" },
     },
     {
         path: "topic-profiles",
         name: "explore_topic-profiles",
         component: TopicProfiles,
-        props: { page_title: "Topic Profiles", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Topic Profiles" },
     },
     {
         path: "topic-taxonomy",
         name: "explore_topic-taxonomy",
         component: Introduction,
-        props: { page_title: "Topic Taxonomy", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Topic Taxonomy" },
     },
     {
         path: "topic-relationships",
         name: "explore_topic-relationships",
         component: TopicRelationships,
-        props: { page_title: "Topic Relationships", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Topic Relationships" },
     },
     // {
     //     path: "embedding-viz",
@@ -125,28 +95,19 @@ const explore_routes = [{
         path: "word-embeddings",
         name: "explore_word-embeddings",
         component: WordEmbeddings,
-        props: { page_title: "Word Embeddings", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Word Embeddings" },
     },
     {
         path: "similarity",
         name: "explore_similarity",
         component: Similarity,
-        props: { page_title: "Similarity", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Similarity" },
     },
     {
         path: "monitoring-system",
         name: "explore_monitoring-system",
         component: Introduction,
-        props: { page_title: "Monitoring System", nav: "explore" },
-        // meta: {
-        //     nav: "explore",
-        // }
+        props: { page_title: "Monitoring System" },
     },
 ]
 
