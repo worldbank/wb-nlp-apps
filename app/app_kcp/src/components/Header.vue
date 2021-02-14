@@ -52,9 +52,7 @@
                   active: $route.name.startsWith('home'),
                 }"
               >
-                <router-link class="nav-link nav-item" to="/"
-                  >{{ $route.name }} Home</router-link
-                >
+                <router-link class="nav-link nav-item" to="/">Home</router-link>
               </li>
               <li
                 :class="{ active: $route.name.startsWith('search') }"

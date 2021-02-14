@@ -4,11 +4,11 @@
       <div class="container">
         <div class="col-12 mb-2">
           <div id="breadcrumbs">
-            <a href="/">Home</a>
+            <router-link to="/">Home</router-link>
             <span class="wbg-breadcrumb-separator">/</span>
-            <a href="/explore">Explore</a>
+            <router-link to="/explore">Explore</router-link>
             <span class="wbg-breadcrumb-separator">/</span>
-            <a href="/explore">Explore</a>
+            <router-link to="/explore">Explore</router-link>
           </div>
         </div>
         <div class="col-12">
@@ -32,85 +32,95 @@
           <section class="sidebar-module">
             <ol class="list-unstyled">
               <li>
-                <a href="/explore/corpus/">Corpus</a>
+                <router-link to="/explore/corpus/">Corpus</router-link>
               </li>
               <li>
-                <a
-                  href="/explore/subcategories/sources/"
+                <router-link
+                  to="/explore/subcategories/sources/"
                   class="wbg_sidebar second-level"
-                  >Sources</a
+                  >Sources</router-link
                 >
               </li>
               <li>
-                <a
-                  href="/explore/subcategories/geographic-coverage/"
+                <router-link
+                  to="/explore/subcategories/geographic-coverage/"
                   class="wbg_sidebar second-level"
-                  >Geographic coverage</a
+                  >Geographic coverage</router-link
                 >
               </li>
               <li>
-                <a
-                  href="/explore/subcategories/metadata/"
+                <router-link
+                  to="/explore/subcategories/metadata/"
                   class="wbg_sidebar second-level"
-                  >Metadata</a
+                  >Metadata</router-link
                 >
               </li>
               <li>
-                <a
-                  href="/explore/subcategories/training-subset/"
+                <router-link
+                  to="/explore/subcategories/training-subset/"
                   class="wbg_sidebar second-level"
-                  >Training subset</a
+                  >Training subset</router-link
                 >
               </li>
               <li>
-                <a href="/explore/topic-composition/">Topic composition</a>
-              </li>
-              <li>
-                <a
-                  href="/explore/subcategories/topic-browser/"
-                  class="wbg_sidebar second-level"
-                  >Topic browser</a
+                <router-link to="/explore/topic-composition/"
+                  >Topic composition</router-link
                 >
               </li>
               <li>
-                <a
-                  href="/explore/subcategories/filtering-by-topic-share/"
+                <router-link
+                  to="/explore/subcategories/topic-browser/"
                   class="wbg_sidebar second-level"
-                  >Filtering by topic share</a
+                  >Topic browser</router-link
                 >
               </li>
               <li>
-                <a href="/explore/topic-profiles/">Topic profiles</a>
-              </li>
-              <li>
-                <a href="/explore/topic-taxonomy/">Topic taxonomy</a>
-              </li>
-              <li>
-                <a href="/explore/topic-relationships/">Topic relationships</a>
-              </li>
-              <li>
-                <a href="/explore/word-embeddings/">Word embeddings</a>
-              </li>
-              <li>
-                <a href="/explore/similarity/">Similarity</a>
-              </li>
-              <li>
-                <a href="/explore/knowledge-page-service/"
-                  >Knowledge page service</a
+                <router-link
+                  to="/explore/subcategories/filtering-by-topic-share/"
+                  class="wbg_sidebar second-level"
+                  >Filtering by topic share</router-link
                 >
               </li>
               <li>
-                <a
-                  href="/explore/subcategories/example/"
-                  class="wbg_sidebar second-level"
-                  >Example</a
+                <router-link to="/explore/topic-profiles/"
+                  >Topic profiles</router-link
                 >
               </li>
               <li>
-                <a
-                  href="/explore/subcategories/instructions/"
+                <router-link to="/explore/topic-taxonomy/"
+                  >Topic taxonomy</router-link
+                >
+              </li>
+              <li>
+                <router-link to="/explore/topic-relationships/"
+                  >Topic relationships</router-link
+                >
+              </li>
+              <li>
+                <router-link to="/explore/word-embeddings/"
+                  >Word embeddings</router-link
+                >
+              </li>
+              <li>
+                <router-link to="/explore/similarity/">Similarity</router-link>
+              </li>
+              <li>
+                <router-link to="/explore/knowledge-page-service/"
+                  >Knowledge page service</router-link
+                >
+              </li>
+              <li>
+                <router-link
+                  to="/explore/subcategories/example/"
                   class="wbg_sidebar second-level"
-                  >Instructions</a
+                  >Example</router-link
+                >
+              </li>
+              <li>
+                <router-link
+                  to="/explore/subcategories/instructions/"
+                  class="wbg_sidebar second-level"
+                  >Instructions</router-link
                 >
               </li>
             </ol>
