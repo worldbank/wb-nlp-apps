@@ -28,7 +28,6 @@
       <!-- <div class=""> -->
       <div class="row">
         <aside class="col-sm-3 blog-sidebar" id="blog-sidebar">
-          <h4>Explore sidebar</h4>
           <section class="sidebar-module">
             <ol class="list-unstyled">
               <li>
@@ -38,7 +37,7 @@
                 <router-link
                   to="/explore/subcategories/sources/"
                   class="wbg_sidebar second-level"
-                  >Sources</router-link
+                  >Sources and volume</router-link
                 >
               </li>
               <li>

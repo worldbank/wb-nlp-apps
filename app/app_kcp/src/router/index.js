@@ -29,7 +29,9 @@ const main_routes = [{
     props: { page_title: "Home" },
 }, ]
 
-const explore_subcategories_routes = [{
+const explore_subcategories_routes = [
+    // CORPUS
+    {
         path: "sources",
         name: "explore_sources",
         component: Sources,
@@ -40,6 +42,46 @@ const explore_subcategories_routes = [{
         name: "explore_geographic-coverage",
         component: GeographicCoverage,
         props: { page_title: "Geographic Coverage" },
+    },
+    {
+        path: "metadata",
+        name: "explore_metadata",
+        component: GeographicCoverage,
+        props: { page_title: "Metadata" },
+    },
+    {
+        path: "training-subset",
+        name: "explore_training-subset",
+        component: GeographicCoverage,
+        props: { page_title: "Training Subset" },
+    },
+
+    // TOPIC COMPOSITION
+    {
+        path: "topic-browser",
+        name: "explore_topic-browser",
+        component: GeographicCoverage,
+        props: { page_title: "Topic Browser" },
+    },
+    {
+        path: "filtering-by-topic-share",
+        name: "explore_filtering-by-topic-share",
+        component: GeographicCoverage,
+        props: { page_title: "Filtering by Topic Share" },
+    },
+
+    // KNOWLEDGE PAGE SERVICE
+    {
+        path: "example",
+        name: "explore_example",
+        component: GeographicCoverage,
+        props: { page_title: "Example" },
+    },
+    {
+        path: "instructions",
+        name: "explore_instructions",
+        component: GeographicCoverage,
+        props: { page_title: "Instructions" },
     },
 ]
 
@@ -104,10 +146,10 @@ const explore_routes = [{
         props: { page_title: "Similarity" },
     },
     {
-        path: "monitoring-system",
-        name: "explore_monitoring-system",
+        path: "knowledge-page-service",
+        name: "explore_knowledge-page-service",
         component: Introduction,
-        props: { page_title: "Monitoring System" },
+        props: { page_title: "Knowledge Page Service" },
     },
 ]
 
