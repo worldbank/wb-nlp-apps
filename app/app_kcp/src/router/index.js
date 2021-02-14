@@ -26,20 +26,29 @@ const main_routes = [{
     path: "",
     name: "home",
     component: Home,
-    props: { page_title: "Home" },
+    props: { page_title: "Home", nav: "home" },
+    // meta: {
+    //     nav: "home",
+    // }
 }, ]
 
 const explore_subcategories_routes = [{
         path: "sources",
-        name: "sources",
+        name: "explore_sources",
         component: Sources,
-        props: { page_title: "Sources" },
+        props: { page_title: "Sources", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
     {
         path: "geographic-coverage",
-        name: "geographic-coverage",
+        name: "explore_geographic-coverage",
         component: GeographicCoverage,
-        props: { page_title: "Geographic Coverage" },
+        props: { page_title: "Geographic Coverage", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
 ]
 
@@ -47,67 +56,97 @@ const explore_routes = [{
         path: "",
         name: "explore",
         component: Introduction,
-        props: { page_title: "Explore" },
+        props: { page_title: "Explore", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
     {
         path: "introduction",
-        name: "introduction",
+        name: "explore_introduction",
         component: Introduction,
-        props: { page_title: "Introduction" },
+        props: { page_title: "Introduction", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
     {
         path: "corpus",
-        name: "corpus",
+        name: "explore_corpus",
         component: Corpus,
-        props: { page_title: "Corpus" },
+        props: { page_title: "Corpus", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
     {
         path: "topic-composition",
-        name: "topic-composition",
+        name: "explore_topic-composition",
         component: TopicComposition,
-        props: { page_title: "Topic Composition" },
+        props: { page_title: "Topic Composition", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
     {
         path: "topic-profiles",
-        name: "topic-profiles",
+        name: "explore_topic-profiles",
         component: TopicProfiles,
-        props: { page_title: "Topic Profiles" },
+        props: { page_title: "Topic Profiles", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
     {
         path: "topic-taxonomy",
-        name: "topic-taxonomy",
+        name: "explore_topic-taxonomy",
         component: Introduction,
-        props: { page_title: "Topic Taxonomy" },
+        props: { page_title: "Topic Taxonomy", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
     {
         path: "topic-relationships",
-        name: "topic-relationships",
+        name: "explore_topic-relationships",
         component: TopicRelationships,
-        props: { page_title: "Topic Relationships" },
+        props: { page_title: "Topic Relationships", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
     // {
     //     path: "embedding-viz",
-    //     name: "embedding viz",
+    //     name: "explore_embedding viz",
     //     component: EmbeddingViz,
     //     props: { page_title: "Embedding Viz Animation" },
     // },
     {
         path: "word-embeddings",
-        name: "word-embeddings",
+        name: "explore_word-embeddings",
         component: WordEmbeddings,
-        props: { page_title: "Word Embeddings" },
+        props: { page_title: "Word Embeddings", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
     {
         path: "similarity",
-        name: "similarity",
+        name: "explore_similarity",
         component: Similarity,
-        props: { page_title: "Similarity" },
+        props: { page_title: "Similarity", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
     {
         path: "monitoring-system",
-        name: "monitoring-system",
+        name: "explore_monitoring-system",
         component: Introduction,
-        props: { page_title: "Monitoring System" },
+        props: { page_title: "Monitoring System", nav: "explore" },
+        // meta: {
+        //     nav: "explore",
+        // }
     },
 ]
 

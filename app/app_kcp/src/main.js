@@ -17,6 +17,8 @@ import App from './App.vue'
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
 Vue.prototype.$Plotly = Plotly
+Vue.prototype.$window = window
+
 
 // Install BootstrapVue
 Vue.use(BootstrapVue)

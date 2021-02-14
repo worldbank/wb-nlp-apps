@@ -37,64 +37,73 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-              <li
+              <!-- <li
                 @click="activate('home')"
-                :class="{ active: active_el == 'home' }"
+                :class="{
+                  active:
+                    ($route.name == 'home')
+                    | ($route.name == ''),
+                }"
                 class="nav-link nav-item"
-              >
-                <a class="nav-link" href="/">Home</a>
-              </li>
+              > -->
               <li
-                @click="activate('search')"
-                :class="{ active: active_el == 'search' }"
                 class="nav-link nav-item"
+                :class="{
+                  active: $route.name.startsWith('home'),
+                }"
               >
-                <a class="nav-link" href="/search" title="Search">Search</a>
-              </li>
-              <li
-                @click="activate('explore')"
-                :class="{ active: active_el == 'explore' }"
-                class="nav-link nav-item"
-              >
-                <a class="nav-link" href="/explore" title="Explore">Explore</a>
-              </li>
-              <li
-                @click="activate('analyze')"
-                :class="{ active: active_el == 'analyze' }"
-                class="nav-link nav-item"
-              >
-                <a class="nav-link" href="/analyze" title="Analyze">Analyze</a>
-              </li>
-              <li
-                @click="activate('methods')"
-                :class="{ active: active_el == 'methods' }"
-                class="nav-link nav-item"
-              >
-                <a class="nav-link" href="/methods" title="Methods &amp; Tools"
-                  >Methods &amp; Tools</a
+                <router-link class="nav-link nav-item" to="/"
+                  >{{ $route.name }} Home</router-link
                 >
               </li>
               <li
-                @click="activate('api')"
-                :class="{ active: active_el == 'api' }"
+                :class="{ active: $route.name.startsWith('search') }"
                 class="nav-link nav-item"
               >
-                <a class="nav-link" href="/api" title="API">API</a>
+                <router-link class="nav-link" to="/search">Search</router-link>
               </li>
               <li
-                @click="activate('about')"
-                :class="{ active: active_el == 'about' }"
+                :class="{ active: $route.name.startsWith('explore') }"
                 class="nav-link nav-item"
               >
-                <a class="nav-link" href="/about" title="About">About</a>
+                <router-link class="nav-link" to="/explore"
+                  >Explore</router-link
+                >
               </li>
               <li
-                @click="activate('styleguide')"
-                :class="{ active: active_el == 'styleguide' }"
+                :class="{ active: $route.name.startsWith('analyze') }"
                 class="nav-link nav-item"
               >
-                <a class="nav-link" href="/styleguide/" title="Styleguide"
-                  >Styleguide</a
+                <router-link class="nav-link" to="/analyze"
+                  >Analyze</router-link
+                >
+              </li>
+              <li
+                :class="{ active: $route.name.startsWith('methods') }"
+                class="nav-link nav-item"
+              >
+                <router-link class="nav-link" to="/methods"
+                  >Methods &amp; Tools</router-link
+                >
+              </li>
+              <li
+                :class="{ active: $route.name.startsWith('api') }"
+                class="nav-link nav-item"
+              >
+                <router-link class="nav-link" to="/api">API</router-link>
+              </li>
+              <li
+                :class="{ active: $route.name.startsWith('about') }"
+                class="nav-link nav-item"
+              >
+                <router-link class="nav-link" to="/about">About</router-link>
+              </li>
+              <li
+                :class="{ active: $route.name.startsWith('styleguide') }"
+                class="nav-link nav-item"
+              >
+                <router-link class="nav-link" to="/styleguide/"
+                  >Styleguide</router-link
                 >
               </li>
             </ul>
@@ -111,11 +120,16 @@
 
 export default {
   name: "Header",
+  props: {
+    nav_name: String,
+  },
   data: function () {
+    // return { active_el: localStorage.active_el };
     return { active_el: "home" };
   },
   methods: {
     activate: function (el) {
+      // localStorage.active_el = el;
       this.active_el = el;
     },
   },
