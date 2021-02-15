@@ -6,14 +6,14 @@
           <div id="breadcrumbs">
             <router-link to="/">Home</router-link>
             <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="/explore">Explore</router-link>
+            <router-link to="/methods">Methods &amp; Tools</router-link>
             <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="/explore">Explore</router-link>
+            <router-link to="/methods">Methods &amp; Tools</router-link>
           </div>
         </div>
         <div class="col-12">
           <i class="fas fa-search fa-2x" aria-hidden="true"></i>
-          <h1>Explore</h1>
+          <h1>Methods &amp; Tools</h1>
           <p>
             Describes the sources and coverage of our corpus, provides
             interactive visualizations of topic composition (extracted from LDA
@@ -31,93 +31,93 @@
           <section class="sidebar-module">
             <ol class="list-unstyled">
               <li>
-                <router-link to="/explore/corpus/">Corpus</router-link>
+                <router-link to="/methods/corpus/">Corpus</router-link>
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/sources/"
+                  to="/methods/subcategories/sources/"
                   class="wbg_sidebar second-level"
                   >Sources and volume</router-link
                 >
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/geographic-coverage/"
+                  to="/methods/subcategories/geographic-coverage/"
                   class="wbg_sidebar second-level"
                   >Geographic coverage</router-link
                 >
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/metadata/"
+                  to="/methods/subcategories/metadata/"
                   class="wbg_sidebar second-level"
                   >Metadata</router-link
                 >
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/training-subset/"
+                  to="/methods/subcategories/training-subset/"
                   class="wbg_sidebar second-level"
                   >Training subset</router-link
                 >
               </li>
               <li>
-                <router-link to="/explore/topic-composition/"
+                <router-link to="/methods/topic-composition/"
                   >Topic composition</router-link
                 >
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/topic-browser/"
+                  to="/methods/subcategories/topic-browser/"
                   class="wbg_sidebar second-level"
                   >Topic browser</router-link
                 >
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/filtering-by-topic-share/"
+                  to="/methods/subcategories/filtering-by-topic-share/"
                   class="wbg_sidebar second-level"
                   >Filtering by topic share</router-link
                 >
               </li>
               <li>
-                <router-link to="/explore/topic-profiles/"
+                <router-link to="/methods/topic-profiles/"
                   >Topic profiles</router-link
                 >
               </li>
               <li>
-                <router-link to="/explore/topic-taxonomy/"
+                <router-link to="/methods/topic-taxonomy/"
                   >Topic taxonomy</router-link
                 >
               </li>
               <li>
-                <router-link to="/explore/topic-relationships/"
+                <router-link to="/methods/topic-relationships/"
                   >Topic relationships</router-link
                 >
               </li>
               <li>
-                <router-link to="/explore/word-embeddings/"
+                <router-link to="/methods/word-embeddings/"
                   >Word embeddings</router-link
                 >
               </li>
               <li>
-                <router-link to="/explore/similarity/">Similarity</router-link>
+                <router-link to="/methods/similarity/">Similarity</router-link>
               </li>
               <li>
-                <router-link to="/explore/knowledge-page-service/"
+                <router-link to="/methods/knowledge-page-service/"
                   >Knowledge page service</router-link
                 >
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/example/"
+                  to="/methods/subcategories/example/"
                   class="wbg_sidebar second-level"
                   >Example</router-link
                 >
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/instructions/"
+                  to="/methods/subcategories/instructions/"
                   class="wbg_sidebar second-level"
                   >Instructions</router-link
                 >
@@ -129,12 +129,12 @@
           <article class="blog-post">
             <!-- <header>
               <h1 class="blog-post-title mb-3" dir="auto">
-                <a href="/explore/explore/"
-                  >Explore</a
+                <a href="/methods/methods/"
+                  >Methods &amp; Tools</a
                 >
               </h1>
             </header>
-            <p>Explore</p> -->
+            <p>Methods &amp; Tools</p> -->
             <div class="content-row">
               <router-view></router-view>
             </div>
@@ -161,7 +161,7 @@
                     ></span></a
                   ><a
                     class="nav-item"
-                    href="https://twitter.com/intent/tweet?url=%2fexplore%2fexplore%2f&amp;text=Explore"
+                    href="https://twitter.com/intent/tweet?url=%2fexplore%2fexplore%2f&amp;text=Methods &amp; Tools"
                     title="Tweet this"
                     ><span
                       class="fab fa-twitter fa-lg"
@@ -183,7 +183,7 @@
 import $ from "jquery";
 
 export default {
-  name: "Explore",
+  name: "Methods &amp; Tools",
   components: {},
   mounted() {
     this.flowSideBar();

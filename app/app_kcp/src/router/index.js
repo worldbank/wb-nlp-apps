@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import ExploreNav from '../components/ExploreNav.vue'
 import Home from '../components/Home.vue'
 import Explore from '../components/Explore.vue'
+import Methods from '../components/Methods.vue'
 
 
 // EXPLORE components
@@ -18,6 +19,9 @@ import Similarity from '../components/explore/Similarity.vue'
 // EXPLORE SUBCATEGORIES components
 import Sources from '../components/explore/subcategories/Sources.vue'
 import GeographicCoverage from '../components/explore/subcategories/GeographicCoverage.vue'
+
+
+// METHODS components
 
 
 Vue.use(VueRouter);
@@ -153,6 +157,76 @@ const explore_routes = [{
     },
 ]
 
+const methods_routes = [{
+        path: "",
+        name: "methods",
+        component: Introduction,
+        props: { page_title: "Explore" },
+    },
+    {
+        path: "introduction",
+        name: "methods_introduction",
+        component: Introduction,
+        props: { page_title: "Introduction" },
+    },
+    {
+        path: "corpus",
+        name: "methods_corpus",
+        component: Corpus,
+        props: { page_title: "Corpus" },
+    },
+    {
+        path: "topic-composition",
+        name: "methods_topic-composition",
+        component: TopicComposition,
+        props: { page_title: "Topic Composition" },
+    },
+    {
+        path: "topic-profiles",
+        name: "methods_topic-profiles",
+        component: TopicProfiles,
+        props: { page_title: "Topic Profiles" },
+    },
+    {
+        path: "topic-taxonomy",
+        name: "methods_topic-taxonomy",
+        component: Introduction,
+        props: { page_title: "Topic Taxonomy" },
+    },
+    {
+        path: "topic-relationships",
+        name: "methods_topic-relationships",
+        component: TopicRelationships,
+        props: { page_title: "Topic Relationships" },
+    },
+    // {
+    //     path: "embedding-viz",
+    //     name: "methods_embedding viz",
+    //     component: EmbeddingViz,
+    //     props: { page_title: "Embedding Viz Animation" },
+    // },
+    {
+        path: "word-embeddings",
+        name: "methods_word-embeddings",
+        component: WordEmbeddings,
+        props: { page_title: "Word Embeddings" },
+    },
+    {
+        path: "similarity",
+        name: "methods_similarity",
+        component: Similarity,
+        props: { page_title: "Similarity" },
+    },
+    {
+        path: "knowledge-page-service",
+        name: "methods_knowledge-page-service",
+        component: Introduction,
+        props: { page_title: "Knowledge Page Service" },
+    },
+]
+
+
+
 const routes = [{
         path: '',
         component: ExploreNav,
@@ -167,6 +241,11 @@ const routes = [{
         path: '/explore/subcategories',
         component: Explore,
         children: explore_subcategories_routes
+    },
+    {
+        path: '/methods',
+        component: Methods,
+        children: methods_routes
     },
 ]
 
