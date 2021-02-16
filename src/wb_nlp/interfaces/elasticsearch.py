@@ -1,18 +1,31 @@
 from datetime import datetime
 
 from pathlib import Path
-from elasticsearch_dsl import Document, Date, Integer, Keyword, Text
-from elasticsearch_dsl.connections import connections
 
 # from elasticsearch import helpers
-# from elasticsearch import Elasticsearch
-# es = Elasticsearch(hosts=[{"host": "es01", "port": 9200}])  # ,
+from elasticsearch import Elasticsearch
+
+from elasticsearch_dsl import Document, Date, Integer, Keyword, Text
+from elasticsearch_dsl.connections import connections
+from elasticsearch_dsl import Search
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet, DateHistogramFacet
+from elasticsearch_dsl.query import MultiMatch, Match
 
 from wb_nlp.dir_manager import get_path_from_root
 
 connections.create_connection(hosts=['es01'])
+
+
+_ES_CLIENT = None
+
+
+def get_client():
+    global _ES_CLIENT
+    if _ES_CLIENT is None:
+        _ES_CLIENT = Elasticsearch(hosts=[{"host": "es01", "port": 9200}])
+
+    return _ES_CLIENT
 
 
 class NLPDoc(Document):
@@ -92,3 +105,16 @@ def faceted_search_nlp_docs():
 
     for (year, count, selected) in response.facets.publishing_frequency:
         print(year.strftime('%Y'), ' (SELECTED):' if selected else ':', count)
+
+
+def text_search(query, from_result=0, to_result=10, ignore_cache=False):
+    query = MultiMatch(query=query, fields=['title', 'body'])
+
+    search = Search(using=get_client())
+    search = search.query(query)
+
+    search = search[from_result:to_result]
+
+    response = search.execute(ignore_cache=ignore_cache)
+
+    return response
