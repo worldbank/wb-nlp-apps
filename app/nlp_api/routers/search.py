@@ -19,13 +19,17 @@ router = APIRouter(
 async def search(
     query: str,
     from_result: int = 0,
-    to_result: int = 10,
+    size: int = 10,
 ):
     '''This endpoint returns a list of all the available models. The returned data contains information regarding the configurations used to train a given model.
 
     This can be used in the frontend to generate guidance and information about the available models.
     '''
     response = elasticsearch.text_search(
-        query, from_result=from_result, to_result=to_result)
+        query, from_result=from_result, size=size)
 
-    return [h.__dict__["_d_"] for h in response.hits]
+    return dict(
+        total=response.hits.total.to_dict(),
+        hits=[h.to_dict() for h in response.hits],
+        next=from_result + size
+    )

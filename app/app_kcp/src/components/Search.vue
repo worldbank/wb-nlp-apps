@@ -6,21 +6,13 @@
           <div id="breadcrumbs">
             <router-link to="/">Home</router-link>
             <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="/explore">Explore</router-link>
-            <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="/explore">Explore</router-link>
+            <router-link to="/search">Search</router-link>
           </div>
         </div>
         <div class="col-12">
           <i class="fas fa-search fa-2x" aria-hidden="true"></i>
-          <h1>Explore</h1>
-          <p>
-            Describes the sources and coverage of our corpus, provides
-            interactive visualizations of topic composition (extracted from LDA
-            models), and allows you to filter documents by their topic
-            composition. Also provides access to word embedding models,
-            similarity measures, and others.
-          </p>
+          <h1>Search</h1>
+          <p></p>
         </div>
       </div>
     </header>
@@ -376,7 +368,7 @@
                 class="row mt-4 mb-3 d-flex justify-content-lg-between align-items-center"
               >
                 <div class="col-12 col-md-3 col-lg-4 mb-2 mb-md-0 small">
-                  Showing <b>1-15</b> of <b>3269</b> studies
+                  Showing <b>1-15</b> of <b>{{ total.value }}</b> studies
                 </div>
                 <div
                   class="filter-action-bar d-flex col-12 col-md-9 col-lg-8 justify-content-lg-end"
@@ -460,11 +452,18 @@
                   >
                     <small
                       >Results per page:
-                      <span class="wbg-pagination-btn">15</span>
+                      <span
+                        class="wbg-pagination-btn"
+                        v-for="size in [15, 30, 50, 100]"
+                        v-bind:key="size"
+                        >{{ size }}</span
+                      >
+
+                      <!-- <span class="wbg-pagination-btn">15</span>
                       <span class="wbg-pagination-btn">30</span>
                       <span class="wbg-pagination-btn">50</span>
-                      <span class="wbg-pagination-btn">100</span></small
-                    >
+                      <span class="wbg-pagination-btn">100</span> -->
+                    </small>
                   </div>
                 </div>
                 <div class="col-12 col-lg-6 d-flex justify-content-lg-end">
@@ -586,6 +585,13 @@ export default {
     this.flowSideBar();
   },
   computed: {
+    searchParams() {
+      const params = new URLSearchParams();
+      params.append("query", this.query);
+      params.append("from_result", this.from_result);
+      params.append("size", this.size);
+      return params;
+    },
     myProps() {
       var retVal = null;
       if (this.$route.name === "a") {
@@ -601,7 +607,10 @@ export default {
     return {
       nlp_api_url: "/nlp/search/search",
       query: "",
+      from_result: 0,
+      size: 15,
       hits: [],
+      total: Object,
       errored: false,
       loading: false,
     };
@@ -611,9 +620,13 @@ export default {
       this.loading = true;
 
       this.$http
-        .get(this.nlp_api_url + "?query=" + this.query)
+        // .get(this.nlp_api_url + "?query=" + this.query)
+        .get(this.nlp_api_url, {
+          params: this.searchParams,
+        })
         .then((response) => {
-          this.hits = response.data;
+          this.hits = response.data.hits;
+          this.total = response.data.total;
         })
         .catch((error) => {
           console.log(error);
@@ -660,6 +673,12 @@ export default {
     max-width: 1200px;
   }
 }
+
+.wbg-internal-header {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
 /*
 .blog-main {
   margin: 0;

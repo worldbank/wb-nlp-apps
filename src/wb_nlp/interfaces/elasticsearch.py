@@ -107,13 +107,13 @@ def faceted_search_nlp_docs():
         print(year.strftime('%Y'), ' (SELECTED):' if selected else ':', count)
 
 
-def text_search(query, from_result=0, to_result=10, return_body=False, ignore_cache=False):
+def text_search(query, from_result=0, size=10, return_body=False, ignore_cache=False):
     query = MultiMatch(query=query, fields=["title", "body"])
 
     search = Search(using=get_client(), index="nlp-documents")
     search = search.query(query)
 
-    search = search[from_result:to_result]
+    search = search[from_result:from_result + size]
 
     if not return_body:
         search = search.source(excludes=["body", "doc"])
