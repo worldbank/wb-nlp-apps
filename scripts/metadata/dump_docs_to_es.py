@@ -4,8 +4,10 @@ import hashlib
 
 from elasticsearch import helpers
 from elasticsearch import Elasticsearch
-from wb_nlp.dir_manager import get_data_dir
+# from wb_nlp.dir_manager import get_data_dir
 
+from wb_nlp.dir_manager import get_path_from_root
+from wb_nlp.interfaces import mongodb
 
 # curl -X GET "localhost:9200/_cat/nodes?v&pretty"
 # curl -XGET 'http://localhost:9200/_cluster/health?pretty=true'
@@ -33,28 +35,32 @@ INDEX_SETTINGS = {
 }
 
 
-def gen_doc_data(index, doc_path, corpus):
-    '''Load text data in `doc_path` into the `index`.
-    Reference: https://elasticsearch-py.readthedocs.io/en/master/helpers.html
-    '''
-    for ix, p in enumerate(Path(doc_path).glob('*.txt'), 1):
-        kb_fsize = p.stat().st_size / 1000
-        print(ix, p, kb_fsize)
-        with open(p, 'rb') as open_file:
-            hex_id = hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
+def get_db_doc_data(index):
+    docs_metadata = mongodb.get_collection(
+        db_name="test_nlp", collection_name="docs_metadata")
+    # docs_metadata = mongodb.get_docs_metadata_collection()
+
+    root_path = Path(get_path_from_root())
+
+    for ix, data in enumerate(docs_metadata.find({}), 1):
+        doc_path = root_path / data["path_original"]
+        kb_fsize = doc_path.stat().st_size / 1000
+
+        print(ix, doc_path, kb_fsize)
+
+        with open(doc_path, 'rb') as open_file:
             doc = open_file.read().decode('utf-8', errors='ignore')
+            data["doc"] = doc
+            data["timestamp"] = datetime.now()
+            data["file_size"] = kb_fsize
+
+            # Drop since _id is identified as a metadata field...
+            data.pop("_id")
+
             yield dict(
                 _index=index,
-                _id=hex_id,
-                _source=dict(
-                    doc=doc,
-                    ix=ix,
-                    doc_fname=str(p),
-                    doc_id=hex_id,
-                    file_size=kb_fsize,
-                    timestamp=datetime.now(),
-                    corpus=corpus,
-                ),
+                _id=data["id"],
+                _source=data,
                 _op_type="index",
             )
 
@@ -66,20 +72,94 @@ else:
     es.indices.create(index=INDEX_NAME, body=INDEX_SETTINGS)
 
 p_bulk = helpers.parallel_bulk(
-    es, actions=gen_doc_data(
-        INDEX_NAME,
-        get_data_dir(
-            'raw', 'sample_data', 'TXT_ORIG'),
-        corpus='WB'
+    es, actions=get_db_doc_data(
+        INDEX_NAME
     ),
     thread_count=4, chunk_size=10)
 
 for success, info in p_bulk:
     if not success:
-        print('A document failed:', info)
+        print('A document failed:', "Test")  # info)
 
 es.indices.refresh(INDEX_NAME)
 print(es.cat.count(INDEX_NAME, params={"format": "json"}))
+
+
+# curl -X GET "localhost:9200/_search?pretty" -H 'Content-Type: application/json' -d'
+# {
+#   "query": {
+#     "match": {
+#       "message": {
+#         "query": "this is a test"
+#       }
+#     }
+#   }
+# }
+# '
+
+# curl - X GET "es01:9200/raw-documents/_search?pretty" - H 'Content-Type: application/json' - d'
+# {
+#     "query": {
+#         "match": {
+#             "doc": {
+#                 "query": "manila"
+#             }
+#         }
+#     }
+# }
+# '
+
+
+# print(es.cat.count(INDEX_NAME, params={"format": "json"}))
+
+
+# def gen_doc_data(index, doc_path, corpus):
+#     '''Load text data in `doc_path` into the `index`.
+#     Reference: https://elasticsearch-py.readthedocs.io/en/master/helpers.html
+#     '''
+#     for ix, p in enumerate(Path(doc_path).glob('*.txt'), 1):
+#         kb_fsize = p.stat().st_size / 1000
+#         print(ix, p, kb_fsize)
+#         with open(p, 'rb') as open_file:
+#             hex_id = hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
+#             doc = open_file.read().decode('utf-8', errors='ignore')
+#             yield dict(
+#                 _index=index,
+#                 _id=hex_id,
+#                 _source=dict(
+#                     doc=doc,
+#                     ix=ix,
+#                     doc_fname=str(p),
+#                     doc_id=hex_id,
+#                     file_size=kb_fsize,
+#                     timestamp=datetime.now(),
+#                     corpus=corpus,
+#                 ),
+#                 _op_type="index",
+#             )
+
+
+# if not es.indices.exists(index=INDEX_NAME):
+#     es.indices.create(index=INDEX_NAME, body=INDEX_SETTINGS)
+# else:
+#     es.indices.delete(index=INDEX_NAME)
+#     es.indices.create(index=INDEX_NAME, body=INDEX_SETTINGS)
+
+# p_bulk = helpers.parallel_bulk(
+#     es, actions=gen_doc_data(
+#         INDEX_NAME,
+#         get_data_dir(
+#             'raw', 'sample_data', 'TXT_ORIG'),
+#         corpus='WB'
+#     ),
+#     thread_count=4, chunk_size=10)
+
+# for success, info in p_bulk:
+#     if not success:
+#         print('A document failed:', info)
+
+# es.indices.refresh(INDEX_NAME)
+# print(es.cat.count(INDEX_NAME, params={"format": "json"}))
 
 # doc_path = get_data_dir('raw', 'sample_data', 'TXT_ORIG')
 # corpus = "WB"

@@ -52,5 +52,6 @@ for doc_path in sample_doc_path.glob("*.txt"):
 
         # Make sure the data conforms with the expected schema.
         data = json.loads(metadata.MetadataModel(**data).json())
+        data["_id"] = data["id"]
 
         test_docs_metadata.insert_one(data)
