@@ -6,14 +6,14 @@
           <div id="breadcrumbs">
             <router-link to="/">Home</router-link>
             <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="/methods">Methods</router-link>
+            <router-link to="/explore">Explore</router-link>
             <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="/methods">Methods</router-link>
+            <router-link to="/explore">Explore</router-link>
           </div>
         </div>
         <div class="col-12">
           <i class="fas fa-search fa-2x" aria-hidden="true"></i>
-          <h1>Methods &amp; Tools</h1>
+          <h1>Explore</h1>
           <p>
             Describes the sources and coverage of our corpus, provides
             interactive visualizations of topic composition (extracted from LDA
@@ -24,48 +24,102 @@
         </div>
       </div>
     </header>
-    <div class="container">
+    <div class="container flowing">
+      <!-- <div class=""> -->
       <div class="row">
-        <aside class="col-sm-3 blog-sidebar">
+        <aside class="col-sm-3 blog-sidebar" id="blog-sidebar">
           <section class="sidebar-module">
             <ol class="list-unstyled">
               <li>
-                <router-link to="/methods">Methods &amp; Tools</router-link>
+                <router-link to="/explore/corpus/">Corpus</router-link>
               </li>
               <li>
-                <router-link to="/methods/text-acquisition"
-                  >Text acquisition</router-link
+                <router-link
+                  to="/explore/subcategories/sources/"
+                  class="wbg_sidebar second-level"
+                  >Sources and volume</router-link
                 >
               </li>
               <li>
-                <router-link to="/methods/text-preparation"
-                  >Text preparation</router-link
+                <router-link
+                  to="/explore/subcategories/geographic-coverage/"
+                  class="wbg_sidebar second-level"
+                  >Geographic coverage</router-link
                 >
               </li>
               <li>
-                <router-link to="/methods/lda">LDA Topic Model</router-link>
+                <router-link
+                  to="/explore/subcategories/metadata/"
+                  class="wbg_sidebar second-level"
+                  >Metadata</router-link
+                >
               </li>
               <li>
-                <router-link to="/methods/word-embeddings"
+                <router-link
+                  to="/explore/subcategories/training-subset/"
+                  class="wbg_sidebar second-level"
+                  >Training subset</router-link
+                >
+              </li>
+              <li>
+                <router-link to="/explore/topic-composition/"
+                  >Topic composition</router-link
+                >
+              </li>
+              <li>
+                <router-link
+                  to="/explore/subcategories/topic-browser/"
+                  class="wbg_sidebar second-level"
+                  >Topic browser</router-link
+                >
+              </li>
+              <li>
+                <router-link
+                  to="/explore/subcategories/filtering-by-topic-share/"
+                  class="wbg_sidebar second-level"
+                  >Filtering by topic share</router-link
+                >
+              </li>
+              <li>
+                <router-link to="/explore/topic-profiles/"
+                  >Topic profiles</router-link
+                >
+              </li>
+              <li>
+                <router-link to="/explore/topic-taxonomy/"
+                  >Topic taxonomy</router-link
+                >
+              </li>
+              <li>
+                <router-link to="/explore/topic-relationships/"
+                  >Topic relationships</router-link
+                >
+              </li>
+              <li>
+                <router-link to="/explore/word-embeddings/"
                   >Word embeddings</router-link
                 >
               </li>
               <li>
-                <router-link to="/methods/topic-classification"
-                  >Topic classification</router-link
+                <router-link to="/explore/similarity/">Similarity</router-link>
+              </li>
+              <li>
+                <router-link to="/explore/knowledge-page-service/"
+                  >Knowledge page service</router-link
                 >
               </li>
               <li>
-                <router-link to="/methods/cataloguing">Cataloguing</router-link>
-              </li>
-              <li>
-                <router-link to="/methods/search-engine"
-                  >Search engine</router-link
+                <router-link
+                  to="/explore/subcategories/example/"
+                  class="wbg_sidebar second-level"
+                  >Example</router-link
                 >
               </li>
               <li>
-                <router-link to="/methods/visualizations"
-                  >Visualizations</router-link
+                <router-link
+                  to="/explore/subcategories/instructions/"
+                  class="wbg_sidebar second-level"
+                  >Instructions</router-link
                 >
               </li>
             </ol>
@@ -75,21 +129,12 @@
           <article class="blog-post">
             <!-- <header>
               <h1 class="blog-post-title mb-3" dir="auto">
-                <a href="https://mtt-wb21h.netlify.app/methods/methods/"
-                  >Methods &amp; Tools</a
+                <a href="/explore/explore/"
+                  >Explore</a
                 >
               </h1>
             </header>
-            <p>
-              Brief introduction on the tools and methods we use, on our
-              commitment to be reproducible and open (and to only use
-              open-source solutions), on the value of our scripts as training
-              materials, etc.
-            </p>
-            <p>
-              Provide link to GitHub repo, invite feedback, describe licenses.
-            </p> -->
-
+            <p>Explore</p> -->
             <div class="content-row">
               <router-view></router-view>
             </div>
@@ -100,7 +145,7 @@
                 <nav class="nav sharing-icons mt-4">
                   <a
                     class="nav-item"
-                    href="https://www.facebook.com/sharer/sharer.php?u=%2fmethods%2fmethods%2f"
+                    href="https://www.facebook.com/sharer/sharer.php?u=%2fexplore%2fexplore%2f"
                     title="Share on Facebook"
                     ><span
                       class="fab fa-facebook-f fa-lg"
@@ -108,7 +153,7 @@
                     ></span></a
                   ><a
                     class="nav-item"
-                    href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fmethods%2fmethods%2f"
+                    href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fexplore%2fexplore%2f"
                     title="Share on LinkedIn"
                     ><span
                       class="fab fa-linkedin-in fa-lg"
@@ -116,7 +161,7 @@
                     ></span></a
                   ><a
                     class="nav-item"
-                    href="https://twitter.com/intent/tweet?url=%2fmethods%2fmethods%2f&amp;text=Methods%20%26%20Tools"
+                    href="https://twitter.com/intent/tweet?url=%2fexplore%2fexplore%2f&amp;text=Explore"
                     title="Tweet this"
                     ><span
                       class="fab fa-twitter fa-lg"
@@ -138,7 +183,7 @@
 import $ from "jquery";
 
 export default {
-  name: "Methods &amp; Tools",
+  name: "Explore",
   components: {},
   mounted() {
     this.flowSideBar();

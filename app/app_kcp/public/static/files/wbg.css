@@ -2,8 +2,10 @@
 
 :root {
     --action-color: hsl(204,100%,37%,1);
+    --action-color--hover: #009FDA;
     --wbg-gray: hsl(0, 0%, 20%, 1);
     --wbg-lightgray: hsl(0,0%,51%,1);
+    --wbg-lightbluegray: #E4E9EC;
 
     --light-border: solid 1px hsl(203, 17%, 91%, 1);
     --shadow-one: 0px 2px 4px rgba(0, 0, 0, 0.1);
@@ -25,9 +27,17 @@ body {
     }
 }
 
-body {
-    color: #555
+a {
+    color: var(--action-color);
 }
+
+a:hover {
+    color: var(--action-color--hover);
+}
+
+/* body {
+    color: #555
+} */
 
 .h1,
 .h2,
@@ -100,7 +110,7 @@ h6 a:hover {
     position: relative;
     padding: 1rem;
     font-weight: 500;
-    color: #cdddeb
+    color: var(--wbg-lightbluegray);
 }
 
 .nav-link:focus,
@@ -196,12 +206,6 @@ h6 a:hover {
     color: #999
 }
 
-article img {
-    max-width: 100%;
-    height: auto;
-    margin: 13px auto
-}
-
 .sharing-icons .nav-item+.nav-item {
     margin-left: 1rem
 }
@@ -257,7 +261,21 @@ a {
 }
 
 .wbg-button {
-    border-radius: 20px;
+    border-radius: 4px;
+}
+
+.wbg-pagination-btn {
+    font-size: 12px;
+    color: #0071bc;
+    vertical-align: inherit;
+    cursor: pointer;
+    background: #e9ecef;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.wbg-pagination-ul {
+    margin-bottom: 0px;
 }
 
 /* ./ global bootstrap overrides  (btn-primary, a, etc)  */
@@ -399,13 +417,27 @@ a.nav-link {
     opacity: .65;
 }
 
+.wb-ihsn-sidebar-filter {
+    background-color: #f3f3f3;
+    padding: 15px;
+}
 /* ./breadcrumb */
 
 
 /* sidebar */
 
+.sidebar-module li {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
 .second-level {
     margin-left: 16px;
+}
+
+.wb-ihsn-sidebar-filter {
+    background-color: #f3f3f3;
+    padding: 15px;
 }
 
 /* ./sidebar */
@@ -504,12 +536,80 @@ a.nav-link {
 
 /* ./sidebar */
 
+/* listings */
+
+.document-row {
+    margin-top: 2rem;
+}
+
+.document-row:hover {
+    opacity: .8;
+    background-color: #f6f7f7;
+}
+
+.document-row h5 {
+    margin-top: .5rem;
+}
+
+.document-row h5 {
+    margin-top: .5rem;
+}
+
+.document-row h5 a {
+    color: var(--action-color);
+}
+
+.document-row h5 a:hover {
+    color: var(--action-color--hover);
+}
+
+.document-row .study-country {
+    font-weight: bold;
+    margin: 4px auto;
+}
+
+.document-row .owner-collection {
+    font-size: 0.75rem;
+    margin: 8px auto;
+}
+
+.document-row .survey-stats {
+    font-size: 0.65rem;
+    opacity: .7;
+    margin: 8px auto;
+}
+
+.wbg-badge {
+    background: none;
+    border: solid 1px var(--wbg-lightgray);
+    border-radius: 2px;
+    color: var(--wbg-lightgray);
+    font-weight: 400;
+}
+
+article img {
+    max-width: 100%;
+    /* height: auto; */
+    /* margin: 0px auto; */
+}
+
+/* ./ listings */
+
+/* about */
+
+img.wbg-avatar {
+    margin-bottom: 1em;
+}
+
+/* ./about */
+
+
 /* custom forms */
 
 .upload-drop-zone {
-    height: 200px;
-    border-width: 2px;
-    margin-bottom: 20px;
+height: 200px;
+border-width: 2px;
+margin-bottom: 20px;
 }
 
 .upload-drop-zone {

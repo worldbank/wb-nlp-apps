@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import ExploreNav from '../components/ExploreNav.vue'
 import Home from '../components/Home.vue'
+import Search from '../components/Search.vue'
 import Explore from '../components/Explore.vue'
 import Methods from '../components/Methods.vue'
 
@@ -22,16 +23,33 @@ import GeographicCoverage from '../components/explore/subcategories/GeographicCo
 
 
 // METHODS components
+import TextAcquisition from '../components/methods/TextAcquisition.vue'
+import TextPreparation from '../components/methods/TextPreparation.vue'
+import LDATopicModel from '../components/methods/LDATopicModel.vue'
+import MethodsWordEmbeddings from '../components/methods/MethodsWordEmbeddings.vue'
+import TopicClassification from '../components/methods/TopicClassification.vue'
+import Cataloguing from '../components/methods/Cataloguing.vue'
+import SearchEngine from '../components/methods/SearchEngine.vue'
+import Visualizations from '../components/methods/Visualizations.vue'
+
+
 
 
 Vue.use(VueRouter);
 
 const main_routes = [{
-    path: "",
-    name: "home",
-    component: Home,
-    props: { page_title: "Home" },
-}, ]
+        path: "",
+        name: "home",
+        component: Home,
+        props: { page_title: "Home" },
+    },
+    {
+        path: "search",
+        name: "search",
+        component: Search,
+        props: { page_title: "Search" },
+    },
+]
 
 const explore_subcategories_routes = [
     // CORPUS
@@ -157,73 +175,63 @@ const explore_routes = [{
     },
 ]
 
+
 const methods_routes = [{
         path: "",
         name: "methods",
         component: Introduction,
-        props: { page_title: "Explore" },
+        props: { page_title: "Methods" },
     },
     {
-        path: "introduction",
-        name: "methods_introduction",
-        component: Introduction,
-        props: { page_title: "Introduction" },
+        path: "text-acquisition",
+        name: "methods_text-acquisition",
+        component: TextAcquisition,
+        props: { page_title: "Text Acquisition" },
     },
     {
-        path: "corpus",
-        name: "methods_corpus",
-        component: Corpus,
-        props: { page_title: "Corpus" },
+        path: "text-preparation",
+        name: "methods_text-preparation",
+        component: TextPreparation,
+        props: { page_title: "Text Preparation" },
     },
     {
-        path: "topic-composition",
-        name: "methods_topic-composition",
-        component: TopicComposition,
-        props: { page_title: "Topic Composition" },
+        path: "lda",
+        name: "methods_lda",
+        component: LDATopicModel,
+        props: { page_title: "LDA Topic Model" },
     },
-    {
-        path: "topic-profiles",
-        name: "methods_topic-profiles",
-        component: TopicProfiles,
-        props: { page_title: "Topic Profiles" },
-    },
-    {
-        path: "topic-taxonomy",
-        name: "methods_topic-taxonomy",
-        component: Introduction,
-        props: { page_title: "Topic Taxonomy" },
-    },
-    {
-        path: "topic-relationships",
-        name: "methods_topic-relationships",
-        component: TopicRelationships,
-        props: { page_title: "Topic Relationships" },
-    },
-    // {
-    //     path: "embedding-viz",
-    //     name: "methods_embedding viz",
-    //     component: EmbeddingViz,
-    //     props: { page_title: "Embedding Viz Animation" },
-    // },
     {
         path: "word-embeddings",
         name: "methods_word-embeddings",
-        component: WordEmbeddings,
+        component: MethodsWordEmbeddings,
         props: { page_title: "Word Embeddings" },
     },
     {
-        path: "similarity",
-        name: "methods_similarity",
-        component: Similarity,
-        props: { page_title: "Similarity" },
+        path: "topic-classification",
+        name: "methods_topic-classification",
+        component: TopicClassification,
+        props: { page_title: "Topic Classification" },
     },
     {
-        path: "knowledge-page-service",
-        name: "methods_knowledge-page-service",
-        component: Introduction,
-        props: { page_title: "Knowledge Page Service" },
+        path: "cataloguing",
+        name: "methods_cataloguing",
+        component: Cataloguing,
+        props: { page_title: "Cataloguing" },
+    },
+    {
+        path: "search-engine",
+        name: "methods_search-engine",
+        component: SearchEngine,
+        props: { page_title: "Search Engine" },
+    },
+    {
+        path: "visualizations",
+        name: "methods_visualizations",
+        component: Visualizations,
+        props: { page_title: "Visualizations" },
     },
 ]
+
 
 
 
