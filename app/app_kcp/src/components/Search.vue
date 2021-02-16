@@ -323,14 +323,17 @@
               <div class="col-12 col-md-8">
                 <div class="input-group mb-3 mt-3" style="display: flex">
                   <input
+                    v-model="query"
                     type="text"
                     class="form-control wbg-search-text pl-4"
                     placeholder="Enter your keywords..."
                     aria-label="Field for search"
                     aria-describedby="basic-addon2"
+                    v-on:keyup.enter="sendSearch"
                   />
                   <div class="input-group-append">
                     <button
+                      @click="sendSearch"
                       class="btn btn-primary wbg-search-button pr-4 pl-4"
                       type="button"
                     >
@@ -439,196 +442,13 @@
                 </div>
               </div>
             </div>
-            <div class="document-row" data-url="#" title="View study">
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://mtt-wb21h.netlify.app/search/#"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a href="https://mtt-wb21h.netlify.app/search/#"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="document-row" data-url="#" title="View study">
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://mtt-wb21h.netlify.app/search/#"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a href="https://mtt-wb21h.netlify.app/search/#"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="document-row" data-url="#" title="View study">
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://mtt-wb21h.netlify.app/search/#"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a href="https://mtt-wb21h.netlify.app/search/#"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="document-row" data-url="#" title="View study">
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://mtt-wb21h.netlify.app/search/#"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a href="https://mtt-wb21h.netlify.app/search/#"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="document-row" data-url="#" title="View study">
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://mtt-wb21h.netlify.app/search/#"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a href="https://mtt-wb21h.netlify.app/search/#"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+            <SearchResultCard
+              v-for="result in hits"
+              :result="result"
+              v-bind:key="result.id"
+            />
+
             <div class="nada-pagination">
               <div
                 class="row mt-3 mb-3 d-flex justify-content-lg-between align-items-center"
@@ -757,10 +577,11 @@
 
 <script>
 import $ from "jquery";
+import SearchResultCard from "./common/SearchResultCard";
 
 export default {
   name: "Search",
-  components: {},
+  components: { SearchResultCard },
   mounted() {
     this.flowSideBar();
   },
@@ -776,7 +597,31 @@ export default {
       return retVal;
     },
   },
+  data: function () {
+    return {
+      nlp_api_url: "/nlp/search/search",
+      query: "",
+      hits: [],
+      errored: false,
+      loading: false,
+    };
+  },
   methods: {
+    sendSearch: function () {
+      this.loading = true;
+
+      this.$http
+        .get(this.nlp_api_url + "?query=" + this.query)
+        .then((response) => {
+          this.hits = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.errored = true;
+          this.loading = false;
+        })
+        .finally(() => (this.loading = false));
+    },
     flowSideBar: function () {
       $(function () {
         var $sidebar = $("#blog-sidebar"),

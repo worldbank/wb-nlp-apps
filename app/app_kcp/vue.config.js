@@ -1,8 +1,11 @@
 module.exports = {
     devServer: {
         proxy: {
+            // '^/nlp': {
+            //     target: 'http://10.0.0.25:8991',
+            // },
             '^/nlp': {
-                target: 'http://10.0.0.25:8991',
+                target: 'http://localhost:8919',
             },
             '^/api': {
                 target: 'http://10.0.0.25:8088',

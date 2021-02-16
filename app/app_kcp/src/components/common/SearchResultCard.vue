@@ -12,13 +12,13 @@
         <div class="col-9 col-lg-9">
           <span class="badge badge-primary wbg-badge">DOCUMENT</span>
           <h5 class="title">
-            <a
-              href="https://mtt-wb21h.netlify.app/search/#"
-              title="Service Provision Assessment Survey 2018-2019"
-              >Service Provision Assessment Survey 2018-2019</a
-            >
+            <a :href="result.url_pdf" :title="result.title">{{
+              result.title
+            }}</a>
           </h5>
-          <div class="study-country">Afghanistan, 2018-2019</div>
+          <div class="study-country">
+            {{ result.country[0] }}, {{ result.year }}
+          </div>
           <div class="sub-title">
             <div>
               <span class="study-by">Ministry of Public Health</span>
@@ -31,12 +31,21 @@
             </div>
           </div>
           <div class="survey-stats">
-            <span>Created on: Mar 17, 2020</span>
-            <span>Last modified: Mar 17, 2020</span>
-            <span>Views: 3320</span>
+            <span>Created on: {{ result.date_published }}</span>
+            <span>Last modified: {{ result.last_update_date }}</span>
+            <span>Views: {{ result.views }}</span>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  name: "SearchResultCard",
+  props: {
+    result: Object,
+  },
+};
+</script>

@@ -3,7 +3,7 @@ from enum import Enum
 import uvicorn
 from fastapi import FastAPI
 
-from .routers import cleaner, models, metadata
+from .routers import cleaner, models, metadata, search
 from .routers.subrouters import lda, word2vec
 
 tags_metadata = [
@@ -42,6 +42,7 @@ app = FastAPI(
 app.include_router(metadata.router, prefix="/nlp")
 app.include_router(cleaner.router, prefix="/nlp")
 app.include_router(models.router, prefix="/nlp")
+app.include_router(search.router, prefix="/nlp")
 # app.include_router(
 #     word2vec.router,
 #     prefix="/models",
