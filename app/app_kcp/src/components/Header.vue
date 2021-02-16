@@ -68,14 +68,14 @@
                   >Explore</router-link
                 >
               </li>
-              <li
+              <!-- <li
                 :class="{ active: $route.name.startsWith('analyze') }"
                 class="nav-link nav-item"
               >
                 <router-link class="nav-link" to="/analyze"
                   >Analyze</router-link
                 >
-              </li>
+              </li> -->
               <li
                 :class="{ active: $route.name.startsWith('methods') }"
                 class="nav-link nav-item"
@@ -88,7 +88,9 @@
                 :class="{ active: $route.name.startsWith('api') }"
                 class="nav-link nav-item"
               >
-                <router-link class="nav-link" to="/api">API</router-link>
+                <router-link class="nav-link" to="/content-api"
+                  >API</router-link
+                >
               </li>
               <li
                 :class="{ active: $route.name.startsWith('about') }"

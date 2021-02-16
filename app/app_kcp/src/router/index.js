@@ -5,6 +5,8 @@ import Home from '../components/Home.vue'
 import Search from '../components/Search.vue'
 import Explore from '../components/Explore.vue'
 import Methods from '../components/Methods.vue'
+import API from '../components/API.vue'
+import About from '../components/About.vue'
 
 
 // EXPLORE components
@@ -49,7 +51,20 @@ const main_routes = [{
         component: Search,
         props: { page_title: "Search" },
     },
+    {
+        path: "content-api",
+        name: "content-api",
+        component: API,
+        props: { page_title: "API" },
+    },
+    {
+        path: "about",
+        name: "about",
+        component: About,
+        props: { page_title: "About" },
+    },
 ]
+
 
 const explore_subcategories_routes = [
     // CORPUS
