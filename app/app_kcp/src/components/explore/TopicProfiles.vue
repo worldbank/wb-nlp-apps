@@ -3,9 +3,20 @@
     <h3>{{ page_title }}</h3>
     <br />
 
+    <p>
+      Topics are not covered evenly over time, across regions, by document type,
+      and by organization represented in our corpus. Select a corpus, a topic
+      and a (LDA) model, and two or more partitions to compare the evolution of
+      the topic coverage over time. The resulting chart can be embedded, its
+      code downloaded, and the underlying data are available in our document
+      meta-database.
+    </p>
+
+    <hr />
+
     <b-container fluid>
       <b-row>
-        <b-col :md="show_topic_words ? 9 : 12" class="border-right">
+        <b-col :md="show_topic_words ? 9 : 12">
           <b-row
             v-if="
               lda_model_id != '' &&
@@ -34,7 +45,7 @@
                   variant="primary"
                   :text="readyForSubmit ? 'Plot' : 'Select'"
                 >
-                  <b-dropdown-form>
+                  <b-dropdown-form class="checkbox">
                     <b-form-group label="Admin Region">
                       <b-form-checkbox-group
                         v-model="topic_share_selected_adm_regions"
@@ -90,7 +101,11 @@
             </b-col>
           </b-row>
         </b-col>
-        <b-col :md="show_topic_words ? 3 : 0" v-show="show_topic_words">
+        <b-col
+          :md="show_topic_words ? 3 : 0"
+          v-show="show_topic_words"
+          class="border-left"
+        >
           <h4>Topic words</h4>
 
           <div
@@ -393,5 +408,11 @@ export default {
 .blur {
   filter: blur(1px);
   opacity: 0.4;
+}
+
+.checkbox /deep/ .b-dropdown-form {
+  max-height: 400px;
+  font-size: 75%;
+  overflow-y: auto;
 }
 </style>
