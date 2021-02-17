@@ -24,6 +24,7 @@ import Sources from '../components/explore/subcategories/Sources.vue'
 import GeographicCoverage from '../components/explore/subcategories/GeographicCoverage.vue'
 import Metadata from '../components/explore/subcategories/Metadata.vue'
 import TrainingSubset from '../components/explore/subcategories/TrainingSubset.vue'
+import TopicBrowser from '../components/explore/subcategories/TopicBrowser.vue'
 
 
 // METHODS components
@@ -99,7 +100,7 @@ const explore_subcategories_routes = [
     {
         path: "topic-browser",
         name: "explore_topic-browser",
-        component: GeographicCoverage,
+        component: TopicBrowser,
         props: { page_title: "Topic Browser" },
     },
     {
