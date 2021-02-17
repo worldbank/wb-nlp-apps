@@ -59,7 +59,8 @@ async def semantic_search(
         from_result=from_result,
         size=size)
 
-    print(result)
+    # Put negative sign since score is expected to be large for relevant items.
+    id_rank = {res["id"]: -res["rank"] for res in result}
 
     # search = elasticsearch.Search(using=elasticsearch.get_client(), index="nlp-documents")
     # search = search.filter("ids", values=)
@@ -72,7 +73,8 @@ async def semantic_search(
 
     return dict(
         total=response.hits.total.to_dict(),
-        hits=[h.to_dict() for h in response.hits],
+        hits=[h.to_dict()
+              for h in sorted(response.hits, key=lambda x: id_rank[x["id"]])],
         next=from_result + size
     )
 
