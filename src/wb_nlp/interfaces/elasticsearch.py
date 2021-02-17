@@ -121,3 +121,17 @@ def text_search(query, from_result=0, size=10, return_body=False, ignore_cache=F
     response = search.execute(ignore_cache=ignore_cache)
 
     return response
+
+
+def ids_search(ids, from_result=0, size=10, return_body=False, ignore_cache=False):
+    search = Search(using=get_client(), index="nlp-documents")
+    search = search.filter("ids", values=ids)
+
+    search = search[from_result:from_result + size]
+
+    if not return_body:
+        search = search.source(excludes=["body", "doc"])
+
+    response = search.execute(ignore_cache=ignore_cache)
+
+    return response

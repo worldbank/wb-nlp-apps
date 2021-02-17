@@ -289,9 +289,12 @@ class BaseModel:
     def save_model(self):
         self.check_model()
         model_runs_info_collection = mongodb.get_model_runs_info_collection()
+        # model_runs_info_collection.delete_many({})
+        model_runs_info_collection.delete_many(
+            {"_id": self.model_run_info["model_run_info_id"]})
 
         if not self.model_file_name.exists():
-            model_runs_info_collection.delete_one(
+            model_runs_info_collection.delete_many(
                 {"_id": self.model_run_info["model_run_info_id"]})
 
             if not self.model_file_name.parent.exists():
@@ -500,7 +503,7 @@ class BaseModel:
 
         return doc_vec.flatten() if flatten else doc_vec
 
-    def get_similar_documents(self, document, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
+    def search_similar_documents(self, document, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10):
         # document: any text
         # topn: number of returned related documents in the database
         # return_data: string corresponding to a column in the docs or list of column names
@@ -519,7 +522,11 @@ class BaseModel:
         entities = results[0]
         payload = []
 
-        for rank, ent in enumerate(entities, 1):
+        for rank, ent in enumerate(entities):
+
+            if from_result > rank:
+                continue
+
             if not show_duplicates:
                 # TODO: Make sure that this is true for Milvus.
                 # If we change the metric_type, this should be adjusted somehow.
@@ -527,9 +534,9 @@ class BaseModel:
                     continue
 
             payload.append({'id': self.get_doc_id_from_int_id(ent.id), 'score': float(np.round(
-                ent.distance, decimals=5)), 'rank': rank})
+                ent.distance, decimals=5)), 'rank': rank + 1})
 
-            if len(payload) == topn:
+            if len(payload) == size:
                 break
 
         payload = sorted(payload, key=lambda x: x['rank'])
@@ -537,6 +544,22 @@ class BaseModel:
             payload = pd.DataFrame(payload).to_json()
 
         return payload
+
+    def get_similar_documents(self, document, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
+        # document: any text
+        # topn: number of returned related documents in the database
+        # return_data: string corresponding to a column in the docs or list of column names
+        # duplicate_threhold: threshold that defines a duplicate document based on similarity score
+        # show_duplicates: option if exact duplicates of documents are to be considered as return documents
+        return self.search_similar_documents(
+            document=document,
+            duplicate_threshold=duplicate_threshold,
+            show_duplicates=show_duplicates,
+            serialize=serialize,
+            metric_type=metric_type,
+            from_result=0,
+            size=topn,
+        )
 
     def get_similar_words(self, document, topn=10, serialize=False, metric="cosine_similarity"):
 

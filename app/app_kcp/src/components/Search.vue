@@ -341,8 +341,9 @@
                     type="radio"
                     name="inlineRadioOptions"
                     id="inlineRadio1"
-                    value="option1"
+                    value="keyword"
                     checked=""
+                    v-model="search_type"
                   />
                   <label class="form-check-label" for="inlineRadio1"
                     >Keyword search</label
@@ -354,7 +355,8 @@
                     type="radio"
                     name="inlineRadioOptions"
                     id="inlineRadio2"
-                    value="option2"
+                    value="semantic"
+                    v-model="search_type"
                   />
                   <label class="form-check-label" for="inlineRadio2"
                     >Semantic search</label
@@ -575,7 +577,9 @@ export default {
   },
   data: function () {
     return {
-      nlp_api_url: "/nlp/search/search",
+      search_type: "keyword",
+      keyword_search_api_url: "/nlp/search/keyword",
+      semantic_search_api_url: "/nlp/search/semantic",
       page_sizes: [10, 25, 50, 100],
       start: 0,
       end: 0,
@@ -595,12 +599,25 @@ export default {
       if (from > this.total.value) {
         return;
       }
+
+      if (this.search_type == "keyword") {
+        this.sendKeywordSearch(from);
+      } else if (this.search_type == "semantic") {
+        this.sendSemanticSearch(from);
+      } else {
+        return;
+      }
+    },
+    sendKeywordSearch: function (from = 0) {
+      if (from > this.total.value) {
+        return;
+      }
       this.from_result = from;
       this.loading = true;
 
       this.$http
         // .get(this.nlp_api_url + "?query=" + this.query)
-        .get(this.nlp_api_url, {
+        .get(this.keyword_search_api_url, {
           params: this.searchParams,
         })
         .then((response) => {
@@ -621,6 +638,37 @@ export default {
         })
         .finally(() => (this.loading = false));
     },
+    sendSemanticSearch: function (from = 0) {
+      if (from > this.total.value) {
+        return;
+      }
+      this.from_result = from;
+      this.loading = true;
+
+      this.$http
+        // .get(this.nlp_api_url + "?query=" + this.query)
+        .get(this.semantic_search_api_url, {
+          params: this.searchParams,
+        })
+        .then((response) => {
+          this.hits = response.data.hits;
+          this.total = response.data.total;
+          this.next = response.data.next;
+          this.start = this.from_result + 1;
+          this.end = this.from_result + this.hits.length;
+          this.num_pages = Math.floor(this.total.value / this.size);
+          if (this.total.value % this.size > 0) {
+            this.num_pages += 1;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          this.errored = true;
+          this.loading = false;
+        })
+        .finally(() => (this.loading = false));
+    },
+
     setSize: function (size) {
       this.size = size;
     },
