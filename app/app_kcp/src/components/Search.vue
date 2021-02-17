@@ -19,7 +19,7 @@
 
     <div class="container flowing">
       <div class="row">
-        <aside class="col-sm-3 blog-sidebar">
+        <aside class="col-sm-3 blog-sidebar" id="blog-sidebar">
           <div>
             <div
               id="filter-by-access"
@@ -321,11 +321,11 @@
                     placeholder="Enter your keywords..."
                     aria-label="Field for search"
                     aria-describedby="basic-addon2"
-                    v-on:keyup.enter="sendSearch"
+                    v-on:keyup.enter="sendSearch()"
                   />
                   <div class="input-group-append">
                     <button
-                      @click="sendSearch"
+                      @click="sendSearch()"
                       class="btn btn-primary wbg-search-button pr-4 pl-4"
                       type="button"
                     >
@@ -363,12 +363,13 @@
               </div>
             </div>
             <hr />
-            <div class="nada-pagination">
+            <div class="nada-pagination" v-show="hits.length > 0">
               <div
                 class="row mt-4 mb-3 d-flex justify-content-lg-between align-items-center"
               >
                 <div class="col-12 col-md-3 col-lg-4 mb-2 mb-md-0 small">
-                  Showing <b>1-15</b> of <b>{{ total.value }}</b> studies
+                  Showing <b>{{ start }}-{{ end }}</b> of
+                  <b>{{ total.value }}</b> studies
                 </div>
                 <div
                   class="filter-action-bar d-flex col-12 col-md-9 col-lg-8 justify-content-lg-end"
@@ -454,15 +455,11 @@
                       >Results per page:
                       <span
                         class="wbg-pagination-btn"
-                        v-for="size in [15, 30, 50, 100]"
+                        v-for="size in page_sizes"
                         v-bind:key="size"
+                        @click="setSize(size)"
                         >{{ size }}</span
                       >
-
-                      <!-- <span class="wbg-pagination-btn">15</span>
-                      <span class="wbg-pagination-btn">30</span>
-                      <span class="wbg-pagination-btn">50</span>
-                      <span class="wbg-pagination-btn">100</span> -->
                     </small>
                   </div>
                 </div>
@@ -471,49 +468,22 @@
                     <ul
                       class="pagination pagination-md wbg-pagination-ul small"
                     >
-                      <li class="page-item">
+                      <li
+                        class="page-item"
+                        v-for="page_num in Array(num_pages).keys()"
+                        v-bind:key="page_num + 1"
+                      >
                         <a
-                          href="https://mtt-wb21h.netlify.app/search/#"
+                          @click="sendSearch(page_num * size)"
                           class="page-link active"
-                          data-page="1"
-                          >1</a
+                          :data-page="page_num + 1"
+                          >{{ page_num + 1 }}</a
                         >
                       </li>
+
                       <li class="page-item">
                         <a
-                          href="https://mtt-wb21h.netlify.app/search/#"
-                          class="page-link"
-                          data-page="2"
-                          >2</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/search/#"
-                          class="page-link"
-                          data-page="3"
-                          >3</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/search/#"
-                          class="page-link"
-                          data-page="4"
-                          >4</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/search/#"
-                          class="page-link"
-                          data-page="5"
-                          >5</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/search/#"
+                          @click="sendSearch(next)"
                           class="page-link"
                           data-page="2"
                           >Next</a
@@ -521,9 +491,9 @@
                       </li>
                       <li class="page-item">
                         <a
-                          href="https://mtt-wb21h.netlify.app/search/#"
+                          @click="sendSearch((num_pages - 1) * size)"
                           class="page-link"
-                          data-page="218"
+                          :data-page="num_pages + 1"
                           title="Last"
                           >»</a
                         >
@@ -606,9 +576,14 @@ export default {
   data: function () {
     return {
       nlp_api_url: "/nlp/search/search",
+      page_sizes: [10, 25, 50, 100],
+      start: 0,
+      end: 0,
+      next: 0,
+      num_pages: 0,
       query: "",
       from_result: 0,
-      size: 15,
+      size: 10,
       hits: [],
       total: Object,
       errored: false,
@@ -616,7 +591,11 @@ export default {
     };
   },
   methods: {
-    sendSearch: function () {
+    sendSearch: function (from = 0) {
+      if (from > this.total.value) {
+        return;
+      }
+      this.from_result = from;
       this.loading = true;
 
       this.$http
@@ -627,6 +606,13 @@ export default {
         .then((response) => {
           this.hits = response.data.hits;
           this.total = response.data.total;
+          this.next = response.data.next;
+          this.start = this.from_result + 1;
+          this.end = this.from_result + this.hits.length;
+          this.num_pages = Math.floor(this.total.value / this.size);
+          if (this.total.value % this.size > 0) {
+            this.num_pages += 1;
+          }
         })
         .catch((error) => {
           console.log(error);
@@ -634,6 +620,9 @@ export default {
           this.loading = false;
         })
         .finally(() => (this.loading = false));
+    },
+    setSize: function (size) {
+      this.size = size;
     },
     flowSideBar: function () {
       $(function () {

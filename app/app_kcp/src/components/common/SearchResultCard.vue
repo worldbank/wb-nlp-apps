@@ -24,10 +24,8 @@
               <span class="study-by">Ministry of Public Health</span>
             </div>
             <div class="owner-collection">
-              Collection:
-              <a href="https://mtt-wb21h.netlify.app/search/#"
-                >MEASURE DHS: Demographic and Health Surveys</a
-              >
+              Corpus:
+              <router-link to="/search/">{{ result.corpus }}</router-link>
             </div>
           </div>
           <div class="survey-stats">
