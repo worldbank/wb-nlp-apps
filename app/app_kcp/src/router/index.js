@@ -198,7 +198,7 @@ const explore_routes = [{
 const methods_routes = [{
         path: "",
         name: "methods",
-        component: Methods,
+        component: MethodsMethods,
         props: { page_title: "Methods & Tools" },
     },
     {

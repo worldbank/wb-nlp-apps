@@ -85,7 +85,7 @@
                 >
               </li>
               <li
-                :class="{ active: $route.name.startsWith('api') }"
+                :class="{ active: $route.name.startsWith('content') }"
                 class="nav-link nav-item"
               >
                 <router-link class="nav-link" to="/content-api"

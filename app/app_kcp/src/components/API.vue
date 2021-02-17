@@ -1,31 +1,6 @@
 <template>
   <div>
-    <header class="blog-header wbg-internal-header">
-      <div class="container">
-        <div class="col-12 mb-2">
-          <div id="breadcrumbs">
-            <router-link to="/">Home</router-link>
-            <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="/explore">Explore</router-link>
-            <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="/explore">Explore</router-link>
-          </div>
-        </div>
-        <div class="col-12">
-          <i class="fas fa-search fa-2x" aria-hidden="true"></i>
-          <h1>Explore</h1>
-          <p>
-            Describes the sources and coverage of our corpus, provides
-            interactive visualizations of topic composition (extracted from LDA
-            models), and allows you to filter documents by their topic
-            composition. Also provides access to word embedding models,
-            similarity measures, and others.
-          </p>
-        </div>
-      </div>
-    </header>
-    <div class="container flowing">
-      <!-- <div class=""> -->
+    <!-- <div class="container flowing">
       <div class="row">
         <aside class="col-sm-3 blog-sidebar" id="blog-sidebar">
           <section class="sidebar-module">
@@ -127,14 +102,6 @@
         </aside>
         <div class="col-sm-9 blog-main">
           <article class="blog-post">
-            <!-- <header>
-              <h1 class="blog-post-title mb-3" dir="auto">
-                <a href="/explore/explore/"
-                  >Explore</a
-                >
-              </h1>
-            </header>
-            <p>Explore</p> -->
             <div class="content-row">
               <router-view></router-view>
             </div>
@@ -174,57 +141,16 @@
           </article>
         </div>
       </div>
-    </div>
+    </div> -->
+    <iframe src="/redoc" frameborder="0" height="800px" width="100%"></iframe>
   </div>
 </template>
 
 
 <script>
-import $ from "jquery";
-
 export default {
-  name: "Explore",
+  name: "API",
   components: {},
-  mounted() {
-    this.flowSideBar();
-  },
-  computed: {
-    myProps() {
-      var retVal = null;
-      if (this.$route.name === "a") {
-        retVal = { foo: this.foo };
-      }
-      if (this.$route.name === "b") {
-        retVal = { bar: this.bar };
-      }
-      return retVal;
-    },
-  },
-  methods: {
-    flowSideBar: function () {
-      $(function () {
-        var $sidebar = $("#blog-sidebar"),
-          $window = $(window),
-          offset = $sidebar.offset(),
-          topPadding = 15;
-
-        $window.scroll(function () {
-          if (($window.scrollTop() > offset.top) & ($(window).width() > 768)) {
-            $sidebar.stop().animate(
-              {
-                marginTop: $window.scrollTop() - offset.top + topPadding,
-              },
-              { easing: "ease", duration: 0 }
-            );
-          } else {
-            $sidebar.stop().animate({
-              marginTop: 0,
-            });
-          }
-        });
-      });
-    },
-  },
 };
 </script>
 

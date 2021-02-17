@@ -7,6 +7,14 @@ module.exports = {
             '^/nlp': {
                 target: 'http://localhost:8919',
             },
+            '^/redoc': {
+                target: 'http://localhost:8919',
+                changeOrigin: true
+            },
+            '^/openapi.json': {
+                target: 'http://localhost:8919',
+                changeOrigin: true
+            },
             '^/api': {
                 target: 'http://10.0.0.25:8088',
             },
