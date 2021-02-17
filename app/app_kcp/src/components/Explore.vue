@@ -25,7 +25,19 @@
       </div>
     </header>
     <div class="container flowing">
-      <!-- <div class=""> -->
+      <button
+        class="sidebar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#blog-sidebar"
+        aria-controls="blog-sidebar"
+        aria-expanded="true"
+        aria-label="Toggle sidebar"
+      >
+        <i class="fas fa-compress"></i>
+        <i class="fas fa-expand"></i>
+      </button>
+
       <div class="row">
         <aside class="col-sm-3 blog-sidebar" id="blog-sidebar">
           <section class="sidebar-module">
@@ -125,16 +137,8 @@
             </ol>
           </section>
         </aside>
-        <div class="col-sm-9 blog-main">
+        <div class="col blog-main">
           <article class="blog-post">
-            <!-- <header>
-              <h1 class="blog-post-title mb-3" dir="auto">
-                <a href="/explore/explore/"
-                  >Explore</a
-                >
-              </h1>
-            </header>
-            <p>Explore</p> -->
             <div class="content-row">
               <router-view></router-view>
             </div>
@@ -203,7 +207,7 @@ export default {
   methods: {
     flowSideBar: function () {
       $(function () {
-        var $sidebar = $("#blog-sidebar"),
+        var $sidebar = $(".blog-sidebar"),
           $window = $(window),
           offset = $sidebar.offset(),
           topPadding = 15;
@@ -239,6 +243,26 @@ export default {
     max-width: 1200px;
   }
 }
+
+.blog-header {
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-toggler {
+  border: none;
+  padding: 0;
+  color: black;
+  border-color: transparent;
+  background-color: transparent;
+}
+
+button[aria-expanded="true"] .fa-expand {
+  display: none;
+}
+button[aria-expanded="false"] .fa-compress {
+  display: none;
+}
+
 /*
 .blog-main {
   margin: 0;
