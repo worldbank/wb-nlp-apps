@@ -2,32 +2,15 @@
   <div>
     <h1>{{ page_title }}</h1>
     <div>
-      <br />
-      Explain purpose and main components of the “EXPLORE” section of the site.
-      <br />
-      <br />
-      <ul>
-        <li>
-          Corpus describes the collection of documents (sources, scope,
-          coverage, updates)
-        </li>
-        <li>
-          Topic composition based on LDA model; describes the distribution of
-          topics in the corpus or sub-corpus for different LDA models
-        </li>
-        <li>
-          Topic profiles; select one topic, and see how it has evolved over
-          time, by region, source, type, etc.
-        </li>
-        <li>Classification model: taxonomy tagging</li>
-        <li>Word embeddings: semantic closeness using word2vec</li>
-        <li>
-          Similarity: select or load a document, find closest based on different
-          measures of similarity
-        </li>
-      </ul>
-
-      All code (except scrapers) in GitHub. See Methods and Tools.
+      <p>
+        Our project benefited considerably from methods and tools developed and
+        made openly accessible by the community. We are equally committed to
+        contribute to the public good, by making our processes transparent and
+        reproducible to the extent possible. Apart from our web scrapers, all
+        our scripts are available in our Github repository. We relied
+        exclusively on open source solutions and are most grateful to all those
+        who contributed to these tools.
+      </p>
     </div>
   </div>
 </template>

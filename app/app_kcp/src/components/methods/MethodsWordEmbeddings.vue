@@ -34,7 +34,7 @@
 
 <script>
 export default {
-  name: "MethodsWordEmbeddings",
+  name: "WordEmbeddings",
   props: {
     page_title: String,
   },

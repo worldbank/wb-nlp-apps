@@ -28,10 +28,11 @@ import TopicBrowser from '../components/explore/subcategories/TopicBrowser.vue'
 
 
 // METHODS components
+import MethodsMethods from '../components/methods/Methods.vue'
 import TextAcquisition from '../components/methods/TextAcquisition.vue'
 import TextPreparation from '../components/methods/TextPreparation.vue'
 import LDATopicModel from '../components/methods/LDATopicModel.vue'
-import MethodsWordEmbeddings from '../components/methods/MethodsWordEmbeddings.vue'
+import MethodsWordEmbeddings from '../components/methods/WordEmbeddings.vue'
 import TopicClassification from '../components/methods/TopicClassification.vue'
 import Cataloguing from '../components/methods/Cataloguing.vue'
 import SearchEngine from '../components/methods/SearchEngine.vue'
@@ -197,8 +198,8 @@ const explore_routes = [{
 const methods_routes = [{
         path: "",
         name: "methods",
-        component: Introduction,
-        props: { page_title: "Methods" },
+        component: Methods,
+        props: { page_title: "Methods & Tools" },
     },
     {
         path: "text-acquisition",

@@ -2,14 +2,14 @@
   <div>
     <h1>{{ page_title }}</h1>
     <div>
-      <p></p>
+      <p>Describe word2vec model</p>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Cataloguing",
+  name: "WordEmbeddings",
   props: {
     page_title: String,
   },
