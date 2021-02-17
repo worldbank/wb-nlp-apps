@@ -22,6 +22,8 @@ import Similarity from '../components/explore/Similarity.vue'
 // EXPLORE SUBCATEGORIES components
 import Sources from '../components/explore/subcategories/Sources.vue'
 import GeographicCoverage from '../components/explore/subcategories/GeographicCoverage.vue'
+import Metadata from '../components/explore/subcategories/Metadata.vue'
+import TrainingSubset from '../components/explore/subcategories/TrainingSubset.vue'
 
 
 // METHODS components
@@ -83,13 +85,13 @@ const explore_subcategories_routes = [
     {
         path: "metadata",
         name: "explore_metadata",
-        component: GeographicCoverage,
+        component: Metadata,
         props: { page_title: "Metadata" },
     },
     {
         path: "training-subset",
         name: "explore_training-subset",
-        component: GeographicCoverage,
+        component: TrainingSubset,
         props: { page_title: "Training Subset" },
     },
 
