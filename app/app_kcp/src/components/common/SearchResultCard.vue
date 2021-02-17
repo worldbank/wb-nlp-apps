@@ -31,8 +31,8 @@
             </div>
           </div>
           <div class="survey-stats">
-            <span>Created on: {{ result.date_published }}</span>
-            <span>Last modified: {{ result.last_update_date }}</span>
+            <span>Created on: {{ getDate(result.date_published) }} </span>
+            <span>Last modified: {{ getDate(result.last_update_date) }} </span>
             <span>Views: {{ result.views }}</span>
           </div>
         </div>
@@ -46,6 +46,14 @@ export default {
   name: "SearchResultCard",
   props: {
     result: Object,
+  },
+  methods: {
+    getDate: function (date) {
+      date = new Date(date).toDateString();
+      date = date.split(" ");
+
+      return date[1] + " " + date[2] + ", " + date[3];
+    },
   },
 };
 </script>
