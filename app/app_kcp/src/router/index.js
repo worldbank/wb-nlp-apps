@@ -152,7 +152,7 @@ const explore_routes = [{
         path: "topic-profiles",
         name: "explore_topic-profiles",
         component: TopicProfiles,
-        props: { page_title: "Topic Profiles" },
+        props: { page_title: "Topic Profiles", show_topic_words: false },
     },
     {
         path: "topic-taxonomy",

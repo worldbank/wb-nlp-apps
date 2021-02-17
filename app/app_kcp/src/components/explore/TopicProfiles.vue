@@ -5,7 +5,7 @@
 
     <b-container fluid>
       <b-row>
-        <b-col md="9" class="border-right">
+        <b-col :md="show_topic_words ? 9 : 12" class="border-right">
           <b-row
             v-if="
               lda_model_id != '' &&
@@ -90,7 +90,7 @@
             </b-col>
           </b-row>
         </b-col>
-        <b-col md="3">
+        <b-col :md="show_topic_words ? 3 : 0" v-show="show_topic_words">
           <h4>Topic words</h4>
 
           <div
@@ -135,6 +135,7 @@ export default {
   },
   props: {
     page_title: String,
+    show_topic_words: Boolean,
   },
   data: function () {
     return {
