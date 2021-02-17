@@ -344,6 +344,7 @@
                     value="keyword"
                     checked=""
                     v-model="search_type"
+                    @change="resetFrom"
                   />
                   <label class="form-check-label" for="inlineRadio1"
                     >Keyword search</label
@@ -357,6 +358,7 @@
                     id="inlineRadio2"
                     value="semantic"
                     v-model="search_type"
+                    @change="resetFrom"
                   />
                   <label class="form-check-label" for="inlineRadio2"
                     >Semantic search</label
@@ -472,14 +474,14 @@
                     >
                       <li
                         class="page-item"
-                        v-for="page_num in Array(num_pages).keys()"
-                        v-bind:key="page_num + 1"
+                        v-for="page_num in num_pages"
+                        v-bind:key="page_num"
                       >
                         <a
-                          @click="sendSearch(page_num * size)"
+                          @click="sendSearch((page_num - 1) * size)"
                           class="page-link active"
-                          :data-page="page_num + 1"
-                          >{{ page_num + 1 }}</a
+                          :data-page="page_num"
+                          >{{ page_num }}</a
                         >
                       </li>
 
@@ -595,6 +597,9 @@ export default {
     };
   },
   methods: {
+    resetFrom: function () {
+      this.from_result = 0;
+    },
     sendSearch: function (from = 0) {
       if (from > this.total.value) {
         return;
@@ -616,7 +621,6 @@ export default {
       this.loading = true;
 
       this.$http
-        // .get(this.nlp_api_url + "?query=" + this.query)
         .get(this.keyword_search_api_url, {
           params: this.searchParams,
         })
@@ -646,7 +650,6 @@ export default {
       this.loading = true;
 
       this.$http
-        // .get(this.nlp_api_url + "?query=" + this.query)
         .get(this.semantic_search_api_url, {
           params: this.searchParams,
         })

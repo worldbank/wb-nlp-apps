@@ -3,6 +3,32 @@
     <h1>{{ page_title }}</h1>
     <br />
 
+    <p>
+      We can identify “most similar” documents based on their topic composition
+      or embeddings. Both the topic composition and the word embeddings are
+      representation of a document in the form of a numeric vector. Closeness
+      can thus be calculated based on different distance measures: Euclidian,
+      cosine, …
+    </p>
+    <p>
+      Our document catalog provides the most advanced search and filtering
+      options that allow you to identify documents of interest. In the
+      information provided for each document, you will see a list of “Closest
+      documents” where closeness is based on cosine similarity of embeddings.
+    </p>
+    <p>
+      For exploration purpose, the search tool below provides you with a
+      simplified search engine which also lists closest matches under the “Find
+      similar documents” tab, which provides a list of most similar documents
+      based on the two options: word embeddings (tab word2vec), or topic
+      composition (tab LDA). Note that these similarities do not necessarily
+      give much weight to the country/countries covered by the documents. A list
+      of closest documents can be downloaded then filtered based on the
+      information contained in the list of countries covered by the document.
+    </p>
+
+    <hr />
+
     <b-container fluid>
       <b-row>
         <b-col cols="9" class="border-right">

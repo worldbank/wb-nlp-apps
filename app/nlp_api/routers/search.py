@@ -59,8 +59,7 @@ async def semantic_search(
         from_result=from_result,
         size=size)
 
-    # Put negative sign since score is expected to be large for relevant items.
-    id_rank = {res["id"]: -res["rank"] for res in result}
+    id_rank = {res["id"]: res["rank"] for res in result}
 
     response = elasticsearch.ids_search(
         ids=[i["id"] for i in result],
@@ -71,5 +70,6 @@ async def semantic_search(
         total=response.hits.total.to_dict(),
         hits=[h.to_dict()
               for h in sorted(response.hits, key=lambda x: id_rank[x["id"]])],
-        next=from_result + size
+        next=from_result + size,
+        result=result,
     )

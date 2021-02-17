@@ -514,7 +514,7 @@ class BaseModel:
         doc_vec = self.get_doc_vec(
             document, normalize=True, assert_success=True, flatten=True)
 
-        topk = 2 * topn  # Add buffer
+        topk = 2 * size  # Add buffer
         dsl = get_embedding_dsl(
             doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
         results = get_milvus_client().search(self.model_collection_id, dsl)
