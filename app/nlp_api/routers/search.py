@@ -62,10 +62,6 @@ async def semantic_search(
     # Put negative sign since score is expected to be large for relevant items.
     id_rank = {res["id"]: -res["rank"] for res in result}
 
-    # search = elasticsearch.Search(using=elasticsearch.get_client(), index="nlp-documents")
-    # search = search.filter("ids", values=)
-
-    # response = search.execute()
     response = elasticsearch.ids_search(
         ids=[i["id"] for i in result],
         from_result=0,
@@ -77,19 +73,3 @@ async def semantic_search(
               for h in sorted(response.hits, key=lambda x: id_rank[x["id"]])],
         next=from_result + size
     )
-
-# @ router.post("/{model_name}/get_similar_docs", response_model=SimilarDocsReturns)
-# async def get_similar_docs(model_name: ModelTypes, transform_params: SimilarDocsParams):
-#     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
-#     '''
-
-#     model = get_validated_model(model_name, transform_params.model_id)
-
-#     result = model.get_similar_documents(
-#         document=transform_params.raw_text,
-#         topn=transform_params.topn_docs,
-#         duplicate_threshold=transform_params.duplicate_threshold,
-#         show_duplicates=transform_params.show_duplicates,
-#         metric_type=transform_params.metric_type)
-
-#     return result
