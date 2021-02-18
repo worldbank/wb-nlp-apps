@@ -25,6 +25,8 @@ import GeographicCoverage from '../components/explore/subcategories/GeographicCo
 import Metadata from '../components/explore/subcategories/Metadata.vue'
 import TrainingSubset from '../components/explore/subcategories/TrainingSubset.vue'
 import TopicBrowser from '../components/explore/subcategories/TopicBrowser.vue'
+import FilterTopicShare from '../components/explore/subcategories/FilterTopicShare.vue'
+
 
 
 // METHODS components
@@ -107,7 +109,7 @@ const explore_subcategories_routes = [
     {
         path: "filtering-by-topic-share",
         name: "explore_filtering-by-topic-share",
-        component: GeographicCoverage,
+        component: FilterTopicShare,
         props: { page_title: "Filtering by Topic Share" },
     },
 
