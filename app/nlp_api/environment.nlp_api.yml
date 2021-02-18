@@ -35,6 +35,8 @@ dependencies:
     - cymem==2.0.5
     - dask==2020.12.0
     - distributed==2020.12.0
+    - elasticsearch==7.10.1
+    - elasticsearch-dsl==7.3.0
     # - en-core-web-sm==2.3.1
     - fastapi==0.63.0
     - flashtext==2.7

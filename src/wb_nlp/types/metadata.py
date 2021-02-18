@@ -1,5 +1,6 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=no-self-argument
+import re
 import enum
 from typing import Optional, List
 from datetime import date, datetime
@@ -17,8 +18,14 @@ from wb_nlp.types.metadata_enums import (
     # WBSubTopics,  # Don't normalize subtopics since we don't have a reliable curated list yet.
 )
 
+# Until comma or end of line
+REPUBLIC_OF_PATTERN = re.compile(r"(\S+), (Republic of)(,|$)")
+
 
 def make_list_or_null(value, delimiter):
+
+    value = REPUBLIC_OF_PATTERN.sub(r"\2 \1,", value).strip(",")
+
     value = sorted(set([v.strip() for v in value.split(delimiter)]))
     if value == ['']:
         value = None

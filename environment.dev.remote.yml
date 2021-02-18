@@ -9,6 +9,7 @@ dependencies:
   - alabaster=0.7.12
   - altair=4.1.0
   - aniso8601=8.0.0
+  - anyio=2.0.2
   - appdirs=1.4.3
   - argon2-cffi=20.1.0
   - astroid=2.4.2
@@ -47,7 +48,7 @@ dependencies:
   - cloudpickle=1.6.0
   - colorama=0.4.3
   - commonmark=0.9.1
-  - coverage=5.3
+  - coverage=5.3.1
   - cryptography=3.1.1
   - cycler=0.10.0
   - cymem=2.0.3
@@ -95,7 +96,6 @@ dependencies:
   - google-resumable-media=1.0.0
   - googleapis-common-protos=1.51.0
   - googletrans=2.4.0
-  - grpcio=1.31.0
   - gst-plugins-base=1.14.5
   - gstreamer=1.14.5
   - gunicorn=20.0.4
@@ -126,6 +126,7 @@ dependencies:
   - jsonschema=3.2.0
   - jupyter_client=6.1.7
   - jupyter_core=4.6.3
+  - jupyter_server=1.0.9
   - jupyterlab=2.2.8
   - jupyterlab_pygments=0.1.1
   - jupyterlab_server=1.2.0
@@ -150,6 +151,7 @@ dependencies:
   - libiconv=1.16
   - liblapack=3.8.0
   - libllvm10=10.0.1
+  - libllvm11=11.0.1
   - libnl=3.2.25
   - libopenblas=0.3.10
   - libpng=1.6.37
@@ -163,6 +165,7 @@ dependencies:
   - libxcb=1.13
   - libxkbcommon=0.10.0
   - libxml2=2.9.10
+  - llvm-openmp=11.0.1
   - locket=0.2.0
   - lz4-c=1.9.2
   - lzo=2.10
@@ -181,6 +184,7 @@ dependencies:
   - mypy_extensions=0.4.3
   - mysql-common=8.0.21
   - mysql-libs=8.0.21
+  - nbclassic=0.2.6
   - nbclient=0.5.0
   - nbconvert=6.0.3
   - nbdime=2.0.0
@@ -231,6 +235,7 @@ dependencies:
   - pyasn1-modules=0.2.7
   - pycodestyle=2.6.0
   - pycparser=2.20
+  - pydantic=1.7.3
   - pydocstyle=5.1.1
   - pyflakes=2.2.0
   - pygments=2.7.0
@@ -239,6 +244,10 @@ dependencies:
   - pyopenssl=19.1.0
   - pyparsing=2.4.7
   - pyqt=5.12.3
+  - pyqt-impl=5.12.3
+  - pyqt5-sip=4.19.18
+  - pyqtchart=5.12
+  - pyqtwebengine=5.12.1
   - pyrsistent=0.17.3
   - pysocks=1.7.1
   - pytables=3.6.1
@@ -264,14 +273,17 @@ dependencies:
   - seaborn-base=0.11.0
   - send2trash=1.5.0
   - setuptools=49.6.0
+  - shellingham=1.4.0
   - six=1.15.0
   - smart_open=2.1.1
   - smmap=3.0.4
   - snappy=1.1.8
+  - sniffio=1.2.0
   - snowballstemmer=2.0.0
   - sortedcontainers=2.2.2
   - soupsieve=2.0.1
   - spacy=2.3.2
+  - spacy-legacy=3.0.1
   - spacy-model-en_core_web_sm=2.3.1
   - sphinx=3.2.1
   - sphinxcontrib-applehelp=1.0.2
@@ -297,6 +309,7 @@ dependencies:
   - tqdm=4.49.0
   - traitlets=5.0.4
   - typed-ast=1.4.1
+  - typer=0.3.2
   - typing_extensions=3.7.4.2
   - urllib3=1.25.10
   - virtualenv=20.0.20
@@ -328,26 +341,31 @@ dependencies:
     - dash-dangerously-set-inner-html==0.0.2
     - distro==1.5.0
     - elasticsearch==7.10.1
+    - elasticsearch-dsl==7.3.0
     - enum-compat==0.0.3
+    - fastapi==0.63.0
+    - flashtext==2.7
+    - grpcio==1.35.0
     - grpcio-tools==1.34.0
+    - h11==0.12.0
     - ipywidgets==7.5.1
+    - jupyterlab-widgets==1.0.0
     - pathtools==0.1.2
     - pipx==0.15.5.1
     - pyarrow==1.0.1
     - pydeck==0.5.0b1
     - pyenchant==3.1.1
     - pymilvus==0.3.0
-    - pyqt5-sip==4.19.18
-    - pyqtchart==5.12
-    - pyqtwebengine==5.12.1
+    - python-multipart==0.0.5
     - redis==3.5.3
     - spacy-langdetect==0.1.2
+    - starlette==0.13.6
     - streamlit==0.66.0
     - tzlocal==2.1
     - ujson==4.0.1
     - userpath==1.4.1
+    - uvicorn==0.13.3
     - validators==0.18.1
     - watchdog==0.10.3
     - widgetsnbextension==3.5.1
     - wordninja==2.0.0
-
