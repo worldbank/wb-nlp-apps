@@ -1,0 +1,277 @@
+version: '3.6'
+services:
+
+  dev:
+    image: hello-world:latest
+    # build:
+    #   context: ./
+    #   dockerfile: .devcontainer/Dockerfile.dev.base
+    #   args:
+    #     USERNAME: vscode
+    #     USER_UID: 1000
+    #     ENV_ID: dev
+    #     ENV_DEV_BASE_FILE: "environment.dev.base.yml"
+    #     PROJECT_ID: wb_nlp
+    #     ENV_DEV_FILE: "environment.dev.yml"
+    # env_file:
+    #   - .env
+    # volumes:
+    #   - ${LOCAL_PATH}:/workspace
+    # links:
+    #   - mongodb
+    #   - web
+    #   - app
+    #   - api
+    #   # - es01
+    # depends_on:
+    #   - mongodb
+    #   - web
+    #   - app
+    #   - api
+    #   # - es01
+    # # ports:
+    # #   - "8000:8000"
+    # # deploy:
+    # #   resources:
+    # #     limits:
+    # #       cpus: '4'
+    # #       memory: 4G
+    # #     reservations:
+    # #       cpus: '3'
+    # #       memory: 3G
+
+  api:
+    build:
+      context: ./
+      dockerfile: ./app/api/Dockerfile
+      args:
+        ENV_ID: prod
+        ENV_PROD_FILE: "environment.prod.api.yml"
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/models:/workspace/models
+      - ${LOCAL_PATH}/data/preprocessed:/workspace/data/preprocessed
+      - ${LOCAL_PATH}/data/whitelists:/workspace/data/whitelists
+    # command:
+    #   - /opt/conda/envs/prod/bin/gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200
+    ports:
+      - "8911:8910"
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+
+  app:
+    build:
+      context: ./app/app_vue2
+    ports:
+      - "8088:80"
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/app/app_vue2:/app
+      - ${LOCAL_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - api
+    depends_on:
+      - api
+
+  app_kcp:
+    build:
+      context: ./app/app_kcp
+    ports:
+      - "8099:80"
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/app/app_kcp:/app
+      - ${LOCAL_PATH}/app/app_kcp/site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - api
+      - nlp_api
+    depends_on:
+      - api
+      - nlp_api
+
+  dfr:
+    build:
+      context: ./app/dfr
+    ports:
+      - "8098:80"
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/app/dfr/data:/usr/share/nginx/html/data
+
+  web:
+    image: nginx:latest
+    ports:
+      - "8880:80"
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/app/frontend:/frontend/nlp
+      - ${LOCAL_PATH}/app/site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - php
+      - api
+    depends_on:
+      - php
+      - api
+
+  php:
+    image: php:7-fpm
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/app/frontend:/frontend/nlp
+
+  tika:
+    image: apache/tika:latest
+
+  redis:
+    image: redis:latest
+
+  selenium:
+    image: selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210209
+    ports:
+      - "4444:4444"
+    volumes:
+      - /dev/shm:/dev/shm
+
+  mongodb:
+    image: mongo:latest
+    env_file:
+      - .env
+    environment:
+      - ${LOCAL_PATH}/data/mongodb:/data/db
+      # - MONGO_DATA_DIR=/data/db
+      # - MONGO_LOG_DIR=/dev/null
+    # volumes:
+    #   - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
+    # ports:
+    #   - $NLP_APP_MONGODB_PORT:27017
+    ports:
+      - "27018:27017"
+    # # command: mongod --smallfiles  # --auth
+    # env_file:
+    #   - .env
+
+  milvus:
+    # image: milvusdb/milvus:cpu-latest
+    image: milvusdb/milvus:0.11.0-cpu-d101620-4c44c0
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/milvus/db:/var/lib/milvus/db
+      - ${LOCAL_PATH}/milvus/conf:/var/lib/milvus/conf
+      - ${LOCAL_PATH}/milvus/logs:/var/lib/milvus/logs
+      - ${LOCAL_PATH}/milvus/wal:/var/lib/milvus/wal
+    ports:
+      - "19530:19530"
+      - "19121:19121"
+
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ${LOCAL_PATH}/elasticsearch/data/01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    # networks:
+    #   - elastic
+    #   # - default
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ${LOCAL_PATH}/elasticsearch/data/02:/usr/share/elasticsearch/data
+    # networks:
+    #   - elastic
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    container_name: es03
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ${LOCAL_PATH}/elasticsearch/data/03:/usr/share/elasticsearch/data
+    # networks:
+    #   - elastic
+
+  nlp_api:
+    build:
+      context: ./
+      dockerfile: ./app/nlp_api/Dockerfile
+      args:
+        ENV_ID: nlp_api
+        ENV_PROD_FILE: "environment.nlp_api.yml"
+        PORT: 8919
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/models:/workspace/models
+      - ${LOCAL_PATH}/data/preprocessed:/workspace/data/preprocessed
+      - ${LOCAL_PATH}/data/whitelists:/workspace/data/whitelists
+    ports:
+      - "8991:8919"
+    links:
+      - mongodb
+      - es01
+    depends_on:
+      - mongodb
+      - es01
+
+  app_label:
+    build:
+      context: ./app/app_label
+    ports:
+      - "8998:80"
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/app/app_label:/app
+      - ${LOCAL_PATH}/app/app_label/site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - api
+      - nlp_api
+      - dfr
+    depends_on:
+      - api
+      - nlp_api
+      - dfr
+
+# networks:
+#   elastic:
+#     driver: bridge
