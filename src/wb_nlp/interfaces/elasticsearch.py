@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 # from elasticsearch import helpers
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, exceptions
 
 from elasticsearch_dsl import Document, Date, Integer, Keyword, Text
 from elasticsearch_dsl.connections import connections
@@ -53,7 +53,10 @@ class NLPDoc(Document):
         return super(NLPDoc, self).save(**kwargs)
 
 
-NLPDoc.init()
+try:
+    NLPDoc.init()
+except exceptions.ConnectionError:
+    pass
 
 
 class NLPDocFacetedSearch(FacetedSearch):
