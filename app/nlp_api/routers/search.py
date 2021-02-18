@@ -61,15 +61,15 @@ async def semantic_search(
 
     id_rank = {res["id"]: res["rank"] for res in result}
 
-    response = elasticsearch.ids_search(
-        ids=[i["id"] for i in result],
-        from_result=0,
-        size=size)
+    docs_metadata = mongodb.get_collection(
+        db_name="test_nlp", collection_name="docs_metadata")
+    # docs_metadata = mongodb.get_docs_metadata_collection()
+
+    response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
 
     return dict(
-        total=response.hits.total.to_dict(),
-        hits=[h.to_dict()
-              for h in sorted(response.hits, key=lambda x: id_rank[x["id"]])],
+        total=dict(value=len(id_rank)),
+        hits=[h for h in sorted(response, key=lambda x: id_rank[x["id"]])],
         next=from_result + size,
         result=result,
     )
