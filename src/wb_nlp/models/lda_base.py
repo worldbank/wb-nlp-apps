@@ -9,7 +9,7 @@ from gensim.models.ldamulticore import LdaMulticore
 import numpy as np
 
 from wb_nlp.interfaces.milvus import (
-    get_milvus_client,
+    get_milvus_client, get_embedding_dsl
 )
 
 from wb_nlp.types.models import LDAModelConfig, ModelTypes
@@ -303,47 +303,79 @@ class LDAModel(BaseModel):
 
     #     return payload
 
-    # def get_docs_by_topic_composition(self, topic_percentage, topn=10, return_data='id', closest_to_minimum=False, return_similarity=False, duplicate_threshold=0.01, show_duplicates=True, serialize=False):
-    #     '''
-    #     topic_percentage (dict): key (int) corresponds to topic id and value (float [0, 1]) corresponds to the expected topic percentage.
-    #     '''
-    #     topic_percentage = pd.Series(topic_percentage)
-    #     # Just in case we set the default values to zero
-    #     topic_percentage = topic_percentage[topic_percentage > 0]
+    def get_docs_by_topic_composition(self, topic_percentage, topn=10, closest_to_minimum=False, serialize=False, from_result=0, size=10, show_duplicates=False, duplicate_threshold=0.98, metric_type="IP"):
+        '''
+        topic_percentage (dict): key (int) corresponds to topic id and value (float [0, 1]) corresponds to the expected topic percentage.
+        '''
+        self.check_wvecs()
 
-    #     candidate_docs = self.normalized_documents_topics[topic_percentage.index]
-    #     candidate_docs = candidate_docs[
-    #         (candidate_docs > topic_percentage).all(axis=1)
-    #     ].copy()
+        topic_filter_vec = np.array(
+            [topic_percentage.get(i, 0) for i in range(self.dim)])
 
-    #     total_found = candidate_docs.shape[0]
+        topk = 2 * size  # Add buffer
+        dsl = get_embedding_dsl(
+            topic_filter_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
+        results = get_milvus_client().search(self.model_collection_id, dsl)
 
-    #     if total_found == 0:
-    #         return {'total_found': total_found, 'payload': {}}
+        entities = results[0]
+        payload = []
 
-    #     # Note: transforming using .values may implicitly cause errors if the expected order of the index is not preserved.
-    #     distance = euclidean_distances(
-    #         topic_percentage.values.reshape(1, -1), candidate_docs)
+        for rank, ent in enumerate(entities):
 
-    #     candidate_docs['score'] = distance[0]
-    #     # Set to ascending=False if we want to show documents with higher topic composition than the given minimum. Use ascending=False if we want to get the documents with topic composition closest to the given minimum.
-    #     candidate_docs = candidate_docs.sort_values(
-    #         'score', ascending=closest_to_minimum)
-    #     # Since the index corresponds to the document id, then use .reset_index to convert it to a column
-    #     candidate_docs = candidate_docs.reset_index()
-    #     candidate_docs.index.name = 'rank'
-    #     candidate_docs = candidate_docs.reset_index()  # hax to define the rank
-    #     candidate_docs['rank'] += 1
-    #     candidate_docs['topic'] = candidate_docs[topic_percentage.index].to_dict(
-    #         'records')
+            if from_result > rank:
+                continue
 
-    #     cols = ['id', 'rank', 'score', 'topic']
-    #     payload = candidate_docs[cols].head(topn).to_dict('records')
+            if not show_duplicates:
+                # TODO: Make sure that this is true for Milvus.
+                # If we change the metric_type, this should be adjusted somehow.
+                if ent.distance > duplicate_threshold:
+                    continue
 
-    #     if serialize:
-    #         payload = pd.DataFrame(payload).to_json()
+            payload.append({'id': self.get_doc_id_from_int_id(ent.id), 'score': float(np.round(
+                ent.distance, decimals=5)), 'rank': rank + 1})
 
-    #     return {'total_found': total_found, 'payload': payload}
+            if len(payload) == size:
+                break
+
+        payload = sorted(payload, key=lambda x: x['rank'])
+        if serialize:
+            payload = pd.DataFrame(payload).to_json()
+
+        return payload
+
+        # candidate_docs = self.normalized_documents_topics[topic_percentage.index]
+        # candidate_docs = candidate_docs[
+        #     (candidate_docs > topic_percentage).all(axis=1)
+        # ].copy()
+
+        # total_found = candidate_docs.shape[0]
+
+        # if total_found == 0:
+        #     return {'total_found': total_found, 'payload': {}}
+
+        # # Note: transforming using .values may implicitly cause errors if the expected order of the index is not preserved.
+        # distance = euclidean_distances(
+        #     topic_percentage.values.reshape(1, -1), candidate_docs)
+
+        # candidate_docs['score'] = distance[0]
+        # # Set to ascending=False if we want to show documents with higher topic composition than the given minimum. Use ascending=False if we want to get the documents with topic composition closest to the given minimum.
+        # candidate_docs = candidate_docs.sort_values(
+        #     'score', ascending=closest_to_minimum)
+        # # Since the index corresponds to the document id, then use .reset_index to convert it to a column
+        # candidate_docs = candidate_docs.reset_index()
+        # candidate_docs.index.name = 'rank'
+        # candidate_docs = candidate_docs.reset_index()  # hax to define the rank
+        # candidate_docs['rank'] += 1
+        # candidate_docs['topic'] = candidate_docs[topic_percentage.index].to_dict(
+        #     'records')
+
+        # cols = ['id', 'rank', 'score', 'topic']
+        # payload = candidate_docs[cols].head(topn).to_dict('records')
+
+        # if serialize:
+        #     payload = pd.DataFrame(payload).to_json()
+
+        # return {'total_found': total_found, 'payload': payload}
 
     # def _get_topic_composition_ranges(self):
     #     composition_range = pd.DataFrame(
@@ -356,16 +388,11 @@ class LDAModel(BaseModel):
     #     payload = composition_range.reset_index().to_dict('records')
 
     #     return payload
-
     # def get_topic_composition_ranges(self, serialize=False):
     #     payload = self.topic_composition_ranges
-
     #     if serialize:
     #         payload = pd.DataFrame(payload).to_json()
-
     #     return payload
-
-
 if __name__ == '__main__':
     """
     import glob

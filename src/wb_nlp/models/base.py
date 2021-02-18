@@ -503,7 +503,7 @@ class BaseModel:
 
         return doc_vec.flatten() if flatten else doc_vec
 
-    def search_similar_documents(self, document, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10):
+    def search_similar_documents(self, document, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10):
         # document: any text
         # topn: number of returned related documents in the database
         # return_data: string corresponding to a column in the docs or list of column names
@@ -514,7 +514,7 @@ class BaseModel:
         doc_vec = self.get_doc_vec(
             document, normalize=True, assert_success=True, flatten=True)
 
-        topk = 2 * size  # Add buffer
+        topk = from_result + (2 * size)  # Add buffer
         dsl = get_embedding_dsl(
             doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
         results = get_milvus_client().search(self.model_collection_id, dsl)

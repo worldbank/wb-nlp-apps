@@ -373,7 +373,7 @@
               >
                 <div class="col-12 col-md-3 col-lg-4 mb-2 mb-md-0 small">
                   Showing <b>{{ start }}-{{ end }}</b> of
-                  <b>{{ total.value }}</b> studies
+                  <b>{{ total.message }}</b> studies
                 </div>
                 <div
                   class="filter-action-bar d-flex col-12 col-md-9 col-lg-8 justify-content-lg-end"
@@ -601,10 +601,6 @@ export default {
       this.from_result = 0;
     },
     sendSearch: function (from = 0) {
-      if (from > this.total.value) {
-        return;
-      }
-
       if (this.search_type == "keyword") {
         this.sendKeywordSearch(from);
       } else if (this.search_type == "semantic") {
@@ -643,9 +639,9 @@ export default {
         .finally(() => (this.loading = false));
     },
     sendSemanticSearch: function (from = 0) {
-      if (from > this.total.value) {
-        return;
-      }
+      // if (from > this.total.value) {
+      //   return;
+      // }
       this.from_result = from;
       this.loading = true;
 

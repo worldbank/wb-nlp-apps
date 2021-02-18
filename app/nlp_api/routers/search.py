@@ -26,15 +26,16 @@ async def keyword_search(
     from_result: int = 0,
     size: int = 10,
 ):
-    '''This endpoint returns a list of all the available models. The returned data contains information regarding the configurations used to train a given model.
-
-    This can be used in the frontend to generate guidance and information about the available models.
+    '''This endpoint provides the service for the keyword search functionality. This uses Elasticsearch in the backend for the full-text search.
     '''
     response = elasticsearch.text_search(
         query, from_result=from_result, size=size)
 
+    total = response.hits.total.to_dict()
+    total["message"] = total["value"]
+
     return dict(
-        total=response.hits.total.to_dict(),
+        total=total,
         hits=[h.to_dict() for h in response.hits],
         next=from_result + size
     )
@@ -46,9 +47,7 @@ async def semantic_search(
     from_result: int = 0,
     size: int = 10,
 ):
-    '''This endpoint returns a list of all the available models. The returned data contains information regarding the configurations used to train a given model.
-
-    This can be used in the frontend to generate guidance and information about the available models.
+    '''This endpoint provides the service for the semantic search functionality. This uses a word embedding model to find semantically similar documents in the database.
     '''
 
     model = get_validated_model(ModelTypes(
@@ -67,8 +66,13 @@ async def semantic_search(
 
     response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
 
+    total = dict(
+        value=None,
+        message="many"
+    )
+
     return dict(
-        total=dict(value=len(id_rank)),
+        total=total,
         hits=[h for h in sorted(response, key=lambda x: id_rank[x["id"]])],
         next=from_result + size,
         result=result,
