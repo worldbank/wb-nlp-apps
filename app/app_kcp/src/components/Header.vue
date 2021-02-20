@@ -12,7 +12,7 @@
         <div class="col-12 col-md-4 col-lg-3 mt-3">
           <img src="/static/files/logo.svg" height="40px" alt="WBG logo" />
         </div>
-        <div class="col-12 col-md-8 col-lg-3 mt-3 wbg-header-title__block">
+        <div class="col-12 col-md-8 col-lg-8 mt-3 wbg-header-title__block">
           <div class="wbg-title">Document Explorer</div>
           <div class="wbg-subtitle">
             Natural Language Processing for knowledge discovery

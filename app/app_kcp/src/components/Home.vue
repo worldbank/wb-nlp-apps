@@ -102,7 +102,7 @@
             </p>
           </div>
         </div>
-        <div class="col-12 col-md-4">
+        <!-- <div class="col-12 col-md-4">
           <div class="wbg-homepage-block">
             <div class="wbg-homepage-block__fa">
               <i class="fas fa-chart-bar fa-lg" aria-hidden="true"></i>
@@ -110,23 +110,35 @@
             <h3><a href="/#">Analyze</a></h3>
             <p>Do an analysis in the Corpus of research</p>
           </div>
-        </div>
+        </div> -->
         <div class="col-12 col-md-4">
           <div class="wbg-homepage-block">
             <div class="wbg-homepage-block__fa">
               <i class="fas fa-map-marker-alt fa-lg" aria-hidden="true"></i>
             </div>
             <h3><a href="/#">Methods &amp; Tools</a></h3>
-            <p>Do an analysis in the Corpus of research</p>
+            <p>
+              Learn about the tools, techniques, and models that we used in this
+              application
+            </p>
           </div>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-6">
           <div class="wbg-homepage-block">
             <div class="wbg-homepage-block__fa">
               <i class="fas fa-link fa-lg" aria-hidden="true"></i>
             </div>
             <h3><a href="/#">API</a></h3>
             <p>Learn about, and access, our API services</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="wbg-homepage-block">
+            <div class="wbg-homepage-block__fa">
+              <i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            </div>
+            <h3><a href="/#">Github</a></h3>
+            <p>Review the code at our Github repo</p>
           </div>
         </div>
       </div>

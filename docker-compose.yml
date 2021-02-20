@@ -133,7 +133,8 @@ services:
     image: redis:latest
 
   selenium:
-    image: selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210209
+    # image: selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210209
+    image: selenium/standalone-chrome:88.0
     ports:
       - "4444:4444"
     volumes:
