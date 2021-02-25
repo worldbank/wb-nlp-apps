@@ -33,3 +33,5 @@ window.app = new Vue({
     router,
     render: h => h(App),
 }).$mount('#app')
+
+// (dev) vscode@82f481d7f9a2:/workspace/app/app_kcp$ npm run serve
