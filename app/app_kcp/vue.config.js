@@ -16,10 +16,10 @@ module.exports = {
                 changeOrigin: true
             },
             '^/api': {
-                target: 'http://local-server:8088',
+                target: 'http://10.0.0.3:8088',
             },
             '^/dfr': {
-                target: 'http://local-server:8088',
+                target: 'http://10.0.0.3:8088',
                 changeOrigin: true
             }
         }
