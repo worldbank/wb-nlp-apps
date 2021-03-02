@@ -8,7 +8,7 @@
         @load="onLoad"
       ></vue-friendly-iframe> -->
       <iframe
-        src="https://agoldst.github.io/dfr-browser/demo/"
+        src="/dfr/#/model/list"
         frameborder="0"
         height="800px"
         width="100%"

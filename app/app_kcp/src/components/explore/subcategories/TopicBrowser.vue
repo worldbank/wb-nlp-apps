@@ -10,7 +10,12 @@
         width="100%"
       ></iframe> -->
 
-      <iframe src="/dfr/" frameborder="0" height="800px" width="100%"></iframe>
+      <iframe
+        src="/dfr/#/model/list"
+        frameborder="0"
+        height="800px"
+        width="100%"
+      ></iframe>
     </b-container>
   </div>
 </template>
