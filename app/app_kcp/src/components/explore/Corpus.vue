@@ -33,7 +33,7 @@
         document in its website of origin. We periodically check the links and
         try to fix broken URLs, but we do not guarantee that all documents are
         and will remain accessible. Links that are found to be broken at two
-        successive checks are temporarily of definitively removed from our
+        successive checks are temporarily or definitively removed from our
         catalog.
       </p>
 

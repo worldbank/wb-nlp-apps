@@ -4,16 +4,23 @@
     <div>
       <br />
       <p>
-        One of our objectives is to share scripts, methods to help NLP students
-        by replicating and adapting. The full corpus is too big, and we do not
-        own documents. We provide a smaller corpus of documents for practice,
-        selected from WB Publications and Research documents. Original text and
-        clean text version, metadata.
+        One of our objectives is to share scripts and methods to help NLP
+        students by replicating and adapting the different components of this
+        project. The full corpus is too big, and we do not own the documents. We
+        provide a smaller corpus of documents for practice, selected from WB
+        Publications and Research documents.
+      </p>
+
+      <p>This smaller corpus contains following:
+        <ul>
+          <li>Texts in their raw version.</li>
+          <li>Clean version of the texts.</li>
+          <li>Their associated metadata.</li>
+        </ul>
       </p>
 
       <p>Content: 25,000 documents</p>
       <p>Metadata file: <a href="#">link here</a></p>
-      <p>Already contains augmented metadata.</p>
     </div>
   </div>
 </template>
