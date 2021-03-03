@@ -8,10 +8,11 @@ FastAPI.
 
 import enum
 import json
-from typing import List, Any, Dict
+from fastapi import File, UploadFile, Query
+from typing import List, Any, Dict, Optional
 from pydantic import BaseModel, Field, validator, AnyUrl
 from wb_nlp.utils.scripts import generate_model_hash
-from fastapi import File, UploadFile, Query
+from wb_nlp.types.metadata import MetadataModel
 
 
 class ModelTypes(enum.Enum):
@@ -149,6 +150,7 @@ class SimilarDocElement(BaseModel):
     id: str
     score: float
     rank: int
+    metadata: Optional[MetadataModel]
 
 
 class GetVectorReturns(BaseModel):

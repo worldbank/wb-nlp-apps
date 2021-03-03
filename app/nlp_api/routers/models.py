@@ -122,8 +122,7 @@ async def get_similar_words_by_doc_id(model_name: ModelTypes, transform_params: 
         metric=transform_params.metric.value)
 
 
-# , response_model=SimilarDocsByDocIDReturns)
-@ router.post("/{model_name}/get_similar_docs_by_doc_id")
+@ router.post("/{model_name}/get_similar_docs_by_doc_id", response_model=SimilarDocsByDocIDReturns)
 async def get_similar_docs_by_doc_id(model_name: ModelTypes, transform_params: SimilarDocsByDocIDParams, return_metadata: bool = True):
     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
     '''
