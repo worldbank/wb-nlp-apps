@@ -16,7 +16,9 @@ import TopicComposition from '../components/explore/TopicComposition.vue'
 import TopicProfiles from '../components/explore/TopicProfiles.vue'
 import TopicRelationships from '../components/explore/TopicRelationships.vue'
 // import EmbeddingViz from '../components/explore/EmbeddingViz.vue'
-import WordEmbeddings from '../components/explore/WordEmbeddings.vue'
+// import WordEmbeddings from '../components/explore/WordEmbeddings.vue'
+import WordEmbeddings from '../components/explore/WordEmbeddingsGraph.vue'
+
 import Similarity from '../components/explore/Similarity.vue'
 
 // EXPLORE SUBCATEGORIES components
