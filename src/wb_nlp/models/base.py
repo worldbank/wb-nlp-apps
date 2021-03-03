@@ -369,7 +369,7 @@ class BaseModel:
     def train_model(self, retrain=False):
         # TODO: Add a way to augment the content of the docs
         # with an external dataset without metadata.
-        if self.model_file_name.exists():
+        if self.model_file_name.exists() and not retrain:
             self.log(
                 'Warning: A model with the same configuration is available on disk. Loading...')
             self.load_model()

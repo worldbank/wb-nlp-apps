@@ -126,7 +126,7 @@ if __name__ == '__main__':
         log_level=logging.DEBUG,
     )
     # %time
-    wvec_model.train_model()
+    wvec_model.train_model()  # retrain=True)
     # Do this if the model is available in disk but the model_run_info is not. This is to dump the model_run_info to db in case it's not present.
     # wvec_model.save()
 

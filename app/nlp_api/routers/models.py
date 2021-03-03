@@ -104,7 +104,7 @@ async def get_similar_docs(model_name: ModelTypes, transform_params: SimilarDocs
         topn=transform_params.topn_docs,
         duplicate_threshold=transform_params.duplicate_threshold,
         show_duplicates=transform_params.show_duplicates,
-        metric_type=transform_params.metric_type)
+        metric_type=transform_params.metric_type.value)
 
     return result
 
@@ -122,8 +122,9 @@ async def get_similar_words_by_doc_id(model_name: ModelTypes, transform_params: 
         metric=transform_params.metric.value)
 
 
-@ router.post("/{model_name}/get_similar_docs_by_doc_id", response_model=SimilarDocsByDocIDReturns)
-async def get_similar_docs_by_doc_id(model_name: ModelTypes, transform_params: SimilarDocsByDocIDParams):
+# , response_model=SimilarDocsByDocIDReturns)
+@ router.post("/{model_name}/get_similar_docs_by_doc_id")
+async def get_similar_docs_by_doc_id(model_name: ModelTypes, transform_params: SimilarDocsByDocIDParams, return_metadata: bool = True):
     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
     '''
 
@@ -134,6 +135,16 @@ async def get_similar_docs_by_doc_id(model_name: ModelTypes, transform_params: S
         topn=transform_params.topn_docs,
         duplicate_threshold=transform_params.duplicate_threshold,
         show_duplicates=transform_params.show_duplicates,
-        metric_type=transform_params.metric_type)
+        metric_type=transform_params.metric_type.value)
+
+    if return_metadata:
+        # docs_metadata = mongodb.get_docs_metadata_collection()
+        docs_metadata = mongodb.get_collection(
+            db_name="test_nlp", collection_name="docs_metadata")
+        metadata_map = {d["id"]: d for d in docs_metadata.find(
+            {"id": {"$in": [r["id"] for r in result]}})}
+
+        for r in result:
+            r["metadata"] = metadata_map[r["id"]]
 
     return result

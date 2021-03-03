@@ -36,11 +36,16 @@
         </div>
       </div>
     </div>
-    <a v-b-toggle :href="'#' + result.id" @click.prevent
+    <a
+      v-b-toggle
+      :href="'#' + result.id"
+      v-on:click="activateSubmit()"
+      @click.prevent
       >Related documents...</a
     >
     <b-collapse :id="result.id">
-      <RelatedDocsPanel :result="result" />
+      <RelatedDocsPanel :reference_id="result.id" :submit="submit_related" />
+      <!-- :submit="submit_related" /> -->
     </b-collapse>
     <hr />
   </div>
@@ -55,12 +60,22 @@ export default {
     result: Object,
   },
   components: { RelatedDocsPanel },
+  data: function () {
+    return {
+      submit_related: false,
+    };
+  },
   methods: {
     getDate: function (date) {
       date = new Date(date).toDateString();
       date = date.split(" ");
 
       return date[1] + " " + date[2] + ", " + date[3];
+    },
+    activateSubmit: function () {
+      if (this.submit_related === false) {
+        this.submit_related = true;
+      }
     },
   },
 };

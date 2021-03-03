@@ -1,34 +1,33 @@
 <template>
   <vue-horizontal>
-    <!-- <section v-for="item in items" :key="item.title"> -->
-    <div class="related-section" v-for="item in items" :key="item.title">
-      <!-- <b-card class="related-section" v-for="item in items" :key="item.title"> -->
-      <div class="related-document-row" data-url="#" title="View study">
+    <div
+      class="related-section"
+      v-for="result in results"
+      :key="'rel_' + result.rank"
+    >
+      <div class="related-document-row" data-url="#" title="View related study">
         <div class="row">
           <div class="col-12 scrollable">
             <span class="title">
-              <a :href="result.url_pdf" :title="result.title">{{
-                result.title
-              }}</a>
+              <a
+                :href="result.metadata.url_pdf"
+                :title="result.metadata.title"
+                >{{ result.metadata.title }}</a
+              >
             </span>
-            <!-- <div class="scrollable"> -->
             <div class="study-country">
-              {{ result.country[0] }}, {{ result.year }}
+              {{ result.metadata.country[0] }}, {{ result.metadata.year }}
             </div>
             <div class="survey-stats">
-              <span>Created on: {{ getDate(result.date_published) }} </span
+              <span
+                >Created on:
+                {{ getDate(result.metadata.date_published) }} </span
               ><br />
-              <span>Views: {{ result.views }}</span>
+              <span>Views: {{ result.metadata.views }}</span>
             </div>
-            <!-- </div> -->
           </div>
         </div>
       </div>
-      <!-- </b-card> -->
-
-      <!-- <h3>{{ item.title }}</h3>
-      <p>{{ item.content }}</p> -->
-      <!-- </section> -->
     </div>
   </vue-horizontal>
 </template>
@@ -39,14 +38,28 @@ import VueHorizontal from "vue-horizontal";
 export default {
   components: { VueHorizontal },
   props: {
-    result: Object,
+    reference_id: String,
+    submit: Boolean,
+  },
+  computed: {
+    similarityBody() {
+      return {
+        model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
+        doc_id: this.reference_id,
+        topn_docs: 10,
+        metric: "cosine_similarity",
+        show_duplicates: false,
+        duplicate_threshold: 0.98,
+        metric_type: "IP",
+      };
+    },
   },
   data() {
     return {
-      // E.g: creates 20 array items...
-      items: [...Array(20).keys()].map((i) => {
-        return { title: `Item ${i}`, content: `🚀 Content ${i}` };
-      }),
+      similar_docs_by_id_url: "/nlp/models/lda/get_similar_docs_by_doc_id",
+      results: [],
+      loading: false,
+      errored: false,
     };
   },
   methods: {
@@ -55,6 +68,30 @@ export default {
       date = date.split(" ");
 
       return date[1] + " " + date[2] + ", " + date[3];
+    },
+    sendSemanticSearch: function () {
+      this.loading = true;
+
+      this.$http
+        .post(
+          this.similar_docs_by_id_url + "?return_metadata=true",
+          this.similarityBody
+        )
+        .then((response) => {
+          this.results = response.data;
+          console.log(this.results);
+        })
+        .catch((error) => {
+          console.log(error);
+          this.errored = true;
+          this.loading = false;
+        })
+        .finally(() => (this.loading = false));
+    },
+  },
+  watch: {
+    submit: function () {
+      this.sendSemanticSearch();
     },
   },
 };
