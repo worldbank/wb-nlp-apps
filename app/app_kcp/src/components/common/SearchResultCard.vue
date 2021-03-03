@@ -35,17 +35,26 @@
           </div>
         </div>
       </div>
-      <hr />
     </div>
+    <a v-b-toggle :href="'#' + result.id" @click.prevent
+      >Related documents...</a
+    >
+    <b-collapse :id="result.id">
+      <RelatedDocsPanel :result="result" />
+    </b-collapse>
+    <hr />
   </div>
 </template>
 
 <script>
+import RelatedDocsPanel from "./RelatedDocsPanel";
+
 export default {
   name: "SearchResultCard",
   props: {
     result: Object,
   },
+  components: { RelatedDocsPanel },
   methods: {
     getDate: function (date) {
       date = new Date(date).toDateString();
