@@ -2,27 +2,29 @@
   <vue-horizontal>
     <!-- <section v-for="item in items" :key="item.title"> -->
     <div class="related-section" v-for="item in items" :key="item.title">
+      <!-- <b-card class="related-section" v-for="item in items" :key="item.title"> -->
       <div class="related-document-row" data-url="#" title="View study">
         <div class="row">
-          <div class="col-12">
+          <div class="col-12 scrollable">
             <span class="title">
               <a :href="result.url_pdf" :title="result.title">{{
                 result.title
               }}</a>
             </span>
+            <!-- <div class="scrollable"> -->
             <div class="study-country">
               {{ result.country[0] }}, {{ result.year }}
             </div>
             <div class="survey-stats">
               <span>Created on: {{ getDate(result.date_published) }} </span
               ><br />
-              <span>Last modified: {{ getDate(result.last_update_date) }} </span
-              ><br />
               <span>Views: {{ result.views }}</span>
             </div>
+            <!-- </div> -->
           </div>
         </div>
       </div>
+      <!-- </b-card> -->
 
       <!-- <h3>{{ item.title }}</h3>
       <p>{{ item.content }}</p> -->
@@ -65,6 +67,11 @@ export default {
   scroll-padding-right: 16px;
 } */
 
+.scrollable {
+  overflow-y: auto;
+  max-height: 90px;
+}
+
 .related-document-row {
   margin-top: 0;
 }
@@ -88,12 +95,13 @@ export default {
   padding: 5px;
 }
 .related-section {
-  width: 33vh;
-  padding: 10px 5px;
+  width: 40vh;
+  padding: 0px 20px;
   margin: 3px;
-  height: 150px;
+  height: 100px;
   background: #ffffff;
-  border: 1px solid #7b7b7b;
+  /* background: #f3f3f3; */
+  border: 2px solid #ebebeb;
   border-radius: 4px;
 }
 </style>
