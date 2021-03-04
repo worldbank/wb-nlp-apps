@@ -4,7 +4,13 @@ for training the model as well as a backend interface for the API.
 import logging
 from gensim.models import Word2Vec
 import numpy as np
-
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
+from sklearn.cluster import KMeans
+import networkx as nx
+import graph_tool.all as gt
+import pyintergraph
+from wb_nlp.graph.graph_interface import FixedInterGraph
 from wb_nlp.interfaces.milvus import (
     get_milvus_client,
 )
@@ -77,6 +83,99 @@ class Word2VecModel(BaseModel):
 
         return dict(doc_vec=doc_vec, success=success)
 
+    def get_similar_words_graph(self, document, topn=10, edge_thresh=0.5, n_clusters=5, serialize=False, metric="cosine_similarity"):
+
+        words = []
+        word_ids = []
+
+        for result in self.get_similar_words(
+                document, topn=topn, serialize=False, metric=metric):
+            words.append(result["word"])
+            word_ids.append(result["id"])
+            print(result)
+
+        related_words = []
+        for word in words:
+            for result in self.get_similar_words(
+                    word, topn=topn, serialize=False, metric=metric):
+                if result["word"] in words or result["word"] in related_words:
+                    continue
+                related_words.append(result["word"])
+                word_ids.append(result["id"])
+
+        words.extend(related_words)
+
+        # words_set = [{document: self.get_similar_words(
+        #     document, topn=topn, serialize=False, metric=metric)}]
+        # words_set.extend([{result["word"]: self.get_similar_words(
+        #     result["word"], topn=topn, serialize=False, metric=metric)} for result in words_set[0][document]])
+
+        word_vectors = self.word_vectors[word_ids]
+        sim = cosine_similarity(word_vectors, word_vectors)
+        # sim[sim < edge_thresh] = 0
+        graph_df = pd.DataFrame(sim, index=words, columns=words)
+        # graph_df[graph_df < edge_thresh] = 0
+
+        cluster = KMeans(n_clusters=n_clusters)
+        cluster.fit(word_vectors)
+        word_clusters = cluster.predict(word_vectors)
+
+        nx_graph = nx.from_pandas_adjacency(graph_df)
+        centrality = nx.pagerank(nx_graph)
+        # centrality = nx.eigenvector_centrality(nx_graph)
+
+        inter_graph = FixedInterGraph.from_networkx(nx_graph)
+        # inter_graph.node_labels
+        gt_graph = inter_graph.to_graph_tool()
+        nodes_pos = gt.sfdp_layout(gt_graph)
+
+        # # G = pd.DataFrame(np.random.random(size=(30, 30)))
+        # # G[G < 0.2] = 0
+        # # G.columns = G.columns.astype(str).map(lambda x: f"node_{x}")
+        # # G.index = G.index.astype(str).map(lambda x: f"node_{x}")
+        # # G = nx.from_pandas_adjacency(G)
+
+        # # GG = FixedInterGraph.from_networkx(G)
+        # # GG.edge_attributes = [{"weight": [ea["weight"]]} for ea in GG.edge_attributes]
+        # # gt_graph = GG.to_graph_tool()
+        # # pos = gt.sfdp_layout(gt_graph)
+
+        nodes = []
+        links = [{"source": l[0], "target": l[1]} for l in nx_graph.edges]
+        categories = [{"name": f"cluster {i + 1}"} for i in range(n_clusters)]
+
+        for word, word_id, cluster_id, pos in zip(words, word_ids, word_clusters, nodes_pos):
+            nodes.append(
+                dict(
+                    id=word_id,
+                    name=word,
+                    symbolSize=centrality[word],
+                    x=pos[0],
+                    y=pos[1],
+                    value=centrality[word],
+                    category=cluster_id,
+                )
+            )
+
+        # { "nodes": [
+        # {
+        # "id": "60",
+        # "name": "Prouvaire",
+        # "symbolSize": 17.295237333333333,
+        # "x": 614.29285,
+        # "y": -69.3104,
+        # "value": 25.942856,
+        # "category": 8
+        # },], "links": [
+        # {
+        # "source": "1",
+        # "target": "0"
+        # },], "categories": [{"name": "cat_name"},]}
+
+        # return payload
+
+        return dict(nodes=nodes, links=links, categories=categories)
+
 
 if __name__ == '__main__':
     """
@@ -88,15 +187,18 @@ if __name__ == '__main__':
     from wb_nlp.models.word2vec import word2vec
 
     doc_fnames = list(Path('./data/raw/sample_data/TXT_ORIG').glob('*.txt'))
-    doc_ids = [hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15] for p in doc_fnames]
+    doc_ids = [hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
+                           for p in doc_fnames]
     corpus = ['WB'] * len(doc_ids)
 
     doc_df = pd.DataFrame()
     doc_df['id'] = doc_ids
     doc_df['corpus'] = corpus
-    doc_df['text'] = [open(fn, 'rb').read().decode('utf-8', errors='ignore') for fn in doc_fnames]
+    doc_df['text'] = [open(fn, 'rb').read().decode(
+        'utf-8', errors='ignore') for fn in doc_fnames]
 
-    wvec_model = word2vec.Word2VecModel(corpus_id='WB', model_id='ALL_50', cleaning_config_id='cid', doc_df=doc_df, model_path='./models/', iter=10)
+    wvec_model = word2vec.Word2VecModel(
+        corpus_id='WB', model_id='ALL_50', cleaning_config_id='cid', doc_df=doc_df, model_path='./models/', iter=10)
     %time wvec_model.train_model()
 
     wvec_model.build_doc_vecs(pool_workers=3)

@@ -7,6 +7,7 @@ dependencies:
   - bs4=4.9.1
   - ca-certificates=2020.12.8
   - certifi=2020.12.5
+  - graph-tool=2.37
   - ld_impl_linux-64=2.33.1
   - libedit=3.1.20191231
   - libffi=3.3
@@ -49,6 +50,7 @@ dependencies:
     - langdetect==1.0.7
     - msgpack==1.0.2
     - murmurhash==1.0.5
+    - networkx==2.5
     - nltk==3.5
     - numpy==1.19.4
     - packaging==20.8

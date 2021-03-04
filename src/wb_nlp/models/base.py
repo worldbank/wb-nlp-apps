@@ -580,7 +580,7 @@ class BaseModel:
 
         payload = []
         for rank, top_sim_ix in enumerate(argidx, 1):
-            payload.append({'word': self.index2word[top_sim_ix], 'score': float(np.round(
+            payload.append({"id": top_sim_ix, 'word': self.index2word[top_sim_ix], 'score': float(np.round(
                 sim[top_sim_ix], decimals=5)), 'rank': rank})
 
         payload = sorted(payload, key=lambda x: x['rank'])
