@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ page_title }} xxx</h1>
+    <h1>{{ page_title }}</h1>
     <br />
     <b-form-input
       width="100%"
@@ -8,6 +8,15 @@
       placeholder="Enter word(s)"
       v-on:keyup.enter="getGraph"
     />
+    <b-badge
+      v-for="rw in this.related_words"
+      :key="rw"
+      variant="success"
+      style="margin-right: 5px"
+      >{{ rw.word }}
+    </b-badge>
+    <br />
+    <br />
     <b-container fluid>
       <v-chart v-if="this.graph !== null" class="chart" :option="option2" />
 
@@ -96,7 +105,7 @@ export default {
     option2() {
       return {
         title: {
-          text: "Les Miserables",
+          text: "Related words graph",
           subtext: "Default layout",
           top: "bottom",
           left: "right",
@@ -143,6 +152,8 @@ export default {
   data() {
     return {
       graph: null,
+      raw_text: "",
+      related_words: [],
       option: {
         title: {
           text: "Traffic Sources",
@@ -208,17 +219,19 @@ export default {
       }
       this.loading = true;
       this.related_words = [];
-      // const body = {
-      //   model_id: "777a9cf47411f6c4932e8941f177f90a",
-      //   raw_text: text,
-      //   topn_words: 10,
-      //   metric: "cosine_similarity",
-      // };
+      const body = {
+        model_id: "777a9cf47411f6c4932e8941f177f90a",
+        raw_text: text,
+        topn_words: 10,
+        edge_thresh: 0.75,
+        metric: "cosine_similarity",
+      };
 
       this.$http
-        .get("/static/data/les-miserables.json")
+        .post("/nlp/models/word2vec2/get_similar_words_graph", body)
         .then((response) => {
-          this.graph = response.data;
+          this.graph = response.data.graph_data;
+          this.related_words = response.data.similar_words;
         })
         .catch((error) => {
           console.log(error);

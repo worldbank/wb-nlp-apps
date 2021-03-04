@@ -43,12 +43,12 @@ app.include_router(metadata.router, prefix="/nlp")
 app.include_router(cleaner.router, prefix="/nlp")
 app.include_router(models.router, prefix="/nlp")
 app.include_router(search.router, prefix="/nlp")
-# app.include_router(
-#     word2vec.router,
-#     prefix="/models",
-#     # tags=["word2vec"],
-#     responses={404: {"description": "Not found"}},
-# )
+app.include_router(
+    word2vec.router,
+    prefix="/nlp/models",
+    # tags=["word2vec"],
+    responses={404: {"description": "Not found"}},
+)
 app.include_router(
     lda.router,
     prefix="/nlp/models",

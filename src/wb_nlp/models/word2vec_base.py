@@ -2,6 +2,7 @@
 for training the model as well as a backend interface for the API.
 '''
 import logging
+import json
 from gensim.models import Word2Vec
 import numpy as np
 import pandas as pd
@@ -87,9 +88,10 @@ class Word2VecModel(BaseModel):
 
         words = []
         word_ids = []
+        top_results = self.get_similar_words(
+            document, topn=topn, serialize=False, metric=metric)
 
-        for result in self.get_similar_words(
-                document, topn=topn, serialize=False, metric=metric):
+        for result in top_results:
             words.append(result["word"])
             word_ids.append(result["id"])
             print(result)
@@ -105,16 +107,12 @@ class Word2VecModel(BaseModel):
 
         words.extend(related_words)
 
-        # words_set = [{document: self.get_similar_words(
-        #     document, topn=topn, serialize=False, metric=metric)}]
-        # words_set.extend([{result["word"]: self.get_similar_words(
-        #     result["word"], topn=topn, serialize=False, metric=metric)} for result in words_set[0][document]])
-
         word_vectors = self.word_vectors[word_ids]
         sim = cosine_similarity(word_vectors, word_vectors)
+        print(sim)
         # sim[sim < edge_thresh] = 0
         graph_df = pd.DataFrame(sim, index=words, columns=words)
-        # graph_df[graph_df < edge_thresh] = 0
+        graph_df[graph_df < edge_thresh] = 0
 
         cluster = KMeans(n_clusters=n_clusters)
         cluster.fit(word_vectors)
@@ -127,7 +125,9 @@ class Word2VecModel(BaseModel):
         inter_graph = FixedInterGraph.from_networkx(nx_graph)
         # inter_graph.node_labels
         gt_graph = inter_graph.to_graph_tool()
-        nodes_pos = gt.sfdp_layout(gt_graph)
+        nodes_pos = gt.sfdp_layout(
+            gt_graph, eweight=gt_graph.edge_properties["weight"])
+        # nodes_pos = gt.fruchterman_reingold_layout(gt_graph)
 
         # # G = pd.DataFrame(np.random.random(size=(30, 30)))
         # # G[G < 0.2] = 0
@@ -141,21 +141,27 @@ class Word2VecModel(BaseModel):
         # # pos = gt.sfdp_layout(gt_graph)
 
         nodes = []
-        links = [{"source": l[0], "target": l[1]} for l in nx_graph.edges]
+        links = [{"source": int(words.index(
+            l[0])), "target": int(words.index(l[1]))} for l in nx_graph.edges]
         categories = [{"name": f"cluster {i + 1}"} for i in range(n_clusters)]
 
         for word, word_id, cluster_id, pos in zip(words, word_ids, word_clusters, nodes_pos):
             nodes.append(
                 dict(
-                    id=word_id,
+                    id=int(words.index(word)),
                     name=word,
                     symbolSize=centrality[word],
                     x=pos[0],
                     y=pos[1],
                     value=centrality[word],
-                    category=cluster_id,
+                    category=int(cluster_id),
                 )
             )
+
+        nodes = pd.DataFrame(nodes)
+        nodes["symbolSize"] = 10 * \
+            (nodes["symbolSize"] / nodes["symbolSize"].max())
+        nodes = nodes.to_dict("records")
 
         # { "nodes": [
         # {
@@ -174,7 +180,9 @@ class Word2VecModel(BaseModel):
 
         # return payload
 
-        return dict(nodes=nodes, links=links, categories=categories)
+        # return json.dumps(dict(nodes=nodes, links=links, categories=categories))
+        graph_data = dict(nodes=nodes, links=links, categories=categories)
+        return dict(similar_words=top_results, graph_data=graph_data)
 
 
 if __name__ == '__main__':

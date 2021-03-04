@@ -96,6 +96,13 @@ class SimilarWordsParams(TextInputParams):
     metric: MetricTypes = MetricTypes.cosine_similarity
 
 
+class SimilarWordsGraphParams(SimilarWordsParams):
+    edge_thresh: float = Field(
+        0.5, description="Minimum similarity score."
+    )
+    n_clusters: int = Field(5, description="Number of clusters.")
+
+
 class SimilarDocsParams(TextInputParams):
     raw_text: str = Field(
         ..., description="Input text to transform.")
