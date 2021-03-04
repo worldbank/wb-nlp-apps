@@ -123,13 +123,16 @@ export default {
         animationEasingUpdate: "quinticInOut",
         series: [
           {
-            name: "Les Miserables",
+            name: "Related word",
             type: "graph",
             layout: "none",
             data: this.graph.nodes,
             links: this.graph.links,
             categories: this.graph.categories,
             roam: true,
+            // force: {
+            //   repulsion: 1000,
+            // },
             label: {
               position: "right",
               formatter: "{b}",
@@ -137,6 +140,13 @@ export default {
             lineStyle: {
               color: "source",
               curveness: 0.3,
+            },
+            focusNodeAdjacency: true,
+            itemStyle: {
+              borderColor: "#fff",
+              borderWidth: 1,
+              shadowBlur: 10,
+              shadowColor: "rgba(0, 0, 0, 0.3)",
             },
             emphasis: {
               focus: "adjacency",
@@ -154,49 +164,6 @@ export default {
       graph: null,
       raw_text: "",
       related_words: [],
-      option: {
-        title: {
-          text: "Traffic Sources",
-          left: "center",
-        },
-        tooltip: {
-          trigger: "item",
-          formatter: "{a} <br/>{b} : {c} ({d}%)",
-        },
-        legend: {
-          orient: "vertical",
-          left: "left",
-          data: [
-            "Direct",
-            "Email",
-            "Ad Networks",
-            "Video Ads",
-            "Search Engines",
-          ],
-        },
-        series: [
-          {
-            name: "Traffic Sources",
-            type: "pie",
-            radius: "55%",
-            center: ["50%", "60%"],
-            data: [
-              { value: 335, name: "Direct" },
-              { value: 310, name: "Email" },
-              { value: 234, name: "Ad Networks" },
-              { value: 135, name: "Video Ads" },
-              { value: 1548, name: "Search Engines" },
-            ],
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
-            },
-          },
-        ],
-      },
     };
   },
   // data: function () {
@@ -222,16 +189,25 @@ export default {
       const body = {
         model_id: "777a9cf47411f6c4932e8941f177f90a",
         raw_text: text,
-        topn_words: 10,
-        edge_thresh: 0.75,
+        topn_words: 8,
+        topn_sub: 5,
+        edge_thresh: 0.8,
         metric: "cosine_similarity",
       };
 
       this.$http
         .post("/nlp/models/word2vec2/get_similar_words_graph", body)
         .then((response) => {
-          this.graph = response.data.graph_data;
+          var graph = response.data.graph_data;
           this.related_words = response.data.similar_words;
+          graph.nodes.forEach(function (node) {
+            node.label = {
+              show: node.symbolSize > 5,
+            };
+            node.draggable = true;
+            // node.x = node.y = null;
+          });
+          this.graph = graph;
         })
         .catch((error) => {
           console.log(error);

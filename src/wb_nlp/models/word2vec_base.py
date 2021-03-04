@@ -84,7 +84,7 @@ class Word2VecModel(BaseModel):
 
         return dict(doc_vec=doc_vec, success=success)
 
-    def get_similar_words_graph(self, document, topn=10, edge_thresh=0.5, n_clusters=5, serialize=False, metric="cosine_similarity"):
+    def get_similar_words_graph(self, document, topn=10, topn_sub=5, edge_thresh=0.5, n_clusters=5, serialize=False, metric="cosine_similarity"):
 
         words = []
         word_ids = []
@@ -99,7 +99,7 @@ class Word2VecModel(BaseModel):
         related_words = []
         for word in words:
             for result in self.get_similar_words(
-                    word, topn=topn, serialize=False, metric=metric):
+                    word, topn=topn_sub, serialize=False, metric=metric):
                 if result["word"] in words or result["word"] in related_words:
                     continue
                 related_words.append(result["word"])
@@ -109,7 +109,7 @@ class Word2VecModel(BaseModel):
 
         word_vectors = self.word_vectors[word_ids]
         sim = cosine_similarity(word_vectors, word_vectors)
-        print(sim)
+        # print(sim)
         # sim[sim < edge_thresh] = 0
         graph_df = pd.DataFrame(sim, index=words, columns=words)
         graph_df[graph_df < edge_thresh] = 0
@@ -119,8 +119,17 @@ class Word2VecModel(BaseModel):
         word_clusters = cluster.predict(word_vectors)
 
         nx_graph = nx.from_pandas_adjacency(graph_df)
-        centrality = nx.pagerank(nx_graph)
-        # centrality = nx.eigenvector_centrality(nx_graph)
+
+        node_groups = list(
+            nx.algorithms.community.modularity_max.greedy_modularity_communities(nx_graph))
+
+        node_groups = {i: k for k, g in enumerate(node_groups) for i in g}
+        word_clusters = [node_groups[n] for n in words]
+
+        # centrality = nx.pagerank(nx_graph)
+        # centrality = nx.betweenness_centrality(nx_graph)
+        # centrality = nx.degree_centrality(nx_graph)
+        centrality = nx.eigenvector_centrality(nx_graph)
 
         inter_graph = FixedInterGraph.from_networkx(nx_graph)
         # inter_graph.node_labels
@@ -161,6 +170,14 @@ class Word2VecModel(BaseModel):
         nodes = pd.DataFrame(nodes)
         nodes["symbolSize"] = 10 * \
             (nodes["symbolSize"] / nodes["symbolSize"].max())
+
+        nodes["x"] = 100 * (nodes["x"] - nodes["x"].mean())
+        nodes["y"] = 100 * (nodes["y"] - nodes["y"].mean())
+
+        print(nodes["x"].mean(), nodes["y"].mean())
+        print(nodes["x"].min(), nodes["y"].min(),
+              nodes["x"].max(), nodes["y"].max())
+
         nodes = nodes.to_dict("records")
 
         # { "nodes": [

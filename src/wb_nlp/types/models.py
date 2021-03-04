@@ -97,6 +97,8 @@ class SimilarWordsParams(TextInputParams):
 
 
 class SimilarWordsGraphParams(SimilarWordsParams):
+    topn_sub: int = Field(
+        5, ge=1, description='Number of similar words to primary related words.')
     edge_thresh: float = Field(
         0.5, description="Minimum similarity score."
     )

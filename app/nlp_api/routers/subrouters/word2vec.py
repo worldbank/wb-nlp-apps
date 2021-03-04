@@ -29,6 +29,7 @@ async def get_similar_words(transform_params: SimilarWordsGraphParams):
     return model.get_similar_words_graph(
         document=transform_params.raw_text,
         topn=transform_params.topn_words,
+        topn_sub=transform_params.topn_sub,
         edge_thresh=transform_params.edge_thresh,
         n_clusters=transform_params.n_clusters,
         metric=transform_params.metric.value)
