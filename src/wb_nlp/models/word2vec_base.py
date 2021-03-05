@@ -60,9 +60,10 @@ class Word2VecModel(BaseModel):
 
     def transform_doc(self, document, normalize=True, tolist=False):
         # document: cleaned string
-
         self.check_model()
         success = True
+
+        document = document.lower()
 
         try:
             tokens = [i for i in document.split() if i in self.model.wv.vocab]

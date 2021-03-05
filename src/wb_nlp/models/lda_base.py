@@ -64,6 +64,8 @@ class LDAModel(BaseModel):
         self.check_model()
         success = True
 
+        document = document.lower()
+
         try:
 
             doc_topics = self.infer_topics(document)
