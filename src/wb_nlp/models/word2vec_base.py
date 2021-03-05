@@ -124,6 +124,7 @@ class Word2VecModel(BaseModel):
         node_groups = list(
             nx.algorithms.community.modularity_max.greedy_modularity_communities(nx_graph))
 
+        # node_groups: [frozenset(word1, word2, word3, ...),...]
         node_groups = {i: k for k, g in enumerate(node_groups) for i in g}
         word_clusters = [node_groups[n] for n in words]
 
@@ -153,7 +154,8 @@ class Word2VecModel(BaseModel):
         nodes = []
         links = [{"source": int(words.index(
             l[0])), "target": int(words.index(l[1]))} for l in nx_graph.edges]
-        categories = [{"name": f"cluster {i + 1}"} for i in range(n_clusters)]
+        categories = [{"name": f"cluster {i + 1}"}
+                      for i in range(max(word_clusters))]
 
         for word, word_id, cluster_id, pos in zip(words, word_ids, word_clusters, nodes_pos):
             nodes.append(
