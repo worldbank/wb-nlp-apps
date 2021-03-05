@@ -18,48 +18,16 @@
     <br />
     <br />
     <b-container fluid>
-      <v-chart v-if="this.graph !== null" class="chart" :option="option2" />
-
-      <!-- <b-row>
-        <b-col md="9" class="border-right">
-          <EmbeddingViz @selected="getRelatedWords"></EmbeddingViz>
-        </b-col>
-        <b-col md="3">
-          <h2>Try the API!</h2>
-          <b-form-input
-            width="100%"
-            v-model="raw_text"
-            placeholder="Enter word(s)"
-            v-on:keyup.enter="getRelatedWords"
-          />
-          <br />
-          <h4 v-show="raw_text">Input text</h4>
-          {{ raw_text }}
-          <br />
-          <br />
-
-          <div v-show="loading">
-            <b-skeleton-table
-              v-show="loading"
-              animation="wave"
-              :rows="10"
-              :columns="1"
-              :table-props="{ bordered: true, striped: true }"
-            ></b-skeleton-table>
-          </div>
-
-          <h4 v-show="related_words.length > 0">Similar words</h4>
-
-          <b-list-group v-show="!loading" flush>
-            <b-list-group-item
-              v-for="related_word in related_words"
-              :key="related_word.word"
-            >
-              {{ related_word.word }}
-            </b-list-group-item>
-          </b-list-group>
-        </b-col>
-      </b-row> -->
+      <v-chart
+        v-if="this.graph !== null"
+        class="chart"
+        :option="option2"
+        autoresize="true"
+        :loading="loading"
+      />
+      <!-- <div v-if="this.graph === null">
+        <b-skeleton-img></b-skeleton-img>
+      </div> -->
     </b-container>
   </div>
 </template>
@@ -102,6 +70,9 @@ export default {
     window.vm = this;
   },
   computed: {
+    blurContent: function () {
+      return this.loading;
+    },
     option2() {
       return {
         title: {
@@ -130,9 +101,6 @@ export default {
             links: this.graph.links,
             categories: this.graph.categories,
             roam: true,
-            // force: {
-            //   repulsion: 1000,
-            // },
             label: {
               position: "right",
               formatter: "{b}",
@@ -164,6 +132,7 @@ export default {
       graph: null,
       raw_text: "",
       related_words: [],
+      loading: false,
     };
   },
   // data: function () {
@@ -179,12 +148,12 @@ export default {
   // },
   methods: {
     getGraph: function (text = null) {
+      this.loading = true;
       if (typeof text !== "string") {
         text = this.raw_text;
       } else {
         this.raw_text = text;
       }
-      this.loading = true;
       this.related_words = [];
       const body = {
         model_id: "777a9cf47411f6c4932e8941f177f90a",
@@ -214,7 +183,9 @@ export default {
           this.errored = true;
           this.loading = false;
         })
-        .finally(() => (this.loading = false));
+        .finally(() => {
+          this.loading = false;
+        });
     },
   },
 };
@@ -224,6 +195,11 @@ export default {
 <style scoped>
 .chart {
   height: 600px;
+}
+
+.blur {
+  filter: blur(1px);
+  opacity: 0.4;
 }
 
 h3 {
