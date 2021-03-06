@@ -37,6 +37,7 @@
     <br />
     <b-container fluid>
       <v-chart
+        @mouseover="isHighlighted"
         v-if="this.graph !== null"
         class="chart"
         :option="option2"
@@ -120,19 +121,46 @@ export default {
             categories: this.graph.categories,
             roam: true,
             label: {
+              show: true,
               position: "right",
               formatter: "{b}",
             },
+            labelLayout: {
+              hideOverlap: true,
+            },
+            scaleLimit: {
+              min: 0.8,
+              max: 2,
+            },
             lineStyle: {
-              color: "source",
-              curveness: 0.3,
+              normal: {
+                color: "source",
+                curveness: 0.3,
+                width: 1,
+                opacity: 0.5,
+              },
+              emphasis: {
+                focus: "adjacency",
+                width: 5,
+                opacity: 1,
+              },
             },
             focusNodeAdjacency: true,
             itemStyle: {
-              borderColor: "#fff",
-              borderWidth: 1,
-              shadowBlur: 10,
-              shadowColor: "rgba(0, 0, 0, 0.3)",
+              normal: {
+                borderColor: "#fff",
+                borderWidth: 1,
+                shadowBlur: 10,
+                shadowColor: "rgba(0, 0, 0, 0.3)",
+              },
+              emphasis: {
+                focus: "adjacency",
+                width: 5,
+                opacity: 1,
+                lineStyle: {
+                  width: 10,
+                },
+              },
             },
             emphasis: {
               focus: "adjacency",
@@ -165,6 +193,9 @@ export default {
   //   this.getRelatedWords();
   // },
   methods: {
+    isHighlighted: function (action) {
+      this.highlighted_point = action;
+    },
     getGraph: function (text = null) {
       this.loading = true;
       if (typeof text !== "string") {
@@ -188,9 +219,9 @@ export default {
           var graph = response.data.graph_data;
           this.related_words = response.data.similar_words;
           graph.nodes.forEach(function (node) {
-            node.label = {
-              show: node.symbolSize > 5,
-            };
+            // node.label = {
+            //   show: node.symbolSize > 5,
+            // };
             node.draggable = true;
             // node.x = node.y = null;
           });
