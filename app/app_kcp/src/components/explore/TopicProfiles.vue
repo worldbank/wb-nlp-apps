@@ -15,7 +15,11 @@
     <hr />
 
     <b-container fluid>
-      <b-row>
+      <ModelSelect @modelSelected="onModelSelect" :model_name="model_name" />
+
+      <br />
+
+      <b-row v-show="model_run_info_id !== null">
         <b-col :md="show_topic_words ? 9 : 12">
           <b-row
             v-if="
@@ -142,11 +146,13 @@
 <script>
 import { Plotly } from "vue-plotly";
 import $ from "jquery";
+import ModelSelect from "../common/ModelSelect";
 
 export default {
   name: "TopicProfiles",
   components: {
     Plotly,
+    ModelSelect,
   },
   props: {
     page_title: String,
@@ -161,6 +167,8 @@ export default {
       current_lda_model_topics_options: [],
       raw_text: "poverty",
       loading: true,
+      model_name: "lda",
+      model_run_info_id: null,
 
       corpus_id: "WB",
       lda_model_id: "ALL_50",
@@ -231,6 +239,9 @@ export default {
     this.setModel();
   },
   methods: {
+    onModelSelect: function (model_run_info_id) {
+      this.model_run_info_id = model_run_info_id;
+    },
     formatTopicText: function (topic) {
       return (
         "Topic " +
