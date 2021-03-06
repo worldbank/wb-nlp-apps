@@ -15,7 +15,7 @@
     <hr />
 
     <b-container fluid>
-      <ModelSelect @modelSelected="onModelSelect" :model_name="model_name" />
+      <WModelSelect @modelSelected="onModelSelect" :model_name="model_name" />
 
       <br />
 
@@ -28,17 +28,61 @@
               current_lda_model_topics_options
             "
           >
-            <b-col cols="9">
+            <b-col cols="10">
               <b-form-group>
+                <!-- <v-select
+                  class="topic-chooser"
+                  id="topic_id"
+                  placeholder="Select topic"
+                  v-model="selected_topic"
+                  label="text"
+                  :options="current_lda_model_topics_options"
+                >
+                  <template #selected-option="{ text }">
+                    <div style="width: 100%">
+                      <span id="topic-selected">
+                        {{ text }}
+                      </span>
+                    </div>
+                  </template></v-select
+                > -->
+                <!--
                 <b-form-select
                   id="topic_id"
                   v-model="topic_id"
                   :options="current_lda_model_topics_options"
-                ></b-form-select>
+                >
+                  <template #first>
+                    <b-form-select-option value="" disabled
+                      >-- Please select a topic --</b-form-select-option
+                    >
+                  </template></b-form-select
+                > -->
+
+                <!-- <b-form-input
+                  v-model="topic_id"
+                  list="my-list-id"
+                ></b-form-input>
+                <datalist id="my-list-id" style="width: 100%">
+                  <option>Select topic...</option>
+                  <option
+                    v-for="cto in current_lda_model_topics_options"
+                    :key="cto.topic_id"
+                  >
+                    {{ cto.text }}
+                  </option>
+                </datalist> -->
+
+                <model-select
+                  :options="current_lda_model_topics_options"
+                  v-model="topic_id"
+                  placeholder="select item"
+                >
+                </model-select>
               </b-form-group>
             </b-col>
 
-            <b-col cols="3">
+            <b-col cols="2">
               <div>
                 <b-dropdown
                   split
@@ -146,12 +190,14 @@
 <script>
 import { Plotly } from "vue-plotly";
 import $ from "jquery";
-import ModelSelect from "../common/ModelSelect";
+import WModelSelect from "../common/ModelSelect";
+import { ModelSelect } from "vue-search-select";
 
 export default {
   name: "TopicProfiles",
   components: {
     Plotly,
+    WModelSelect,
     ModelSelect,
   },
   props: {
@@ -162,6 +208,7 @@ export default {
     return {
       errors: [],
       api_url: "/api/related_words",
+      model_topics: [],
       related_words: [],
       current_lda_model_topics: [],
       current_lda_model_topics_options: [],
@@ -176,7 +223,8 @@ export default {
       topic_share_active: true,
 
       prev_topic_id: -1,
-      topic_id: 0,
+      topic_id: null,
+      selected_topic: 0,
       topic_share_selected_adm_regions: [],
       topic_share_selected_doc_types: [],
       topic_share_selected_lending_instruments: [],
@@ -220,6 +268,15 @@ export default {
     };
   },
   computed: {
+    // topic_id() {
+    //   return this.selected_topic.topic_id;
+    // },
+    searchParams() {
+      const params = new URLSearchParams();
+      params.append("model_id", this.model_run_info_id);
+      params.append("topn_words", 10);
+      return params;
+    },
     readyForSubmit: function () {
       return (
         this.topic_share_selected_adm_regions.length +
@@ -229,6 +286,7 @@ export default {
       );
     },
     topicChanged: function () {
+      // return this.prev_topic_id != this.selected_topic.topic_id;
       return this.prev_topic_id != this.topic_id;
     },
     blurContent: function () {
@@ -236,11 +294,13 @@ export default {
     },
   },
   mounted() {
+    window.vm = this;
     this.setModel();
   },
   methods: {
     onModelSelect: function (model_run_info_id) {
       this.model_run_info_id = model_run_info_id;
+      this.getModelTopics();
     },
     formatTopicText: function (topic) {
       return (
@@ -248,11 +308,37 @@ export default {
         topic.topic_id +
         ": " +
         topic.topic_words
+          .slice(0, 8)
           .map(function (x) {
             return x.word;
           })
           .join(", ")
       );
+    },
+    getModelTopics: function () {
+      this.$http
+        .get("/nlp/models/lda/get_model_topic_words", {
+          params: this.searchParams,
+        })
+        .then((response) => {
+          this.model_topics = response.data;
+          // this.current_lda_model_topics = response.data;
+          // this.current_lda_model_topics_options = this.lodash.map(
+          //   this.current_lda_model_topics,
+          //   (topic) => {
+          //     return {
+          //       text: this.formatTopicText(topic),
+          //       value: topic.topic_id,
+          //     };
+          //   }
+          // );
+          // this.topic_words = this.current_lda_model_topics[this.topic_id];
+        })
+        .catch((error) => {
+          console.log(error);
+          this.errored = true;
+        })
+        .finally(() => (this.loading = false));
     },
     setModel: function (_model_id, model_name) {
       _model_id = "ALL_50";
@@ -416,6 +502,21 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+#topic-selected {
+  width: 42vw;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: block;
+  white-space: nowrap;
+}
+/* #topic-selected > div {
+  position: absolute;
+} */
+
+/* .vs--single .vs__selected {
+  text-overflow: ellipsis;
+  color: #394066;
+} */
 .blur {
   filter: blur(1px);
   opacity: 0.4;

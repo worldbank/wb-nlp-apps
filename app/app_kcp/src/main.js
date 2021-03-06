@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import lodash from 'lodash'
 import axios from 'axios'
+import vSelect from "vue-select";
+
 import Plotly from 'plotly.js'
 import VueLodash from 'vue-lodash'
 // import VueAxios from 'vue-axios'
@@ -13,6 +15,8 @@ import App from './App.vue'
 
 // CSS files
 // import 'bootstrap/dist/css/bootstrap.css'
+import "vue-select/dist/vue-select.css"
+import 'vue-search-select/dist/VueSearchSelect.css'
 
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
@@ -28,6 +32,8 @@ Vue.use(IconsPlugin)
 Vue.use(VueFriendlyIframe)
 Vue.use(VueLodash, { lodash: lodash })
     // Vue.use(VueAxios, axios)
+
+Vue.component("v-select", vSelect)
 
 window.app = new Vue({
     router,
