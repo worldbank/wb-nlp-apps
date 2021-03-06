@@ -11,6 +11,7 @@ import numpy as np
 from wb_nlp.interfaces.milvus import (
     get_milvus_client, get_embedding_dsl
 )
+from wb_nlp.interfaces import mongodb
 
 from wb_nlp.types.models import LDAModelConfig, ModelTypes
 from wb_nlp.utils.scripts import (
@@ -310,6 +311,21 @@ class LDAModel(BaseModel):
         topic_percentage (dict): key (int) corresponds to topic id and value (float [0, 1]) corresponds to the expected topic percentage.
         '''
         self.check_wvecs()
+        model_run_info_id = self.model_run_info["model_run_info_id"]
+
+        doc_topic_collection = mongodb.get_document_topics_collection()
+
+        topic_percentage = {6: 0.1, 42: 0.1}
+
+        topic_cols = [f"topic_{id}" for id in topic_percentage]
+        topic_filters = {f"topics.topic_{id}": {"$gte": val}
+                         for id, val in topic_percentage.items()}
+        topic_filters = {
+            "model_run_info_id": model_run_info_id, **topic_filters}
+        cands = doc_topic_collection.find(topic_filters)
+
+        df = pd.DataFrame(cands).set_index("id")["topics"].apply(pd.Series)
+        df = df[topic_cols].rank().mean(axis=1)
 
         topic_filter_vec = np.array(
             [topic_percentage.get(i, 0) for i in range(self.dim)])

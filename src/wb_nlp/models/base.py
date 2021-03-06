@@ -459,6 +459,11 @@ class BaseModel:
         dask_client = create_dask_cluster(
             logger=self.logger, n_workers=pool_workers)
 
+        is_topic_model = self.model_name in [
+            ModelTypes.lda.value, ModelTypes.mallet.value]
+
+        print(f"IS TOPIC MODEL: {is_topic_model}")
+
         try:
             with joblib.parallel_backend('dask'):
                 if not docs_for_processing.empty:
@@ -475,6 +480,20 @@ class BaseModel:
                         locs, vectors = list(zip(*results))
                         sub_int_ids = sub_docs.iloc[list(
                             locs)]['int_id'].tolist()
+                        sub_ids = sub_docs.iloc[list(
+                            locs)]['id'].tolist()
+
+                        # If LDA model, dump topics in mongodb document_topics collection.
+                        if is_topic_model:
+                            print("FILLING TOPIC DB")
+                            mongodb.get_document_topics_collection().insert_many(
+                                [dict(
+                                    model_run_info_id=self.model_run_info["model_run_info_id"],
+                                    id=doc_id,
+                                    topics={
+                                        f"topic_{topic_id}": value for topic_id, value in enumerate(topic_list)}
+                                ) for doc_id, topic_list in zip(sub_ids, vectors)]
+                            )
 
                         entities = [
                             {"name": self.milvus_vector_field_name, "values": vectors,
