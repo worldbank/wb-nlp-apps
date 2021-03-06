@@ -15,7 +15,7 @@
     <hr />
 
     <b-container fluid>
-      <WModelSelect @modelSelected="onModelSelect" :model_name="model_name" />
+      <MLModelSelect @modelSelected="onModelSelect" :model_name="model_name" />
 
       <br />
 
@@ -76,7 +76,7 @@
                 <model-select
                   :options="current_lda_model_topics_options"
                   v-model="topic_id"
-                  placeholder="select item"
+                  placeholder="Select topic"
                 >
                 </model-select>
               </b-form-group>
@@ -190,14 +190,14 @@
 <script>
 import { Plotly } from "vue-plotly";
 import $ from "jquery";
-import WModelSelect from "../common/ModelSelect";
+import MLModelSelect from "../common/MLModelSelect";
 import { ModelSelect } from "vue-search-select";
 
 export default {
   name: "TopicProfiles",
   components: {
     Plotly,
-    WModelSelect,
+    MLModelSelect,
     ModelSelect,
   },
   props: {

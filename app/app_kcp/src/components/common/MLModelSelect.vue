@@ -1,15 +1,27 @@
 <template>
   <div>
-    <b-form-select
+    <!-- <b-form-select
       v-model="model_run_info_id"
       :options="model_run_infos"
-    ></b-form-select>
+    ></b-form-select> -->
+
+    <model-select
+      :options="model_run_infos"
+      v-model="model_run_info_id"
+      placeholder="Select model"
+    >
+    </model-select>
   </div>
 </template>
 
 <script>
+import { ModelSelect } from "vue-search-select";
+
 export default {
-  name: "ModelSelect",
+  name: "MLModelSelect",
+  components: {
+    ModelSelect,
+  },
   props: {
     model_name: String,
   },
