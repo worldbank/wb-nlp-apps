@@ -51,6 +51,7 @@ class LDAModel(BaseModel):
         self.set_model_specific_attributes()
 
         self.create_milvus_collection()
+        self.topic_composition_ranges = None
 
     def set_model_specific_attributes(self):
         self.num_topics = self.dim
@@ -306,51 +307,58 @@ class LDAModel(BaseModel):
 
     #     return payload
 
-    def get_docs_by_topic_composition(self, topic_percentage, topn=10, closest_to_minimum=False, serialize=False, from_result=0, size=10, show_duplicates=False, duplicate_threshold=0.98, metric_type="IP"):
-        '''
-        topic_percentage (dict): key (int) corresponds to topic id and value (float [0, 1]) corresponds to the expected topic percentage.
-        '''
+    def _get_docs_by_topic_composition(self, topic_percentage, return_all_topics=False):
         self.check_wvecs()
         model_run_info_id = self.model_run_info["model_run_info_id"]
 
         doc_topic_collection = mongodb.get_document_topics_collection()
 
-        topic_percentage = {6: 0.1, 42: 0.1}
-
-        topic_cols = [f"topic_{id}" for id in topic_percentage]
+        topic_cols = [f"topic_{id}" for id in sorted(topic_percentage)]
         topic_filters = {f"topics.topic_{id}": {"$gte": val}
-                         for id, val in topic_percentage.items()}
+                         for id, val in sorted(topic_percentage.items())}
         topic_filters = {
             "model_run_info_id": model_run_info_id, **topic_filters}
         cands = doc_topic_collection.find(topic_filters)
 
-        df = pd.DataFrame(cands).set_index("id")["topics"].apply(pd.Series)
-        df = df[topic_cols].rank().mean(axis=1)
+        doc_df = pd.DataFrame(cands).set_index(
+            "id")["topics"].apply(pd.Series)
 
-        topic_filter_vec = np.array(
-            [topic_percentage.get(i, 0) for i in range(self.dim)])
+        if not return_all_topics:
+            doc_df = doc_df[topic_cols]
 
-        topk = 2 * size  # Add buffer
-        dsl = get_embedding_dsl(
-            topic_filter_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
-        results = get_milvus_client().search(self.model_collection_id, dsl)
+        doc_df = doc_df.round(5)
 
-        entities = results[0]
+        return doc_df
+
+    def get_docs_by_topic_composition_count(self, topic_percentage):
+        return len(self._get_docs_by_topic_composition(topic_percentage))
+
+    def get_docs_by_topic_composition(self, topic_percentage, serialize=False, from_result=0, size=10, return_all_topics=False):
+        '''
+        topic_percentage (dict): key (int) corresponds to topic id and value (float [0, 1]) corresponds to the expected topic percentage.
+        '''
+
+        # topic_percentage = {6: 0.1, 42: 0.1}
+
+        doc_df = self._get_docs_by_topic_composition(
+            topic_percentage, return_all_topics=return_all_topics)
+        doc_count = len(doc_df)
+
+        doc_rank = (-1 * doc_df
+                    ).rank().mean(axis=1).rank().sort_values()
+        doc_rank.name = "rank"
+        doc_rank = doc_rank.reset_index().to_dict("records")
+        doc_topic = doc_df.T.to_dict()
+
         payload = []
 
-        for rank, ent in enumerate(entities):
+        for rank, ent in enumerate(doc_rank):
 
             if from_result > rank:
                 continue
 
-            if not show_duplicates:
-                # TODO: Make sure that this is true for Milvus.
-                # If we change the metric_type, this should be adjusted somehow.
-                if ent.distance > duplicate_threshold:
-                    continue
-
-            payload.append({'id': self.get_doc_id_from_int_id(ent.id), 'score': float(np.round(
-                ent.distance, decimals=5)), 'rank': rank + 1})
+            payload.append(
+                {'id': ent["id"], 'topic': doc_topic[ent["id"]], 'rank': rank + 1})
 
             if len(payload) == size:
                 break
@@ -359,58 +367,32 @@ class LDAModel(BaseModel):
         if serialize:
             payload = pd.DataFrame(payload).to_json()
 
+        return dict(total=doc_count, hits=payload)
+
+    def get_topic_composition_ranges(self, serialize=False):
+        self.check_wvecs()
+
+        if self.topic_composition_ranges is None:
+            model_run_info_id = self.model_run_info["model_run_info_id"]
+            doc_topic_collection = mongodb.get_document_topics_collection()
+
+            self.topic_composition_ranges = pd.DataFrame([
+                list(doc_topic_collection.aggregate([
+                    {"$match": {"model_run_info_id": model_run_info_id}},
+                    {"$group": {
+                        "_id": f"topic_{i}",
+                        "min": {"$min": f"$topics.topic_{i}"},
+                        "max": {"$max": f"$topics.topic_{i}"}}}]))[0] for i in range(self.dim)
+            ]).rename(columns={"_id": "topic"}).to_dict("records")
+
+        payload = self.topic_composition_ranges
+
+        if serialize:
+            payload = pd.DataFrame(payload).to_json()
+
         return payload
 
-        # candidate_docs = self.normalized_documents_topics[topic_percentage.index]
-        # candidate_docs = candidate_docs[
-        #     (candidate_docs > topic_percentage).all(axis=1)
-        # ].copy()
 
-        # total_found = candidate_docs.shape[0]
-
-        # if total_found == 0:
-        #     return {'total_found': total_found, 'payload': {}}
-
-        # # Note: transforming using .values may implicitly cause errors if the expected order of the index is not preserved.
-        # distance = euclidean_distances(
-        #     topic_percentage.values.reshape(1, -1), candidate_docs)
-
-        # candidate_docs['score'] = distance[0]
-        # # Set to ascending=False if we want to show documents with higher topic composition than the given minimum. Use ascending=False if we want to get the documents with topic composition closest to the given minimum.
-        # candidate_docs = candidate_docs.sort_values(
-        #     'score', ascending=closest_to_minimum)
-        # # Since the index corresponds to the document id, then use .reset_index to convert it to a column
-        # candidate_docs = candidate_docs.reset_index()
-        # candidate_docs.index.name = 'rank'
-        # candidate_docs = candidate_docs.reset_index()  # hax to define the rank
-        # candidate_docs['rank'] += 1
-        # candidate_docs['topic'] = candidate_docs[topic_percentage.index].to_dict(
-        #     'records')
-
-        # cols = ['id', 'rank', 'score', 'topic']
-        # payload = candidate_docs[cols].head(topn).to_dict('records')
-
-        # if serialize:
-        #     payload = pd.DataFrame(payload).to_json()
-
-        # return {'total_found': total_found, 'payload': payload}
-
-    # def _get_topic_composition_ranges(self):
-    #     composition_range = pd.DataFrame(
-    #         index=self.normalized_documents_topics.columns)
-    #     composition_range.index.name = 'topic'
-
-    #     composition_range['min'] = self.normalized_documents_topics.min()
-    #     composition_range['max'] = self.normalized_documents_topics.max()
-
-    #     payload = composition_range.reset_index().to_dict('records')
-
-    #     return payload
-    # def get_topic_composition_ranges(self, serialize=False):
-    #     payload = self.topic_composition_ranges
-    #     if serialize:
-    #         payload = pd.DataFrame(payload).to_json()
-    #     return payload
 if __name__ == '__main__':
     """
     import glob
