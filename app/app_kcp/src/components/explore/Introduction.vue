@@ -13,15 +13,17 @@
         The <router-link to="/explore/corpus">Corpus</router-link> section
         provides detailed description of the sources and coverage of our corpus.
         Additional insights regarding the corpus can be explored under the
-        <router-link to="/explore/geographic-coverage"
+        <router-link to="/explore/subcategories/geographic-coverage"
           >geographic coverage</router-link
         >
         page where we present the evolution of documents over time with respect
         to countries. Under the
-        <router-link to="/explore/metadata">metadata</router-link> subsection,
-        we provide a brief outline about the metadata contained in our dataset.
-        Lastly, the
-        <router-link to="/explore/training-subset">training subset</router-link>
+        <router-link to="/explore/subcategories/metadata">metadata</router-link>
+        subsection, we provide a brief outline about the metadata contained in
+        our dataset. Lastly, the
+        <router-link to="/explore/subcategories/training-subset"
+          >training subset</router-link
+        >
         page contains links to a subset of our corpus, metadata, and repository
         containing the code to replicate our results.
       </p>
@@ -34,7 +36,18 @@
         <router-link to="/explore/topic-composition"
           >topic composition</router-link
         >
-        page
+        section highlights some practical use-cases where the output of a topic
+        model can be used. The
+        <router-link to="/explore/subcategories/topic-browser"
+          >topic browser</router-link
+        >
+        page provides an interactive visualization of the topics learned by the
+        topic model. The
+        <router-link to="/explore/subcategories/filtering-by-topic-share"
+          >filtering by topic share</router-link
+        >
+        page explores a novel way of discovering documents simply by setting a
+        desired level of topic intensity.
       </p>
 
       <p>
@@ -88,7 +101,7 @@ export default {
 h3 {
   margin: 40px 0 0;
 }
-a {
+/* a {
   color: #42b983;
-}
+} */
 </style>
