@@ -109,6 +109,7 @@
           </div>
           <hr />
         </div>
+        <a name="results"></a>
         <aside class="col-sm-3 blog-sidebar">
           <div>
             <div
@@ -245,7 +246,7 @@
                         v-bind:key="page_num"
                       >
                         <a
-                          href="#"
+                          href="#results"
                           @click="sendSearch((page_num - 1) * size)"
                           class="page-link active"
                           :data-page="page_num"
@@ -255,7 +256,7 @@
 
                       <li class="page-item" v-show="hits.length > 0">
                         <a
-                          href="#"
+                          href="#results"
                           @click="sendSearch(next)"
                           class="page-link"
                           data-page="2"
@@ -264,7 +265,7 @@
                       </li>
                       <li class="page-item" v-show="hits.length > 0">
                         <a
-                          href="#"
+                          href="#results"
                           @click="sendSearch((num_pages - 1) * size)"
                           class="page-link"
                           :data-page="num_pages + 1"
