@@ -74,21 +74,21 @@ DEFAULT_QUERY_FIELDS = dict(
 )
 
 
-class TextInputParams(BaseModel):
+class ModelIDParams(BaseModel):
     model_id: str = Field(
         ..., description="Identification of the desired model configuration to use for the operation. The cleaning pipeline associated with this model will also be applied.")
     # model_type: ModelTypes = Field(
     #     ..., description="Model type.")
 
 
-class GetVectorParams(TextInputParams):
+class GetVectorParams(ModelIDParams):
     raw_text: str = Field(
         ..., description="Input text to transform.")
     # model_type: ModelTypes = ModelTypes.word2vec
     normalize: bool = True
 
 
-class SimilarWordsParams(TextInputParams):
+class SimilarWordsParams(ModelIDParams):
     raw_text: str = Field(
         ..., description="Input text to transform.")
     topn_words: int = Field(
@@ -105,7 +105,7 @@ class SimilarWordsGraphParams(SimilarWordsParams):
     n_clusters: int = Field(5, description="Number of clusters.")
 
 
-class SimilarDocsParams(TextInputParams):
+class SimilarDocsParams(ModelIDParams):
     raw_text: str = Field(
         ..., description="Input text to transform.")
     topn_docs: int = Field(
@@ -121,7 +121,7 @@ class SimilarDocsParams(TextInputParams):
     metric_type: MilvusMetricTypes = MilvusMetricTypes.IP
 
 
-class SimilarWordsByDocIDParams(TextInputParams):
+class SimilarWordsByDocIDParams(ModelIDParams):
     doc_id: str = Field(
         ..., description="ID of the reference document from the `docs_metadata`.")
     topn_words: int = Field(
@@ -129,7 +129,7 @@ class SimilarWordsByDocIDParams(TextInputParams):
     metric: MetricTypes = MetricTypes.cosine_similarity
 
 
-class SimilarDocsByDocIDParams(TextInputParams):
+class SimilarDocsByDocIDParams(ModelIDParams):
     doc_id: str = Field(
         ..., description="ID of the reference document from the `docs_metadata`.")
     topn_docs: int = Field(
@@ -145,9 +145,20 @@ class SimilarDocsByDocIDParams(TextInputParams):
     metric_type: MilvusMetricTypes = MilvusMetricTypes.IP
 
 
+class TopicCompositionParams(ModelIDParams):
+    topic_percentage: dict = Field(
+        ..., description="Key-value pair where key is the topic id and value is the minimum percentage desired for the topic.")
+    from_result: int = Field(
+        0, description="Pagination parameter indicating the start, in terms of rank, of the returned documents.")
+    size: int = Field(
+        10, description="Pagination parameter corresponding to the maximum number of documents to return relative to the `from_result` parameter.")
+    return_all_topics: bool = Field(
+        False, description="A flag which indicates whether the returned value should contain the full topic data of the document or simply the topics of interest.")
+
 ###########################################
 # START: MODELS FOR RETURN VALUES
 ###########################################
+
 
 class SimilarWordElement(BaseModel):
     word: str
@@ -180,7 +191,7 @@ SimilarDocsByDocIDReturns = List[SimilarDocElement]
 ###########################################
 
 
-# class Word2VecTransformParams(TextInputParams):
+# class Word2VecTransformParams(ModelIDParams):
 #     raw_text: str = Field(
 #         ..., description="Input text to transform.")
 
@@ -204,7 +215,7 @@ SimilarDocsByDocIDReturns = List[SimilarDocElement]
 #     )
 
 
-class LDATransformParams(TextInputParams):
+class LDATransformParams(ModelIDParams):
     # file: UploadFile = File(None, description='File to upload.')
     topn_words: int = Field(
         10, ge=1, description='Number of similar words to return.')

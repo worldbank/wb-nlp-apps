@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 
 from ...common.utils import get_validated_model
 from wb_nlp.dir_manager import get_path_from_root
-from wb_nlp.types.models import LDATransformParams, ModelTypes
+from wb_nlp.types.models import LDATransformParams, ModelTypes, TopicCompositionParams
 
 
 router = APIRouter(
@@ -95,3 +95,31 @@ async def get_doc_topic_words(
         topn_words=topn_words,
         total_topic_score=total_topic_score,
         total_word_score=total_word_score)
+
+
+@ router.post("/get_docs_by_topic_composition")
+async def get_docs_by_topic_composition(
+    transform_params: TopicCompositionParams
+):
+    model = get_validated_model(LDA_MODEL_NAME, transform_params.model_id)
+
+    topic_percentage = {
+        int(k.split("_")[1]): v for k, v in transform_params.topic_percentage.items()}
+
+    return model.get_docs_by_topic_composition(
+        topic_percentage=topic_percentage,
+        from_result=transform_params.from_result,
+        size=transform_params.size,
+        return_all_topics=transform_params.return_all_topics)
+
+
+@ router.post("/get_docs_by_topic_composition_count")
+async def get_docs_by_topic_composition_count(
+    transform_params: TopicCompositionParams
+):
+    model = get_validated_model(LDA_MODEL_NAME, transform_params.model_id)
+
+    topic_percentage = {
+        int(k.split("_")[1]): v for k, v in transform_params.topic_percentage.items()}
+
+    return dict(total=model.get_docs_by_topic_composition_count(topic_percentage=topic_percentage))
