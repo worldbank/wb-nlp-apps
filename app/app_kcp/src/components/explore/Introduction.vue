@@ -1,7 +1,49 @@
 <template>
   <div>
-    <h1>{{ page_title }}</h1>
+    <!-- <h1>{{ page_title }}</h1> -->
     <div>
+      <p>
+        The <span style="font-weight: bold">Explore</span> pages showcase a
+        variety of details and demos regarding the data and models used in the
+        project. We also provide an overview of the data sources, links to
+        sample datasets, and materials that individuals who want to replicate or
+        experiment could use.
+      </p>
+      <p>
+        The <router-link to="/explore/corpus">Corpus</router-link> section
+        provides detailed description of the sources and coverage of our corpus.
+        Additional insights regarding the corpus can be explored under the
+        <router-link to="/explore/geographic-coverage"
+          >geographic coverage</router-link
+        >
+        page where we present the evolution of documents over time with respect
+        to countries. Under the
+        <router-link to="/explore/metadata">metadata</router-link> subsection,
+        we provide a brief outline about the metadata contained in our dataset.
+        Lastly, the
+        <router-link to="/explore/training-subset">training subset</router-link>
+        page contains links to a subset of our corpus, metadata, and repository
+        containing the code to replicate our results.
+      </p>
+
+      <p>
+        In this project, we focus in two categories of models commonly used in
+        natural language processing (NLP) to analyse and extract value from
+        unstructured text data. The first is topic modeling and the second is
+        word embedding model. The
+        <router-link to="/explore/topic-composition"
+          >topic composition</router-link
+        >
+        page
+      </p>
+
+      <p>
+        Describes the sources and coverage of our corpus, provides interactive
+        visualizations of topic composition (extracted from LDA models), and
+        allows you to filter documents by their topic composition. Also provides
+        access to word embedding models, similarity measures, and others.
+      </p>
+
       <br />
       Explain purpose and main components of the “EXPLORE” section of the site.
       <br />

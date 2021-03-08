@@ -51,9 +51,11 @@
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/sources/"
+                  to="/explore/subcategories/sources-and-volume/"
                   class="wbg_sidebar second-level"
-                  :class="{ active: $route.name === 'explore_sources' }"
+                  :class="{
+                    active: $route.name === 'explore_sources-and-volume',
+                  }"
                   >Sources and volume</router-link
                 >
               </li>
@@ -247,7 +249,7 @@ export default {
       if (name.includes("_")) {
         name = name.split("_")[1];
       }
-      name = name.replace("-", " ");
+      name = name.replace(/-/g, " ");
 
       return name[0].toUpperCase() + name.slice(1);
     },
