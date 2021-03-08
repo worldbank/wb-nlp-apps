@@ -147,7 +147,7 @@
                   >Similarity</router-link
                 >
               </li>
-              <li>
+              <!-- <li>
                 <router-link
                   to="/explore/knowledge-page-service/"
                   :class="{
@@ -171,7 +171,7 @@
                   :class="{ active: $route.name === 'explore_instructions' }"
                   >Instructions</router-link
                 >
-              </li>
+              </li> -->
             </ol>
           </section>
         </aside>
