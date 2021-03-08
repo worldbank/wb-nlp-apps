@@ -77,10 +77,10 @@ const main_routes = [{
 const explore_subcategories_routes = [
     // CORPUS
     {
-        path: "sources",
-        name: "explore_sources",
+        path: "sources-and-volume",
+        name: "explore_sources-and-volume",
         component: Sources,
-        props: { page_title: "Sources" },
+        props: { page_title: "Sources and volume" },
     },
     {
         path: "geographic-coverage",
