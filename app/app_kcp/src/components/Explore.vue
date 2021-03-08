@@ -8,13 +8,13 @@
             <span class="wbg-breadcrumb-separator">/</span>
             <router-link to="/explore">Explore</router-link>
             <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="/explore">Explore</router-link>
+            <router-link to="#">{{ currentPageTitle }}</router-link>
           </div>
         </div>
         <div class="col-12">
           <i class="fas fa-search fa-2x" aria-hidden="true"></i>
-          <h1>Explore</h1>
-          <p>
+          <h1>{{ currentPageTitle }}</h1>
+          <p v-show="currentPageTitle === 'Explore'">
             Describes the sources and coverage of our corpus, provides
             interactive visualizations of topic composition (extracted from LDA
             models), and allows you to filter documents by their topic
@@ -240,6 +240,16 @@ export default {
         retVal = { bar: this.bar };
       }
       return retVal;
+    },
+    currentPageTitle() {
+      var name = this.$route.name;
+
+      if (name.includes("_")) {
+        name = name.split("_")[1];
+      }
+      name = name.replace("-", " ");
+
+      return name[0].toUpperCase() + name.slice(1);
     },
   },
   methods: {
