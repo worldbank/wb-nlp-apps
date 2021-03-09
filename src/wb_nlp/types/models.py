@@ -5,7 +5,7 @@ of the model inference.
 This typed data structure will be used in the implementation of the API using
 FastAPI.
 '''
-
+from datetime import datetime
 import enum
 import json
 from fastapi import File, UploadFile, Query
@@ -13,6 +13,7 @@ from typing import List, Any, Dict, Optional
 from pydantic import BaseModel, Field, validator, AnyUrl
 from wb_nlp.utils.scripts import generate_model_hash
 from wb_nlp.types.metadata import MetadataModel
+from wb_nlp.types.metadata_enums import WBAdminRegions, WBMajorDocTypes
 
 
 class ModelTypes(enum.Enum):
@@ -154,6 +155,22 @@ class TopicCompositionParams(ModelIDParams):
         10, description="Pagination parameter corresponding to the maximum number of documents to return relative to the `from_result` parameter.")
     return_all_topics: bool = Field(
         False, description="A flag which indicates whether the returned value should contain the full topic data of the document or simply the topics of interest.")
+
+
+class PartitionTopicShareParams(ModelIDParams):
+    topic_id: int = Field(
+        ..., description="Topic id of interest.")
+    adm_regions: List[WBAdminRegions] = Field(
+        None, description="List of admin regions partition.")
+    major_doc_types: List[WBMajorDocTypes] = Field(
+        None, description="List of major document types partition.")
+    year_start: int = Field(
+        1950, description="Start of the year to return data for.")
+    year_end: int = Field(
+        datetime.now().year, description="End of the year to return data for.")
+    return_records: bool = Field(
+        True, description="A flag indicating how the returned data is structured.")
+
 
 ###########################################
 # START: MODELS FOR RETURN VALUES

@@ -416,7 +416,7 @@ class LDAModel(BaseModel):
         adm_regions_data = {}
 
         for part in major_doc_types:
-            data_iterator = docs_metadata(
+            data_iterator = docs_metadata.find(
                 filter={'major_doc_type': part}, projection=['id', 'year'])
 
             data = pd.DataFrame(list(data_iterator)).set_index('id')
@@ -440,10 +440,9 @@ class LDAModel(BaseModel):
                 major_doc_types_data[part] = data.to_dict()
 
         for part in adm_regions:
-            data_iterator = docs_metadata(
+            data_iterator = docs_metadata.find(
                 filter={'adm_region': part}, projection=['id', 'year'])
-            data = pd.DataFrame(list(data_iterator)).rename(
-                columns={'_id': 'id'}).set_index('id')
+            data = pd.DataFrame(list(data_iterator)).set_index('id')
 
             topic_share = pd.Series(self.get_topic_share(
                 topic_id, data.index.tolist()))

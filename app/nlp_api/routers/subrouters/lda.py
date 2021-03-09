@@ -10,7 +10,10 @@ from pydantic import BaseModel, Field
 
 from ...common.utils import get_validated_model
 from wb_nlp.dir_manager import get_path_from_root
-from wb_nlp.types.models import LDATransformParams, ModelTypes, TopicCompositionParams
+from wb_nlp.types.models import (
+    LDATransformParams, ModelTypes,
+    TopicCompositionParams, PartitionTopicShareParams
+)
 
 
 router = APIRouter(
@@ -123,3 +126,15 @@ async def get_docs_by_topic_composition_count(
         int(k.split("_")[1]): v for k, v in transform_params.topic_percentage.items()}
 
     return dict(total=model.get_docs_by_topic_composition_count(topic_percentage=topic_percentage))
+
+
+@ router.post("/get_partition_topic_share")
+async def get_partition_topic_share(
+    transform_params: PartitionTopicShareParams
+):
+    model = get_validated_model(LDA_MODEL_NAME, transform_params.model_id)
+
+    transform_params = json.loads(transform_params.json())
+    transform_params.pop("model_id")
+
+    return model.get_partition_topic_share(**transform_params)
