@@ -54,33 +54,39 @@
 <script>
 import { use } from "echarts/core";
 
-import { CanvasRenderer } from "echarts/renderers";
-import { GraphChart } from "echarts/charts";
-import { PieChart } from "echarts/charts";
-import {
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent,
-} from "echarts/components";
-import VChart, { THEME_KEY } from "vue-echarts";
+// import { CanvasRenderer } from "echarts/renderers";
+// import { GraphChart } from "echarts/charts";
+// import {
+//   TitleComponent,
+//   TooltipComponent,
+//   LegendComponent,
+// } from "echarts/components";
+// import VChart, { THEME_KEY } from "vue-echarts";
+import VChart from "vue-echarts";
 
-use([
-  CanvasRenderer,
-  GraphChart,
-  PieChart,
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent,
-]);
+// import * as echarts from 'echarts/core';
+import { TooltipComponent, LegendComponent } from "echarts/components";
+import { GraphChart } from "echarts/charts";
+import { CanvasRenderer } from "echarts/renderers";
+
+use([TooltipComponent, LegendComponent, GraphChart, CanvasRenderer]);
+
+// use([
+//   CanvasRenderer,
+//   GraphChart,
+//   TitleComponent,
+//   TooltipComponent,
+//   LegendComponent,
+// ]);
 
 export default {
   name: "WordEmbeddings",
   components: {
     VChart,
   },
-  provide: {
-    [THEME_KEY]: "light",
-  },
+  // provide: {
+  //   [THEME_KEY]: "light",
+  // },
   props: {
     page_title: String,
   },
@@ -115,7 +121,7 @@ export default {
           {
             name: "Related word",
             type: "graph",
-            layout: "none",
+            // layout: "none",
             data: this.graph.nodes,
             links: this.graph.links,
             categories: this.graph.categories,
@@ -129,47 +135,74 @@ export default {
               hideOverlap: true,
             },
             scaleLimit: {
-              min: 0.8,
+              min: 0.4,
               max: 2,
             },
             lineStyle: {
               normal: {
                 color: "source",
                 curveness: 0.3,
-                width: 1,
+                width: 0.75,
                 opacity: 0.5,
               },
-              emphasis: {
-                focus: "adjacency",
-                width: 5,
-                opacity: 1,
-              },
+              // emphasis: {
+              //   focus: "adjacency",
+              //   width: 5,
+              //   opacity: 1,
+              // },
             },
             focusNodeAdjacency: true,
-            itemStyle: {
-              normal: {
-                borderColor: "#fff",
-                borderWidth: 1,
-                shadowBlur: 10,
-                shadowColor: "rgba(0, 0, 0, 0.3)",
-              },
-              emphasis: {
-                focus: "adjacency",
-                width: 5,
-                opacity: 1,
-                lineStyle: {
-                  width: 10,
-                },
-              },
-            },
-            emphasis: {
-              focus: "adjacency",
-              lineStyle: {
-                width: 10,
-              },
-            },
+            // itemStyle: {
+            //   normal: {
+            //     borderColor: "#fff",
+            //     borderWidth: 1,
+            //     shadowBlur: 10,
+            //     shadowColor: "rgba(0, 0, 0, 0.3)",
+            //   },
+            //   emphasis: {
+            //     focus: "adjacency",
+            //     width: 5,
+            //     opacity: 1,
+            //     lineStyle: {
+            //       width: 10,
+            //     },
+            //   },
+            // },
+            // emphasis: {
+            //   focus: "adjacency",
+            //   lineStyle: {
+            //     width: 10,
+            //   },
+            // },
           },
         ],
+        // series: [
+        //   {
+        //     name: "Les Miserables",
+        //     type: "graph",
+        //     layout: "none",
+        //     data: this.graph.nodes,
+        //     links: this.graph.links,
+        //     categories: this.graph.categories,
+        //     roam: true,
+        //     label: {
+        //       show: true,
+        //       position: "right",
+        //       formatter: "{b}",
+        //     },
+        //     labelLayout: {
+        //       hideOverlap: true,
+        //     },
+        //     scaleLimit: {
+        //       min: 0.4,
+        //       max: 2,
+        //     },
+        //     lineStyle: {
+        //       color: "source",
+        //       curveness: 0.3,
+        //     },
+        //   },
+        // ],
       };
     },
   },
@@ -235,6 +268,28 @@ export default {
         .finally(() => {
           this.loading = false;
         });
+
+      // this.$http
+      //   .get("/static/data/les-miserables.json", body)
+      //   .then((response) => {
+      //     var graph = response.data;
+      //     graph.nodes.forEach(function (node) {
+      //       // node.label = {
+      //       //   show: node.symbolSize > 5,
+      //       // };
+      //       node.draggable = true;
+      //       // node.x = node.y = null;
+      //     });
+      //     this.graph = graph;
+      //   })
+      //   .catch((error) => {
+      //     console.log(error);
+      //     this.errored = true;
+      //     this.loading = false;
+      //   })
+      //   .finally(() => {
+      //     this.loading = false;
+      //   });
     },
   },
 };

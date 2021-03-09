@@ -13,8 +13,8 @@ RUN apt-get update \
     && apt-get install -y enchant 2>&1 \
     # Install gcc
     && apt-get install -y gcc g++ 2>&1 \
-    # Install libxi6 (libXi.so.6) for graph-tool
-    && apt-get install -y libxi6 libxtst6 libxfixes3 libxcursor1 libgtk-3-dev 2>&1 \
+    # # Install libxi6 (libXi.so.6) for graph-tool
+    # && apt-get install -y libxi6 libxtst6 libxfixes3 libxcursor1 libgtk-3-dev 2>&1 \
     # Install poppler-utils for pdftotext
     && apt-get install -y poppler-utils 2>&1 \
     #

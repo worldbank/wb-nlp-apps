@@ -180,7 +180,7 @@ class Word2VecModel(BaseModel):
             )
 
         nodes = pd.DataFrame(nodes)
-        nodes["symbolSize"] = 10 * \
+        nodes["symbolSize"] = 25 * \
             (nodes["symbolSize"] / nodes["symbolSize"].max())
 
         # nodes["x"] = 100 * (nodes["x"] - nodes["x"].mean())
