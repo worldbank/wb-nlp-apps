@@ -207,7 +207,8 @@ export default {
   data: function () {
     return {
       errors: [],
-      api_url: "/api/related_words",
+      api_url: "/api",
+      nlp_api_url: "/nlp/models/lda",
       model_topics: [],
       related_words: [],
       current_lda_model_topics: [],
@@ -317,7 +318,7 @@ export default {
     },
     getModelTopics: function () {
       this.$http
-        .get("/nlp/models/lda/get_model_topic_words", {
+        .get(this.nlp_api_url + "/get_model_topic_words", {
           params: this.searchParams,
         })
         .then((response) => {
@@ -356,8 +357,14 @@ export default {
           topn_words: 10,
         };
 
+        // let options = {
+        //   model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
+        //   topn_words: 10,
+        // };
+
         this.$http
-          .get("/api/get_lda_model_topics" + "?" + $.param(options))
+          .get(this.api_url + "/get_lda_model_topics" + "?" + $.param(options))
+          // .get(this.nlp_api_url + "/get_model_topic_words" + "?" + $.param(options))
           .then((response) => {
             this.current_lda_model_topics = response.data;
             this.current_lda_model_topics_options = this.lodash.map(
@@ -395,8 +402,18 @@ export default {
         lending_instruments: this.topic_share_selected_lending_instruments,
       };
 
+      // let options = {
+      //   corpus_id: this.corpus_id,
+      //   model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
+      //   topic_id: this.topic_id,
+      //   year_start: 1960,
+      //   adm_regions: this.topic_share_selected_adm_regions,
+      //   major_doc_types: this.topic_share_selected_doc_types,
+      // };
+
       this.$http
-        .post("/api/lda_compare_partition_topic_share", options)
+        .post(this.api_url + "/lda_compare_partition_topic_share", options)
+        // .post(this.nlp_api_url + "/get_partition_topic_share", options)
         .then((response) => {
           let data = response.data;
 
