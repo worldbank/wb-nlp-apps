@@ -226,10 +226,10 @@
                       >Results per page:
                       <span
                         class="wbg-pagination-btn"
+                        :class="size === curr_size ? 'active' : ''"
                         v-for="size in page_sizes"
                         v-bind:key="size"
                         @click="setSize(size)"
-                        active
                         >{{ size }}</span
                       >
                     </small>
@@ -356,6 +356,7 @@ export default {
       end: 0,
       next: 0,
       curr_page_num: 0,
+      curr_size: 10,
       num_pages: 0,
       query: "",
       from_result: 0,
@@ -444,6 +445,7 @@ export default {
 
     setSize: function (size) {
       this.size = size;
+      this.curr_size = size;
     },
     flowSideBar: function () {
       $(function () {
