@@ -247,8 +247,9 @@
                       >
                         <a
                           href="#results"
-                          @click="sendSearch((page_num - 1) * size)"
-                          class="page-link active"
+                          @click="sendSearch(page_num)"
+                          class="page-link"
+                          :class="page_num === curr_page_num ? 'active' : ''"
                           :data-page="page_num"
                           >{{ page_num }}</a
                         >
@@ -266,7 +267,7 @@
                       <li class="page-item" v-show="hits.length > 0">
                         <a
                           href="#results"
-                          @click="sendSearch((num_pages - 1) * size)"
+                          @click="sendSearch(num_pages)"
                           class="page-link"
                           :data-page="num_pages + 1"
                           title="Last"
@@ -354,6 +355,7 @@ export default {
       start: 0,
       end: 0,
       next: 0,
+      curr_page_num: 0,
       num_pages: 0,
       query: "",
       from_result: 0,
@@ -368,7 +370,10 @@ export default {
     resetFrom: function () {
       this.from_result = 0;
     },
-    sendSearch: function (from = 0) {
+    sendSearch: function (page_num = 1) {
+      this.curr_page_num = page_num;
+      var from = (page_num - 1) * this.size;
+
       if (this.search_type == "keyword") {
         this.sendKeywordSearch(from);
       } else if (this.search_type == "semantic") {
@@ -391,7 +396,8 @@ export default {
         .then((response) => {
           this.hits = response.data.hits;
           this.total = response.data.total;
-          this.next = response.data.next;
+          this.next = this.curr_page_num + 1;
+          // this.next = response.data.next;
           this.start = this.from_result + 1;
           this.end = this.from_result + this.hits.length;
           this.num_pages = Math.floor(this.total.value / this.size);
