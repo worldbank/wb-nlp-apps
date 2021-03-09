@@ -20,7 +20,7 @@ router = APIRouter(
 
 
 @ router.post("/get_similar_words_graph")
-async def get_similar_words(transform_params: SimilarWordsGraphParams):
+async def get_similar_words_graph(transform_params: SimilarWordsGraphParams):
     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
     '''
     model = get_validated_model(ModelTypes(

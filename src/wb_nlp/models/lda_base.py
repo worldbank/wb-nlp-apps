@@ -1,6 +1,7 @@
 '''This module implements the word2vec model service that is responsible
 for training the model as well as a backend interface for the API.
 '''
+from datetime import datetime
 import json
 import logging
 import pandas as pd
@@ -391,6 +392,80 @@ class LDAModel(BaseModel):
             payload = pd.DataFrame(payload).to_json()
 
         return payload
+
+    def get_topic_share(self, topic_id: int, doc_ids: list):
+        model_run_info_id = self.model_run_info["model_run_info_id"]
+        doc_topic_collection = mongodb.get_document_topics_collection()
+
+        normed_docs_topic = doc_topic_collection.find(
+            {"id": {"$in": doc_ids}, "model_run_info_id": model_run_info_id}, projection=["id", f"topics.topic_{topic_id}"])
+        normed_docs_topic = pd.DataFrame(list(normed_docs_topic))[
+            ["id", "topics"]]
+        normed_docs_topic["topics"] = normed_docs_topic["topics"].apply(
+            pd.Series)
+        topic_share = normed_docs_topic.set_index('id')["topics"].to_dict()
+
+        return topic_share
+
+    def get_partition_topic_share(self, topic_id: int, adm_regions: list, major_doc_types: list, year_start: int = 1950, year_end: int = datetime.now().year, return_records=True):
+        # docs_metadata = mongodb.get_docs_metadata_collection()
+        docs_metadata = mongodb.get_collection(
+            db_name="test_nlp", collection_name="docs_metadata")
+
+        major_doc_types_data = {}
+        adm_regions_data = {}
+
+        for part in major_doc_types:
+            data_iterator = docs_metadata(
+                filter={'major_doc_type': part}, projection=['id', 'year'])
+
+            data = pd.DataFrame(list(data_iterator)).set_index('id')
+
+            topic_share = pd.Series(self.get_topic_share(
+                topic_id, data.index.tolist()))
+            data['topic_share'] = topic_share
+
+            data.year = data.year.replace('', np.nan)
+            data = data.dropna(subset=['year'])
+
+            data.year = data.year.astype(int)
+            data = data[data.year.between(year_start, year_end)]
+
+            data = data.groupby('year')['topic_share'].sum()
+
+            if return_records:
+                major_doc_types_data[part] = data.reset_index().to_dict(
+                    'records')
+            else:
+                major_doc_types_data[part] = data.to_dict()
+
+        for part in adm_regions:
+            data_iterator = docs_metadata(
+                filter={'adm_region': part}, projection=['id', 'year'])
+            data = pd.DataFrame(list(data_iterator)).rename(
+                columns={'_id': 'id'}).set_index('id')
+
+            topic_share = pd.Series(self.get_topic_share(
+                topic_id, data.index.tolist()))
+            data['topic_share'] = topic_share
+
+            data.year = data.year.replace('', np.nan)
+            data = data.dropna(subset=['year'])
+
+            data.year = data.year.astype(int)
+            data = data[data.year.between(year_start, year_end)]
+            data = data.groupby('year')['topic_share'].sum()
+
+            if return_records:
+                adm_regions_data[part] = data.reset_index().to_dict('records')
+            else:
+                adm_regions_data[part] = data.to_dict()
+
+        payload = {}
+        payload.update(major_doc_types_data)
+        payload.update(adm_regions_data)
+
+        return {'topic_shares': payload, 'topic_words': self.get_topic_words(topic_id)}
 
 
 if __name__ == '__main__':
