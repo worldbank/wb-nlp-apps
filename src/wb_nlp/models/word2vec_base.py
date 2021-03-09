@@ -9,12 +9,11 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from sklearn.cluster import KMeans
 import networkx as nx
-import graph_tool.all as gt
-import pyintergraph
-from wb_nlp.graph.graph_interface import FixedInterGraph
-from wb_nlp.interfaces.milvus import (
-    get_milvus_client,
-)
+# import graph_tool.all as gt
+# import pyintergraph
+import umap
+# from wb_nlp.graph.graph_interface import FixedInterGraph
+
 from wb_nlp.types.models import Word2VecModelConfig, ModelTypes
 
 from wb_nlp.models.base import BaseModel
@@ -112,8 +111,14 @@ class Word2VecModel(BaseModel):
         sim = cosine_similarity(word_vectors, word_vectors)
         # print(sim)
         # sim[sim < edge_thresh] = 0
-        graph_df = pd.DataFrame(sim, index=words, columns=words)
-        graph_df[graph_df < edge_thresh] = 0
+        g_sim = sim * ((-1 * sim).argsort() <= 3)
+
+        graph_df = pd.DataFrame(g_sim, index=words, columns=words)
+        print(graph_df)
+        # graph_df[graph_df < np.quantile(sim, 0.75)] = 0
+        print(words)
+        print(graph_df)
+        print(sim.mean())
 
         cluster = KMeans(n_clusters=n_clusters)
         cluster.fit(word_vectors)
@@ -133,12 +138,16 @@ class Word2VecModel(BaseModel):
         # centrality = nx.degree_centrality(nx_graph)
         centrality = nx.eigenvector_centrality(nx_graph)
 
-        inter_graph = FixedInterGraph.from_networkx(nx_graph)
-        # inter_graph.node_labels
-        gt_graph = inter_graph.to_graph_tool()
-        nodes_pos = gt.sfdp_layout(
-            gt_graph, eweight=gt_graph.edge_properties["weight"])
-        # nodes_pos = gt.fruchterman_reingold_layout(gt_graph)
+        # inter_graph = FixedInterGraph.from_networkx(nx_graph)
+        # # inter_graph.node_labels
+        # gt_graph = inter_graph.to_graph_tool()
+        # nodes_pos = gt.sfdp_layout(
+        #     gt_graph, eweight=gt_graph.edge_properties["weight"])
+        # # nodes_pos = gt.fruchterman_reingold_layout(gt_graph)
+
+        pos_model = umap.UMAP(
+            n_neighbors=10, random_state=1029, min_dist=0.5, metric="euclidean").fit(sim)
+        nodes_pos = pos_model.transform(sim)
 
         # # G = pd.DataFrame(np.random.random(size=(30, 30)))
         # # G[G < 0.2] = 0
@@ -174,8 +183,11 @@ class Word2VecModel(BaseModel):
         nodes["symbolSize"] = 10 * \
             (nodes["symbolSize"] / nodes["symbolSize"].max())
 
-        nodes["x"] = 100 * (nodes["x"] - nodes["x"].mean())
-        nodes["y"] = 100 * (nodes["y"] - nodes["y"].mean())
+        # nodes["x"] = 100 * (nodes["x"] - nodes["x"].mean())
+        # nodes["y"] = 100 * (nodes["y"] - nodes["y"].mean())
+
+        nodes["x"] = (nodes["x"] - nodes["x"].mean()) / nodes["x"].std()
+        nodes["y"] = (nodes["y"] - nodes["y"].mean()) / nodes["y"].std()
 
         print(nodes["x"].mean(), nodes["y"].mean())
         print(nodes["x"].min(), nodes["y"].min(),
