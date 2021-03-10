@@ -441,10 +441,12 @@ the string ‘auto’ to learn the asymmetric prior from the data."""
             # Remove `cleaner_config_id` if exists since it will be
             # computed as unique id from other fields.
             temp_data.pop('lda_config_id')
+            workers = temp_data.pop("workers")
 
         super().__init__(**temp_data)
 
         self.lda_config_id = generate_model_hash(json.loads(self.json()))
+        self.workers = workers
 
 
 class MalletConfig(BaseModel):
@@ -513,10 +515,12 @@ class MalletConfig(BaseModel):
             # Remove `cleaner_config_id` if exists since it will be
             # computed as unique id from other fields.
             temp_data.pop('mallet_config_id')
+            workers = temp_data.pop("workers")
 
         super().__init__(**temp_data)
 
         self.mallet_config_id = generate_model_hash(json.loads(self.json()))
+        self.workers = workers
 
 
 class Word2VecConfig(BaseModel):
@@ -630,10 +634,12 @@ class Word2VecConfig(BaseModel):
             # Remove `cleaner_config_id` if exists since it will be
             # computed as unique id from other fields.
             temp_data.pop('word2vec_config_id')
+            workers = temp_data.pop("workers")
 
         super().__init__(**temp_data)
 
         self.word2vec_config_id = generate_model_hash(json.loads(self.json()))
+        self.workers = workers
 
 
 class DFRConfig(BaseModel):
