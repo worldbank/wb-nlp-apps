@@ -5,6 +5,7 @@ import gc
 import json
 import logging
 from pathlib import Path
+import pickle
 import gensim
 from gensim.corpora import Dictionary, MmCorpus
 from gensim.models.wrappers.ldamallet import malletmodel2ldamodel
@@ -129,6 +130,9 @@ class BaseModel:
                 f"dictionary-{self.processed_corpus_id}.gensim.dict"
             self.corpus_path = self.cleaned_docs_dir / \
                 f"bow_corpus-{self.processed_corpus_id}.mm"
+            self.corpus_ids_path = self.cleaned_docs_dir / \
+                f"bow_corpus_ids-{self.processed_corpus_id}.list.pickle"
+
         elif self.model_name == ModelTypes.word2vec.value:
             self.processed_corpus_id = self.cleaned_corpus_id
         else:
@@ -214,6 +218,9 @@ class BaseModel:
                 g_dict = Dictionary.load(str(self.dictionary_file))
                 corpus = MmCorpus(str(self.corpus_path))
 
+                with open(self.corpus_ids_path, 'rb') as open_file:
+                    corpus_ids = pickle.load(open_file)
+
             else:
                 file_generator = MultiDirGenerator(
                     base_dir=self.cleaned_docs_dir,
@@ -227,7 +234,8 @@ class BaseModel:
                     g_dict = Dictionary.load(str(self.dictionary_file))
                 else:
                     self.logger.info('Training dictionary...')
-                    g_dict = Dictionary(file_generator)
+                    g_dict = Dictionary(
+                        content_doc_id[0] for content_doc_id in file_generator)
 
                     g_dict.filter_extremes(
                         no_below=self.dictionary_params['no_below'],
@@ -241,15 +249,27 @@ class BaseModel:
                     g_dict.save(str(self.dictionary_file))
 
                 self.logger.info('Generating corpus...')
-                corpus = [g_dict.doc2bow(d) for d in file_generator]
+                corpus = []
+                corpus_ids = []
+
+                for doc_content, doc_id in file_generator:
+                    corpus.append(g_dict.doc2bow(doc_content))
+                    corpus_ids.append(doc_id)
 
                 self.logger.info('Saving corpus to %s...', self.corpus_path)
                 MmCorpus.serialize(str(self.corpus_path), corpus)
+
+                self.logger.info('Saving corpus ids to %s...',
+                                 self.corpus_ids_path)
+                with open(self.corpus_ids_path, 'wb') as open_file:
+                    pickle.dump(corpus_ids, open_file)
 
             checkpoint_log(
                 self.logger, timer=None, message='Loading or generating corpus...')
 
             self.g_dict = g_dict
+            self.corpus_ids = corpus_ids
+
         elif self.model_name == ModelTypes.word2vec.value:
             corpus = MultiDirGenerator(
                 base_dir=self.cleaned_docs_dir,

@@ -1,6 +1,7 @@
 '''
 Module containing common functions used across the scripts.
 '''
+import os
 from pathlib import Path
 import glob
 
@@ -21,25 +22,38 @@ with open(dir_manager.get_data_dir('whitelists', 'whitelists', 'phrases.txt')) a
 
 def load_file(fname: Path, split: bool = True):
     '''
-    Simply loads a file and has an option to return the raw string or a list split by whitespaces.
+    Simply loads a file and has an option to return the raw string or a list split by whitespaces
+    with the file's corresponding doc_id.
     '''
+    # Make sure that fname is a Path instance.
+    fname = Path(fname)
+
     with open(fname) as open_file:
         txt = open_file.read()
         txt = keyword_processor.replace_keywords(txt)
 
-    return txt.split() if split else txt
+    txt = txt.split() if split else txt
+
+    # Assume that the filename is of the form <doc_id>.txt
+    doc_id = os.path.splitext(fname.name)[0]
+
+    return (txt, doc_id)
 
 
 def generate_files(path: Path, split: bool = True, min_tokens: int = 50):
     '''
     A generator that loads text files given a directory.
     '''
-    return filter(lambda x: len(x) >= min_tokens,
+    return filter(lambda x: len(x[0]) >= min_tokens,
                   map(lambda x: load_file(x, split=split),
                       path.glob('*.txt')))
 
 
 class MultiDirGenerator:
+    """
+    This class creates a generator that returns a tuple containing a loaded file with its doc_id.
+    """
+
     def __init__(self, base_dir: str, source_dir_name: str = None, split: bool = True, min_tokens: int = 5, logger=None):
         self.base_dir = base_dir
         self.source_dir_name = source_dir_name
@@ -64,5 +78,8 @@ class MultiDirGenerator:
             if self.logger:
                 self.logger.info(
                     'Loading files from source_dir %s', source_dir)
-            for tokens in generate_files(source_dir, split=self.split, min_tokens=self.min_tokens):
-                yield tokens
+            for tokens_doc_id in generate_files(
+                    source_dir, split=self.split,
+                    min_tokens=self.min_tokens):
+
+                yield tokens_doc_id
