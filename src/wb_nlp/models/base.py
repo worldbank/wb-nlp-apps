@@ -63,6 +63,7 @@ class BaseModel:
         self.validate_and_prepare_requirements()
 
         self.model = None
+        self.mallet_model = None
         self.raise_empty_doc_status = raise_empty_doc_status
 
         # # Try to load the model
@@ -322,7 +323,11 @@ class BaseModel:
                 self.model_file_name.parent.mkdir(parents=True)
 
         model_file_name = str(self.model_file_name)
-        self.model.save(model_file_name)
+
+        if self.model_name == ModelTypes.mallet.value:
+            self.mallet_model.save(model_file_name)
+        else:
+            self.model.save(model_file_name)
 
         model_run_info = dict(self.model_run_info)
 
@@ -354,6 +359,8 @@ class BaseModel:
                                         k in self.g_dict.id2token.items()}
 
                 if self.model_name == ModelTypes.mallet.value:
+                    self.mallet_model = self.model
+
                     self.model = malletmodel2ldamodel(
                         self.model, iterations=self.model.iterations)
 
