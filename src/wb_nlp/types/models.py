@@ -436,17 +436,21 @@ the string ‘auto’ to learn the asymmetric prior from the data."""
 
     def __init__(self, **data: Any) -> None:
         temp_data = dict(data)
+        workers = None
 
         if 'lda_config_id' in temp_data:
             # Remove `cleaner_config_id` if exists since it will be
             # computed as unique id from other fields.
             temp_data.pop('lda_config_id')
+        if 'workers' in temp_data:
             workers = temp_data.pop("workers")
 
         super().__init__(**temp_data)
 
         self.lda_config_id = generate_model_hash(json.loads(self.json()))
-        self.workers = workers
+
+        if workers is not None:
+            self.workers = workers
 
 
 class MalletConfig(BaseModel):
@@ -510,17 +514,21 @@ class MalletConfig(BaseModel):
 
     def __init__(self, **data: Any) -> None:
         temp_data = dict(data)
+        workers = None
 
         if 'mallet_config_id' in temp_data:
             # Remove `cleaner_config_id` if exists since it will be
             # computed as unique id from other fields.
             temp_data.pop('mallet_config_id')
+        if 'workers' in temp_data:
             workers = temp_data.pop("workers")
 
         super().__init__(**temp_data)
 
         self.mallet_config_id = generate_model_hash(json.loads(self.json()))
-        self.workers = workers
+
+        if workers is not None:
+            self.workers = workers
 
 
 class Word2VecConfig(BaseModel):
@@ -629,17 +637,21 @@ class Word2VecConfig(BaseModel):
 
     def __init__(self, **data: Any) -> None:
         temp_data = dict(data)
+        workers = None
 
         if 'word2vec_config_id' in temp_data:
             # Remove `cleaner_config_id` if exists since it will be
             # computed as unique id from other fields.
             temp_data.pop('word2vec_config_id')
+        if 'workers' in temp_data:
             workers = temp_data.pop("workers")
 
         super().__init__(**temp_data)
 
         self.word2vec_config_id = generate_model_hash(json.loads(self.json()))
-        self.workers = workers
+
+        if workers is not None:
+            self.workers = workers
 
 
 class DFRConfig(BaseModel):

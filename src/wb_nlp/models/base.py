@@ -213,6 +213,7 @@ class BaseModel:
 
             if self.corpus_path.exists():
                 self.logger.info('Loading saved corpus and dictionary...')
+                self.logger.info("Corpus path %s", self.corpus_path)
                 assert self.dictionary_file.exists()
 
                 g_dict = Dictionary.load(str(self.dictionary_file))
