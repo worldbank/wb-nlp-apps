@@ -10,7 +10,7 @@ from gensim.models.wrappers import LdaMallet
 from gensim.models.wrappers.ldamallet import malletmodel2ldamodel
 from gensim import matutils
 import numpy as np
-
+from sklearn.decomposition import PCA
 from wb_nlp.interfaces.milvus import (
     get_milvus_client, get_embedding_dsl
 )
@@ -152,6 +152,9 @@ class MalletModel(LDAModel):
 
         return dict(alpha=alpha, tw=topic_weights)
 
+    def scale_topics(self, word_topics):
+        return PCA(n_components=2, random_state=1029).fit_transform(word_topics)
+
     def extract_dfr_data(self):
 
         dt = pd.read_csv(
@@ -178,6 +181,11 @@ class MalletModel(LDAModel):
 
         with open(self.dfr_data_dir / 'dt.json', 'w') as open_fl:
             json.dump(ddt, open_fl)
+
+        scaled_topics = self.scale_topics(self.mallet_model.word_topics)
+        scaled_topics = pd.DataFrame(scaled_topics)
+        scaled_topics.to_csv(self.dfr_data_dir /
+                             'topic_scaled.csv', index=None, header=None)
 
         info_json = {
             "title": f"Topics of model id {self.model_run_info['model_run_info_id']}<\/em>",
