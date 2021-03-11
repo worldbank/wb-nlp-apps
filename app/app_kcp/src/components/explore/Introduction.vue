@@ -6,8 +6,8 @@
         The <span style="font-weight: bold">Explore</span> pages showcase a
         variety of details and demos regarding the data and models used in the
         project. We also provide an overview of the data sources, links to
-        sample datasets, and materials that individuals who want to replicate or
-        experiment could use.
+        sample datasets, and materials that individuals who want to replicate
+        the methods used in the project or who want to experiment could use.
       </p>
       <p>
         The <router-link to="/explore/corpus">Corpus</router-link> section
@@ -16,8 +16,8 @@
         <router-link to="/explore/subcategories/geographic-coverage"
           >geographic coverage</router-link
         >
-        page where we present the evolution of documents over time with respect
-        to countries. Under the
+        page where we present the evolution of the volume of documents over time
+        with respect to countries. Under the
         <router-link to="/explore/subcategories/metadata">metadata</router-link>
         subsection, we provide a brief outline about the metadata contained in
         our dataset. Lastly, the
