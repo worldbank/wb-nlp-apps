@@ -11,6 +11,15 @@
         and that no useful document has been missed. Exclude documents that are
         not publicly available.
       </p>
+
+      <div>
+        <b-table :fields="fields" :items="items">
+          <template #cell(name)="data">
+            <!-- `data.value` is the value after formatted by the Formatter -->
+            <a :href="data.value.url" target="_blank">{{ data.value.name }}</a>
+          </template>
+        </b-table>
+      </div>
     </div>
   </div>
 </template>
@@ -21,12 +30,37 @@ export default {
   props: {
     page_title: String,
   },
+  mounted() {
+    this.$http.get("/static/data/corpus_details.json").then((response) => {
+      this.items = response.data;
+    });
+  },
   data: function () {
     return {
-      date_now: new Date().toDateString(),
-      corpus_size: 200000,
-      org_count: 14,
-      total_tokens: 1029000000,
+      items: [],
+      fields: [
+        {
+          key: "name",
+          label: "Organization",
+          formatter: (value, key, item) => {
+            return item;
+          },
+        },
+        {
+          key: "corpus_id",
+          label: "Corpus ID",
+          formatter: (value) => {
+            return value;
+          },
+        },
+        {
+          key: "selection",
+          label: "Description",
+          formatter: (value) => {
+            return value;
+          },
+        },
+      ],
     };
   },
 };

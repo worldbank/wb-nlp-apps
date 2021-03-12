@@ -1,9 +1,4 @@
 corpus_details:
-  wb:
-   name: WORLD BANK
-   corpus_id: WB
-   url: "https://search.worldbank.org/api/v2/wds"
-   selection: "All types of documents ranging from Publications and Research, Project Documents, etc."
   adb:
     name: ASIAN DEVELOPMENT BANK
     corpus_id: "ADB"
@@ -94,6 +89,11 @@ corpus_details:
     corpus_id: UNPD
     url: http://www.un.org/en/development/desa/population/publications/index.shtml
     selection: "Documents of the following type are of interest: Publications; Manuals; Expert Paper Series; Technical Paper Series;"
+  wb:
+   name: WORLD BANK
+   corpus_id: WB
+   url: "https://search.worldbank.org/api/v2/wds"
+   selection: "All types of documents ranging from Publications and Research, Project Documents, etc."
   wfp:
     name: WORLD FOOD PROGRAM
     corpus_id: WFP
@@ -104,3 +104,12 @@ corpus_details:
     corpus_id: WHO
     url: http://www.who.int/publications/en/
     selection: "The following document type is of interest: Bulletin of the World Health Organization (full list of all volumes available at: https://www.ncbi.nlm.nih.gov/pmc/journals/522/)"
+
+# import yaml
+# import json
+# with open("./app/app_kcp/public/static/data/corpus_details.yml") as fl:
+#     data = yaml.load(fl)
+#     records = list(data["corpus_details"].values())
+
+#     with open("./app/app_kcp/public/static/data/corpus_details.json", "w") as fl:
+#         json.dump(records, fl)
