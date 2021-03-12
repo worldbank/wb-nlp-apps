@@ -4,12 +4,27 @@
     <div>
       <br />
       <p>
-        Collect documents from selected sections of the organizations’ website.
-        Then run some procedure to exclude some documents (too short, not a
-        readable format, etc.). No interest in procurement plans, administrative
-        tribunal, budgets, … We cannot guarantee that all have been excluded,
-        and that no useful document has been missed. Exclude documents that are
-        not publicly available.
+        Listed in the table below are details on the sources of the documents
+        and metadata used in this project. We selected sections of each
+        organization's website where relevant documents and metadata are found.
+        A series of scrapers were implemented to capture available metadata as
+        well as download the corresponding documents.
+      </p>
+
+      <p>
+        In selecting the sources, we limit our selection to content that can be
+        classified as publications, project documents, and research papers. We
+        excluded documents pertaining to procurement plans, administrative
+        tribunals, budgets, etc. However, we cannot guarantee that we have
+        exhaustively filtered out documents of these types. Furthermore,
+        documents that may be useful is likewise possible to be ommitted. Since
+        these documents are scraped, this only covers content that are publicly
+        available.
+      </p>
+      <p>
+        The availability of the metadata is dependent on the source
+        organization's published content. We tried to extract and curate as much
+        of the metadata found on each source's page.
       </p>
 
       <div>
