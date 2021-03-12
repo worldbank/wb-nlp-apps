@@ -36,11 +36,11 @@
         The topic composition of documents acquired after the LDA models were
         trained is obtained by inference.
       </p>
-      <p>Mallet implementation</p>
+      <!-- <p>Mallet implementation</p>
       <p>Labeling of topics</p>
       <p>Priors</p>
       <p>Tools (and acknowledgments):</p>
-      <p>See Methods and Tools section for details, and Github repo.</p>
+      <p>See Methods and Tools section for details, and Github repo.</p> -->
 
       <!-- <p>Automatic labeling ?</p>
       <p>Explain why some topics are clearly meaningful, some less.</p>
