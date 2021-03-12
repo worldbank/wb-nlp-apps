@@ -10,7 +10,7 @@
           />
         </div>
         <div class="col-9 col-lg-9">
-          <span class="badge badge-primary wbg-badge">DOCUMENT</span>
+          <!-- <span class="badge badge-primary wbg-badge">DOCUMENT</span> -->
           <h5 class="title">
             <a :href="result.url_pdf" :title="result.title">{{
               result.title

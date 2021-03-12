@@ -1,35 +1,52 @@
 <template>
-  <vue-horizontal>
-    <div
-      class="related-section"
-      v-for="result in results"
-      :key="'rel_' + result.rank"
-    >
-      <div class="related-document-row" data-url="#" title="View related study">
-        <div class="row">
-          <div class="col-12 scrollable">
-            <span class="title">
-              <a
-                :href="result.metadata.url_pdf"
-                :title="result.metadata.title"
-                >{{ result.metadata.title }}</a
-              >
-            </span>
-            <div class="study-country">
-              {{ result.metadata.country[0] }}, {{ result.metadata.year }}
-            </div>
-            <div class="survey-stats">
-              <span
-                >Created on:
-                {{ getDate(result.metadata.date_published) }} </span
-              ><br />
-              <span>Views: {{ result.metadata.views }}</span>
+  <div>
+    <vue-horizontal v-show="results.length === 0">
+      <div
+        class="related-section"
+        v-for="i in Array(5).keys()"
+        :key="'rel_sk_' + i"
+      >
+        <div style="padding-top: 5px">
+          <b-skeleton-img height="85px"></b-skeleton-img>
+        </div>
+      </div>
+    </vue-horizontal>
+    <vue-horizontal v-show="results.length > 0">
+      <div
+        class="related-section"
+        v-for="result in results"
+        :key="'rel_' + result.rank"
+      >
+        <div
+          class="related-document-row"
+          data-url="#"
+          title="View related study"
+        >
+          <div class="row">
+            <div class="col-12 scrollable">
+              <span class="title">
+                <a
+                  :href="result.metadata.url_pdf"
+                  :title="result.metadata.title"
+                  >{{ result.metadata.title }}</a
+                >
+              </span>
+              <div class="study-country">
+                {{ result.metadata.country[0] }}, {{ result.metadata.year }}
+              </div>
+              <div class="survey-stats">
+                <span
+                  >Created on:
+                  {{ getDate(result.metadata.date_published) }} </span
+                ><br />
+                <span>Views: {{ result.metadata.views }}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </vue-horizontal>
+    </vue-horizontal>
+  </div>
 </template>
 
 <script>

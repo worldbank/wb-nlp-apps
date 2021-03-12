@@ -110,7 +110,7 @@
           <hr />
         </div>
         <a name="results"></a>
-        <aside class="col-sm-3 blog-sidebar">
+        <aside class="col-sm-3" id="blog-sidebar">
           <div>
             <div
               id="filter-by-access"
