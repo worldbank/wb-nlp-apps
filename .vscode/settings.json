@@ -9,5 +9,5 @@
         "--extension-pkg-whitelist=numpy,spacy",
         "--disable=too-many-arguments,too-many-local-variables"
     ],
-    "docker.host": "ssh://avsolatorio@10.0.0.25"
+    "docker.host": "ssh://local-server"
 }
