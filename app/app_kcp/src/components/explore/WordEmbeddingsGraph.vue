@@ -17,6 +17,11 @@
       clusters within the graph network of these words. An interactive graph of
       the words is rendered for exploration.
     </p>
+    <p>
+      You can also explore further by
+      <span style="font-weight: bold">double-clicking</span> on a node. This
+      will refresh the graph with the data corresponding to the selected node.
+    </p>
 
     <hr />
 
@@ -37,15 +42,18 @@
     <br />
     <b-container fluid>
       <v-chart
+        @dblclick="searchNode"
         @mouseover="isHighlighted"
         v-if="this.graph !== null"
         class="chart"
+        refs="graphChart"
         :option="option2"
         autoresize="true"
         :loading="loading"
       />
       <!-- <div v-if="this.graph === null">
         <b-skeleton-img></b-skeleton-img>
+
       </div> -->
     </b-container>
   </div>
@@ -226,6 +234,10 @@ export default {
   //   this.getRelatedWords();
   // },
   methods: {
+    searchNode: function (event) {
+      this.clicked_point = event;
+      this.getGraph(this.clicked_point.data.name);
+    },
     isHighlighted: function (action) {
       this.highlighted_point = action;
     },
