@@ -101,7 +101,8 @@ services:
     env_file:
       - .env
     volumes:
-      - ${LOCAL_PATH}/app/dfr/data:/usr/share/nginx/html/data
+      - ${LOCAL_PATH}/models/dfr/data:/usr/share/nginx/html/data
+      # - ${LOCAL_PATH}/app/dfr/data:/usr/share/nginx/html/data
 
   web:
     image: nginx:latest

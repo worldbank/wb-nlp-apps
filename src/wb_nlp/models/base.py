@@ -133,6 +133,8 @@ class BaseModel:
                 f"bow_corpus-{self.processed_corpus_id}.mm"
             self.corpus_ids_path = self.cleaned_docs_dir / \
                 f"bow_corpus_ids-{self.processed_corpus_id}.list.pickle"
+            self.corpus_token_counts_path = self.cleaned_docs_dir / \
+                f"bow_corpus_token_counts-{self.processed_corpus_id}.dict.pickle"
 
         elif self.model_name == ModelTypes.word2vec.value:
             self.processed_corpus_id = self.cleaned_corpus_id
@@ -223,6 +225,9 @@ class BaseModel:
                 with open(self.corpus_ids_path, 'rb') as open_file:
                     corpus_ids = pickle.load(open_file)
 
+                with open(self.corpus_token_counts_path, 'rb') as open_file:
+                    corpus_token_counts = pickle.load(open_file)
+
             else:
                 file_generator = MultiDirGenerator(
                     base_dir=self.cleaned_docs_dir,
@@ -253,10 +258,12 @@ class BaseModel:
                 self.logger.info('Generating corpus...')
                 corpus = []
                 corpus_ids = []
+                corpus_token_counts = {}
 
                 for doc_content, doc_id in file_generator:
                     corpus.append(g_dict.doc2bow(doc_content))
                     corpus_ids.append(doc_id)
+                    corpus_token_counts[doc_id] = len(doc_content)
 
                 self.logger.info('Saving corpus to %s...', self.corpus_path)
                 MmCorpus.serialize(str(self.corpus_path), corpus)
@@ -265,12 +272,15 @@ class BaseModel:
                                  self.corpus_ids_path)
                 with open(self.corpus_ids_path, 'wb') as open_file:
                     pickle.dump(corpus_ids, open_file)
+                with open(self.corpus_token_counts_path, 'wb') as open_file:
+                    pickle.dump(corpus_token_counts, open_file)
 
             checkpoint_log(
                 self.logger, timer=None, message='Loading or generating corpus...')
 
             self.g_dict = g_dict
             self.corpus_ids = corpus_ids
+            self.corpus_token_counts = corpus_token_counts
 
         elif self.model_name == ModelTypes.word2vec.value:
             corpus = MultiDirGenerator(

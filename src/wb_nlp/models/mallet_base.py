@@ -1,6 +1,7 @@
 '''This module implements the word2vec model service that is responsible
 for training the model as well as a backend interface for the API.
 '''
+import zipfile as zf
 from datetime import datetime
 from pathlib import Path
 import json
@@ -157,6 +158,9 @@ class MalletModel(LDAModel):
 
     def extract_dfr_data(self):
 
+        self.dfr_data_dir = Path(dir_manager.get_path_from_root(
+            "models", "dfr", "data", self.model_run_info["model_run_info_id"]))
+
         dt = pd.read_csv(
             self.mallet_model.fdoctopics(), delimiter='\t', header=None,
             names=[i for i in range(self.mallet_model.num_topics)], index_col=None,
@@ -164,14 +168,36 @@ class MalletModel(LDAModel):
         )
 
         dt.index = self.corpus_ids
-        dt = dt.divide(dt.min(axis=1), axis=0).astype(int) - 1
+        # Make sure weights are normalized per document.
+        dt = dt.divide(dt.sum(axis=1), axis=0)
+
+        # Get tokens attributed to topic.
+        dt = dt.multiply(self.corpus_token_counts, axis=0).round(0).astype(int)
 
         self.logger.info('Generating dfr-browser data...')
         ddt = transform_dt(dt.values.T)
         ttw = self.get_tw(self.mallet_model)
 
-        self.dfr_data_dir = Path(dir_manager.get_path_from_root(
-            "models", "dfr", "data", self.model_run_info["model_run_info_id"]))
+        # docs_metadata = mongodb.get_docs_metadata_collection()
+        docs_metadata = mongodb.get_collection(
+            db_name="test_nlp", collection_name="docs_metadata")
+        meta = docs_metadata.find({"id": {"$in": self.corpus_ids}}, projection=[
+                                  "id", "title", "author", "year", "corpus"])
+        meta_df = []
+        for m in meta:
+            e = [""] * 9
+            e[0] = m["id"]
+            e[1] = m["title"]
+            e[2] = ",".join(m["author"]) if m["author"] else ""
+            e[3] = m["corpus"]
+            e[6] = m["year"]
+            meta_df.append(e)
+        meta_df = pd.DataFrame(meta_df)
+
+        meta_df.to_csv(
+            self.dfr_data_dir / "meta.csv.zip",
+            compression=dict(method='zip', archive_name='meta.csv'),
+            index=None, header=None)
 
         if not self.dfr_data_dir.exists():
             self.dfr_data_dir.mkdir(parents=True)
@@ -181,6 +207,9 @@ class MalletModel(LDAModel):
 
         with open(self.dfr_data_dir / 'dt.json', 'w') as open_fl:
             json.dump(ddt, open_fl)
+
+        with zf.ZipFile(self.dfr_data_dir / 'dt.json.zip', "w") as zip_file:
+            zip_file.write(self.dfr_data_dir / 'dt.json', 'dt.json')
 
         scaled_topics = self.scale_topics(self.mallet_model.word_topics)
         scaled_topics = pd.DataFrame(scaled_topics)

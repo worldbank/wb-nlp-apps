@@ -52,7 +52,8 @@ services:
     ports:
     - "8098:80"
     volumes:
-      - ${REMOTE_PATH}/app/dfr/data:/usr/share/nginx/html/data
+      - ${REMOTE_PATH}/models/dfr/data:/usr/share/nginx/html/data
+      # - ${REMOTE_PATH}/app/dfr/data:/usr/share/nginx/html/data
 
   web:
     ports:
