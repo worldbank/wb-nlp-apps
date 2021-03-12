@@ -17,17 +17,18 @@
         excluded documents pertaining to procurement plans, administrative
         tribunals, budgets, etc. However, we cannot guarantee that we have
         exhaustively filtered out documents of these types. Furthermore,
-        documents that may be useful is likewise possible to be ommitted. Since
-        these documents are scraped, this only covers content that are publicly
-        available.
+        documents that may be useful are likewise possible to be omitted. Since
+        these documents are scraped, the dataset only covers content that are
+        publicly available.
       </p>
       <p>
         The availability of the metadata is dependent on the source
         organization's published content. We tried to extract and curate as much
         of the metadata found on each source's page.
       </p>
-
-      <div>
+      <br />
+      <h3>List of data sources</h3>
+      <div class="table-container">
         <b-table :fields="fields" :items="items">
           <template #cell(name)="data">
             <!-- `data.value` is the value after formatted by the Formatter -->
@@ -89,4 +90,8 @@ export default {
 /* a {
   color: #42b983;
 } */
+.table-container {
+  overflow: scroll;
+  height: 510px;
+}
 </style>
