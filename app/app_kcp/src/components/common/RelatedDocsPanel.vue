@@ -40,8 +40,11 @@
                   :href="result.metadata.url_pdf"
                   :title="result.metadata.title"
                   target="_blank"
-                  >{{ result.metadata.title }}</a
                 >
+                  <div class="truncated-title">
+                    {{ result.metadata.title }}
+                  </div>
+                </a>
               </span>
               <div class="study-country">
                 {{ result.metadata.country[0] }}, {{ result.metadata.year }}
@@ -193,6 +196,13 @@ export default {
   /* background: #f3f3f3; */
   border: 2px solid #ebebeb;
   border-radius: 4px;
+}
+.truncated-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* number of lines to show */
+  -webkit-box-orient: vertical;
 }
 </style>
 
