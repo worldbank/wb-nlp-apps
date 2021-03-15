@@ -41,7 +41,7 @@ import TopicClassification from '../components/methods/TopicClassification.vue'
 import Cataloguing from '../components/methods/Cataloguing.vue'
 import SearchEngine from '../components/methods/SearchEngine.vue'
 import Visualizations from '../components/methods/Visualizations.vue'
-
+import DocumentPage from '../components/common/DocumentPage.vue'
 
 
 
@@ -255,9 +255,6 @@ const methods_routes = [{
     },
 ]
 
-
-
-
 const routes = [{
         path: '',
         component: ExploreNav,
@@ -277,6 +274,10 @@ const routes = [{
         path: '/methods',
         component: Methods,
         children: methods_routes
+    },
+    {
+        path: "/document/:doc_id",
+        component: DocumentPage,
     },
 ]
 

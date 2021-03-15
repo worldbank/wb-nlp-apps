@@ -12,9 +12,12 @@
         <div class="col-9 col-lg-9">
           <!-- <span class="badge badge-primary wbg-badge">DOCUMENT</span> -->
           <h5 class="title">
-            <a :href="result.url_pdf" :title="result.title">{{
+            <!-- <a :href="result.url_pdf" :title="result.title">{{
               result.title
-            }}</a>
+            }}</a> -->
+            <router-link :to="document_link" :title="result.title">{{
+              result.title
+            }}</router-link>
           </h5>
           <div class="study-country">
             {{ result.country[0] }}, {{ result.year }}
@@ -64,6 +67,11 @@ export default {
     return {
       submit_related: false,
     };
+  },
+  computed: {
+    document_link() {
+      return "/document/" + this.result.id;
+    },
   },
   methods: {
     getDate: function (date) {

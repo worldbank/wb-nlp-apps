@@ -319,11 +319,18 @@
 
 <script>
 import $ from "jquery";
+import saveState from "vue-save-state";
+
 import SearchResultCard from "./common/SearchResultCard";
+
+window.onbeforeunload = function () {
+  localStorage.clear();
+};
 
 export default {
   name: "Search",
   components: { SearchResultCard },
+  mixins: [saveState],
   mounted() {
     this.flowSideBar();
   },
@@ -368,6 +375,11 @@ export default {
     };
   },
   methods: {
+    getSaveStateConfig() {
+      return {
+        cacheKey: "searchPage",
+      };
+    },
     resetFrom: function () {
       this.from_result = 0;
     },
