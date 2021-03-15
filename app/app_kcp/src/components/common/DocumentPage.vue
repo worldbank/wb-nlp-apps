@@ -36,21 +36,50 @@
             </span>
             <span>Views: {{ metadata.views }}</span>
           </div>
+          <span class="mr-3 link-col float-left">
+            <medium>
+              Metadata
+              <i class="fa fa-download" aria-hidden="true"> </i></medium
+            >:
+            <a :href="metadata_download_link" target="_blank" title="JSON">
+              <span class="badge badge-info">JSON</span>
+            </a>
+          </span>
         </div>
       </div>
       <br />
       <div class="row">
         <div class="col-12 doc-tabs">
           <b-tabs
-            active-nav-item-class="active doc-tab-item "
+            v-model="tabIndex"
+            active-nav-item-class="doc-tab-item"
             active-tab-class=""
             content-class="mt-12"
             style="height: 800px"
           >
-            <b-tab title="Metadata" active>
-              <div><p>I'm the first tab</p></div></b-tab
+            <b-tab
+              title="Metadata"
+              :title-item-class="itemClass(0)"
+              :title-link-class="linkClass(0)"
+              active
             >
-            <b-tab title="View document">
+              <!-- <template #title>
+                <div>
+                  <strong>Metadata</strong>
+                </div>
+              </template> -->
+              <div><br /><MetadataViewer :metadata="metadata" /></div
+            ></b-tab>
+            <b-tab
+              title="View document"
+              :title-item-class="itemClass(1)"
+              :title-link-class="linkClass(1)"
+            >
+              <!-- <template #title>
+                <div style="color: blue">
+                  <strong>View document</strong>
+                </div>
+              </template> -->
               <div>
                 <iframe
                   width="100%"
@@ -59,6 +88,8 @@
                 /></div
             ></b-tab>
             <b-tab
+              :title-item-class="itemClass(2)"
+              :title-link-class="linkClass(2)"
               v-on:click="activateSubmit()"
               @click.prevent
               title="Related documents"
@@ -90,6 +121,7 @@
 <script>
 // import Header from "../Header.vue";
 import RelatedDocsPanel from "./RelatedDocsPanel";
+import MetadataViewer from "./MetadataViewer";
 
 export default {
   name: "DocumentPage",
@@ -104,13 +136,17 @@ export default {
     metadata() {
       return this.result;
     },
+    metadata_download_link() {
+      return "/nlp/corpus/get_metadata_by_id?id=" + this.metadata.id;
+    },
   },
-  components: { RelatedDocsPanel },
+  components: { RelatedDocsPanel, MetadataViewer },
 
   data: function () {
     return {
       result: localStorage[this.$route.params.doc_id],
       submit_related: false,
+      tabIndex: 0,
     };
   },
   methods: {
@@ -137,6 +173,21 @@ export default {
 
       return date[1] + " " + date[2] + ", " + date[3];
     },
+    linkClass(idx) {
+      if (this.tabIndex === idx) {
+        // return ["bg-primary", "text-light", "tab-link-format", "active"];
+        return ["text-primary", "tab-link-format", "active"];
+      } else {
+        return ["bg-light", "text-dark", "tab-link-format"];
+      }
+    },
+    itemClass(idx) {
+      if (this.tabIndex === idx) {
+        return ["tab-item-format"];
+      } else {
+        return ["tab-item-format"];
+      }
+    },
   },
 };
 // <style scoped src="bootstrap/dist/css/bootstrap.css"></style>
@@ -146,4 +197,20 @@ export default {
 /* .doc-tab-item {
   color: green;
 } */
+.tab-link-format {
+  margin: 10px;
+  /* background: transparent !important; */
+  background-color: transparent !important;
+  padding: 10px;
+  /* margin: 5px; */
+  /* margin-bottom: 1px; */
+}
+
+.tab-item-format {
+  margin: 10px;
+  /* background: transparent !important; */
+  background-color: transparent !important;
+  padding: 5px;
+  /* margin-bottom: 1px; */
+}
 </style>

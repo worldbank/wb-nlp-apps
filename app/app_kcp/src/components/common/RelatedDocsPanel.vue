@@ -205,4 +205,3 @@ export default {
   -webkit-box-orient: vertical;
 }
 </style>
-
