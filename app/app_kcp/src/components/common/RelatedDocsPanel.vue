@@ -3,17 +3,21 @@
     <vue-horizontal v-show="results.length === 0">
       <div
         class="related-section"
+        :style="'height: ' + panel_section_height + 'px;'"
         v-for="i in Array(5).keys()"
         :key="'rel_sk_' + i"
       >
         <div style="padding-top: 5px">
-          <b-skeleton-img height="85px"></b-skeleton-img>
+          <b-skeleton-img
+            :height="panel_section_height - 15 + 'px'"
+          ></b-skeleton-img>
         </div>
       </div>
     </vue-horizontal>
     <vue-horizontal v-show="results.length > 0">
       <div
         class="related-section"
+        :style="'height: ' + panel_section_height + 'px;'"
         v-for="result in results"
         :key="'rel_' + result.rank"
       >
@@ -23,11 +27,19 @@
           title="View related study"
         >
           <div class="row">
-            <div class="col-12 scrollable">
+            <div
+              class="col-12"
+              :style="
+                'max-height: ' +
+                (panel_section_height - 10) +
+                'px; overflow-y:auto;'
+              "
+            >
               <span class="title">
                 <a
                   :href="result.metadata.url_pdf"
                   :title="result.metadata.title"
+                  target="_blank"
                   >{{ result.metadata.title }}</a
                 >
               </span>
@@ -57,11 +69,14 @@ export default {
   props: {
     reference_id: String,
     submit: Boolean,
+    model_name: String,
+    section_height: Number,
   },
+  mounted() {},
   computed: {
     similarityBody() {
       return {
-        model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
+        model_id: this.model_id,
         doc_id: this.reference_id,
         topn_docs: 10,
         metric: "cosine_similarity",
@@ -70,10 +85,32 @@ export default {
         metric_type: "IP",
       };
     },
+    model_id() {
+      if (this.model_name === "word2vec") {
+        return "777a9cf47411f6c4932e8941f177f90a";
+      } else {
+        // Default to lda model if model_name is not specified
+        return "6694f3a38bc16dee91be5ccf4a64b6d8";
+      }
+    },
+    similar_docs_by_id_url() {
+      if (this.model_name === "word2vec") {
+        return "/nlp/models/word2vec/get_similar_docs_by_doc_id";
+      } else {
+        // Default to lda model if model_name is not specified
+        return "/nlp/models/lda/get_similar_docs_by_doc_id";
+      }
+    },
+    panel_section_height() {
+      if (this.section_height !== undefined) {
+        return this.section_height;
+      } else {
+        return 100;
+      }
+    },
   },
   data() {
     return {
-      similar_docs_by_id_url: "/nlp/models/lda/get_similar_docs_by_doc_id",
       results: [],
       loading: false,
       errored: false,
@@ -88,12 +125,11 @@ export default {
     },
     sendSemanticSearch: function () {
       this.loading = true;
+      const body = this.similarityBody;
+      console.log(this.similar_docs_by_id_url);
 
       this.$http
-        .post(
-          this.similar_docs_by_id_url + "?return_metadata=true",
-          this.similarityBody
-        )
+        .post(this.similar_docs_by_id_url + "?return_metadata=true", body)
         .then((response) => {
           this.results = response.data;
           console.log(this.results);
@@ -121,10 +157,10 @@ export default {
   scroll-padding-right: 16px;
 } */
 
-.scrollable {
+/* .scrollable {
   overflow-y: auto;
   max-height: 90px;
-}
+} */
 
 .related-document-row {
   margin-top: 0;

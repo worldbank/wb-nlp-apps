@@ -277,6 +277,7 @@ const routes = [{
     },
     {
         path: "/document/:doc_id",
+        name: "document",
         component: DocumentPage,
     },
 ]

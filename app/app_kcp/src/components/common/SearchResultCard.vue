@@ -15,9 +15,21 @@
             <!-- <a :href="result.url_pdf" :title="result.title">{{
               result.title
             }}</a> -->
-            <router-link :to="document_link" :title="result.title">{{
-              result.title
-            }}</router-link>
+            <router-link
+              :to="{
+                name: 'document',
+                params: { doc_id: result.id, metadata: result },
+              }"
+            >
+              <!-- <router-link
+              :to="{
+                path: '/document/' + result.id,
+                params: { doc_id: result.id, metadata: result },
+              }"
+            > -->
+              <!-- <router-link :to="document_link" :title="result.title"> -->
+              {{ result.title }}</router-link
+            >
           </h5>
           <div class="study-country">
             {{ result.country[0] }}, {{ result.year }}
