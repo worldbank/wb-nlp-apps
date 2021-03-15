@@ -201,7 +201,8 @@ export default {
   margin: 10px;
   /* background: transparent !important; */
   background-color: transparent !important;
-  padding: 10px;
+  padding-top: 5px !important;
+  border: 0px !important;
   /* margin: 5px; */
   /* margin-bottom: 1px; */
 }
