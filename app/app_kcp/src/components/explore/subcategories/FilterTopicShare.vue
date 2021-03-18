@@ -18,6 +18,7 @@
 
         <FilterTable @topicRangeReceived="submitTopicSearch" />
 
+        <a name="results"></a>
         <h2>Filtering Results</h2>
         <SearchResultCard
           v-for="result in hits"
@@ -503,13 +504,14 @@ export default {
     };
   },
   methods: {
-    submitTopicSearch(filterPanelData) {
-      this.model_id = filterPanelData.model_id;
-      this.topic_percentage = {};
-      Object.assign(this.topic_percentage, filterPanelData.topic_value);
-      Object.entries(this.topic_percentage).forEach(
-        ([key, val]) => (this.topic_percentage[key] = val / 100)
-      );
+    sendSearch: function (page_num = 1) {
+      this.curr_page_num = page_num;
+      var from = (page_num - 1) * this.size;
+
+      if (from > this.total.value) {
+        return;
+      }
+      this.from_result = from;
 
       this.$http
         .post(
@@ -528,6 +530,16 @@ export default {
           }
         })
         .finally(() => (this.hits_loading = false));
+    },
+    submitTopicSearch(filterPanelData) {
+      this.model_id = filterPanelData.model_id;
+      this.topic_percentage = {};
+      Object.assign(this.topic_percentage, filterPanelData.topic_value);
+      Object.entries(this.topic_percentage).forEach(
+        ([key, val]) => (this.topic_percentage[key] = val / 100)
+      );
+
+      this.sendSearch();
     },
 
     setSize: function (size) {
