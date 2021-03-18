@@ -36,6 +36,19 @@
               "
             >
               <span class="title">
+                <router-link
+                  :to="{
+                    name: 'document',
+                    params: {
+                      doc_id: result.metadata.id,
+                      metadata: result.metadata,
+                    },
+                  }"
+                >
+                  {{ result.metadata.title }}</router-link
+                >
+
+                <!--
                 <a
                   :href="result.metadata.url_pdf"
                   :title="result.metadata.title"
@@ -44,7 +57,7 @@
                   <div class="truncated-title">
                     {{ result.metadata.title }}
                   </div>
-                </a>
+                </a> -->
               </span>
               <div class="study-country">
                 {{ result.metadata.country[0] }}, {{ result.metadata.year }}
