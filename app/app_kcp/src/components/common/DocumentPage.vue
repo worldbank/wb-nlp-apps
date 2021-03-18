@@ -22,7 +22,7 @@
           </div>
           <div class="sub-title">
             <div>
-              <span class="study-by">Ministry of Public Health</span>
+              <span class="study-by">{{ metadata.major_doc_type[0] }}</span>
             </div>
             <div class="owner-collection">
               Corpus:
