@@ -13,10 +13,25 @@
         <!-- <p class="lead"> -->
         <p>
           Topic models are able to extract topics present in a document. The
-          extracted topics in a document are weighted based on how "much" a
-          given topic is represented in the document.
+          extracted topics in a document are weighted based on how much a given
+          topic is represented in the document.
         </p>
-        <p>... then provide the tool (regular paragraph text)</p>
+        <p>
+          In this demo, we show that the topic composition extracted from
+          documents by topic models can be a powerful tool for discovery and
+          retrieval of highly relevant documents.
+        </p>
+
+        <p>
+          To start exploring, select a topic model to use. Then, the topics
+          learned by the model will be available in the table below. You can
+          select up to 3 topics as filter. Use the filter box to easily explore
+          the available topics. The value of the threshold for the selected
+          topic can be adjusted using the slider. A real-time count of expected
+          hits is shown for reference. Click
+          <span style="font-weight: bold">Search</span> to render the relevant
+          documents.
+        </p>
 
         <FilterTable @topicRangeReceived="submitTopicSearch" />
 

@@ -4,7 +4,10 @@
     <MLModelSelect @modelSelected="onModelSelect" :model_name="model_name" />
     <div v-show="model_run_info_id">
       <h3 class="mb-3 mt-5">Available topics</h3>
-      <p class="mt-2">You can choose up to three topics</p>
+      <p class="mt-2">
+        Scroll for more topics. You may also use the search box below to narrow
+        down the topics list. You can choose up to three topics.
+      </p>
       <input
         type="text"
         placeholder="Filter topic by keywords"
