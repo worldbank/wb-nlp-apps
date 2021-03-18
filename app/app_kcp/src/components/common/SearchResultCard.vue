@@ -34,6 +34,78 @@
           <div class="study-country">
             {{ result.country[0] }}, {{ result.year }}
           </div>
+          <div class="study-id d-md-flex mt-2">
+            <span class="badge badge-pill badge-secondary"
+              >ID: {{ result.id }}</span
+            >
+            <div class="small ml-md-3 mt-2 mt-md-0">
+              Rank: {{ match.rank }}, Score: {{ match.score }}
+            </div>
+          </div>
+          <div class="study-meta d-flex">
+            <div class="small mt-2 mb-2 mr-3">
+              <a href="#"
+                ><i class="fas fa-database mr-1" aria-hidden="true"></i
+                >Metadata</a
+              >
+            </div>
+            <div class="small mt-2 mb-2">
+              <a href="#"
+                ><i class="fas fa-chart-bar fa-lg mr-1" aria-hidden="true"></i
+                >Topics</a
+              >
+            </div>
+          </div>
+          <div class="sub-title">
+            <div>
+              <span class="study-by">{{ result.major_doc_type[0] }}</span>
+            </div>
+            <div class="owner-collection">
+              Corpus:
+              <router-link to="/search/">{{ result.corpus }}</router-link>
+            </div>
+          </div>
+          <div class="survey-stats">
+            <span>Created on: {{ getDate(result.date_published) }} </span>
+            <span>Last modified: {{ getDate(result.last_update_date) }} </span>
+            <span>Views: {{ result.views }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="row">
+        <div class="col-3 col-lg-3">
+          <img
+            src="/static/files/doc_thumb.png"
+            title="document thumbnail"
+            alt="document thumbnail"
+          />
+        </div>
+        <div class="col-9 col-lg-9"> -->
+      <!-- <span class="badge badge-primary wbg-badge">DOCUMENT</span> -->
+      <!-- <h5 class="title"> -->
+      <!-- <a :href="result.url_pdf" :title="result.title">{{
+              result.title
+            }}</a> -->
+      <!-- <router-link
+              :to="{
+                name: 'document',
+                params: { doc_id: result.id, metadata: result },
+              }"
+            > -->
+      <!-- <router-link
+              :to="{
+                path: '/document/' + result.id,
+                params: { doc_id: result.id, metadata: result },
+              }"
+            > -->
+      <!-- <router-link :to="document_link" :title="result.title"> -->
+      <!-- {{ result.title }}</router-link
+            >
+          </h5>
+          <div class="study-country">
+            {{ result.country[0] }}, {{ result.year }}
+          </div>
           <div class="sub-title">
             <div>
               <span class="study-by">Ministry of Public Health</span>
@@ -49,7 +121,7 @@
             <span>Views: {{ result.views }}</span>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
     <a
       v-b-toggle
@@ -78,6 +150,7 @@ export default {
   data: function () {
     return {
       submit_related: false,
+      match: { rank: 1, score: 0.96 },
     };
   },
   computed: {
