@@ -22,9 +22,12 @@
                   :checked="topicSelected"
                   type="checkbox"
                   class="custom-control-input"
-                  id="customCheck1"
+                  id="globalTopicFilterSelect"
                 />
-                <label class="custom-control-label" for="customCheck1">
+                <label
+                  class="custom-control-label"
+                  for="globalTopicFilterSelect"
+                >
                   Topic
                 </label>
               </div>
@@ -37,9 +40,10 @@
             <th scope="row">
               <div class="custom-control custom-checkbox">
                 <input
+                  v-on:click="initOrRemoveTopicValue(row.topic_id, $event)"
                   type="checkbox"
                   class="custom-control-input"
-                  :id="'customCheck_' + index"
+                  :id="'topicSelect_' + index"
                   checked=""
                   :value="row.topic_id"
                   v-model="selected_topic"
@@ -47,7 +51,7 @@
                 />
                 <label
                   class="custom-control-label"
-                  :for="'customCheck_' + index"
+                  :for="'topicSelect_' + index"
                   >{{ row.topic_label }}</label
                 >
               </div>
@@ -60,6 +64,81 @@
       </table>
     </div>
     <br />
+
+    <div v-if="selected_topic.length > 0">
+      <h3 class="mb-3 mt-5">Provide topic composition</h3>
+      <p>Expected hits: {{ total_hits }}</p>
+    </div>
+
+    <form v-if="selected_topic.length > 0">
+      <div v-for="selected in selected_topic" :key="'slider_' + selected">
+        <div class="row align-items-center">
+          <div class="col-12 col-md-3">
+            <h5>{{ topic_data[selected].label }}</h5>
+          </div>
+          <div class="col-12 col-md-9">
+            <div class="form-group mt-2 mb-3">
+              <label for="formControlRange" class="small"
+                >Range {{ Math.round(topic_ranges[selected].min * 100) }}%-{{
+                  Math.round(topic_ranges[selected].max * 100)
+                }}% = {{ getSliderValue(selected) }}</label
+              >
+              <input
+                type="range"
+                class="form-control-range"
+                id="formControlRange"
+                :min="topic_ranges[selected].min * 100"
+                :max="topic_ranges[selected].max * 100"
+                step="0.1"
+                v-on:input="onSliderChange(selected, $event)"
+                :value="getSliderValue(selected)"
+                v-on:mouseup="getHitsCount"
+              />
+            </div>
+          </div>
+        </div>
+        <hr />
+      </div>
+      <!-- <div class="row align-items-center">
+        <div class="col-12 col-md-3">
+          <h5>Topic 2</h5>
+        </div>
+        <div class="col-12 col-md-9">
+          <div class="form-group mt-2 mb-3">
+            <label for="formControlRange" class="small">Range 0%-71%</label>
+            <input
+              type="range"
+              class="form-control-range"
+              id="formControlRange"
+              min="10"
+              max="1000"
+              step="10"
+            />
+          </div>
+        </div>
+      </div> -->
+      <div class="row">
+        <div class="col-12">
+          <button type="button" class="btn btn-link btn-sm wbg-button-danger">
+            <i class="fas fa-trash fa-sm mr-2" aria-hidden="true"></i>Remove
+            topic
+          </button>
+        </div>
+      </div>
+    </form>
+    <div v-if="selected_topic.length > 0" class="row mb-4">
+      <div class="col-12">
+        <hr />
+        <button
+          type="button"
+          class="btn btn-primary btn-lg wbg-button"
+          @click="submitTopicRanges"
+        >
+          <i class="fas fa-search fa-sm mr-1" aria-hidden="true"></i>Search
+        </button>
+        <hr />
+      </div>
+    </div>
     <!--
     <table class="table table-striped table-hover">
       <thead>
@@ -191,41 +270,43 @@ export default {
   components: { MLModelSelect },
   mounted() {
     window.filter_table_vm = this;
-    this.getModelTopics();
+    // this.getModelTopics();
   },
   data: function () {
     return {
+      total_hits: null,
+      topic_data: {},
+      topicValue: {},
       selected_topic: [],
+      topic_ranges: {},
       nlp_api_url: "/nlp/models/lda",
       model_name: "lda",
       model_run_info_id: null,
       filter: "",
       rows: [],
-      //   [
-      //     {
-      //       department: "Accounting",
-      //       employees: ["Bradley", "Jones", "Alvarado"],
-      //     },
-      //     {
-      //       department: "Human Resources",
-      //       employees: ["Juarez", "Banks", "Smith"],
-      //     },
-      //     {
-      //       department: "Production",
-      //       employees: ["Sweeney", "Bartlett", "Singh"],
-      //     },
-      //     {
-      //       department: "Research and Development",
-      //       employees: ["Lambert", "Williamson", "Smith"],
-      //     },
-      //     {
-      //       department: "Sales and Marketing",
-      //       employees: ["Prince", "Townsend", "Jones"],
-      //     },
-      //   ],
     };
   },
   methods: {
+    submitTopicRanges() {
+      this.$emit("topicRangeReceived", this.topicValue);
+    },
+    getSliderValue(selected) {
+      if (this.topicValue[selected] === undefined) {
+        return Math.round(
+          (100 *
+            (this.topic_ranges[selected].max +
+              this.topic_ranges[selected].min)) /
+            2
+        );
+      }
+      return this.topicValue[selected];
+    },
+    onSliderChange(selected, event) {
+      //   this.topicValue = Object.assign({}, this.topicValue, {
+      //     selected: event.target.value,
+      //   });
+      this.$set(this.topicValue, selected, event.target.value);
+    },
     disableSelect(topic_id) {
       if (this.selected_topic.length >= 3) {
         if (!this.selected_topic.includes(topic_id)) {
@@ -233,6 +314,15 @@ export default {
         }
       }
       return false;
+    },
+    initOrRemoveTopicValue(selected, event) {
+      if (event.target.checked) {
+        this.$set(this.topicValue, selected, this.getSliderValue(selected));
+      } else {
+        delete this.topicValue[selected];
+      }
+
+      this.getHitsCount();
     },
     clearTopicSelect(event) {
       if (!event.target.checked) {
@@ -254,6 +344,7 @@ export default {
     onModelSelect: function (model_run_info_id) {
       this.model_run_info_id = model_run_info_id;
       this.getModelTopics();
+      this.getTopicRanges();
     },
     formatTopicText: function (topic, with_topic_id = false) {
       var topic_words = topic.topic_words
@@ -269,6 +360,31 @@ export default {
 
       return topic_words;
     },
+    getHitsCount: function () {
+      var data = {};
+      Object.assign(data, this.topicValue);
+      Object.entries(data).forEach(([key, val]) => (data[key] = val / 100));
+
+      this.$http
+        .post(this.nlp_api_url + "/get_docs_by_topic_composition_count", {
+          model_id: this.model_run_info_id,
+          topic_percentage: data,
+        })
+        .then((response) => {
+          this.total_hits = response.data.total;
+        });
+    },
+    getTopicRanges: function () {
+      this.$http
+        .get(
+          this.nlp_api_url +
+            "/get_model_topic_ranges?model_id=" +
+            this.model_run_info_id
+        )
+        .then((response) => {
+          this.topic_ranges = response.data;
+        });
+    },
     getModelTopics: function () {
       this.$http
         .get(this.nlp_api_url + "/get_model_topic_words", {
@@ -278,10 +394,17 @@ export default {
           this.model_topics = response.data;
           //   this.model_topics.
           this.rows = this.lodash.map(this.model_topics, (value) => {
+            var topic_id = "topic_" + value.topic_id;
+            var topic_label = "Topic " + (value.topic_id + 1);
+            var topic_words = this.formatTopicText(value);
+            this.topic_data[topic_id] = {
+              label: topic_label,
+              words: topic_words,
+            };
             return {
-              topic_id: "Topic " + value.topic_id,
-              topic_label: "Topic " + (value.topic_id + 1),
-              topic_words: this.formatTopicText(value),
+              topic_id: topic_id,
+              topic_label: topic_label,
+              topic_words: topic_words,
             };
           });
 
@@ -328,7 +451,7 @@ export default {
 </script>
 
 <style scoped>
-table {
+/* table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
   width: 100%;
@@ -343,7 +466,7 @@ th {
 
 th {
   background-color: #dddddd;
-}
+} */
 
 input[type="text"],
 select {
@@ -354,13 +477,13 @@ select {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
-  margin-top: 25px;
+  /* margin-top: 25px; */
 }
 .table-wrapper {
   max-height: 300px !important;
   overflow-y: scroll !important;
 }
-
+/*
 table tbody th {
   position: relative;
 }
@@ -373,5 +496,5 @@ table tbody tr th {
   position: sticky !important;
   left: 0;
   z-index: 1;
-}
+} */
 </style>

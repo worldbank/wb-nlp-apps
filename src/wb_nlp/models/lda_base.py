@@ -321,7 +321,12 @@ class LDAModel(BaseModel):
             "model_run_info_id": model_run_info_id, **topic_filters}
         cands = doc_topic_collection.find(topic_filters)
 
-        doc_df = pd.DataFrame(cands).set_index(
+        doc_df = pd.DataFrame(cands)
+
+        if doc_df.empty:
+            return doc_df
+
+        doc_df = doc_df.set_index(
             "id")["topics"].apply(pd.Series)
 
         if not return_all_topics:
@@ -344,29 +349,30 @@ class LDAModel(BaseModel):
         doc_df = self._get_docs_by_topic_composition(
             topic_percentage, return_all_topics=return_all_topics)
         doc_count = len(doc_df)
-
-        doc_rank = (-1 * doc_df
-                    ).rank().mean(axis=1).rank().sort_values()
-        doc_rank.name = "rank"
-        doc_rank = doc_rank.reset_index().to_dict("records")
-        doc_topic = doc_df.T.to_dict()
-
         payload = []
 
-        for rank, ent in enumerate(doc_rank):
+        if doc_count > 0:
 
-            if from_result > rank:
-                continue
+            doc_rank = (-1 * doc_df
+                        ).rank().mean(axis=1).rank().sort_values()
+            doc_rank.name = "rank"
+            doc_rank = doc_rank.reset_index().to_dict("records")
+            doc_topic = doc_df.T.to_dict()
 
-            payload.append(
-                {'id': ent["id"], 'topic': doc_topic[ent["id"]], 'rank': rank + 1})
+            for rank, ent in enumerate(doc_rank):
 
-            if len(payload) == size:
-                break
+                if from_result > rank:
+                    continue
 
-        payload = sorted(payload, key=lambda x: x['rank'])
-        if serialize:
-            payload = pd.DataFrame(payload).to_json()
+                payload.append(
+                    {'id': ent["id"], 'topic': doc_topic[ent["id"]], 'rank': rank + 1})
+
+                if len(payload) == size:
+                    break
+
+            payload = sorted(payload, key=lambda x: x['rank'])
+            if serialize:
+                payload = pd.DataFrame(payload).to_json()
 
         return dict(total=doc_count, hits=payload)
 
@@ -384,8 +390,9 @@ class LDAModel(BaseModel):
                         "_id": f"topic_{i}",
                         "min": {"$min": f"$topics.topic_{i}"},
                         "max": {"$max": f"$topics.topic_{i}"}}}]))[0] for i in range(self.dim)
-            ]).rename(columns={"_id": "topic"}).to_dict("records")
+            ]).rename(columns={"_id": "topic"}).set_index("topic").T.to_dict()  # "records")
 
+        # Data structure: {topic_id: {min: <min_val>, max: <max_val>}}
         payload = self.topic_composition_ranges
 
         if serialize:

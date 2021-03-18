@@ -16,7 +16,7 @@
         </p>
         <p>... then provide the tool (regular paragraph text)</p>
 
-        <FilterTable />
+        <FilterTable @topicRangeReceived="submitTopicSearch" />
         <h3 class="mb-3 mt-5">Available topics</h3>
         <p class="mt-2">You can choose up to three topics</p>
         <table class="table table-striped table-hover">
@@ -652,6 +652,9 @@ export default {
   props: {
     page_title: String,
   },
+  mounted () {
+    window.vm = this;
+  },
   components: {
     FilterTable,
   },
@@ -663,6 +666,11 @@ export default {
       total_tokens: 1029000000,
     };
   },
+  methods: {
+    submitTopicSearch(topicValue) {
+      this.topic_value = topicValue;
+    }
+  }
 };
 </script>
 

@@ -64,6 +64,15 @@ async def get_model_topic_words(
         total_word_score=total_word_score)
 
 
+@ router.get("/get_model_topic_ranges")
+async def get_model_topic_ranges(
+    model_id: str = DEFAULT_QUERY_FIELDS["model_id"],
+):
+    model = get_validated_model(LDA_MODEL_NAME, model_id)
+
+    return model.get_topic_composition_ranges()
+
+
 @ router.get("/get_topic_words")
 async def get_topic_words(
     model_id: str = DEFAULT_QUERY_FIELDS["model_id"],
