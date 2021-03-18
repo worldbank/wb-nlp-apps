@@ -206,6 +206,19 @@
                 </div>
               </div>
             </div>
+            <!--
+            <div v-if="loading">
+              <div class="document-row">
+                <div class="row" v-for="v in Array(size)" :key="'sk_' + v">
+                  <div class="col-12">
+                    <b-skeleton height="231px"></b-skeleton>
+                  </div>
+                  <hr style="margin-top: 26px" />
+                </div>
+              </div>
+            </div> -->
+
+            <SearchResultLoading :loading="loading" :size="size" />
 
             <SearchResultCard
               v-for="result in hits"
@@ -322,14 +335,14 @@ import $ from "jquery";
 import saveState from "vue-save-state";
 
 import SearchResultCard from "./common/SearchResultCard";
-
+import SearchResultLoading from "./common/SearchResultLoading";
 window.onbeforeunload = function () {
   localStorage.clear();
 };
 
 export default {
   name: "Search",
-  components: { SearchResultCard },
+  components: { SearchResultCard, SearchResultLoading },
   mixins: [saveState],
   mounted() {
     this.flowSideBar();

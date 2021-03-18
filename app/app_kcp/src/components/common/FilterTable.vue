@@ -2,71 +2,77 @@
   <div>
     <h3 class="mb-3 mt-5">Choose a topic model</h3>
     <MLModelSelect @modelSelected="onModelSelect" :model_name="model_name" />
+    <div v-show="model_run_info_id">
+      <h3 class="mb-3 mt-5">Available topics</h3>
+      <p class="mt-2">You can choose up to three topics</p>
+      <input
+        type="text"
+        placeholder="Filter topic by keywords"
+        v-model="filter"
+      />
 
-    <h3 class="mb-3 mt-5">Available topics</h3>
-    <p class="mt-2">You can choose up to three topics</p>
-    <input
-      type="text"
-      placeholder="Filter topic by keywords"
-      v-model="filter"
-    />
-
-    <div class="table-wrapper">
-      <table class="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th>
-              <div class="custom-control custom-checkbox">
-                <input
-                  v-on:click="clearTopicSelect"
-                  :checked="topicSelected"
-                  type="checkbox"
-                  class="custom-control-input"
-                  id="globalTopicFilterSelect"
-                />
-                <label
-                  class="custom-control-label"
-                  for="globalTopicFilterSelect"
-                >
-                  Topic
-                </label>
-              </div>
-            </th>
-            <th>Keywords</th>
-          </tr>
-        </thead>
-        <tbody v-if="rows.length > 0">
-          <tr v-for="(row, index) in filteredRows" :key="`topic_word-${index}`">
-            <th scope="row">
-              <div class="custom-control custom-checkbox">
-                <input
-                  v-on:click="initOrRemoveTopicValue(row.topic_id, $event)"
-                  type="checkbox"
-                  class="custom-control-input"
-                  :id="'topicSelect_' + index"
-                  checked=""
-                  :value="row.topic_id"
-                  v-model="selected_topic"
-                  :disabled="disableSelect(row.topic_id)"
-                />
-                <label
-                  class="custom-control-label"
-                  :for="'topicSelect_' + index"
-                  >{{ row.topic_label }}</label
-                >
-              </div>
-            </th>
-            <td
-              v-html="highlightMatches([...row.topic_words].sort().join(', '))"
-            ></td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-wrapper">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    v-on:click="clearTopicSelect"
+                    :checked="topicSelected"
+                    type="checkbox"
+                    class="custom-control-input"
+                    id="globalTopicFilterSelect"
+                  />
+                  <label
+                    class="custom-control-label"
+                    for="globalTopicFilterSelect"
+                  >
+                    Topic
+                  </label>
+                </div>
+              </th>
+              <th>Keywords</th>
+            </tr>
+          </thead>
+          <tbody v-if="rows.length > 0">
+            <tr
+              v-for="(row, index) in filteredRows"
+              :key="`topic_word-${index}`"
+            >
+              <th scope="row">
+                <div class="custom-control custom-checkbox">
+                  <input
+                    v-on:click="initOrRemoveTopicValue(row.topic_id, $event)"
+                    type="checkbox"
+                    class="custom-control-input"
+                    :id="'topicSelect_' + index"
+                    checked=""
+                    :value="row.topic_id"
+                    v-model="selected_topic"
+                    :disabled="disableSelect(row.topic_id)"
+                  />
+                  <label
+                    class="custom-control-label"
+                    :for="'topicSelect_' + index"
+                    >{{ row.topic_label }}</label
+                  >
+                </div>
+              </th>
+              <td
+                v-html="
+                  highlightMatches([...row.topic_words].sort().join(', '))
+                "
+              ></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <br />
     </div>
-    <br />
 
     <div v-if="selected_topic.length > 0">
-      <h3 class="mb-3 mt-5">Provide topic composition</h3>
+      <h3 class="mb-3 mt-5">Set topic composition</h3>
       <p>
         Expected hits:
         <b-spinner small v-show="hits_loading" label="Spinning"></b-spinner>

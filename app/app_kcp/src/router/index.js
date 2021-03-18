@@ -112,7 +112,11 @@ const explore_subcategories_routes = [
         path: "filtering-by-topic-share",
         name: "explore_filtering-by-topic-share",
         component: FilterTopicShare,
-        props: { page_title: "Filtering by Topic Share" },
+        props: {
+            page_title: "Filtering by Topic Share",
+            share_url: "%2fexplore%2fsubcategories%2ffiltering_by_topic_share%2f",
+            share_text: "Filtering%20by%20topic%20share"
+        }
     },
 
     // KNOWLEDGE PAGE SERVICE
@@ -286,7 +290,22 @@ const routes = [{
 
 const router = new VueRouter({
     mode: 'history',
-    routes: routes
+    routes: routes,
+    // scrollBehavior(to, from, savedPosition) {
+    scrollBehavior() {
+        // var to = to
+        // var from = from
+        // var savedPosition = savedPosition
+        return { x: 0, y: 0, behavior: 'smooth' };
+
+        // console.log(to);
+        // if (to.hash) {
+        //     return {
+        //         selector: to.hash,
+        //         behavior: 'smooth',
+        //     }
+        // }
+    }
 })
 
 export default router
