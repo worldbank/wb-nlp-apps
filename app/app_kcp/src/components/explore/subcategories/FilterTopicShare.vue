@@ -15,6 +15,8 @@
           class "lead")
         </p>
         <p>... then provide the tool (regular paragraph text)</p>
+
+        <FilterTable />
         <h3 class="mb-3 mt-5">Available topics</h3>
         <p class="mt-2">You can choose up to three topics</p>
         <table class="table table-striped table-hover">
@@ -643,10 +645,15 @@
 </template>
 
 <script>
+import FilterTable from "../../common/FilterTable";
+
 export default {
   name: "FilterTopicShare",
   props: {
     page_title: String,
+  },
+  components: {
+    FilterTable,
   },
   data: function () {
     return {
