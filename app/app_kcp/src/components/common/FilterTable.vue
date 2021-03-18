@@ -1,7 +1,10 @@
 <template>
   <div>
+    <h3 class="mb-3 mt-5">Choose a topic model</h3>
     <MLModelSelect @modelSelected="onModelSelect" :model_name="model_name" />
 
+    <h3 class="mb-3 mt-5">Available topics</h3>
+    <p class="mt-2">You can choose up to three topics</p>
     <input
       type="text"
       placeholder="Filter topic by keywords"
@@ -40,11 +43,12 @@
                   checked=""
                   :value="row.topic_id"
                   v-model="selected_topic"
+                  :disabled="disableSelect(row.topic_id)"
                 />
                 <label
                   class="custom-control-label"
                   :for="'customCheck_' + index"
-                  >{{ row.topic_id }}</label
+                  >{{ row.topic_label }}</label
                 >
               </div>
             </th>
@@ -222,6 +226,14 @@ export default {
     };
   },
   methods: {
+    disableSelect(topic_id) {
+      if (this.selected_topic.length >= 3) {
+        if (!this.selected_topic.includes(topic_id)) {
+          return true;
+        }
+      }
+      return false;
+    },
     clearTopicSelect(event) {
       if (!event.target.checked) {
         this.selected_topic = [];
@@ -268,6 +280,7 @@ export default {
           this.rows = this.lodash.map(this.model_topics, (value) => {
             return {
               topic_id: "Topic " + value.topic_id,
+              topic_label: "Topic " + (value.topic_id + 1),
               topic_words: this.formatTopicText(value),
             };
           });
@@ -346,5 +359,19 @@ select {
 .table-wrapper {
   max-height: 300px !important;
   overflow-y: scroll !important;
+}
+
+table tbody th {
+  position: relative;
+}
+table thead tr th:first-child {
+  position: sticky !important;
+  left: 0;
+  z-index: 2;
+}
+table tbody tr th {
+  position: sticky !important;
+  left: 0;
+  z-index: 1;
 }
 </style>
