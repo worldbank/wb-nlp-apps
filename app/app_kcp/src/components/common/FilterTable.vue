@@ -161,7 +161,10 @@ export default {
   },
   methods: {
     submitTopicRanges() {
-      this.$emit("topicRangeReceived", this.topicValue);
+      this.$emit("topicRangeReceived", {
+        model_id: this.model_run_info_id,
+        topic_value: this.topicValue,
+      });
     },
     getSliderValue(selected) {
       if (this.topicValue[selected] === undefined) {

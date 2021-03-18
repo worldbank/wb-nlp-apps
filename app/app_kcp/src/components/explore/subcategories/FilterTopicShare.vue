@@ -19,6 +19,13 @@
         <FilterTable @topicRangeReceived="submitTopicSearch" />
 
         <h2>Filtering Results</h2>
+        <SearchResultCard
+          v-for="result in hits"
+          :result="result"
+          v-bind:key="result.id"
+        />
+
+        <!--
         <div class="document-row" data-url="#" title="View study">
           <div class="row">
             <div class="col-3 col-lg-3">
@@ -348,7 +355,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
         <div class="nada-pagination mt-5">
           <div
             class="row mt-3 mb-3 d-flex justify-content-lg-between align-items-center"
@@ -359,70 +366,51 @@
                 class="items-per-page light switch-page-size"
               >
                 <small
-                  >Results per page
-                  <span class="wbg-pagination-btn active">15</span>
-                  <span class="wbg-pagination-btn">30</span>
-                  <span class="wbg-pagination-btn">50</span>
-                  <span class="wbg-pagination-btn">100</span></small
-                >
+                  >Results per page:
+                  <span
+                    class="wbg-pagination-btn"
+                    :class="size === curr_size ? 'active' : ''"
+                    v-for="size in page_sizes"
+                    v-bind:key="size"
+                    @click="setSize(size)"
+                    >{{ size }}</span
+                  >
+                </small>
               </div>
             </div>
             <div class="col-12 col-lg-6 d-flex justify-content-lg-end">
               <nav aria-label="Page navigation">
                 <ul class="pagination pagination-md wbg-pagination-ul small">
-                  <li class="page-item">
+                  <li
+                    class="page-item"
+                    v-for="page_num in num_pages"
+                    v-bind:key="page_num"
+                  >
                     <a
-                      href="https://mtt-wb21h.netlify.app/explore/subcategories/filtering_by_topic_share/#"
-                      class="page-link active"
-                      data-page="1"
-                      >1</a
-                    >
-                  </li>
-                  <li class="page-item">
-                    <a
-                      href="https://mtt-wb21h.netlify.app/explore/subcategories/filtering_by_topic_share/#"
+                      href="#results"
+                      @click="sendSearch(page_num)"
                       class="page-link"
-                      data-page="2"
-                      >2</a
+                      :class="page_num === curr_page_num ? 'active' : ''"
+                      :data-page="page_num"
+                      >{{ page_num }}</a
                     >
                   </li>
-                  <li class="page-item">
+
+                  <li class="page-item" v-show="hits.length > 0">
                     <a
-                      href="https://mtt-wb21h.netlify.app/explore/subcategories/filtering_by_topic_share/#"
-                      class="page-link"
-                      data-page="3"
-                      >3</a
-                    >
-                  </li>
-                  <li class="page-item">
-                    <a
-                      href="https://mtt-wb21h.netlify.app/explore/subcategories/filtering_by_topic_share/#"
-                      class="page-link"
-                      data-page="4"
-                      >4</a
-                    >
-                  </li>
-                  <li class="page-item">
-                    <a
-                      href="https://mtt-wb21h.netlify.app/explore/subcategories/filtering_by_topic_share/#"
-                      class="page-link"
-                      data-page="5"
-                      >5</a
-                    >
-                  </li>
-                  <li class="page-item">
-                    <a
-                      href="https://mtt-wb21h.netlify.app/explore/subcategories/filtering_by_topic_share/#"
+                      href="#results"
+                      @click="sendSearch(next)"
                       class="page-link"
                       data-page="2"
                       >Next</a
                     >
                   </li>
-                  <li class="page-item">
+                  <li class="page-item" v-show="hits.length > 0">
                     <a
-                      href="https://mtt-wb21h.netlify.app/explore/subcategories/filtering_by_topic_share/#"
+                      href="#results"
+                      @click="sendSearch(num_pages)"
                       class="page-link"
-                      data-page="218"
+                      :data-page="num_pages + 1"
                       title="Last"
                       >»</a
                     >
@@ -468,6 +456,7 @@
 
 <script>
 import FilterTable from "../../common/FilterTable";
+import SearchResultCard from "../../common/SearchResultCard";
 
 export default {
   name: "FilterTopicShare",
@@ -477,20 +466,73 @@ export default {
   mounted() {
     window.vm = this;
   },
+  computed: {
+    searchBody() {
+      const body = {
+        model_id: this.model_id,
+        topic_percentage: this.topic_percentage,
+        from_result: this.from_result,
+        size: this.size,
+      };
+
+      return body;
+    },
+  },
   components: {
     FilterTable,
+    SearchResultCard,
   },
   data: function () {
     return {
-      date_now: new Date().toDateString(),
-      corpus_size: 200000,
-      org_count: 14,
-      total_tokens: 1029000000,
+      nlp_api_url: "/nlp/models/lda",
+      page_sizes: [10, 25, 50, 100],
+      start: 0,
+      end: 0,
+      next: 0,
+      curr_page_num: 0,
+      curr_size: 10,
+      num_pages: 0,
+      model_id: null,
+      topic_percentage: {},
+      from_result: 0,
+      size: 10,
+      hits: [],
+      total: Object,
+      errored: false,
+      loading: false,
     };
   },
   methods: {
-    submitTopicSearch(topicValue) {
-      this.topic_value = topicValue;
+    submitTopicSearch(filterPanelData) {
+      this.model_id = filterPanelData.model_id;
+      this.topic_percentage = {};
+      Object.assign(this.topic_percentage, filterPanelData.topic_value);
+      Object.entries(this.topic_percentage).forEach(
+        ([key, val]) => (this.topic_percentage[key] = val / 100)
+      );
+
+      this.$http
+        .post(
+          this.nlp_api_url + "/get_docs_by_topic_composition",
+          this.searchBody
+        )
+        .then((response) => {
+          this.hits = response.data.hits;
+          this.total = response.data.total;
+          this.next = this.curr_page_num + 1;
+          this.start = this.from_result + 1;
+          this.end = this.from_result + this.hits.length;
+          this.num_pages = Math.floor(this.total.value / this.size);
+          if (this.total.value % this.size > 0) {
+            this.num_pages += 1;
+          }
+        })
+        .finally(() => (this.hits_loading = false));
+    },
+
+    setSize: function (size) {
+      this.size = size;
+      this.curr_size = size;
     },
   },
 };

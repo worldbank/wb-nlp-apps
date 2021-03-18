@@ -14,6 +14,7 @@ from wb_nlp.types.models import (
     LDATransformParams, ModelTypes,
     TopicCompositionParams, PartitionTopicShareParams
 )
+from wb_nlp.interfaces import mongodb
 
 
 router = APIRouter(
@@ -118,11 +119,34 @@ async def get_docs_by_topic_composition(
     topic_percentage = {
         int(k.split("_")[1]): v for k, v in transform_params.topic_percentage.items()}
 
-    return model.get_docs_by_topic_composition(
+    from_result = transform_params.from_result
+    size = transform_params.size
+    result = model.get_docs_by_topic_composition(
         topic_percentage=topic_percentage,
-        from_result=transform_params.from_result,
-        size=transform_params.size,
+        from_result=from_result,
+        size=size,
         return_all_topics=transform_params.return_all_topics)
+
+    id_rank = {res["id"]: res["rank"] for res in result["hits"]}
+
+    docs_metadata = mongodb.get_collection(
+        db_name="test_nlp", collection_name="docs_metadata")
+    # docs_metadata = mongodb.get_docs_metadata_collection()
+
+    response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
+
+    total = dict(
+        value=result["total"],
+        message="many"
+    )
+
+    return dict(
+        total=total,
+        hits=[h for h in sorted(response, key=lambda x: id_rank[x["id"]])],
+        api_result=result,
+        next=from_result + size,
+        result=result,
+    )
 
 
 @ router.post("/get_docs_by_topic_composition_count")
