@@ -53,7 +53,7 @@
           <b-tabs
             v-model="tabIndex"
             active-nav-item-class="doc-tab-item"
-            active-tab-class=""
+            active-tab-class="doc-active-tab"
             content-class="mt-12"
             style="height: 800px"
           >
@@ -98,14 +98,14 @@
                 <br />
                 <h3>LDA model</h3>
                 <RelatedDocsPanel
-                  :section_height="200"
+                  :section_height="150"
                   :reference_id="metadata.id"
                   :submit="submit_related"
                 />
                 <br />
                 <h3>Word2vec model</h3>
                 <RelatedDocsPanel
-                  :section_height="200"
+                  :section_height="150"
                   :reference_id="metadata.id"
                   model_name="word2vec"
                   :submit="submit_related"
@@ -213,5 +213,9 @@ export default {
   background-color: transparent !important;
   padding: 5px;
   /* margin-bottom: 1px; */
+}
+.doc-active-tab {
+  max-height: 680px;
+  overflow: scroll;
 }
 </style>

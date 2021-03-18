@@ -32,7 +32,7 @@
               :style="
                 'max-height: ' +
                 (panel_section_height - 10) +
-                'px; overflow-y:auto;'
+                'px; overflow-y:auto; margin-top:5px;'
               "
             >
               <span class="title">
