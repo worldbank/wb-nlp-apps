@@ -67,7 +67,11 @@
 
     <div v-if="selected_topic.length > 0">
       <h3 class="mb-3 mt-5">Provide topic composition</h3>
-      <p>Expected hits: {{ total_hits }}</p>
+      <p>
+        Expected hits:
+        <b-spinner small v-show="hits_loading" label="Spinning"></b-spinner>
+        <span v-show="!hits_loading">{{ total_hits }}</span>
+      </p>
     </div>
 
     <form v-if="selected_topic.length > 0">
@@ -99,27 +103,13 @@
         </div>
         <hr />
       </div>
-      <!-- <div class="row align-items-center">
-        <div class="col-12 col-md-3">
-          <h5>Topic 2</h5>
-        </div>
-        <div class="col-12 col-md-9">
-          <div class="form-group mt-2 mb-3">
-            <label for="formControlRange" class="small">Range 0%-71%</label>
-            <input
-              type="range"
-              class="form-control-range"
-              id="formControlRange"
-              min="10"
-              max="1000"
-              step="10"
-            />
-          </div>
-        </div>
-      </div> -->
       <div class="row">
         <div class="col-12">
-          <button type="button" class="btn btn-link btn-sm wbg-button-danger">
+          <button
+            @click="removeLastSelected"
+            type="button"
+            class="btn btn-link btn-sm wbg-button-danger"
+          >
             <i class="fas fa-trash fa-sm mr-2" aria-hidden="true"></i>Remove
             topic
           </button>
@@ -139,124 +129,6 @@
         <hr />
       </div>
     </div>
-    <!--
-    <table class="table table-striped table-hover">
-      <thead>
-        <tr>
-          <th scope="col">
-            <div class="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                class="custom-control-input"
-                id="customCheck1"
-              />
-              <label class="custom-control-label" for="customCheck1"
-                >Topic</label
-              >
-            </div>
-          </th>
-          <th scope="col">Keywords</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th scope="row">
-            <div class="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                class="custom-control-input"
-                id="customCheck1"
-                checked=""
-              />
-              <label class="custom-control-label" for="customCheck1"
-                >Topic 0</label
-              >
-            </div>
-          </th>
-          <td>
-            policy, sector, government, problem, make, large, cost, private,
-            case, enterprise
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">
-            <div class="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                class="custom-control-input"
-                id="customCheck1"
-              />
-              <label class="custom-control-label" for="customCheck1"
-                >Topic 1</label
-              >
-            </div>
-          </th>
-          <td>
-            program, target, indicator, result, support, evaluation,
-            beneficiary, outcome, improve, impact
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">
-            <div class="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                class="custom-control-input"
-                id="customCheck1"
-                checked=""
-              />
-              <label class="custom-control-label" for="customCheck1"
-                >Topic 2</label
-              >
-            </div>
-          </th>
-          <td>
-            date, actual, project, target, current, end, jun, baseline,
-            previous, status
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">
-            <div class="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                class="custom-control-input"
-                id="customCheck1"
-              />
-              <label class="custom-control-label" for="customCheck1"
-                >Topic 3</label
-              >
-            </div>
-          </th>
-          <td>
-            tourism, conflict, south, migration, migrant, security, economic,
-            country, west, community
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">...</th>
-          <td>...</td>
-        </tr>
-        <tr>
-          <th scope="row">
-            <div class="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                class="custom-control-input"
-                id="customCheck1"
-              />
-              <label class="custom-control-label" for="customCheck1"
-                >Topic 13</label
-              >
-            </div>
-          </th>
-          <td>
-            tourism, conflict, south, migration, migrant, security, economic,
-            country, west, community
-          </td>
-        </tr>
-      </tbody>
-    </table> -->
   </div>
 </template>
 
@@ -274,6 +146,7 @@ export default {
   },
   data: function () {
     return {
+      hits_loading: false,
       total_hits: null,
       topic_data: {},
       topicValue: {},
@@ -321,12 +194,15 @@ export default {
       } else {
         delete this.topicValue[selected];
       }
-
-      this.getHitsCount();
+    },
+    removeLastSelected() {
+      var selected = this.selected_topic.pop();
+      delete this.topicValue[selected];
     },
     clearTopicSelect(event) {
       if (!event.target.checked) {
         this.selected_topic = [];
+        this.topicValue = {};
       }
     },
     highlightMatches(text) {
@@ -361,6 +237,7 @@ export default {
       return topic_words;
     },
     getHitsCount: function () {
+      this.hits_loading = true;
       var data = {};
       Object.assign(data, this.topicValue);
       Object.entries(data).forEach(([key, val]) => (data[key] = val / 100));
@@ -372,7 +249,8 @@ export default {
         })
         .then((response) => {
           this.total_hits = response.data.total;
-        });
+        })
+        .finally(() => (this.hits_loading = false));
     },
     getTopicRanges: function () {
       this.$http
@@ -445,6 +323,11 @@ export default {
       params.append("model_id", this.model_run_info_id);
       params.append("topn_words", 10);
       return params;
+    },
+  },
+  watch: {
+    selected_topic: function () {
+      this.getHitsCount();
     },
   },
 };

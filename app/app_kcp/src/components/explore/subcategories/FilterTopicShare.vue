@@ -17,7 +17,7 @@
         <p>... then provide the tool (regular paragraph text)</p>
 
         <FilterTable @topicRangeReceived="submitTopicSearch" />
-        <h3 class="mb-3 mt-5">Available topics</h3>
+        <!-- <h3 class="mb-3 mt-5">Available topics</h3>
         <p class="mt-2">You can choose up to three topics</p>
         <table class="table table-striped table-hover">
           <thead>
@@ -195,7 +195,7 @@
             </button>
             <hr />
           </div>
-        </div>
+        </div> -->
         <h2>Filtering Results</h2>
         <div class="document-row" data-url="#" title="View study">
           <div class="row">
@@ -652,7 +652,7 @@ export default {
   props: {
     page_title: String,
   },
-  mounted () {
+  mounted() {
     window.vm = this;
   },
   components: {
@@ -669,8 +669,8 @@ export default {
   methods: {
     submitTopicSearch(topicValue) {
       this.topic_value = topicValue;
-    }
-  }
+    },
+  },
 };
 </script>
 
