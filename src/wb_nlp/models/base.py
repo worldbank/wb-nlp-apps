@@ -34,7 +34,8 @@ from wb_nlp.utils.scripts import (
     create_dask_cluster,
     generate_model_hash,
     checkpoint_log,
-    get_cleaned_corpus_id
+    get_cleaned_corpus_id,
+    get_cleaner,
 )
 
 
@@ -81,6 +82,14 @@ class BaseModel:
 
     def set_model_specific_attributes(self):
         pass
+
+    def clean_text(self, document, as_string=True):
+        cleaner = get_cleaner(self.cleaning_config_id)
+        tokens = cleaner.get_clean_tokens(document)
+
+        if as_string:
+            tokens = " ".join(tokens)
+        return tokens
 
     def create_milvus_collection(self):
         self.milvus_vector_field_name = "embedding"

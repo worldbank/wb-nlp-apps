@@ -61,6 +61,7 @@
                       data-toggle="tooltip"
                       data-placement="bottom"
                       title="Upload a PDF or TXT document to search"
+                      accept=".txt,.doc,.docx,.pdf"
                     />
                     <label class="file-input__label" for="file-input"
                       ><i

@@ -92,7 +92,8 @@ async def file_search(
     model = get_validated_model(ModelTypes(
         "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
 
-    query = 'bank'  # model.clean_text()
+    document = file.file.read().decode("utf-8", errors="ignore")
+    query = model.clean_text(document)
 
     result = model.search_similar_documents(
         document=query,
