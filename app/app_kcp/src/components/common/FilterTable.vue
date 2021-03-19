@@ -106,6 +106,7 @@
                 v-on:input="onSliderChange(selected, $event)"
                 :value="getSliderValue(selected)"
                 v-on:mouseup="getHitsCount"
+                v-on:touchend="getHitsCount"
               />
             </div>
           </div>

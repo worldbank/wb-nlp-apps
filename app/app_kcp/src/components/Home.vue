@@ -9,14 +9,17 @@
           <div class="col-12 col-md-8">
             <div class="input-group mb-3 mt-3" style="display: flex">
               <input
+                v-model="search_text"
                 type="text"
                 class="form-control wbg-search-text pl-4"
                 placeholder="Enter your keywords..."
                 aria-label="Field for search"
                 aria-describedby="basic-addon2"
+                v-on:keyup.enter="sendToSearch()"
               />
               <div class="input-group-append">
                 <button
+                  @click="sendToSearch"
                   class="btn btn-primary wbg-search-button pr-4 pl-4"
                   type="button"
                 >
@@ -28,11 +31,12 @@
           <div class="col-12 col-md-8 text-center">
             <div class="form-check form-check-inline">
               <input
+                v-model="search_type"
                 class="form-check-input"
                 type="radio"
                 name="inlineRadioOptions"
                 id="inlineRadio1"
-                value="option1"
+                value="keyword"
                 checked=""
               />
               <label class="form-check-label" for="inlineRadio1"
@@ -41,11 +45,12 @@
             </div>
             <div class="form-check form-check-inline">
               <input
+                v-model="search_type"
                 class="form-check-input"
                 type="radio"
                 name="inlineRadioOptions"
                 id="inlineRadio2"
-                value="option2"
+                value="semantic"
               />
               <label class="form-check-label" for="inlineRadio2"
                 >Semantic search</label
@@ -208,3 +213,25 @@
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  name: "Home",
+  data: function () {
+    return {
+      search_text: "",
+      search_type: "keyword",
+    };
+  },
+  methods: {
+    sendToSearch() {
+      this.$router.push({
+        path: "search",
+        query: { search_type: this.search_type, search_text: this.search_text },
+      });
+
+      return;
+    },
+  },
+};
+</script>

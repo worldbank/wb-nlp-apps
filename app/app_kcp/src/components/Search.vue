@@ -271,6 +271,20 @@ export default {
   mounted() {
     window.vm = this;
     this.flowSideBar();
+
+    if (this.$route.query.search_type !== undefined) {
+      this.search_type = this.$route.query.search_type;
+
+      if (this.$route.query.search_text !== undefined) {
+        this.query = this.$route.query.search_text;
+
+        var page_num = 1;
+        if (this.$route.query.page !== undefined) {
+          page_num = Number(this.$route.query.page);
+        }
+        this.sendSearch(page_num);
+      }
+    }
   },
   computed: {
     hasUploadedFile() {
@@ -371,6 +385,15 @@ export default {
       } else {
         return;
       }
+
+      this.$router.replace({
+        name: "search",
+        query: {
+          search_text: this.query,
+          search_type: this.search_type,
+          page: this.curr_page_num,
+        },
+      });
     },
     sendKeywordSearch: function (from = 0) {
       if (from > this.total.value) {
