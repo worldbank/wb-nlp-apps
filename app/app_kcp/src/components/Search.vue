@@ -30,11 +30,19 @@
                   v-model="query"
                   type="text"
                   class="form-control wbg-search-text pl-4"
-                  placeholder="Enter your keywords..."
+                  :placeholder="uploaded_file ? '' : 'Enter your keywords...'"
                   aria-label="Field for search"
                   aria-describedby="basic-addon2"
                   v-on:keyup.enter="sendSearch()"
                 />
+                <div v-if="this.uploaded_file" class="wbg-uploaded-file">
+                  {{ this.uploaded_file.name }}
+                  <i
+                    class="fas fa-times fa-sm ml-2"
+                    @click="removeFile"
+                    aria-hidden="true"
+                  ></i>
+                </div>
                 <div
                   id="submit_file"
                   data-toggle="tooltip"
@@ -43,8 +51,11 @@
                 >
                   <div class="file-input">
                     <input
+                      @change="fileUpload"
                       type="file"
                       name="file-input"
+                      :value="file_input"
+                      :disabled="this.uploaded_file"
                       id="file-input"
                       class="file-input__input"
                       data-toggle="tooltip"
@@ -52,7 +63,10 @@
                       title="Upload a PDF or TXT document to search"
                     />
                     <label class="file-input__label" for="file-input"
-                      ><i class="fas fa-file-upload fa-lg"></i
+                      ><i
+                        class="fas fa-file-upload fa-lg"
+                        :style="uploaded_file ? 'color: gray' : ''"
+                      ></i
                     ></label>
                   </div>
                 </div>
@@ -75,8 +89,9 @@
                   name="inlineRadioOptions"
                   id="inlineRadio1"
                   value="keyword"
-                  checked
+                  :checked="!uploaded_file"
                   v-model="search_type"
+                  :disabled="uploaded_file"
                   @change="resetFrom"
                 />
                 <label class="form-check-label" for="inlineRadio1"
@@ -252,6 +267,7 @@ export default {
   components: { SearchResultCard, SearchResultLoading, Pagination, PageFooter },
   mixins: [saveState],
   mounted() {
+    window.vm = this;
     this.flowSideBar();
   },
   computed: {
@@ -293,9 +309,19 @@ export default {
       total: Object,
       errored: false,
       loading: false,
+      uploaded_file: null,
+      file_input: null,
     };
   },
   methods: {
+    fileUpload(event) {
+      this.uploaded_file = event.target.files[0];
+      this.search_type = "semantic";
+    },
+    removeFile() {
+      this.uploaded_file = null;
+      this.file_input = null;
+    },
     getSaveStateConfig() {
       return {
         cacheKey: "searchPage",
