@@ -76,7 +76,6 @@ export default {
   name: "FilterTopicShare",
   props: {
     page_title: String,
-
     share_url: String,
     share_text: String,
   },

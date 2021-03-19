@@ -19,7 +19,8 @@ import TopicRelationships from '../components/explore/TopicRelationships.vue'
 // import WordEmbeddings from '../components/explore/WordEmbeddings.vue'
 import WordEmbeddings from '../components/explore/WordEmbeddingsGraph.vue'
 
-import Similarity from '../components/explore/Similarity.vue'
+// import Similarity from '../components/explore/Similarity.vue'
+import Similarity from '../components/explore/SimilarityNew.vue'
 
 // EXPLORE SUBCATEGORIES components
 import Sources from '../components/explore/subcategories/Sources.vue'
@@ -196,7 +197,11 @@ const explore_routes = [{
         path: "similarity",
         name: "explore_similarity",
         component: Similarity,
-        props: { page_title: "Similarity" },
+        props: {
+            page_title: "Similarity",
+            share_url: "%2fexplore%2fsimilarity%2f",
+            share_text: "Similarity"
+        },
     },
     {
         path: "knowledge-page-service",
