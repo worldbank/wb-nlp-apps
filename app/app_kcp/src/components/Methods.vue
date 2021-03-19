@@ -143,18 +143,7 @@ export default {
   mounted() {
     this.flowSideBar();
   },
-  computed: {
-    myProps() {
-      var retVal = null;
-      if (this.$route.name === "a") {
-        retVal = { foo: this.foo };
-      }
-      if (this.$route.name === "b") {
-        retVal = { bar: this.bar };
-      }
-      return retVal;
-    },
-  },
+  computed: {},
   methods: {
     flowSideBar: function () {
       $(function () {

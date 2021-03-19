@@ -38,16 +38,6 @@
         <a name="results"></a>
         <div v-show="this.model_id">
           <h2>Filtering Results</h2>
-          <!-- <div v-if="hits_loading">
-            <div class="document-row">
-              <div class="row" v-for="v in Array(size)" :key="'sk_' + v">
-                <div class="col-12">
-                  <b-skeleton height="231px"></b-skeleton>
-                </div>
-                <hr style="margin-top: 26px" />
-              </div>
-            </div>
-          </div> -->
 
           <SearchResultLoading :loading="loading" :size="size" />
           <SearchResultCard
@@ -55,101 +45,20 @@
             :result="result"
             v-bind:key="result.id"
           />
-          <div class="nada-pagination mt-5">
-            <div
-              class="row mt-3 mb-3 d-flex justify-content-lg-between align-items-center"
-            >
-              <div class="col-12 col-lg-6 mb-3 small">
-                <div
-                  id="items-per-page"
-                  class="items-per-page light switch-page-size"
-                >
-                  <small
-                    >Results per page:
-                    <span
-                      class="wbg-pagination-btn"
-                      :class="size === curr_size ? 'active' : ''"
-                      v-for="size in page_sizes"
-                      v-bind:key="size"
-                      @click="setSize(size)"
-                      >{{ size }}</span
-                    >
-                  </small>
-                </div>
-              </div>
-              <div class="col-12 col-lg-6 d-flex justify-content-lg-end">
-                <nav aria-label="Page navigation">
-                  <ul class="pagination pagination-md wbg-pagination-ul small">
-                    <li
-                      class="page-item"
-                      v-for="page_num in num_pages"
-                      v-bind:key="page_num"
-                    >
-                      <a
-                        href="#results"
-                        @click="sendSearch(page_num)"
-                        class="page-link"
-                        :class="page_num === curr_page_num ? 'active' : ''"
-                        :data-page="page_num"
-                        >{{ page_num }}</a
-                      >
-                    </li>
 
-                    <li class="page-item" v-show="hits.length > 0">
-                      <a
-                        href="#results"
-                        @click="sendSearch(next)"
-                        class="page-link"
-                        data-page="2"
-                        >Next</a
-                      >
-                    </li>
-                    <li class="page-item" v-show="hits.length > 0">
-                      <a
-                        href="#results"
-                        @click="sendSearch(num_pages)"
-                        class="page-link"
-                        :data-page="num_pages + 1"
-                        title="Last"
-                        >»</a
-                      >
-                    </li>
-                  </ul>
-                </nav>
-              </div>
-            </div>
-          </div>
+          <Pagination
+            @pageNumReceived="sendSearch"
+            :num_pages="num_pages"
+            :curr_page_num="curr_page_num"
+            :has_hits="hits.length > 0 && !no_more_hits"
+            :page_sizes="page_sizes"
+            :page_window="page_window"
+            :next="next"
+            :next_override="next_override"
+          />
         </div>
         <hr />
         <PageFooter :url="share_url" :share_text="share_text" />
-        <!-- <footer>
-          <section>
-            <h4>Share</h4>
-            <nav class="nav sharing-icons mt-4">
-              <a
-                class="nav-item"
-                href="https://www.facebook.com/sharer/sharer.php?u=%2fexplore%2fsubcategories%2ffiltering_by_topic_share%2f"
-                title="Share on Facebook"
-                ><span class="fab fa-facebook-f fa-lg" aria-hidden="true"></span
-              ></a>
-              <a
-                class="nav-item"
-                href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fexplore%2fsubcategories%2ffiltering_by_topic_share%2f"
-                title="Share on LinkedIn"
-                ><span
-                  class="fab fa-linkedin-in fa-lg"
-                  aria-hidden="true"
-                ></span
-              ></a>
-              <a
-                class="nav-item"
-                href="https://twitter.com/intent/tweet?url=%2fexplore%2fsubcategories%2ffiltering_by_topic_share%2f&amp;text=Filtering%20by%20topic%20share"
-                title="Tweet this"
-                ><span class="fab fa-twitter fa-lg" aria-hidden="true"></span
-              ></a>
-            </nav>
-          </section>
-        </footer> -->
       </article>
     </div>
   </div>
@@ -159,6 +68,8 @@
 import FilterTable from "../../common/FilterTable";
 import SearchResultCard from "../../common/SearchResultCard";
 import SearchResultLoading from "../../common/SearchResultLoading";
+import Pagination from "../../common/Pagination";
+
 import PageFooter from "../../common/PageFooter";
 
 export default {
@@ -180,14 +91,24 @@ export default {
         from_result: this.from_result,
         size: this.size,
       };
-
       return body;
+    },
+    no_more_hits() {
+      var next_from = this.curr_page_num * this.curr_size;
+
+      var no_more_hits = false;
+      if (next_from > this.total.value) {
+        no_more_hits = true;
+      }
+
+      return no_more_hits;
     },
   },
   components: {
     FilterTable,
     SearchResultCard,
     SearchResultLoading,
+    Pagination,
     PageFooter,
   },
   data: function () {
@@ -197,9 +118,11 @@ export default {
       start: 0,
       end: 0,
       next: 0,
+      page_window: 2,
       curr_page_num: 0,
       curr_size: 10,
       num_pages: 0,
+      next_override: false,
       model_id: null,
       topic_percentage: {},
       from_result: 0,
@@ -219,6 +142,7 @@ export default {
       if (from > this.total.value) {
         return;
       }
+      this.hits = [];
       this.from_result = from;
 
       this.$http

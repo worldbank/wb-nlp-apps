@@ -295,15 +295,15 @@ export default {
       formData.append("size", this.curr_size);
       return formData;
     },
-    myProps() {
-      var retVal = null;
-      if (this.$route.name === "a") {
-        retVal = { foo: this.foo };
+    no_more_hits() {
+      var next_from = this.curr_page_num * this.curr_size;
+
+      var no_more_hits = false;
+      if (next_from > this.total.value) {
+        no_more_hits = true;
       }
-      if (this.$route.name === "b") {
-        retVal = { bar: this.bar };
-      }
-      return retVal;
+
+      return no_more_hits;
     },
   },
   data: function () {
@@ -320,17 +320,16 @@ export default {
       curr_page_num: 0,
       curr_size: 10,
       num_pages: 0,
+      next_override: false,
       query: "",
       from_result: 0,
       hits: [],
-      no_more_hits: false,
       total: Object,
       errored: false,
       loading: false,
       uploaded_file: null,
       file_input: null,
       query_cache: "",
-      next_override: false,
     };
   },
   methods: {
@@ -356,12 +355,7 @@ export default {
     sendSearch: function (page_num = 1) {
       this.curr_page_num = page_num;
       var from = (page_num - 1) * this.curr_size;
-      var next_from = page_num * this.curr_size;
 
-      this.no_more_hits = false;
-      if (next_from > this.total.value) {
-        this.no_more_hits = true;
-      }
       this.hits = [];
       this.next_override = true;
 

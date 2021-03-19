@@ -201,16 +201,6 @@ export default {
     this.flowSideBar();
   },
   computed: {
-    myProps() {
-      var retVal = null;
-      if (this.$route.name === "a") {
-        retVal = { foo: this.foo };
-      }
-      if (this.$route.name === "b") {
-        retVal = { bar: this.bar };
-      }
-      return retVal;
-    },
     currentPageTitle() {
       var name = this.$route.name;
 
