@@ -255,20 +255,42 @@
                     >
                       <li
                         class="page-item"
-                        v-for="page_num in num_pages"
-                        v-bind:key="page_num"
+                        v-if="curr_page_num - page_window > 1"
                       >
                         <a
                           href="#results"
-                          @click="sendSearch(page_num)"
+                          @click="sendSearch(1)"
                           class="page-link"
-                          :class="page_num === curr_page_num ? 'active' : ''"
-                          :data-page="page_num"
-                          >{{ page_num }}</a
+                          :data-page="0"
+                          title="First"
+                          >«</a
                         >
                       </li>
+                      <li
+                        class="page-item"
+                        v-for="page_num in num_pages"
+                        v-bind:key="page_num"
+                      >
+                        <div
+                          v-if="
+                            Math.abs(curr_page_num - page_num) <= page_window
+                          "
+                        >
+                          <a
+                            href="#results"
+                            @click="sendSearch(page_num)"
+                            class="page-link"
+                            :class="page_num === curr_page_num ? 'active' : ''"
+                            :data-page="page_num"
+                            >{{ page_num }}</a
+                          >
+                        </div>
+                      </li>
 
-                      <li class="page-item" v-show="hits.length > 0">
+                      <li
+                        class="page-item"
+                        v-show="hits.length > 0 && !no_more_hits"
+                      >
                         <a
                           href="#results"
                           @click="sendSearch(next)"
@@ -277,7 +299,10 @@
                           >Next</a
                         >
                       </li>
-                      <li class="page-item" v-show="hits.length > 0">
+                      <li
+                        class="page-item"
+                        v-show="hits.length > 0 && !no_more_hits"
+                      >
                         <a
                           href="#results"
                           @click="sendSearch(num_pages)"
@@ -375,6 +400,7 @@ export default {
       start: 0,
       end: 0,
       next: 0,
+      page_window: 2,
       curr_page_num: 0,
       curr_size: 10,
       num_pages: 0,
@@ -382,6 +408,7 @@ export default {
       from_result: 0,
       size: 10,
       hits: [],
+      no_more_hits: false,
       total: Object,
       errored: false,
       loading: false,
@@ -399,6 +426,13 @@ export default {
     sendSearch: function (page_num = 1) {
       this.curr_page_num = page_num;
       var from = (page_num - 1) * this.size;
+      var next_from = page_num * this.size;
+
+      this.no_more_hits = false;
+      if (next_from > this.total.value) {
+        this.no_more_hits = true;
+      }
+      this.hits = [];
 
       if (this.search_type == "keyword") {
         this.sendKeywordSearch(from);
