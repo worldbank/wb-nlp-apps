@@ -119,14 +119,14 @@
                   >Topic profiles</router-link
                 >
               </li>
-              <li>
+              <!-- <li>
                 <router-link
                   to="/explore/topic-taxonomy/"
                   :class="{ active: $route.name === 'explore_topic-taxonomy' }"
                   >Topic taxonomy</router-link
                 >
-              </li>
-              <li>
+              </li> -->
+              <!-- <li>
                 <router-link
                   to="/explore/topic-relationships/"
                   :class="{
@@ -134,7 +134,7 @@
                   }"
                   >Topic relationships</router-link
                 >
-              </li>
+              </li> -->
               <li>
                 <router-link
                   to="/explore/word-embeddings/"

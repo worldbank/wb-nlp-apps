@@ -100,14 +100,14 @@
               >
                 <router-link class="navbar-link" to="/about">About</router-link>
               </li>
-              <li
+              <!-- <li
                 :class="{ active: $route.name.startsWith('styleguide') }"
                 class="navbar-link nav-item"
               >
                 <router-link class="navbar-link" to="/styleguide/"
                   >Styleguide</router-link
                 >
-              </li>
+              </li> -->
             </ul>
           </div>
         </nav>
