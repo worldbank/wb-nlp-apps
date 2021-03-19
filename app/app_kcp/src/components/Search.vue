@@ -206,26 +206,12 @@
                 </div>
               </div>
             </div>
-            <!--
-            <div v-if="loading">
-              <div class="document-row">
-                <div class="row" v-for="v in Array(size)" :key="'sk_' + v">
-                  <div class="col-12">
-                    <b-skeleton height="231px"></b-skeleton>
-                  </div>
-                  <hr style="margin-top: 26px" />
-                </div>
-              </div>
-            </div> -->
-
             <SearchResultLoading :loading="loading" :size="curr_size" />
-
             <SearchResultCard
               v-for="result in hits"
               :result="result"
               v-bind:key="result.id"
             />
-
             <Pagination
               @pageNumReceived="sendSearch"
               :num_pages="num_pages"
@@ -235,128 +221,8 @@
               :page_window="page_window"
               :next="next"
             />
-
-            <div class="nada-pagination mt-5">
-              <div
-                class="row mt-3 mb-3 d-flex justify-content-lg-between align-items-center"
-              >
-                <div class="col-12 col-lg-6 mb-3 small">
-                  <div
-                    id="items-per-page"
-                    class="items-per-page light switch-page-size"
-                  >
-                    <small
-                      >Results per page:
-                      <span
-                        class="wbg-pagination-btn"
-                        :class="size === curr_size ? 'active' : ''"
-                        v-for="size in page_sizes"
-                        v-bind:key="'pgn_' + size"
-                        @click="setSize(size)"
-                        >{{ size }}</span
-                      >
-                    </small>
-                  </div>
-                </div>
-                <div class="col-12 col-lg-6 d-flex justify-content-lg-end">
-                  <nav aria-label="Page navigation">
-                    <ul
-                      class="pagination pagination-md wbg-pagination-ul small"
-                    >
-                      <li
-                        class="page-item"
-                        v-if="curr_page_num - page_window > 1"
-                      >
-                        <a
-                          href="#results"
-                          @click="sendSearch(1)"
-                          class="page-link"
-                          :data-page="0"
-                          title="First"
-                          >«</a
-                        >
-                      </li>
-                      <li
-                        class="page-item"
-                        v-for="page_num in num_pages"
-                        v-bind:key="page_num"
-                      >
-                        <div
-                          v-if="
-                            Math.abs(curr_page_num - page_num) <= page_window
-                          "
-                        >
-                          <a
-                            href="#results"
-                            @click="sendSearch(page_num)"
-                            class="page-link"
-                            :class="page_num === curr_page_num ? 'active' : ''"
-                            :data-page="page_num"
-                            >{{ page_num }}</a
-                          >
-                        </div>
-                      </li>
-
-                      <li
-                        class="page-item"
-                        v-show="hits.length > 0 && !no_more_hits"
-                      >
-                        <a
-                          href="#results"
-                          @click="sendSearch(next)"
-                          class="page-link"
-                          data-page="2"
-                          >Next</a
-                        >
-                      </li>
-                      <li
-                        class="page-item"
-                        v-show="hits.length > 0 && !no_more_hits"
-                      >
-                        <a
-                          href="#results"
-                          @click="sendSearch(num_pages)"
-                          class="page-link"
-                          :data-page="num_pages + 1"
-                          title="Last"
-                          >»</a
-                        >
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-              </div>
-            </div>
             <hr />
-            <footer>
-              <section>
-                <h4>Share</h4>
-                <nav class="nav sharing-icons mt-4">
-                  <a
-                    class="nav-item"
-                    href="https://www.facebook.com/sharer/sharer.php?u=%2fsearch%2f"
-                    title="Share on Facebook"
-                    ><span
-                      class="fab fa-facebook-f fa-lg"
-                      aria-hidden="true"
-                    ></span></a
-                  ><a
-                    class="nav-item"
-                    href="https://www.linkedin.com/shareArticle?mini=true&url=%2fsearch%2f"
-                    title="Share on LinkedIn"
-                    ><span
-                      class="fab fa-linkedin-in fa-lg"
-                      aria-hidden="true"
-                    ></span></a
-                  ><a
-                    class="nav-item"
-                    href="https://twitter.com/intent/tweet?url=%2fsearch%2f&text=Search"
-                    title="Tweet this"
-                    ><span class="fab fa-twitter fa-lg"></span
-                  ></a>
-                </nav>
-              </section>
-            </footer>
+            <PageFooter :url="share_url" :share_text="share_text" />
           </article>
         </div>
       </div>
@@ -372,13 +238,18 @@ import saveState from "vue-save-state";
 import SearchResultCard from "./common/SearchResultCard";
 import SearchResultLoading from "./common/SearchResultLoading";
 import Pagination from "./common/Pagination";
+import PageFooter from "./common/PageFooter";
 window.onbeforeunload = function () {
   localStorage.clear();
 };
 
 export default {
   name: "Search",
-  components: { SearchResultCard, SearchResultLoading, Pagination },
+  props: {
+    share_url: String,
+    share_text: String,
+  },
+  components: { SearchResultCard, SearchResultLoading, Pagination, PageFooter },
   mixins: [saveState],
   mounted() {
     this.flowSideBar();

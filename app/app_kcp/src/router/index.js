@@ -57,7 +57,11 @@ const main_routes = [{
         path: "search",
         name: "search",
         component: Search,
-        props: { page_title: "Search" },
+        props: {
+            page_title: "Search",
+            share_url: "%2fsearch%2f",
+            share_text: "Search"
+        },
     },
     {
         path: "content-api",
