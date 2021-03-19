@@ -48,7 +48,7 @@
               </div>
             </li>
 
-            <li class="page-item" v-show="has_hits">
+            <li class="page-item" v-show="has_hits || next_override">
               <a
                 href="#results"
                 @click="sendPageNum(next)"
@@ -57,7 +57,7 @@
                 >Next</a
               >
             </li>
-            <li class="page-item" v-show="has_hits">
+            <li class="page-item" v-show="has_hits || next_override">
               <a
                 href="#results"
                 @click="sendPageNum(num_pages)"
@@ -84,6 +84,7 @@ export default {
     page_sizes: Array,
     page_window: Number,
     next: Number,
+    next_override: Boolean,
   },
   data: function () {
     return {

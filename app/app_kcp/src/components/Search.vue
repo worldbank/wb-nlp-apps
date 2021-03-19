@@ -236,6 +236,7 @@
               :page_sizes="page_sizes"
               :page_window="page_window"
               :next="next"
+              :next_override="next_override"
             />
             <hr />
             <PageFooter :url="share_url" :share_text="share_text" />
@@ -329,6 +330,7 @@ export default {
       uploaded_file: null,
       file_input: null,
       query_cache: "",
+      next_override: false,
     };
   },
   methods: {
@@ -361,8 +363,10 @@ export default {
         this.no_more_hits = true;
       }
       this.hits = [];
+      this.next_override = true;
 
       if (this.search_type == "keyword") {
+        this.next_override = false;
         this.sendKeywordSearch(from);
       } else if (this.search_type == "semantic") {
         if (this.uploaded_file != null) {
@@ -418,7 +422,7 @@ export default {
         .then((response) => {
           this.hits = response.data.hits;
           this.total = response.data.total;
-          this.next = response.data.next;
+          this.next = this.curr_page_num + 1;
           this.start = this.from_result + 1;
           this.end = this.from_result + this.hits.length;
           this.num_pages = Math.floor(this.total.value / this.curr_size);
@@ -442,7 +446,7 @@ export default {
         .then((response) => {
           this.hits = response.data.hits;
           this.total = response.data.total;
-          this.next = response.data.next;
+          this.next = this.curr_page_num + 1;
           this.start = this.from_result + 1;
           this.end = this.from_result + this.hits.length;
           this.num_pages = Math.floor(this.total.value / this.curr_size);
