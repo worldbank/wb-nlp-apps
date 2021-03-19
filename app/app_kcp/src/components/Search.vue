@@ -278,6 +278,12 @@ export default {
       params.append("size", this.curr_size);
       return params;
     },
+    fileParams() {
+      const formData = new FormData();
+      formData.append("file", this.uploaded_file, this.uploaded_file.name);
+      formData.append("from_result", this.from_result);
+      formData.append("size", this.curr_size);
+    },
     myProps() {
       var retVal = null;
       if (this.$route.name === "a") {
@@ -294,6 +300,7 @@ export default {
       search_type: "keyword",
       keyword_search_api_url: "/nlp/search/keyword",
       semantic_search_api_url: "/nlp/search/semantic",
+      file_search_api_url: "/nlp/search/file",
       page_sizes: [10, 25, 50, 100],
       start: 0,
       end: 0,
@@ -408,7 +415,30 @@ export default {
         })
         .finally(() => (this.loading = false));
     },
+    sendFileSearch: function (from = 0) {
+      this.from_result = from;
+      this.loading = true;
 
+      this.$http
+        .post(this.file_search_api_url, this.fileParams)
+        .then((response) => {
+          this.hits = response.data.hits;
+          this.total = response.data.total;
+          this.next = response.data.next;
+          this.start = this.from_result + 1;
+          this.end = this.from_result + this.hits.length;
+          this.num_pages = Math.floor(this.total.value / this.curr_size);
+          if (this.total.value % this.curr_size > 0) {
+            this.num_pages += 1;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          this.errored = true;
+          this.loading = false;
+        })
+        .finally(() => (this.loading = false));
+    },
     setSize: function (size) {
       this.curr_size = size;
     },
