@@ -44,65 +44,67 @@
                     ($route.name == 'home')
                     | ($route.name == ''),
                 }"
-                class="nav-link nav-item"
+                class="navbar-link nav-item"
               > -->
               <li
-                class="nav-link nav-item"
+                class="navbar-link nav-item"
                 :class="{
                   active: $route.name.startsWith('home'),
                 }"
               >
-                <router-link class="nav-link" to="/">Home</router-link>
+                <router-link class="navbar-link" to="/">Home</router-link>
               </li>
               <li
                 :class="{ active: $route.name.startsWith('search') }"
-                class="nav-link nav-item"
+                class="navbar-link nav-item"
               >
-                <router-link class="nav-link" to="/search">Search</router-link>
+                <router-link class="navbar-link" to="/search"
+                  >Search</router-link
+                >
               </li>
               <li
                 :class="{ active: $route.name.startsWith('explore') }"
-                class="nav-link nav-item"
+                class="navbar-link nav-item"
               >
-                <router-link class="nav-link" to="/explore"
+                <router-link class="navbar-link" to="/explore"
                   >Explore</router-link
                 >
               </li>
               <!-- <li
                 :class="{ active: $route.name.startsWith('analyze') }"
-                class="nav-link nav-item"
+                class="navbar-link nav-item"
               >
-                <router-link class="nav-link" to="/analyze"
+                <router-link class="navbar-link" to="/analyze"
                   >Analyze</router-link
                 >
               </li> -->
               <li
                 :class="{ active: $route.name.startsWith('methods') }"
-                class="nav-link nav-item"
+                class="navbar-link nav-item"
               >
-                <router-link class="nav-link" to="/methods"
+                <router-link class="navbar-link" to="/methods"
                   >Methods &amp; Tools</router-link
                 >
               </li>
               <li
                 :class="{ active: $route.name.startsWith('content') }"
-                class="nav-link nav-item"
+                class="navbar-link nav-item"
               >
-                <router-link class="nav-link" to="/content-api"
+                <router-link class="navbar-link" to="/content-api"
                   >API</router-link
                 >
               </li>
               <li
                 :class="{ active: $route.name.startsWith('about') }"
-                class="nav-link nav-item"
+                class="navbar-link nav-item"
               >
-                <router-link class="nav-link" to="/about">About</router-link>
+                <router-link class="navbar-link" to="/about">About</router-link>
               </li>
               <li
                 :class="{ active: $route.name.startsWith('styleguide') }"
-                class="nav-link nav-item"
+                class="navbar-link nav-item"
               >
-                <router-link class="nav-link" to="/styleguide/"
+                <router-link class="navbar-link" to="/styleguide/"
                   >Styleguide</router-link
                 >
               </li>
