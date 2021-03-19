@@ -35,7 +35,7 @@
                   aria-describedby="basic-addon2"
                   v-on:keyup.enter="sendSearch()"
                 />
-                <div v-if="this.uploaded_file" class="wbg-uploaded-file">
+                <div v-if="hasUploadedFile" class="wbg-uploaded-file">
                   {{ this.uploaded_file.name }}
                   <i
                     class="fas fa-times fa-sm ml-2"
@@ -55,7 +55,7 @@
                       type="file"
                       name="file-input"
                       :value="file_input"
-                      :disabled="this.uploaded_file"
+                      :disabled="hasUploadedFile"
                       id="file-input"
                       class="file-input__input"
                       data-toggle="tooltip"
@@ -65,7 +65,7 @@
                     <label class="file-input__label" for="file-input"
                       ><i
                         class="fas fa-file-upload fa-lg"
-                        :style="uploaded_file ? 'color: gray' : ''"
+                        :style="hasUploadedFile ? 'color: gray' : ''"
                       ></i
                     ></label>
                   </div>
@@ -271,6 +271,14 @@ export default {
     this.flowSideBar();
   },
   computed: {
+    hasUploadedFile() {
+      if (this.uploaded_file !== null) {
+        if (this.uploaded_file.name !== undefined) {
+          return true;
+        }
+      }
+      return false;
+    },
     searchParams() {
       const params = new URLSearchParams();
       params.append("query", this.query);
@@ -280,9 +288,10 @@ export default {
     },
     fileParams() {
       const formData = new FormData();
-      formData.append("file", this.uploaded_file, this.uploaded_file.name);
+      formData.append("file", this.uploaded_file);
       formData.append("from_result", this.from_result);
       formData.append("size", this.curr_size);
+      return formData;
     },
     myProps() {
       var retVal = null;
@@ -318,16 +327,20 @@ export default {
       loading: false,
       uploaded_file: null,
       file_input: null,
+      query_cache: "",
     };
   },
   methods: {
     fileUpload(event) {
       this.uploaded_file = event.target.files[0];
       this.search_type = "semantic";
+      this.query_cache = this.query;
+      this.query = "";
     },
     removeFile() {
       this.uploaded_file = null;
       this.file_input = null;
+      this.query = this.query_cache;
     },
     getSaveStateConfig() {
       return {
@@ -351,7 +364,11 @@ export default {
       if (this.search_type == "keyword") {
         this.sendKeywordSearch(from);
       } else if (this.search_type == "semantic") {
-        this.sendSemanticSearch(from);
+        if (this.uploaded_file != null) {
+          this.sendFileSearch(from);
+        } else {
+          this.sendSemanticSearch(from);
+        }
       } else {
         return;
       }

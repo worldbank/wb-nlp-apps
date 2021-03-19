@@ -6,7 +6,7 @@ from typing import Optional, List
 from functools import lru_cache
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Body, Query
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from ...common.utils import get_validated_model
 from wb_nlp.dir_manager import get_path_from_root
