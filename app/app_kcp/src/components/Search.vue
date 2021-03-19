@@ -218,7 +218,7 @@
               </div>
             </div> -->
 
-            <SearchResultLoading :loading="loading" :size="size" />
+            <SearchResultLoading :loading="loading" :size="curr_size" />
 
             <SearchResultCard
               v-for="result in hits"
@@ -241,7 +241,7 @@
                         class="wbg-pagination-btn"
                         :class="size === curr_size ? 'active' : ''"
                         v-for="size in page_sizes"
-                        v-bind:key="size"
+                        v-bind:key="'pgn_' + size"
                         @click="setSize(size)"
                         >{{ size }}</span
                       >
@@ -377,7 +377,7 @@ export default {
       const params = new URLSearchParams();
       params.append("query", this.query);
       params.append("from_result", this.from_result);
-      params.append("size", this.size);
+      params.append("size", this.curr_size);
       return params;
     },
     myProps() {
@@ -406,7 +406,6 @@ export default {
       num_pages: 0,
       query: "",
       from_result: 0,
-      size: 10,
       hits: [],
       no_more_hits: false,
       total: Object,
@@ -425,8 +424,8 @@ export default {
     },
     sendSearch: function (page_num = 1) {
       this.curr_page_num = page_num;
-      var from = (page_num - 1) * this.size;
-      var next_from = page_num * this.size;
+      var from = (page_num - 1) * this.curr_size;
+      var next_from = page_num * this.curr_size;
 
       this.no_more_hits = false;
       if (next_from > this.total.value) {
@@ -460,8 +459,8 @@ export default {
           // this.next = response.data.next;
           this.start = this.from_result + 1;
           this.end = this.from_result + this.hits.length;
-          this.num_pages = Math.floor(this.total.value / this.size);
-          if (this.total.value % this.size > 0) {
+          this.num_pages = Math.floor(this.total.value / this.curr_size);
+          if (this.total.value % this.curr_size > 0) {
             this.num_pages += 1;
           }
         })
@@ -489,8 +488,8 @@ export default {
           this.next = response.data.next;
           this.start = this.from_result + 1;
           this.end = this.from_result + this.hits.length;
-          this.num_pages = Math.floor(this.total.value / this.size);
-          if (this.total.value % this.size > 0) {
+          this.num_pages = Math.floor(this.total.value / this.curr_size);
+          if (this.total.value % this.curr_size > 0) {
             this.num_pages += 1;
           }
         })
@@ -503,7 +502,6 @@ export default {
     },
 
     setSize: function (size) {
-      this.size = size;
       this.curr_size = size;
     },
     flowSideBar: function () {
