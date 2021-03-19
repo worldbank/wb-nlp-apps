@@ -20,7 +20,10 @@
         <a
           class="nav-item"
           :href="
-            'https://twitter.com/intent/tweet?url=' + url + '&amp;text=' + text
+            'https://twitter.com/intent/tweet?url=' +
+            url +
+            '&amp;text=' +
+            share_text
           "
           title="Tweet this"
           ><span class="fab fa-twitter fa-lg" aria-hidden="true"></span
@@ -35,7 +38,7 @@ export default {
   name: "PageFooter",
   props: {
     url: String,
-    text: String,
+    share_text: String,
   },
 };
 </script>

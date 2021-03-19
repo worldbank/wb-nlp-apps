@@ -739,42 +739,15 @@
           </div>
         </div>
         <hr />
-        <footer>
-          <section>
-            <h4>Share</h4>
-            <nav class="nav sharing-icons mt-4">
-              <a
-                class="nav-item"
-                href="https://www.facebook.com/sharer/sharer.php?u=%2fexplore%2fsimilarity%2f"
-                title="Share on Facebook"
-                ><span
-                  class="fab fa-facebook-f fa-lg"
-                  aria-hidden="true"
-                ></span></a
-              ><a
-                class="nav-item"
-                href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fexplore%2fsimilarity%2f"
-                title="Share on LinkedIn"
-                ><span
-                  class="fab fa-linkedin-in fa-lg"
-                  aria-hidden="true"
-                ></span
-              ></a>
-              <a
-                class="nav-item"
-                href="https://twitter.com/intent/tweet?url=%2fexplore%2fsimilarity%2f&amp;text=Similarity"
-                title="Tweet this"
-                ><span class="fab fa-twitter fa-lg" aria-hidden="true"></span
-              ></a>
-            </nav>
-          </section>
-        </footer>
+        <PageFooter :url="share_url" :share_text="share_text" />
       </article>
     </div>
   </div>
 </template>
 
 <script>
+import PageFooter from "../common/PageFooter";
+
 export default {
   name: "SimilarityNew",
   props: {
@@ -782,5 +755,6 @@ export default {
     share_url: String,
     share_text: String,
   },
+  components: { PageFooter },
 };
 </script>
