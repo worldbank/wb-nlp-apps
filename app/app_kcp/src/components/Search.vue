@@ -226,6 +226,16 @@
               v-bind:key="result.id"
             />
 
+            <Pagination
+              @pageNumReceived="sendSearch"
+              :num_pages="num_pages"
+              :curr_page_num="curr_page_num"
+              :has_hits="hits.length > 0 && !no_more_hits"
+              :page_sizes="page_sizes"
+              :page_window="page_window"
+              :next="next"
+            />
+
             <div class="nada-pagination mt-5">
               <div
                 class="row mt-3 mb-3 d-flex justify-content-lg-between align-items-center"
@@ -361,13 +371,14 @@ import saveState from "vue-save-state";
 
 import SearchResultCard from "./common/SearchResultCard";
 import SearchResultLoading from "./common/SearchResultLoading";
+import Pagination from "./common/Pagination";
 window.onbeforeunload = function () {
   localStorage.clear();
 };
 
 export default {
   name: "Search",
-  components: { SearchResultCard, SearchResultLoading },
+  components: { SearchResultCard, SearchResultLoading, Pagination },
   mixins: [saveState],
   mounted() {
     this.flowSideBar();
