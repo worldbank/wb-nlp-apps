@@ -54,6 +54,7 @@ def common_semantic_search(
     # model = get_validated_model(ModelTypes(
     #     "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
 
+    print("QUERY: ", query[:100])
     if clean:
         query = model.clean_text(query)
 
