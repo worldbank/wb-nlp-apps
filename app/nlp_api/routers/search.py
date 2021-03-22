@@ -3,13 +3,14 @@
 import json
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query, Form
 import pydantic
+from pydantic import HttpUrl
 
 from wb_nlp.interfaces import mongodb, elasticsearch
 
 from wb_nlp.types.models import (
     ModelTypes
 )
-from ..common.utils import get_validated_model, read_uploaded_file
+from ..common.utils import get_validated_model, read_uploaded_file, read_url_file
 
 
 router = APIRouter(
@@ -42,16 +43,21 @@ async def keyword_search(
 
 
 def common_semantic_search(
+        model_name: ModelTypes,
+        model_id: str,
         query: str,
         from_result: int = 0,
         size: int = 10,
         clean: bool = True):
 
-    model = get_validated_model(ModelTypes(
-        "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
+    model = get_validated_model(model_name, model_id)
+    # model = get_validated_model(ModelTypes(
+    #     "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
 
     if clean:
         query = model.clean_text(query)
+
+    # print("CLEANED QUERY: ", query)
 
     result = model.search_similar_documents(
         document=query,
@@ -79,53 +85,29 @@ def common_semantic_search(
     )
 
 
-@ router.get("/semantic")
+@ router.get("/{model_name}/semantic")
 async def semantic_search(
+    model_name: ModelTypes,
+    model_id: str,
     query: str,
     from_result: int = 0,
     size: int = 10,
-    clean: bool = True,
+    clean: bool = False,
 ):
     '''This endpoint provides the service for the semantic search functionality. This uses a word embedding model to find semantically similar documents in the database.
     '''
 
+    print(model_name, model_id, query)
+
     return common_semantic_search(
+        model_name=model_name, model_id=model_id,
         query=query, from_result=from_result, size=size, clean=clean)
 
-    # model = get_validated_model(ModelTypes(
-    #     "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
 
-    # if clean:
-    #     query = model.clean_text(query)
-
-    # result = model.search_similar_documents(
-    #     document=query,
-    #     from_result=from_result,
-    #     size=size)
-
-    # id_rank = {res["id"]: res["rank"] for res in result}
-
-    # docs_metadata = mongodb.get_collection(
-    #     db_name="test_nlp", collection_name="docs_metadata")
-    # # docs_metadata = mongodb.get_docs_metadata_collection()
-
-    # response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
-
-    # total = dict(
-    #     value=None,
-    #     message="many"
-    # )
-
-    # return dict(
-    #     total=total,
-    #     hits=[h for h in sorted(response, key=lambda x: id_rank[x["id"]])],
-    #     next=from_result + size,
-    #     result=result,
-    # )
-
-
-@ router.post("/file")
+@ router.post("/{model_name}/file")
 async def file_search(
+    model_name: ModelTypes,
+    model_id: str = Form(...),
     file: UploadFile = File(...),
     from_result: int = Form(0),
     size: int = Form(10),
@@ -135,34 +117,23 @@ async def file_search(
     '''
     print({"filename": file.filename})
 
-    # model = get_validated_model(ModelTypes(
-    #     "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
-
     document = read_uploaded_file(file)
 
-    return common_semantic_search(query=document, from_result=from_result, size=size, clean=clean)
+    return common_semantic_search(model_name=model_name, model_id=model_id, query=document, from_result=from_result, size=size, clean=clean)
 
-    # result = model.search_similar_documents(
-    #     document=query,
-    #     from_result=from_result,
-    #     size=size)
 
-    # id_rank = {res["id"]: res["rank"] for res in result}
+@ router.post("/{model_name}/url")
+async def url_search(
+    model_name: ModelTypes,
+    model_id: str = Form(...),
+    url: HttpUrl = Form(...),
+    from_result: int = Form(0),
+    size: int = Form(10),
+    clean: bool = Form(True),
+):
+    '''This endpoint provides the service for the semantic search functionality. This uses a word embedding model to find semantically similar documents in the database.
+    '''
 
-    # docs_metadata = mongodb.get_collection(
-    #     db_name="test_nlp", collection_name="docs_metadata")
-    # # docs_metadata = mongodb.get_docs_metadata_collection()
+    document = read_url_file(url)
 
-    # response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
-
-    # total = dict(
-    #     value=None,
-    #     message="many"
-    # )
-
-    # return dict(
-    #     total=total,
-    #     hits=[h for h in sorted(response, key=lambda x: id_rank[x["id"]])],
-    #     next=from_result + size,
-    #     result=result,
-    # )
+    return common_semantic_search(model_name=model_name, model_id=model_id, query=document, from_result=from_result, size=size, clean=clean)
