@@ -298,7 +298,10 @@ export default {
       curr_size: 10,
       size: 10,
       next_override: true,
-
+      model_name: {
+        word2vec: "word2vec",
+        lda: "lda",
+      },
       model_options: {
         lda: {
           upload_nlp_api_url: "/nlp/search/lda/file",
@@ -348,8 +351,8 @@ export default {
   },
   computed: {
     stateReady() {
-      if (this.model_options["word2vec"].model_id !== null) {
-        if (this.model_options["lda"].model_id !== null) {
+      if (this.model_options[this.model_name.word2vec].model_id !== null) {
+        if (this.model_options[this.model_name.lda].model_id !== null) {
           if (this.url !== "" || this.uploaded_file !== null) return true;
         }
       }
@@ -380,9 +383,9 @@ export default {
     },
     selectedModel() {
       if (this.tabIndex === 0) {
-        return "word2vec";
+        return this.model_name.word2vec;
       } else if (this.tabIndex === 1) {
-        return "lda";
+        return this.model_name.lda;
       } else {
         return null;
       }
@@ -432,11 +435,11 @@ export default {
   methods: {
     onModelSelectWord2Vec(model_run_info_id) {
       console.log(model_run_info_id);
-      this.model_options["word2vec"].model_id = model_run_info_id;
+      this.model_options[this.model_name.word2vec].model_id = model_run_info_id;
     },
     onModelSelectLDA(model_run_info_id) {
       console.log(model_run_info_id);
-      this.model_options["lda"].model_id = model_run_info_id;
+      this.model_options[this.model_name.lda].model_id = model_run_info_id;
       // this.getModelTopics();
       // this.getTopicRanges();
     },
