@@ -9,7 +9,7 @@ from wb_nlp.interfaces import mongodb, elasticsearch
 from wb_nlp.types.models import (
     ModelTypes
 )
-from ..common.utils import get_validated_model
+from ..common.utils import get_validated_model, read_uploaded_file
 
 
 router = APIRouter(
@@ -92,7 +92,7 @@ async def file_search(
     model = get_validated_model(ModelTypes(
         "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
 
-    document = file.file.read().decode("utf-8", errors="ignore")
+    document = read_uploaded_file(file)
     query = model.clean_text(document)
 
     result = model.search_similar_documents(

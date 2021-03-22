@@ -16,6 +16,12 @@ from wb_nlp.types.metadata import MetadataModel
 from wb_nlp.types.metadata_enums import WBAdminRegions, WBMajorDocTypes
 
 
+class UploadTypes(enum.Enum):
+    '''Upload options'''
+    url_upload = "url_upload"
+    file_upload = "file_upload"
+
+
 class ModelTypes(enum.Enum):
     '''Types of models available.
     '''

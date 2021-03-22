@@ -9,6 +9,7 @@ from wb_nlp.types.models import (
     ModelTypes,
 )
 from wb_nlp.models import word2vec_base, lda_base
+from wb_nlp.processing import document
 
 
 @lru_cache(maxsize=64)
@@ -61,3 +62,16 @@ def get_validated_model(model_name, model_id):
             status_code=404, detail=f"Invalid model_id: {model_id} for {model_name.value}. This model_id corresponds to a {run_model_name} model.")
 
     return model_run_info["model"]
+
+
+def read_uploaded_file(file):
+
+    if file.content_type.startswith("text/"):
+        text = file.file.read().decode("utf-8", errors="ignore")
+    elif file.content_type == "application/pdf":
+
+        doc = document.PDFDoc2Txt()
+        text_pages = doc.parse(source=file.file, source_type="buffer")
+        text = " ".join(text_pages)
+
+    return text
