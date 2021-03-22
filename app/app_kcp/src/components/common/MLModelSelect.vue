@@ -27,6 +27,15 @@ export default {
     model_name: String,
     placeholder: String,
   },
+  mounted() {
+    this.model_run_infos = [];
+
+    if (this.model_name === "lda") {
+      this.model_run_infos = this.lda_model_run_infos;
+    } else if (this.model_name === "word2vec") {
+      this.model_run_infos = this.word2vec_model_run_infos;
+    }
+  },
   computed: {
     model_placeholder() {
       console.log(this.placeholder);
@@ -40,7 +49,8 @@ export default {
   data: function () {
     return {
       model_run_info_id: "",
-      model_run_infos: [
+      model_run_infos: [],
+      lda_model_run_infos: [
         {
           value: "6694f3a38bc16dee91be5ccf4a64b6d8",
           text: "LDA model with 300 topics trained on all documents.",
@@ -48,6 +58,16 @@ export default {
         {
           value: "6694f3a38bc16dee91be5ccf4a64b6d9",
           text: "LDA model with 100 topics trained on all documents.",
+        },
+      ],
+      word2vec_model_run_infos: [
+        {
+          value: "777a9cf47411f6c4932e8941f177f90a",
+          text: "Word2Vec model with 300 dimensions trained on all documents.",
+        },
+        {
+          value: "777a9cf47411f6c4932e8941f177f90a",
+          text: "Word2Vec model with 100 dimensions trained on all documents.",
         },
       ],
     };
