@@ -26,7 +26,7 @@
           for LDA model X.
         </p>
         <div class="d-md-flex">
-          <div class="dropdown mr-3 mr-3 mb-3 mb-md-0">
+          <!-- <div class="dropdown mr-3 mr-3 mb-3 mb-md-0">
             <button
               class="btn btn-outline-secondary wbg-button dropdown-toggle"
               type="button"
@@ -83,6 +83,22 @@
                 >Something else here</a
               >
             </div>
+          </div> -->
+        </div>
+        <div class="row">
+          <div class="col-6 fluid">
+            <MLModelSelect
+              @modelSelected="onModelSelect"
+              :model_name="'word2vec'"
+              placeholder="Choose a word embedding model..."
+            />
+          </div>
+          <div class="col-6 fluid">
+            <MLModelSelect
+              @modelSelected="onModelSelect"
+              :model_name="'lda'"
+              placeholder="Choose a topic model..."
+            />
           </div>
         </div>
         <form class="mt-4">
@@ -746,6 +762,8 @@
 </template>
 
 <script>
+import MLModelSelect from "../common/MLModelSelect";
+
 import PageFooter from "../common/PageFooter";
 
 export default {
@@ -755,6 +773,9 @@ export default {
     share_url: String,
     share_text: String,
   },
-  components: { PageFooter },
+  components: { PageFooter, MLModelSelect },
+  methods: {
+    onModelSelect() {},
+  },
 };
 </script>

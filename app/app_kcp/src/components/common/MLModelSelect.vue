@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="model-select-wrapper">
     <!-- <b-form-select
       v-model="model_run_info_id"
       :options="model_run_infos"
@@ -8,7 +8,8 @@
     <model-select
       :options="model_run_infos"
       v-model="model_run_info_id"
-      placeholder="Select model"
+      :placeholder="model_placeholder"
+      class="wbg-model-select"
     >
     </model-select>
   </div>
@@ -24,6 +25,17 @@ export default {
   },
   props: {
     model_name: String,
+    placeholder: String,
+  },
+  computed: {
+    model_placeholder() {
+      console.log(this.placeholder);
+      if (this.placeholder !== undefined) {
+        return this.placeholder;
+      } else {
+        return "Select model...";
+      }
+    },
   },
   data: function () {
     return {
@@ -52,3 +64,21 @@ export default {
   },
 };
 </script>
+<style scoped>
+.model-select-wrapper {
+  margin: 5px;
+}
+.wbg-model-select {
+  border-color: var(--action-color) !important;
+  color: var(--action-color) !important;
+  border-radius: var(--border-radius-sm) !important;
+  /* padding: 0.375rem 0.75rem !important; */
+  font-weight: 400 !important;
+  font-size: 1rem !important;
+}
+
+/* .wbg-model-select .text.default { */
+div.default.text {
+  color: var(--action-color-hover) !important;
+}
+</style>

@@ -1,7 +1,11 @@
 <template>
   <div>
     <h3 class="mb-3 mt-5">Choose a topic model</h3>
-    <MLModelSelect @modelSelected="onModelSelect" :model_name="model_name" />
+    <MLModelSelect
+      @modelSelected="onModelSelect"
+      :model_name="model_name"
+      placeholder="Choose topic model..."
+    />
     <div v-show="model_run_info_id">
       <h3 class="mb-3 mt-5">Available topics</h3>
       <p class="mt-2">
