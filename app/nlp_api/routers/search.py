@@ -41,17 +41,17 @@ async def keyword_search(
     )
 
 
-@ router.get("/semantic")
-async def semantic_search(
-    query: str,
-    from_result: int = 0,
-    size: int = 10,
-):
-    '''This endpoint provides the service for the semantic search functionality. This uses a word embedding model to find semantically similar documents in the database.
-    '''
+def common_semantic_search(
+        query: str,
+        from_result: int = 0,
+        size: int = 10,
+        clean: bool = True):
 
     model = get_validated_model(ModelTypes(
         "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
+
+    if clean:
+        query = model.clean_text(query)
 
     result = model.search_similar_documents(
         document=query,
@@ -77,6 +77,51 @@ async def semantic_search(
         next=from_result + size,
         result=result,
     )
+
+
+@ router.get("/semantic")
+async def semantic_search(
+    query: str,
+    from_result: int = 0,
+    size: int = 10,
+    clean: bool = True,
+):
+    '''This endpoint provides the service for the semantic search functionality. This uses a word embedding model to find semantically similar documents in the database.
+    '''
+
+    return common_semantic_search(
+        query=query, from_result=from_result, size=size, clean=clean)
+
+    # model = get_validated_model(ModelTypes(
+    #     "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
+
+    # if clean:
+    #     query = model.clean_text(query)
+
+    # result = model.search_similar_documents(
+    #     document=query,
+    #     from_result=from_result,
+    #     size=size)
+
+    # id_rank = {res["id"]: res["rank"] for res in result}
+
+    # docs_metadata = mongodb.get_collection(
+    #     db_name="test_nlp", collection_name="docs_metadata")
+    # # docs_metadata = mongodb.get_docs_metadata_collection()
+
+    # response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
+
+    # total = dict(
+    #     value=None,
+    #     message="many"
+    # )
+
+    # return dict(
+    #     total=total,
+    #     hits=[h for h in sorted(response, key=lambda x: id_rank[x["id"]])],
+    #     next=from_result + size,
+    #     result=result,
+    # )
 
 
 @ router.post("/file")
@@ -84,38 +129,40 @@ async def file_search(
     file: UploadFile = File(...),
     from_result: int = Form(0),
     size: int = Form(10),
+    clean: bool = Form(True),
 ):
     '''This endpoint provides the service for the semantic search functionality. This uses a word embedding model to find semantically similar documents in the database.
     '''
     print({"filename": file.filename})
 
-    model = get_validated_model(ModelTypes(
-        "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
+    # model = get_validated_model(ModelTypes(
+    #     "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
 
     document = read_uploaded_file(file)
-    query = model.clean_text(document)
 
-    result = model.search_similar_documents(
-        document=query,
-        from_result=from_result,
-        size=size)
+    return common_semantic_search(query=document, from_result=from_result, size=size, clean=clean)
 
-    id_rank = {res["id"]: res["rank"] for res in result}
+    # result = model.search_similar_documents(
+    #     document=query,
+    #     from_result=from_result,
+    #     size=size)
 
-    docs_metadata = mongodb.get_collection(
-        db_name="test_nlp", collection_name="docs_metadata")
-    # docs_metadata = mongodb.get_docs_metadata_collection()
+    # id_rank = {res["id"]: res["rank"] for res in result}
 
-    response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
+    # docs_metadata = mongodb.get_collection(
+    #     db_name="test_nlp", collection_name="docs_metadata")
+    # # docs_metadata = mongodb.get_docs_metadata_collection()
 
-    total = dict(
-        value=None,
-        message="many"
-    )
+    # response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
 
-    return dict(
-        total=total,
-        hits=[h for h in sorted(response, key=lambda x: id_rank[x["id"]])],
-        next=from_result + size,
-        result=result,
-    )
+    # total = dict(
+    #     value=None,
+    #     message="many"
+    # )
+
+    # return dict(
+    #     total=total,
+    #     hits=[h for h in sorted(response, key=lambda x: id_rank[x["id"]])],
+    #     next=from_result + size,
+    #     result=result,
+    # )
