@@ -102,8 +102,10 @@
           </div>
         </div>
 
+        <br />
+
         <center>
-          <b-form-group label="Data upload source" v-slot="{ ariaDescribedby }">
+          <b-form-group label="" v-slot="{ ariaDescribedby }">
             <b-form-radio-group
               id="radio-group-1"
               v-model="selectedInput"
@@ -119,6 +121,7 @@
             v-if="selectedInput == 'file_upload'"
             class="input-group wbg-input-group mb-3 mt-3"
             style="display: flex"
+            @click="$refs.simFile.click()"
           >
             <input
               type="text"
@@ -137,6 +140,7 @@
                   <input
                     @change="fileUpload"
                     type="file"
+                    ref="simFile"
                     name="file-input-similarity"
                     :value="file_input"
                     :disabled="hasUploadedFile"
@@ -193,11 +197,13 @@
               v-model="url"
             />
           </div>
-          <br /><a
-            @click="sendSearch()"
+          <br />
+          <b-button
             class="btn btn-primary wbg-button"
-            role="button"
-            >Find similar documents</a
+            @click="sendSearch()"
+            :disabled="!stateReady"
+            :variant="stateReady ? 'primary' : 'secondary'"
+            >Find similar documents</b-button
           >
         </form>
         <br />
@@ -341,6 +347,14 @@ export default {
     };
   },
   computed: {
+    stateReady() {
+      if (this.model_options["word2vec"].model_id !== null) {
+        if (this.model_options["lda"].model_id !== null) {
+          if (this.url !== "" || this.uploaded_file !== null) return true;
+        }
+      }
+      return false;
+    },
     apiUrl() {
       if (this.selectedInput === "file_upload") {
         return this.model_option.upload_nlp_api_url;
@@ -483,7 +497,9 @@ export default {
 
   watch: {
     selectedModel: function () {
-      this.sendSearch(this.model_option.curr_page_num);
+      if (this.stateReady) {
+        this.sendSearch(this.model_option.curr_page_num);
+      }
     },
     // $data: {
     //   handler: function (val, oldVal) {
