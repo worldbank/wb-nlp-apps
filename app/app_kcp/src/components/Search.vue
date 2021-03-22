@@ -297,6 +297,7 @@ export default {
     },
     searchParams() {
       const params = new URLSearchParams();
+      params.append("model_id", "777a9cf47411f6c4932e8941f177f90a");
       params.append("query", this.query);
       params.append("from_result", this.from_result);
       params.append("size", this.curr_size);
@@ -304,6 +305,7 @@ export default {
     },
     fileParams() {
       const formData = new FormData();
+      formData.append("model_id", "777a9cf47411f6c4932e8941f177f90a");
       formData.append("file", this.uploaded_file);
       formData.append("from_result", this.from_result);
       formData.append("size", this.curr_size);
@@ -324,8 +326,8 @@ export default {
     return {
       search_type: "keyword",
       keyword_search_api_url: "/nlp/search/keyword",
-      semantic_search_api_url: "/nlp/search/semantic",
-      file_search_api_url: "/nlp/search/file",
+      semantic_search_api_url: "/nlp/search/word2vec/semantic",
+      file_search_api_url: "/nlp/search/word2vec/file",
       page_sizes: [10, 25, 50, 100],
       start: 0,
       end: 0,

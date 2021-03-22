@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 from functools import lru_cache
 from fastapi import HTTPException
-
+import requests
 from wb_nlp.interfaces import mongodb
 
 from wb_nlp.types.models import (
@@ -68,10 +68,27 @@ def read_uploaded_file(file):
 
     if file.content_type.startswith("text/"):
         text = file.file.read().decode("utf-8", errors="ignore")
-    elif file.content_type == "application/pdf":
+    elif file.content_type.startswith("application/pdf"):
 
         doc = document.PDFDoc2Txt()
         text_pages = doc.parse(source=file.file, source_type="buffer")
         text = " ".join(text_pages)
+
+    return text
+
+
+def read_url_file(url):
+
+    buf = requests.get(url)
+
+    if buf.headers["Content-Type"].startswith("text/"):
+        text = buf.content.decode("utf-8", errors="ignore")
+    elif file.content_type.startswith("application/pdf"):
+        doc = document.PDFDoc2Txt()
+        text_pages = doc.parse(source=buf.content, source_type="buffer")
+        text = " ".join(text_pages)
+    else:
+        raise HTTPException(
+            status_code=404, detail="URL doesn't point to a valid data type. Make sure the url is for a pdf or txt file.")
 
     return text

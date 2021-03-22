@@ -1,7 +1,7 @@
 '''This router contains the implementation for the cleaning API.
 '''
 import json
-from fastapi import APIRouter, HTTPException, UploadFile, File, Query
+from fastapi import APIRouter, UploadFile, File, Query  # , HTTPException, Form
 import pydantic
 
 from wb_nlp.interfaces import mongodb
@@ -11,9 +11,11 @@ from wb_nlp.types.models import (
     SimilarWordsByDocIDParams, SimilarDocsByDocIDParams, ModelRunInfo, GetVectorReturns, SimilarWordsReturns,
     SimilarWordsByDocIDReturns,
     SimilarDocsReturns,
-    SimilarDocsByDocIDReturns
+    SimilarDocsByDocIDReturns,
+    # UploadTypes, MetricTypes, MilvusMetricTypes,
 )
 
+# , read_uploaded_file, read_url_file
 from ..common.utils import get_validated_model
 
 
@@ -107,6 +109,46 @@ async def get_similar_docs(model_name: ModelTypes, transform_params: SimilarDocs
         metric_type=transform_params.metric_type.value)
 
     return result
+
+
+# @ router.post("/{model_name}/upload/get_similar_docs", response_model=SimilarDocsReturns)
+# async def get_upload_similar_docs(
+
+
+#     model_name: ModelTypes,
+#     upload_type: UploadTypes,
+#     model_id: str = Form(...),
+#     url: str = Form(None),
+#     file: UploadFile = File(None),
+#     topn_docs: int = Form(
+#         10, ge=1, description='Number of similar words to return.'),
+#     show_duplicates: bool = Form(
+#         False, description='Flag that indicates whether to return highly similar or possibly duplicate documents.'
+#     ),
+#     duplicate_threshold: float = Form(
+#         0.98, ge=0, description='Threshold to use to indicate whether a document is highly similar or possibly a duplicate of the input.'
+#     ),
+#         metric_type: MilvusMetricTypes = MilvusMetricTypes.IP):
+#     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
+#     '''
+
+#     model = get_validated_model(model_name, model_id)
+
+#     if upload_type == UploadTypes("file_upload"):
+#         document = read_uploaded_file(file)
+#     elif upload_type == UploadTypes("url_upload"):
+#         document = read_url_file(url)
+
+#     document = model.clean_text(document)
+
+#     result = model.get_similar_documents(
+#         document=document,
+#         topn=topn_docs,
+#         duplicate_threshold=duplicate_threshold,
+#         show_duplicates=show_duplicates,
+#         metric_type=metric_type.value)
+
+#     return result
 
 
 @ router.post("/{model_name}/get_similar_words_by_doc_id", response_model=SimilarWordsByDocIDReturns)

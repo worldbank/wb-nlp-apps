@@ -88,14 +88,14 @@
         <div class="row">
           <div class="col-6 fluid">
             <MLModelSelect
-              @modelSelected="onModelSelect"
+              @modelSelected="onModelSelectWord2Vec"
               :model_name="'word2vec'"
               placeholder="Choose a word embedding model..."
             />
           </div>
           <div class="col-6 fluid">
             <MLModelSelect
-              @modelSelected="onModelSelect"
+              @modelSelected="onModelSelectLDA"
               :model_name="'lda'"
               placeholder="Choose a topic model..."
             />
@@ -193,16 +193,64 @@
             />
           </div>
           <br /><a
-            href="https://mtt-wb21h.netlify.app/explore/similarity/#"
+            @click="sendSearch()"
             class="btn btn-primary wbg-button"
             role="button"
-            aria-pressed="true"
             >Find similar documents</a
           >
         </form>
         <br />
+        <a name="results"></a>
         <h3 class="mt-4 mb-3">Comparison of results</h3>
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
+
+        <b-tabs v-model="tabIndex" content-class="mt-3">
+          <b-tab title="Embedding model" active>
+            <div v-show="model_option.hits.length > 0">
+              <SearchResultLoading :loading="loading" :size="size" />
+              <div v-if="!loading">
+                <SearchResultCard
+                  v-for="result in model_option.hits"
+                  :result="result"
+                  v-bind:key="'word2vec_' + result.id"
+                />
+              </div>
+
+              <Pagination
+                @pageNumReceived="sendSearch"
+                :num_pages="model_option.num_pages"
+                :curr_page_num="model_option.curr_page_num"
+                :has_hits="has_hits"
+                :page_sizes="page_sizes"
+                :page_window="page_window"
+                :next="model_option.next"
+                :next_override="next_override"
+              /></div
+          ></b-tab>
+          <b-tab title="Topic model">
+            <div v-show="model_option.hits.length > 0">
+              <SearchResultLoading :loading="loading" :size="size" />
+              <div v-if="!loading">
+                <SearchResultCard
+                  v-for="result in model_option.hits"
+                  :result="result"
+                  v-bind:key="'lda_' + result.id"
+                />
+              </div>
+
+              <Pagination
+                @pageNumReceived="sendSearch"
+                :num_pages="model_option.num_pages"
+                :curr_page_num="model_option.curr_page_num"
+                :has_hits="has_hits"
+                :page_sizes="page_sizes"
+                :page_window="page_window"
+                :next="model_option.next"
+                :next_override="next_override"
+              /></div
+          ></b-tab>
+        </b-tabs>
+
+        <!-- <ul class="nav nav-tabs" id="myTab" role="tablist">
           <li class="nav-item">
             <a
               class="nav-link active"
@@ -236,588 +284,54 @@
             aria-labelledby="home-tab"
           >
             <h4 class="mt-4">Model 1 results</h4>
-            <div
-              class="document-row"
-              data-url="https://microdata.worldbank.org/index.php/catalog/3645"
-              title="View study"
-            >
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://microdata.worldbank.org/index.php/catalog/3645"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a
-                        href="https://microdata.worldbank.org/index.php/catalog/dhs"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="document-row"
-              data-url="https://microdata.worldbank.org/index.php/catalog/3645"
-              title="View study"
-            >
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://microdata.worldbank.org/index.php/catalog/3645"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a
-                        href="https://microdata.worldbank.org/index.php/catalog/dhs"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="document-row"
-              data-url="https://microdata.worldbank.org/index.php/catalog/3645"
-              title="View study"
-            >
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://microdata.worldbank.org/index.php/catalog/3645"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a
-                        href="https://microdata.worldbank.org/index.php/catalog/dhs"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="document-row"
-              data-url="https://microdata.worldbank.org/index.php/catalog/3645"
-              title="View study"
-            >
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://microdata.worldbank.org/index.php/catalog/3645"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a
-                        href="https://microdata.worldbank.org/index.php/catalog/dhs"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="document-row"
-              data-url="https://microdata.worldbank.org/index.php/catalog/3645"
-              title="View study"
-            >
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://microdata.worldbank.org/index.php/catalog/3645"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a
-                        href="https://microdata.worldbank.org/index.php/catalog/dhs"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="nada-pagination mt-5">
-              <div
-                class="row mt-3 mb-3 d-flex justify-content-lg-between align-items-center"
-              >
-                <div class="col-12 col-lg-12 d-flex justify-content-lg-end">
-                  <nav aria-label="Page navigation">
-                    <ul
-                      class="pagination pagination-md wbg-pagination-ul small"
-                    >
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link active"
-                          data-page="1"
-                          >1</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="2"
-                          >2</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="3"
-                          >3</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="4"
-                          >4</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="5"
-                          >5</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="2"
-                          >Next</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="218"
-                          title="Last"
-                          >»</a
-                        >
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-              </div>
+            <div v-show="this.word2vec_hits.length > 0">
+              <SearchResultLoading :loading="loading" :size="size" />
+              <SearchResultCard
+                v-for="result in word2vec_hits"
+                :result="result"
+                v-bind:key="'word2vec_' + result.id"
+              />
+
+              <Pagination
+                @pageNumReceived="sendSearch"
+                :num_pages="word2vec_num_pages"
+                :curr_page_num="word2vec_curr_page_num"
+                :has_hits="word2vec_hits.length > 0 && !word2vec_no_more_hits"
+                :page_sizes="page_sizes"
+                :page_window="page_window"
+                :next="word2vec_next"
+                :next_override="next_override"
+              />
             </div>
           </div>
+
           <div
             class="tab-pane fade"
             id="profile"
             role="tabpanel"
             aria-labelledby="profile-tab"
           >
-            <h4 class="mt-4">Model 2 results</h4>
-            <div
-              class="document-row"
-              data-url="https://microdata.worldbank.org/index.php/catalog/3645"
-              title="View study"
-            >
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://microdata.worldbank.org/index.php/catalog/3645"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a
-                        href="https://microdata.worldbank.org/index.php/catalog/dhs"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="document-row"
-              data-url="https://microdata.worldbank.org/index.php/catalog/3645"
-              title="View study"
-            >
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://microdata.worldbank.org/index.php/catalog/3645"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a
-                        href="https://microdata.worldbank.org/index.php/catalog/dhs"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="document-row"
-              data-url="https://microdata.worldbank.org/index.php/catalog/3645"
-              title="View study"
-            >
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://microdata.worldbank.org/index.php/catalog/3645"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a
-                        href="https://microdata.worldbank.org/index.php/catalog/dhs"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="document-row"
-              data-url="https://microdata.worldbank.org/index.php/catalog/3645"
-              title="View study"
-            >
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://microdata.worldbank.org/index.php/catalog/3645"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a
-                        href="https://microdata.worldbank.org/index.php/catalog/dhs"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="document-row"
-              data-url="https://microdata.worldbank.org/index.php/catalog/3645"
-              title="View study"
-            >
-              <div class="row">
-                <div class="col-3 col-lg-3">
-                  <img
-                    src="/static/files/doc_thumb.png"
-                    title="document thumbnail"
-                    alt="document thumbnail"
-                  />
-                </div>
-                <div class="col-9 col-lg-9">
-                  <span class="badge badge-primary wbg-badge">DOCUMENT</span>
-                  <h5 class="title">
-                    <a
-                      href="https://microdata.worldbank.org/index.php/catalog/3645"
-                      title="Service Provision Assessment Survey 2018-2019"
-                      >Service Provision Assessment Survey 2018-2019</a
-                    >
-                  </h5>
-                  <div class="study-country">Afghanistan, 2018-2019</div>
-                  <div class="sub-title">
-                    <div>
-                      <span class="study-by">Ministry of Public Health</span>
-                    </div>
-                    <div class="owner-collection">
-                      Collection:
-                      <a
-                        href="https://microdata.worldbank.org/index.php/catalog/dhs"
-                        >MEASURE DHS: Demographic and Health Surveys</a
-                      >
-                    </div>
-                  </div>
-                  <div class="survey-stats">
-                    <span>Created on: Mar 17, 2020</span>
-                    <span>Last modified: Mar 17, 2020</span>
-                    <span>Views: 3320</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="nada-pagination mt-5">
-              <div
-                class="row mt-3 mb-3 d-flex justify-content-lg-between align-items-center"
-              >
-                <div class="col-12 col-lg-12 d-flex justify-content-lg-end">
-                  <nav aria-label="Page navigation">
-                    <ul
-                      class="pagination pagination-md wbg-pagination-ul small"
-                    >
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link active"
-                          data-page="1"
-                          >1</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="2"
-                          >2</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="3"
-                          >3</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="4"
-                          >4</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="5"
-                          >5</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="2"
-                          >Next</a
-                        >
-                      </li>
-                      <li class="page-item">
-                        <a
-                          href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                          class="page-link"
-                          data-page="218"
-                          title="Last"
-                          >»</a
-                        >
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-              </div>
+            <div v-show="this.lda_hits.length > 0">
+              <SearchResultLoading :loading="loading" :size="size" />
+              <SearchResultCard
+                v-for="result in lda_hits"
+                :result="result"
+                v-bind:key="'lda_' + result.id"
+              />
+
+              <Pagination
+                @pageNumReceived="sendSearch"
+                :num_pages="lda_num_pages"
+                :curr_page_num="lda_curr_page_num"
+                :has_hits="word2vec_hits.length > 0 && !lda_no_more_hits"
+                :page_sizes="page_sizes"
+                :page_window="page_window"
+                :next="lda_next"
+                :next_override="next_override"
+              />
             </div>
           </div>
-        </div>
+        </div> -->
         <hr />
         <PageFooter :url="share_url" :share_text="share_text" />
       </article>
@@ -827,6 +341,9 @@
 
 <script>
 import MLModelSelect from "../common/MLModelSelect";
+import SearchResultLoading from "../common/SearchResultLoading";
+import SearchResultCard from "../common/SearchResultCard";
+import Pagination from "../common/Pagination";
 
 import PageFooter from "../common/PageFooter";
 
@@ -837,9 +354,78 @@ export default {
     share_url: String,
     share_text: String,
   },
-  components: { PageFooter, MLModelSelect },
+  components: {
+    PageFooter,
+    MLModelSelect,
+    SearchResultLoading,
+    SearchResultCard,
+    Pagination,
+  },
+  mounted() {
+    window.vm = this;
+  },
   data() {
     return {
+      // common
+      tabIndex: 0,
+      page_sizes: [10, 25, 50, 100],
+      page_window: 2,
+      curr_size: 10,
+      size: 10,
+      next_override: true,
+
+      model_options: {
+        lda: {
+          upload_nlp_api_url: "/nlp/search/lda/file",
+          url_nlp_api_url: "/nlp/search/lda/url",
+          model_run_info_id: "",
+          model_id: null,
+          curr_page_num: 0,
+          next: 0,
+          num_pages: 0,
+          from_result: 0,
+          hits: [],
+          total: Object,
+        },
+        word2vec: {
+          upload_nlp_api_url: "/nlp/search/word2vec/file",
+          url_nlp_api_url: "/nlp/search/word2vec/url",
+          model_run_info_id: "",
+          model_id: null,
+          curr_page_num: 0,
+          next: 0,
+          num_pages: 0,
+          from_result: 0,
+          hits: [],
+          total: Object,
+        },
+      },
+
+      // // lda
+      // lda_upload_nlp_api_url: "/nlp/models/lda/upload",
+      // lda_model_run_info_id: "",
+      // lda_model_id: null,
+      // lda_curr_page_num: 0,
+      // lda_next: 0,
+      // lda_num_pages: 0,
+      // lda_from_result: 0,
+      // lda_hits: [],
+      // lda_total: Object,
+
+      // // word2vec
+      // word2vec_upload_nlp_api_url: "/nlp/models/word2vec/upload",
+      // word2vec_model_run_info_id: "",
+      // word2vec_model_id: null,
+      // word2vec_curr_page_num: 0,
+      // word2vec_next: 0,
+      // word2vec_num_pages: 0,
+      // word2vec_from_result: 0,
+      // word2vec_hits: [],
+      // word2vec_total: Object,
+
+      errored: false,
+      loading: false,
+
       url: "",
       uploaded_file: null,
       file_input: null,
@@ -858,6 +444,38 @@ export default {
     };
   },
   computed: {
+    apiUrl() {
+      if (this.selectedInput === "file_upload") {
+        return this.model_option.upload_nlp_api_url;
+      } else {
+        return this.model_option.url_nlp_api_url;
+      }
+    },
+    model_option() {
+      return this.model_options[this.selectedModel];
+    },
+    apiParams() {
+      const formData = new FormData();
+      formData.append("model_id", this.model_option.model_id); // "777a9cf47411f6c4932e8941f177f90a");
+
+      if (this.selectedInput === "file_upload") {
+        formData.append("file", this.uploaded_file);
+      } else {
+        formData.append("url", this.url);
+      }
+      formData.append("from_result", this.model_option.from_result);
+      formData.append("size", this.curr_size);
+      return formData;
+    },
+    selectedModel() {
+      if (this.tabIndex === 0) {
+        return "word2vec";
+      } else if (this.tabIndex === 1) {
+        return "lda";
+      } else {
+        return null;
+      }
+    },
     hasUploadedFile() {
       if (this.uploaded_file !== null) {
         if (this.uploaded_file.name !== undefined) {
@@ -866,9 +484,88 @@ export default {
       }
       return false;
     },
+    no_more_hits() {
+      var next_from = this.model_option.curr_page_num * this.curr_size;
+
+      var no_more_hits = false;
+      if (next_from > this.model_option.total.value) {
+        no_more_hits = true;
+      }
+
+      return no_more_hits;
+    },
+    has_hits() {
+      return this.model_option.hits.length > 0 && !this.no_more_hits;
+    },
+    // word2vec_no_more_hits() {
+    //   var next_from = this.word2vec_curr_page_num * this.curr_size;
+
+    //   var no_more_hits = false;
+    //   if (next_from > this.word2vec_total.value) {
+    //     no_more_hits = true;
+    //   }
+
+    //   return no_more_hits;
+    // },
+    // lda_no_more_hits() {
+    //   var next_from = this.lda_curr_page_num * this.curr_size;
+
+    //   var no_more_hits = false;
+    //   if (next_from > this.lda_total.value) {
+    //     no_more_hits = true;
+    //   }
+
+    //   return no_more_hits;
+    // },
   },
   methods: {
-    onModelSelect() {},
+    onModelSelectWord2Vec(model_run_info_id) {
+      console.log(model_run_info_id);
+      this.model_options["word2vec"].model_id = model_run_info_id;
+    },
+    onModelSelectLDA(model_run_info_id) {
+      console.log(model_run_info_id);
+      this.model_options["lda"].model_id = model_run_info_id;
+      // this.getModelTopics();
+      // this.getTopicRanges();
+    },
+    sendSearch: function (page_num = 1) {
+      console.log(page_num);
+      console.log(this.selectedModel);
+      // var model_option = this.model_options[this.selectedModel];
+
+      this.loading = true;
+      this.model_options[this.selectedModel].curr_page_num = page_num;
+      var from = (page_num - 1) * this.size;
+
+      if (
+        from > this.model_options[this.selectedModel].total.value &&
+        !this.next_override
+      ) {
+        return;
+      }
+      // this.model_options[this.selectedModel].hits = [];
+      this.model_options[this.selectedModel].from_result = from;
+
+      this.$http
+        .post(this.apiUrl, this.apiParams)
+        .then((response) => {
+          this.model_options[this.selectedModel].hits = response.data.hits;
+          this.model_options[this.selectedModel].total = response.data.total;
+          this.model_options[this.selectedModel].next =
+            this.model_options[this.selectedModel].curr_page_num + 1;
+          this.model_options[this.selectedModel].num_pages = Math.floor(
+            this.model_options[this.selectedModel].total.value / this.size
+          );
+          if (
+            this.model_options[this.selectedModel].total.value % this.size >
+            0
+          ) {
+            this.model_options[this.selectedModel].num_pages += 1;
+          }
+        })
+        .finally(() => (this.loading = false));
+    },
     fileUpload(event) {
       this.uploaded_file = event.target.files[0];
       this.url_cache = this.url;
@@ -886,14 +583,36 @@ export default {
     //   }
     // },
   },
+
   watch: {
-    // selectedInput: function () {
-    //   if (this.selectedInput !== "file_upload") {
-    //     this.removeFile();
-    //     // this.hasUploadedFile;
-    //   }
+    selectedModel: function () {
+      this.sendSearch(this.model_option.curr_page_num);
+    },
+    // $data: {
+    //   handler: function (val, oldVal) {
+    //     console.log(val, oldVal);
+    //   },
+    //   deep: true,
+    // },
+    // "model_option.hits": function (val) {
+    //   console.log(val);
+    // },
+    // "model_options.word2vec": function () {
+    //   return;
+    // },
+    // "model_options.lda": function () {
+    //   return;
     // },
   },
+  // watch: {
+
+  // selectedInput: function () {
+  //   if (this.selectedInput !== "file_upload") {
+  //     this.removeFile();
+  //     // this.hasUploadedFile;
+  //   }
+  // },
+  // },
 };
 </script>
 <style scoped>
