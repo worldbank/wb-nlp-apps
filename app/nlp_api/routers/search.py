@@ -10,7 +10,7 @@ from wb_nlp.interfaces import mongodb, elasticsearch
 from wb_nlp.types.models import (
     ModelTypes
 )
-from ..common.utils import get_validated_model, read_uploaded_file, read_url_file
+from ..common.utils import get_validated_model, read_uploaded_file, read_url_file, clean_text
 
 
 router = APIRouter(
@@ -56,7 +56,8 @@ def common_semantic_search(
 
     print("QUERY: ", query[:100])
     if clean:
-        query = model.clean_text(query)
+        query = clean_text(model_name, model_id, query)
+        # query = model.clean_text(query)
 
     # print("CLEANED QUERY: ", query)
 

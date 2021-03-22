@@ -94,3 +94,9 @@ def read_url_file(url):
             status_code=404, detail="URL doesn't point to a valid data type. Make sure the url is for a pdf or txt file.")
 
     return text
+
+
+@lru_cache(maxsize=128)
+def clean_text(model_name, model_id, text):
+    model = get_validated_model(model_name, model_id)
+    return model.clean_text(text)

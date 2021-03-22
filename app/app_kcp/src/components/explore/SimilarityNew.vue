@@ -482,13 +482,13 @@ export default {
     },
     fileUpload(event) {
       this.uploaded_file = event.target.files[0];
-      this.url_cache = this.url;
-      this.url = "";
+      // this.url_cache = this.url;
+      // this.url = "";
     },
     removeFile() {
       this.uploaded_file = null;
       this.file_input = null;
-      this.url = this.url_cache;
+      // this.url = this.url_cache;
     },
     // updateUploadState() {
     //   if (this.selectedInput !== "file_upload") {
