@@ -64,6 +64,7 @@ def get_validated_model(model_name, model_id):
     return model_run_info["model"]
 
 
+@lru_cache(maxsize=128)
 def read_uploaded_file(file):
 
     if file.content_type.startswith("text/"):
@@ -77,13 +78,14 @@ def read_uploaded_file(file):
     return text
 
 
+@lru_cache(maxsize=128)
 def read_url_file(url):
 
     buf = requests.get(url)
 
     if buf.headers["Content-Type"].startswith("text/"):
         text = buf.content.decode("utf-8", errors="ignore")
-    elif file.content_type.startswith("application/pdf"):
+    elif buf.headers["Content-Type"].startswith("application/pdf"):
         doc = document.PDFDoc2Txt()
         text_pages = doc.parse(source=buf.content, source_type="buffer")
         text = " ".join(text_pages)

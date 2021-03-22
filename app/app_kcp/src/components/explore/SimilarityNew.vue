@@ -190,6 +190,7 @@
               class="form-control"
               id="inlineFormInputGroup"
               placeholder="Enter URL of file"
+              v-model="url"
             />
           </div>
           <br /><a
@@ -205,8 +206,8 @@
 
         <b-tabs v-model="tabIndex" content-class="mt-3">
           <b-tab title="Embedding model" active>
+            <SearchResultLoading :loading="loading" :size="size" />
             <div v-show="model_option.hits.length > 0">
-              <SearchResultLoading :loading="loading" :size="size" />
               <div v-if="!loading">
                 <SearchResultCard
                   v-for="result in model_option.hits"
@@ -227,8 +228,8 @@
               /></div
           ></b-tab>
           <b-tab title="Topic model">
+            <SearchResultLoading :loading="loading" :size="size" />
             <div v-show="model_option.hits.length > 0">
-              <SearchResultLoading :loading="loading" :size="size" />
               <div v-if="!loading">
                 <SearchResultCard
                   v-for="result in model_option.hits"
@@ -250,88 +251,6 @@
           ></b-tab>
         </b-tabs>
 
-        <!-- <ul class="nav nav-tabs" id="myTab" role="tablist">
-          <li class="nav-item">
-            <a
-              class="nav-link active"
-              id="home-tab"
-              data-toggle="tab"
-              href="https://mtt-wb21h.netlify.app/explore/similarity/#home"
-              role="tab"
-              aria-controls="home"
-              aria-selected="true"
-              >Model 1</a
-            >
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link"
-              id="profile-tab"
-              data-toggle="tab"
-              href="https://mtt-wb21h.netlify.app/explore/similarity/#profile"
-              role="tab"
-              aria-controls="profile"
-              aria-selected="false"
-              >Model 2</a
-            >
-          </li>
-        </ul>
-        <div class="tab-content" id="myTabContent">
-          <div
-            class="tab-pane fade show active"
-            id="home"
-            role="tabpanel"
-            aria-labelledby="home-tab"
-          >
-            <h4 class="mt-4">Model 1 results</h4>
-            <div v-show="this.word2vec_hits.length > 0">
-              <SearchResultLoading :loading="loading" :size="size" />
-              <SearchResultCard
-                v-for="result in word2vec_hits"
-                :result="result"
-                v-bind:key="'word2vec_' + result.id"
-              />
-
-              <Pagination
-                @pageNumReceived="sendSearch"
-                :num_pages="word2vec_num_pages"
-                :curr_page_num="word2vec_curr_page_num"
-                :has_hits="word2vec_hits.length > 0 && !word2vec_no_more_hits"
-                :page_sizes="page_sizes"
-                :page_window="page_window"
-                :next="word2vec_next"
-                :next_override="next_override"
-              />
-            </div>
-          </div>
-
-          <div
-            class="tab-pane fade"
-            id="profile"
-            role="tabpanel"
-            aria-labelledby="profile-tab"
-          >
-            <div v-show="this.lda_hits.length > 0">
-              <SearchResultLoading :loading="loading" :size="size" />
-              <SearchResultCard
-                v-for="result in lda_hits"
-                :result="result"
-                v-bind:key="'lda_' + result.id"
-              />
-
-              <Pagination
-                @pageNumReceived="sendSearch"
-                :num_pages="lda_num_pages"
-                :curr_page_num="lda_curr_page_num"
-                :has_hits="word2vec_hits.length > 0 && !lda_no_more_hits"
-                :page_sizes="page_sizes"
-                :page_window="page_window"
-                :next="lda_next"
-                :next_override="next_override"
-              />
-            </div>
-          </div>
-        </div> -->
         <hr />
         <PageFooter :url="share_url" :share_text="share_text" />
       </article>
@@ -400,28 +319,6 @@ export default {
           total: Object,
         },
       },
-
-      // // lda
-      // lda_upload_nlp_api_url: "/nlp/models/lda/upload",
-      // lda_model_run_info_id: "",
-      // lda_model_id: null,
-      // lda_curr_page_num: 0,
-      // lda_next: 0,
-      // lda_num_pages: 0,
-      // lda_from_result: 0,
-      // lda_hits: [],
-      // lda_total: Object,
-
-      // // word2vec
-      // word2vec_upload_nlp_api_url: "/nlp/models/word2vec/upload",
-      // word2vec_model_run_info_id: "",
-      // word2vec_model_id: null,
-      // word2vec_curr_page_num: 0,
-      // word2vec_next: 0,
-      // word2vec_num_pages: 0,
-      // word2vec_from_result: 0,
-      // word2vec_hits: [],
-      // word2vec_total: Object,
 
       errored: false,
       loading: false,
