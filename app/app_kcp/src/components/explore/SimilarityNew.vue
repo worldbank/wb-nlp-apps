@@ -115,34 +115,18 @@
         </center>
 
         <form class="mt-4">
-          <!-- <div class="form-group">
-            <div v-if="selectedInput == 'file_upload'" class="row">
-              <div class="col">
-
-              </div>
-              <div class="col">
-                <input
-                  class="form-control-file"
-                  id="file-input-similarity"
-                  @change="fileUpload"
-                  type="file"
-                  name="file-input-similarity"
-                  :value="file_input"
-                  :disabled="hasUploadedFile"
-                  data-toggle="tooltip"
-                  data-placement="bottom"
-                  title="Upload a PDF or TXT document to search"
-                  accept=".txt,.doc,.docx,.pdf"
-                />
-              </div>
-              <div class="col"></div>
-            </div>
-          </div> -->
           <div
+            v-if="selectedInput == 'file_upload'"
             class="input-group wbg-input-group mb-3 mt-3"
             style="display: flex"
           >
-            <div v-if="selectedInput == 'file_upload'">
+            <input
+              type="text"
+              class="form-control wbg-search-text pl-4"
+              aria-describedby="basic-addon2"
+              disabled
+            />
+            <div>
               <div
                 id="submit_file"
                 data-toggle="tooltip"
@@ -150,10 +134,6 @@
                 title="Upload a PDF or TXT document to search"
               >
                 <div class="file-input">
-                  <!-- <label for="file-input-similarity"
-                  ><strong>Choose PDF or TXT file</strong></label
-                > -->
-
                   <input
                     @change="fileUpload"
                     type="file"
@@ -907,30 +887,30 @@ export default {
     // },
   },
   watch: {
-    selectedInput: function () {
-      if (this.selectedInput !== "file_upload") {
-        this.removeFile();
-        // this.hasUploadedFile;
-      }
-    },
+    // selectedInput: function () {
+    //   if (this.selectedInput !== "file_upload") {
+    //     this.removeFile();
+    //     // this.hasUploadedFile;
+    //   }
+    // },
   },
 };
 </script>
 <style scoped>
 .file-input__label__similarity {
-  border-right: 1px;
+  /* border-right: 1px;
   border-right-color: rgb(206, 212, 218);
-  border-right-style: solid;
-
+  border-right-style: solid; */
+  border: 0px;
   border-top: 0px;
   border-bottom: 0px;
-  margin-left: 10px;
+  /* margin-left: 10px; */
 }
 .wbg-uploaded-file__similarity {
-  position: relative;
+  position: absolute; /*relative;*/
   max-width: 90%;
-  margin-left: 10px;
+  /* margin-left: 10px; */
   max-height: 100%;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 </style>
