@@ -43,7 +43,6 @@
     </div>
 
     <div v-if="countryData">
-      <br />
       <div class="xsl-caption field-caption">Country popularity</div>
       <p>
         The number of times a country is mentioned in the document is shown in
@@ -97,17 +96,28 @@
       </div>
     </div>
 
-    {{ metadata }}
+    <div v-if="show_raw_metadata">
+      <div class="xsl-caption field-caption">Full metadata</div>
+      <div v-if="metadata" style="word-wrap: break-word">
+        <vue-json-pretty :data="metadata" :highlightMouseoverNode="true">
+        </vue-json-pretty>
+      </div>
+      <!-- {{ metadata }} -->
+    </div>
   </div>
 </template>
 <script>
 import MapChart from "vue-map-chart";
 
+import VueJsonPretty from "vue-json-pretty";
+import "vue-json-pretty/lib/styles.css";
+
 export default {
   props: {
     metadata: Object,
+    show_raw_metadata: Boolean,
   },
-  components: { MapChart },
+  components: { MapChart, VueJsonPretty },
   mounted() {
     this.getISOInfo();
     this.getDocumentTopics();
@@ -171,7 +181,7 @@ export default {
   /* font-weight: bold; */
   /* color: #707070; */
   text-transform: uppercase;
-  margin-top: 15px;
+  margin-top: 25px;
 }
 .topic-name {
   font-size: 0.9rem;

@@ -67,7 +67,11 @@
                   <strong>Metadata</strong>
                 </div>
               </template> -->
-              <div><br /><MetadataViewer :metadata="metadata" /></div
+              <div>
+                <MetadataViewer
+                  :metadata="metadata"
+                  :show_raw_metadata="true"
+                /></div
             ></b-tab>
             <b-tab
               title="View document"
@@ -79,6 +83,7 @@
                   <strong>View document</strong>
                 </div>
               </template> -->
+              <br />
               <div>
                 <iframe
                   ref="iframe"
@@ -258,7 +263,7 @@ export default {
 }
 .doc-active-tab {
   /* max-height: 680px; */
-  margin-top: 25px;
+  /* margin-top: 25px; */
   margin-bottom: 50px;
   padding-right: 30px;
   padding-left: 30px;
