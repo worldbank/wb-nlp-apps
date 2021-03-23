@@ -78,15 +78,15 @@
               <div class="progress mt-1">
                 <div
                   class="progress-bar"
-                  :style="'width: ' + 100 * dt.value + '%'"
+                  :style="'width: ' + topicPercent(dt.value) + '%'"
                   role="progressbar"
-                  :aria-valuenow="100 * dt.value"
+                  :aria-valuenow="topicPercent(dt.value)"
                   aria-valuemin="0"
                   aria-valuemax="100"
-                  :title="100 * dt.value + '%'"
+                  :title="topicPercent(dt.value) + '%'"
                 ></div>
               </div>
-              <div class="topic-score">{{ Math.round(100 * dt.value) }}%</div>
+              <div class="topic-score">{{ topicPercent(dt.value) }}%</div>
             </div>
             <div class="col-md-8 topic-words">
               <span class="topic-word"> {{ dt.topic_words }} </span>
@@ -145,6 +145,9 @@ export default {
     },
   },
   methods: {
+    topicPercent(value) {
+      return Math.round(100 * value);
+    },
     filteredDocTopics() {
       this.privateFilteredDocTopics = null;
       this.privateFilteredDocTopics = this.doc_topics.filter((obj) => {
