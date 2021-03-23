@@ -55,7 +55,6 @@
             active-nav-item-class="doc-tab-item"
             active-tab-class="doc-active-tab"
             content-class="mt-12"
-            style="height: 800px"
           >
             <b-tab
               title="Metadata"
@@ -68,7 +67,10 @@
                   <strong>Metadata</strong>
                 </div>
               </template> -->
-              <div><br /><MetadataViewer :metadata="metadata" /></div
+              <div>
+                <br /><MetadataViewer
+                  :metadata="metadata"
+                /><MapComponent /></div
             ></b-tab>
             <b-tab
               title="View document"
@@ -123,6 +125,7 @@
 // import Header from "../Header.vue";
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import MetadataViewer from "./MetadataViewer";
+import MapComponent from "./MapComponent";
 
 export default {
   name: "DocumentPage",
@@ -152,7 +155,7 @@ export default {
       return "/nlp/corpus/get_metadata_by_id?id=" + this.metadata.id;
     },
   },
-  components: { RelatedDocsPanel, MetadataViewer },
+  components: { RelatedDocsPanel, MetadataViewer, MapComponent },
 
   data: function () {
     return {
@@ -258,10 +261,12 @@ export default {
   /* margin-bottom: 1px; */
 }
 .doc-active-tab {
-  max-height: 680px;
+  /* max-height: 680px; */
+  margin-top: 25px;
+  margin-bottom: 50px;
   padding-right: 30px;
   padding-left: 30px;
-  overflow-y: scroll;
-  overflow-x: visible;
+  /* overflow-y: scroll;
+  overflow-x: visible; */
 }
 </style>
