@@ -1,7 +1,6 @@
 <template>
   <div>
-    <!-- <Header /> -->
-    <div class="container">
+    <div v-if="metadata" class="container">
       <br />
       <div class="row">
         <div class="col-3 col-lg-3">
@@ -37,10 +36,9 @@
             <span>Views: {{ metadata.views }}</span>
           </div>
           <span class="mr-3 link-col float-left">
-            <medium>
-              Metadata
-              <i class="fa fa-download" aria-hidden="true"> </i></medium
-            >:
+            Metadata
+            <i class="fa fa-download" aria-hidden="true"> </i>
+            :
             <a :href="metadata_download_link" target="_blank" title="JSON">
               <span class="badge badge-info">JSON</span>
             </a>
@@ -62,11 +60,6 @@
               :title-link-class="linkClass(0)"
               active
             >
-              <!-- <template #title>
-                <div>
-                  <strong>Metadata</strong>
-                </div>
-              </template> -->
               <div>
                 <MetadataViewer
                   :metadata="metadata"
@@ -78,11 +71,6 @@
               :title-item-class="itemClass(1)"
               :title-link-class="linkClass(1)"
             >
-              <!-- <template #title>
-                <div style="color: blue">
-                  <strong>View document</strong>
-                </div>
-              </template> -->
               <br />
               <div>
                 <iframe
@@ -124,15 +112,12 @@
 </template>
 
 <script>
-// import Header from "../Header.vue";
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import MetadataViewer from "./MetadataViewer";
 
 export default {
   name: "DocumentPage",
-  props: {
-    // metadata: Object,
-  },
+  props: {},
   mounted() {
     window.vm = this;
     this.getMetadata();
@@ -210,7 +195,6 @@ export default {
     },
     linkClass(idx) {
       if (this.tabIndex === idx) {
-        // return ["bg-primary", "text-light", "tab-link-format", "active"];
         return ["text-primary", "tab-link-format", "active"];
       } else {
         return ["bg-light", "text-dark", "tab-link-format"];
@@ -225,10 +209,12 @@ export default {
     },
     setIFrame() {
       var iframe = this.$refs.iframe;
-      var container = iframe.parentElement;
-      iframe.remove();
-      iframe.src = this.metadata.url_pdf;
-      container.append(iframe);
+      if (iframe !== undefined && this.metadata !== undefined) {
+        var container = iframe.parentElement;
+        iframe.remove();
+        iframe.src = this.metadata.url_pdf;
+        container.append(iframe);
+      }
     },
   },
   watch: {
@@ -238,37 +224,24 @@ export default {
     },
   },
 };
-// <style scoped src="bootstrap/dist/css/bootstrap.css"></style>
 </script>
 
 <style>
-/* .doc-tab-item {
-  color: green;
-} */
 .tab-link-format {
   margin: 10px;
-  /* background: transparent !important; */
   background-color: transparent !important;
   padding-top: 5px !important;
   border: 0px !important;
-  /* margin: 5px; */
-  /* margin-bottom: 1px; */
 }
 
 .tab-item-format {
   margin: 10px;
-  /* background: transparent !important; */
   background-color: transparent !important;
   padding: 5px;
-  /* margin-bottom: 1px; */
 }
 .doc-active-tab {
-  /* max-height: 680px; */
-  /* margin-top: 25px; */
   margin-bottom: 50px;
   padding-right: 30px;
   padding-left: 30px;
-  /* overflow-y: scroll;
-  overflow-x: visible; */
 }
 </style>
