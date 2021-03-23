@@ -31,7 +31,7 @@
           both the topic model and the word embedding model for the same
           reference document. The reference document can be provided in multiple
           ways. Users can upload a pdf or a text file. Alternatively, a url that
-          links to a pdf or a text file may be provided.
+          links to a pdf or a text file may also be used.
         </p>
         <p>
           To begin, select models to use for both the topic model and word
@@ -179,9 +179,9 @@
         </form>
         <br />
         <a name="results"></a>
-        <h3 class="mt-4 mb-3">Comparison of results</h3>
+        <h3 v-if="stateReady" class="mt-4 mb-3">Comparison of results</h3>
 
-        <b-tabs v-model="tabIndex" content-class="mt-3">
+        <b-tabs v-if="stateReady" v-model="tabIndex" content-class="mt-3">
           <b-tab title="Embedding model" active>
             <SearchResultLoading :loading="loading" :size="size" />
             <div v-show="model_option.hits.length > 0">
