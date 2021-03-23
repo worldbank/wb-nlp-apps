@@ -96,15 +96,12 @@
       </div>
     </div>
 
-    <!-- {{ privateCountryData }} -->
-
     <div v-if="show_raw_metadata">
       <div class="xsl-caption field-caption">Full metadata</div>
       <div v-if="metadata" style="word-wrap: break-word">
         <vue-json-pretty :data="metadata" :highlightMouseoverNode="true">
         </vue-json-pretty>
       </div>
-      <!-- {{ metadata }} -->
     </div>
   </div>
 </template>
@@ -156,19 +153,9 @@ export default {
       return this.privateFilteredDocTopics;
     },
     countryData() {
-      // this.privateCountryData = {};
       if (this.iso3map === null) {
         this.getISOInfo();
       } else {
-        // for (const [key, value] of Object.entries(
-        //   this.metadata.der_countries
-        // )) {
-        //   console.log("countryData", key, value);
-
-        //   if (this.iso3map[key] !== undefined) {
-        //     this.privateCountryData[this.iso3map[key]["alpha-2"]] = value;
-        //   }
-        // }
         this.setCountryData();
       }
 
@@ -192,16 +179,6 @@ export default {
 
           if (this.privateCountryData === null) {
             this.setCountryData();
-            // this.privateCountryData = {};
-            // for (const [key, value] of Object.entries(
-            //   this.metadata.der_countries
-            // )) {
-            //   console.log("getISOInfo", key, value);
-
-            //   if (this.iso3map[key] !== undefined) {
-            //     this.privateCountryData[this.iso3map[key]["alpha-2"]] = value;
-            //   }
-            // }
           }
         });
     },
