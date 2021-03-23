@@ -32,10 +32,11 @@
       v-on:keyup.enter="getGraph"
     />
     <b-badge
+      @click="getGraph(rw.word)"
       v-for="rw in this.related_words"
       :key="rw"
       variant="success"
-      style="margin-right: 5px"
+      style="margin-right: 5px; cursor: pointer"
       >{{ rw.word }}
     </b-badge>
     <br />

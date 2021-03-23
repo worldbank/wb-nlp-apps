@@ -7,7 +7,7 @@ from gensim.models import Word2Vec
 import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, DBSCAN
 import networkx as nx
 # import graph_tool.all as gt
 # import pyintergraph
@@ -115,39 +115,61 @@ class Word2VecModel(BaseModel):
 
         graph_df = pd.DataFrame(g_sim, index=words, columns=words)
         print(graph_df)
-        # graph_df[graph_df < np.quantile(sim, 0.75)] = 0
-        print(words)
-        print(graph_df)
-        print(sim.mean())
+        # # graph_df[graph_df < np.quantile(sim, 0.75)] = 0
+        # print(words)
+        # print(graph_df)
+        # print(sim.mean())
 
-        cluster = KMeans(n_clusters=n_clusters)
-        cluster.fit(word_vectors)
-        word_clusters = cluster.predict(word_vectors)
+        # cluster = KMeans(n_clusters=n_clusters)
+        # cluster.fit(word_vectors)
+        # word_clusters = cluster.predict(word_vectors)
 
         nx_graph = nx.from_pandas_adjacency(graph_df)
 
-        node_groups = list(
-            nx.algorithms.community.modularity_max.greedy_modularity_communities(nx_graph))
+        # node_groups = list(
+        #     nx.algorithms.community.modularity_max.greedy_modularity_communities(nx_graph))
 
-        # node_groups: [frozenset(word1, word2, word3, ...),...]
-        node_groups = {i: k for k, g in enumerate(node_groups) for i in g}
-        word_clusters = [node_groups[n] for n in words]
+        # # node_groups: [frozenset(word1, word2, word3, ...),...]
+        # node_groups = {i: k for k, g in enumerate(node_groups) for i in g}
+        # word_clusters = [node_groups[n] for n in words]
 
-        # centrality = nx.pagerank(nx_graph)
-        # centrality = nx.betweenness_centrality(nx_graph)
-        # centrality = nx.degree_centrality(nx_graph)
+        # # centrality = nx.pagerank(nx_graph)
+        # # centrality = nx.betweenness_centrality(nx_graph)
+        # # centrality = nx.degree_centrality(nx_graph)
         centrality = nx.eigenvector_centrality(nx_graph)
 
-        # inter_graph = FixedInterGraph.from_networkx(nx_graph)
-        # # inter_graph.node_labels
-        # gt_graph = inter_graph.to_graph_tool()
-        # nodes_pos = gt.sfdp_layout(
-        #     gt_graph, eweight=gt_graph.edge_properties["weight"])
-        # # nodes_pos = gt.fruchterman_reingold_layout(gt_graph)
+        # # inter_graph = FixedInterGraph.from_networkx(nx_graph)
+        # # # inter_graph.node_labels
+        # # gt_graph = inter_graph.to_graph_tool()
+        # # nodes_pos = gt.sfdp_layout(
+        # #     gt_graph, eweight=gt_graph.edge_properties["weight"])
+        # # # nodes_pos = gt.fruchterman_reingold_layout(gt_graph)
+
+        # pos_model = umap.UMAP(
+        #     n_neighbors=10, random_state=1029, min_dist=0.5, metric="euclidean").fit(sim)
+        # nodes_pos = pos_model.transform(sim)
+
+        # print(nodes_pos)
+
+        # db = DBSCAN(eps=0.8, min_samples=3, leaf_size=2)
+        # word_clusters = db.fit_predict(nodes_pos)
+        # print(word_clusters)
+
+        # cluster = KMeans(n_clusters=n_clusters)
+        # cluster.fit(nodes_pos)
+        # word_clusters = cluster.predict(nodes_pos)
+        # print(word_clusters)
 
         pos_model = umap.UMAP(
-            n_neighbors=10, random_state=1029, min_dist=0.5, metric="euclidean").fit(sim)
-        nodes_pos = pos_model.transform(sim)
+            n_neighbors=10, random_state=1029, min_dist=0.5, metric="euclidean").fit(word_vectors)
+        nodes_pos = pos_model.transform(word_vectors)
+
+        print(nodes_pos)
+
+        cluster = KMeans(n_clusters=n_clusters)
+        cluster.fit(nodes_pos)
+        word_clusters = cluster.predict(nodes_pos)
+        print(word_clusters)
 
         # # G = pd.DataFrame(np.random.random(size=(30, 30)))
         # # G[G < 0.2] = 0
