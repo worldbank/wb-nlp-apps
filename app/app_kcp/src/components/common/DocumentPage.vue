@@ -234,6 +234,7 @@ export default {
   watch: {
     metadata: function () {
       this.setIFrame();
+      this.tabIndex = 0;
     },
   },
 };

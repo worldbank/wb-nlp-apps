@@ -42,7 +42,7 @@
       </ul>
     </div>
 
-    <div v-if="countryData">
+    <div v-if="privateCountryData">
       <div class="xsl-caption field-caption">Country popularity</div>
       <p>
         The number of times a country is mentioned in the document is shown in
@@ -50,7 +50,7 @@
         for countries that highly cited.
       </p>
       <MapChart
-        :countryData="countryData"
+        :countryData="privateCountryData"
         highColor="#0000ff"
         lowColor="#eeeeff"
         countryStrokeColor="#909090"
@@ -58,7 +58,7 @@
       />
     </div>
 
-    <div v-if="filteredDocTopics">
+    <div v-if="privateFilteredDocTopics">
       <div class="xsl-caption field-caption">LDA topics</div>
       <div class="field-value">
         <div class="row border-bottom">
@@ -68,7 +68,7 @@
         </div>
 
         <div
-          v-for="dt in filteredDocTopics"
+          v-for="dt in privateFilteredDocTopics"
           :key="dt.topic_id"
           class="border-bottom"
         >
@@ -96,6 +96,8 @@
       </div>
     </div>
 
+    <!-- {{ privateCountryData }} -->
+
     <div v-if="show_raw_metadata">
       <div class="xsl-caption field-caption">Full metadata</div>
       <div v-if="metadata" style="word-wrap: break-word">
@@ -119,12 +121,19 @@ export default {
   },
   components: { MapChart, VueJsonPretty },
   mounted() {
+    window.viewer = this;
+    this.privateFilteredDocTopics = null;
+    this.privateCountryData = null;
+    this.doc_topics = [];
+
     this.getISOInfo();
     this.getDocumentTopics();
   },
   data() {
     return {
-      countryData: null,
+      iso3map: null,
+      privateCountryData: null,
+      privateFilteredDocTopics: null,
       doc_topics: [],
     };
   },
@@ -137,24 +146,62 @@ export default {
 
       return search_params;
     },
-    filteredDocTopics() {
-      return this.doc_topics.filter((obj) => {
-        return obj.value > 0;
-      });
-    },
   },
   methods: {
+    filteredDocTopics() {
+      this.privateFilteredDocTopics = null;
+      this.privateFilteredDocTopics = this.doc_topics.filter((obj) => {
+        return obj.value > 0;
+      });
+      return this.privateFilteredDocTopics;
+    },
+    countryData() {
+      // this.privateCountryData = {};
+      if (this.iso3map === null) {
+        this.getISOInfo();
+      } else {
+        // for (const [key, value] of Object.entries(
+        //   this.metadata.der_countries
+        // )) {
+        //   console.log("countryData", key, value);
+
+        //   if (this.iso3map[key] !== undefined) {
+        //     this.privateCountryData[this.iso3map[key]["alpha-2"]] = value;
+        //   }
+        // }
+        this.setCountryData();
+      }
+
+      return this.privateCountryData;
+    },
+    setCountryData() {
+      this.privateCountryData = {};
+      for (const [key, value] of Object.entries(this.metadata.der_countries)) {
+        console.log(key, value);
+
+        if (this.iso3map[key] !== undefined) {
+          this.privateCountryData[this.iso3map[key]["alpha-2"]] = value;
+        }
+      }
+    },
     getISOInfo() {
       this.$http
         .get("/static/data/iso3166-3-country-info.json")
         .then((response) => {
           this.iso3map = response.data;
-          this.countryData = {};
 
-          for (const [key, value] of Object.entries(
-            this.metadata.der_countries
-          )) {
-            this.countryData[this.iso3map[key]["alpha-2"]] = value;
+          if (this.privateCountryData === null) {
+            this.setCountryData();
+            // this.privateCountryData = {};
+            // for (const [key, value] of Object.entries(
+            //   this.metadata.der_countries
+            // )) {
+            //   console.log("getISOInfo", key, value);
+
+            //   if (this.iso3map[key] !== undefined) {
+            //     this.privateCountryData[this.iso3map[key]["alpha-2"]] = value;
+            //   }
+            // }
           }
         });
     },
@@ -165,7 +212,14 @@ export default {
         })
         .then((response) => {
           this.doc_topics = response.data;
+          this.filteredDocTopics();
         });
+    },
+  },
+  watch: {
+    metadata: function () {
+      this.countryData();
+      this.getDocumentTopics();
     },
   },
 };
