@@ -80,8 +80,9 @@
                   <strong>View document</strong>
                 </div>
               </template> -->
-              <div v-if="tabIndex === 1">
+              <div>
                 <iframe
+                  ref="iframe"
                   width="100%"
                   height="600px"
                   :src="metadata.url_pdf"
@@ -139,7 +140,7 @@ export default {
         this.$route.params.doc_id !== this.result.id &&
         !this.loading
       ) {
-        if (localStorage[this.$route.params.doc_id] === undefined) {
+        if (sessionStorage[this.$route.params.doc_id] === undefined) {
           this.getMetadata();
         } else {
           this.loadStorage();
@@ -163,12 +164,14 @@ export default {
   },
   methods: {
     loadStorage() {
-      this.result = JSON.parse(localStorage.getItem(this.$route.params.doc_id));
+      this.result = JSON.parse(
+        sessionStorage.getItem(this.$route.params.doc_id)
+      );
     },
     getMetadata() {
       if (this.$route.params.metadata !== undefined) {
         this.result = this.$route.params.metadata;
-        localStorage.setItem(
+        sessionStorage.setItem(
           this.$route.params.doc_id,
           JSON.stringify(this.result)
         );
@@ -180,7 +183,7 @@ export default {
           })
           .then((response) => {
             this.result = response.data;
-            localStorage.setItem(
+            sessionStorage.setItem(
               this.$route.params.doc_id,
               JSON.stringify(this.result)
             );
@@ -215,6 +218,18 @@ export default {
       } else {
         return ["tab-item-format"];
       }
+    },
+    setIFrame() {
+      var iframe = this.$refs.iframe;
+      var container = iframe.parentElement;
+      iframe.remove();
+      iframe.src = this.metadata.url_pdf;
+      container.append(iframe);
+    },
+  },
+  watch: {
+    metadata: function () {
+      this.setIFrame();
     },
   },
 };
