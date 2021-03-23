@@ -33,21 +33,6 @@
       >
         {{ aria_expanded ? "Collapse" : "Expand" }}</b-button
       >
-      <!-- <button
-        class="sidebar-toggler"
-        type="button"
-        @click="toggleButton"
-        data-toggle="collapse"
-        data-target="#blog-sidebar"
-        aria-controls="blog-sidebar"
-        :aria-expanded="aria_expanded"
-        aria-label="Toggle sidebar"
-      > -->
-
-      <!-- <i v-show="aria_expanded" class="fas fa-compress"></i>
-        <i v-show="!aria_expanded" class="fas fa-expand"></i> -->
-      <!-- </button> -->
-
       <div class="row">
         <aside id="blog-sidebar" class="col-sm-3" v-show="!aria_expanded">
           <section class="sidebar-module">
@@ -292,61 +277,6 @@ export default {
 .sidebar-toggler {
   margin-top: -20px;
   margin-left: 75vw;
-  /* border: none;
-  padding: 0;
-  color: black;
-  border-color: transparent;
-  background-color: transparent; */
   position: absolute;
-}
-
-/* button[aria-expanded="true"] .fa-expand {
-  display: none;
-}
-button[aria-expanded="false"] .fa-compress {
-  display: none;
-} */
-
-/* button[aria-expanded="false"] div.blog-main {
-  max-width: 100%;
-}
-
-button[aria-expanded="true"] div.blog-main {
-  max-width: 100%;
-} */
-/*
-#blog-sidebar {
-  -webkit-transition: width 2s ease;
-  -moz-transition: width 2s ease;
-  -o-transition: width 2s ease;
-  transition: width 2s ease;
-
-  display: inline-block;
-  overflow: hidden;
-  white-space: nowrap;
-  background: yellow;
-  vertical-align: middle;
-  line-height: 30px;
-  height: 30px;
-
-  width: 0px;
-} */
-/* #demo.in {
-    width: 220px;
-} */
-
-/*
-.blog-main {
-  margin: 0;
-  padding-left: 1rem;
-}
-
-.blog-sidebar {
-  margin-left: -2rem;
-  padding: 0;
-} */
-
-.collapse-blog-sidebar {
-  width: 0;
 }
 </style>
