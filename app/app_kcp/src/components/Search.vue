@@ -36,7 +36,9 @@
                   v-on:keyup.enter="sendSearch()"
                 />
                 <div v-if="hasUploadedFile" class="wbg-uploaded-file">
-                  {{ this.uploaded_file.name }}
+                  <div class="truncated-title">
+                    {{ this.uploaded_file.name }}
+                  </div>
                   <i
                     class="fas fa-times fa-sm ml-2"
                     @click="removeFile"
@@ -537,4 +539,12 @@ export default {
   margin-left: -2rem;
   padding: 0;
 } */
+
+.truncated-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* number of lines to show */
+  -webkit-box-orient: vertical;
+}
 </style>

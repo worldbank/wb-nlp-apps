@@ -25,21 +25,31 @@
       </div>
     </header>
     <div class="container flowing">
-      <button
+      <b-button
+        v-if="toggleButtonShow"
+        class="sidebar-toggler"
+        @click="toggleButton"
+        :variant="aria_expanded ? 'light' : 'dark'"
+      >
+        {{ aria_expanded ? "Collapse" : "Expand" }}</b-button
+      >
+      <!-- <button
         class="sidebar-toggler"
         type="button"
+        @click="toggleButton"
         data-toggle="collapse"
         data-target="#blog-sidebar"
         aria-controls="blog-sidebar"
-        aria-expanded="true"
+        :aria-expanded="aria_expanded"
         aria-label="Toggle sidebar"
-      >
-        <i class="fas fa-compress"></i>
-        <i class="fas fa-expand"></i>
-      </button>
+      > -->
+
+      <!-- <i v-show="aria_expanded" class="fas fa-compress"></i>
+        <i v-show="!aria_expanded" class="fas fa-expand"></i> -->
+      <!-- </button> -->
 
       <div class="row">
-        <aside class="col-sm-3 blog-sidebar" id="blog-sidebar">
+        <aside id="blog-sidebar" class="col-sm-3" v-show="!aria_expanded">
           <section class="sidebar-module">
             <ol class="list-unstyled">
               <li>
@@ -177,9 +187,14 @@
             </ol>
           </section>
         </aside>
-        <div class="col blog-main">
+        <div
+          class="blog-main"
+          :class="aria_expanded ? 'col-sm-12' : 'col-sm-9'"
+        >
           <article class="blog-post">
             <div class="content-row">
+              <!-- {{ toggleButtonShow }} -->
+              <!-- {{ aria_expanded }} -->
               <router-view></router-view>
             </div>
             <hr />
@@ -211,6 +226,21 @@ export default {
 
       return name[0].toUpperCase() + name.slice(1);
     },
+    toggleButtonShow() {
+      const valid_routes = [
+        "explore_topic-browser",
+        "explore_filtering-by-topic-share",
+        "explore_topic-profiles",
+        "explore_word-embeddings",
+        "explore_similarity",
+      ];
+      return valid_routes.includes(this.$route.name);
+    },
+  },
+  data() {
+    return {
+      aria_expanded: false,
+    };
   },
   methods: {
     flowSideBar: function () {
@@ -236,6 +266,9 @@ export default {
         });
       });
     },
+    toggleButton() {
+      this.aria_expanded = !this.aria_expanded;
+    },
   },
 };
 </script>
@@ -253,23 +286,54 @@ export default {
 }
 
 .blog-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: 2rem;
 }
 
 .sidebar-toggler {
-  border: none;
+  margin-top: -20px;
+  margin-left: 75vw;
+  /* border: none;
   padding: 0;
   color: black;
   border-color: transparent;
-  background-color: transparent;
+  background-color: transparent; */
+  position: absolute;
 }
 
-button[aria-expanded="true"] .fa-expand {
+/* button[aria-expanded="true"] .fa-expand {
   display: none;
 }
 button[aria-expanded="false"] .fa-compress {
   display: none;
+} */
+
+/* button[aria-expanded="false"] div.blog-main {
+  max-width: 100%;
 }
+
+button[aria-expanded="true"] div.blog-main {
+  max-width: 100%;
+} */
+/*
+#blog-sidebar {
+  -webkit-transition: width 2s ease;
+  -moz-transition: width 2s ease;
+  -o-transition: width 2s ease;
+  transition: width 2s ease;
+
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  background: yellow;
+  vertical-align: middle;
+  line-height: 30px;
+  height: 30px;
+
+  width: 0px;
+} */
+/* #demo.in {
+    width: 220px;
+} */
 
 /*
 .blog-main {
@@ -281,4 +345,8 @@ button[aria-expanded="false"] .fa-compress {
   margin-left: -2rem;
   padding: 0;
 } */
+
+.collapse-blog-sidebar {
+  width: 0;
+}
 </style>

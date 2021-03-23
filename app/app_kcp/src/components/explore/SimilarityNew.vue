@@ -167,7 +167,9 @@
               v-show="hasUploadedFile"
               class="wbg-uploaded-file wbg-uploaded-file__similarity"
             >
-              {{ this.uploaded_file.name }}
+              <div class="truncated-title">
+                {{ this.uploaded_file.name }}
+              </div>
               <i
                 class="fas fa-times fa-sm ml-2"
                 @click="removeFile"
@@ -547,5 +549,12 @@ export default {
   /* margin-left: 10px; */
   max-height: 100%;
   margin-top: 1px;
+}
+.truncated-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* number of lines to show */
+  -webkit-box-orient: vertical;
 }
 </style>

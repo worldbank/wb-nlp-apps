@@ -45,7 +45,9 @@
                     },
                   }"
                 >
-                  {{ result.metadata.title }}</router-link
+                  <div class="truncated-title">
+                    {{ result.metadata.title }}
+                  </div></router-link
                 >
 
                 <!--
