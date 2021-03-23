@@ -25,78 +25,18 @@
           return (i) a list of N closest matches, and (ii) the topic composition
           for LDA model X.
         </p>
-        <div class="d-md-flex">
-          <!-- <div class="dropdown mr-3 mr-3 mb-3 mb-md-0">
-            <button
-              class="btn btn-outline-secondary wbg-button dropdown-toggle"
-              type="button"
-              id="dropdownMenuButton"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              Word2vec Model ALL_50
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a
-                class="dropdown-item"
-                href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                >Action</a
-              >
-              <a
-                class="dropdown-item"
-                href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                >Another action</a
-              >
-              <a
-                class="dropdown-item"
-                href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                >Something else here</a
-              >
-            </div>
-          </div>
-          <div class="dropdown">
-            <button
-              class="btn btn-outline-secondary wbg-button dropdown-toggle"
-              type="button"
-              id="dropdownMenuButton"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              LDA Model ALL_50
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a
-                class="dropdown-item"
-                href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                >Action</a
-              >
-              <a
-                class="dropdown-item"
-                href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                >Another action</a
-              >
-              <a
-                class="dropdown-item"
-                href="https://mtt-wb21h.netlify.app/explore/similarity/#"
-                >Something else here</a
-              >
-            </div>
-          </div> -->
-        </div>
         <div class="row">
           <div class="col-6 fluid">
             <MLModelSelect
               @modelSelected="onModelSelectWord2Vec"
-              :model_name="'word2vec'"
+              :model_name="model_name.word2vec"
               placeholder="Choose a word embedding model..."
             />
           </div>
           <div class="col-6 fluid">
             <MLModelSelect
               @modelSelected="onModelSelectLDA"
-              :model_name="'lda'"
+              :model_name="model_name.lda"
               placeholder="Choose a topic model..."
             />
           </div>
@@ -413,26 +353,6 @@ export default {
     has_hits() {
       return this.model_option.hits.length > 0 && !this.no_more_hits;
     },
-    // word2vec_no_more_hits() {
-    //   var next_from = this.word2vec_curr_page_num * this.curr_size;
-
-    //   var no_more_hits = false;
-    //   if (next_from > this.word2vec_total.value) {
-    //     no_more_hits = true;
-    //   }
-
-    //   return no_more_hits;
-    // },
-    // lda_no_more_hits() {
-    //   var next_from = this.lda_curr_page_num * this.curr_size;
-
-    //   var no_more_hits = false;
-    //   if (next_from > this.lda_total.value) {
-    //     no_more_hits = true;
-    //   }
-
-    //   return no_more_hits;
-    // },
   },
   methods: {
     onModelSelectWord2Vec(model_run_info_id) {
@@ -442,13 +362,10 @@ export default {
     onModelSelectLDA(model_run_info_id) {
       console.log(model_run_info_id);
       this.model_options[this.model_name.lda].model_id = model_run_info_id;
-      // this.getModelTopics();
-      // this.getTopicRanges();
     },
     sendSearch: function (page_num = 1) {
       console.log(page_num);
       console.log(this.selectedModel);
-      // var model_option = this.model_options[this.selectedModel];
 
       this.loading = true;
       this.model_options[this.selectedModel].curr_page_num = page_num;
@@ -484,20 +401,11 @@ export default {
     },
     fileUpload(event) {
       this.uploaded_file = event.target.files[0];
-      // this.url_cache = this.url;
-      // this.url = "";
     },
     removeFile() {
       this.uploaded_file = null;
       this.file_input = null;
-      // this.url = this.url_cache;
     },
-    // updateUploadState() {
-    //   if (this.selectedInput !== "file_upload") {
-    //     this.removeFile();
-    //     this.hasUploadedFile;
-    //   }
-    // },
   },
 
   watch: {
@@ -512,25 +420,7 @@ export default {
     //   },
     //   deep: true,
     // },
-    // "model_option.hits": function (val) {
-    //   console.log(val);
-    // },
-    // "model_options.word2vec": function () {
-    //   return;
-    // },
-    // "model_options.lda": function () {
-    //   return;
-    // },
   },
-  // watch: {
-
-  // selectedInput: function () {
-  //   if (this.selectedInput !== "file_upload") {
-  //     this.removeFile();
-  //     // this.hasUploadedFile;
-  //   }
-  // },
-  // },
 };
 </script>
 <style scoped>
