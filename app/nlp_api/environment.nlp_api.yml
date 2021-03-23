@@ -22,6 +22,7 @@ dependencies:
   - setuptools=51.0.0
   - spacy-model-en_core_web_sm=2.3.1
   - sqlite=3.33.0
+  - tika=1.24
   - tk=8.6.10
   - wheel=0.36.2
   - xz=5.2.5
