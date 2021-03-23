@@ -80,7 +80,7 @@
                   <strong>View document</strong>
                 </div>
               </template> -->
-              <div>
+              <div v-if="tabIndex === 1">
                 <iframe
                   width="100%"
                   height="600px"
@@ -96,14 +96,14 @@
             >
               <div>
                 <br />
-                <h3>LDA model</h3>
+                <h4>Related documents from topic model</h4>
                 <RelatedDocsPanel
                   :section_height="150"
                   :reference_id="metadata.id"
                   :submit="submit_related"
                 />
-                <br />
-                <h3>Word2vec model</h3>
+                <br /><br />
+                <h4>Related documents from word embedding model</h4>
                 <RelatedDocsPanel
                   :section_height="150"
                   :reference_id="metadata.id"
@@ -155,7 +155,7 @@ export default {
 
   data: function () {
     return {
-      result: localStorage[this.$route.params.doc_id],
+      result: this.metadata,
       submit_related: false,
       tabIndex: 0,
       loading: false,
@@ -163,11 +163,15 @@ export default {
   },
   methods: {
     loadStorage() {
-      this.result = localStorage[this.$route.params.doc_id];
+      this.result = JSON.parse(localStorage.getItem(this.$route.params.doc_id));
     },
     getMetadata() {
       if (this.$route.params.metadata !== undefined) {
         this.result = this.$route.params.metadata;
+        localStorage.setItem(
+          this.$route.params.doc_id,
+          JSON.stringify(this.result)
+        );
       } else {
         this.loading = true;
         this.$http
@@ -176,7 +180,10 @@ export default {
           })
           .then((response) => {
             this.result = response.data;
-            localStorage[this.$route.params.doc_id] = this.result;
+            localStorage.setItem(
+              this.$route.params.doc_id,
+              JSON.stringify(this.result)
+            );
           })
           .finally(() => {
             this.loading = false;
@@ -237,6 +244,9 @@ export default {
 }
 .doc-active-tab {
   max-height: 680px;
-  overflow: scroll;
+  padding-right: 30px;
+  padding-left: 30px;
+  overflow-y: scroll;
+  overflow-x: visible;
 }
 </style>
