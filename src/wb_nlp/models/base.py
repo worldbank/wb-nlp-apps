@@ -475,6 +475,9 @@ class BaseModel:
 
         return self.transform_doc(text, normalize=normalize)
 
+    def normalize_vectors(self, vectors):
+        return [doc_vec / np.linalg.norm(doc_vec, ord=2) for doc_vec in vectors]
+
     def build_doc_vecs(self, pool_workers=None):
         # Input is a dataframe containing the following columns:
         # - text
@@ -514,49 +517,66 @@ class BaseModel:
         try:
             with joblib.parallel_backend('dask'):
                 if not docs_for_processing.empty:
+                    # Perform normalization of topic model vectors only when we load them in Milvus.
+                    normalize = not is_topic_model
                     for partition_group, sub_docs in docs_for_processing.groupby('corpus'):
-                        results = Parallel(verbose=10, batch_size='auto')(
-                            delayed(self.process_doc)(doc) for idx, doc in sub_docs.iterrows())
+                        # Partition corpus into sub groups of size at most 1000
+                        group_size = 1000
+                        if group_size < len(sub_docs):
+                            group_value = np.array(
+                                range(len(sub_docs))) % group_size
+                        else:
+                            group_value = np.zeros(len(sub_docs))
 
-                        results = [(ix, p['doc_vec'].flatten())
-                                   for ix, p in enumerate(results) if p['success']]
+                        for _, sub_sub_docs in sub_docs.groupby(group_value):
 
-                        if len(results) == 0:
-                            continue
+                            results = Parallel(verbose=10, batch_size='auto')(
+                                delayed(self.process_doc)(doc, normalize) for idx, doc in sub_sub_docs.iterrows())
 
-                        locs, vectors = list(zip(*results))
-                        sub_int_ids = sub_docs.iloc[list(
-                            locs)]['int_id'].tolist()
-                        sub_ids = sub_docs.iloc[list(
-                            locs)]['id'].tolist()
+                            results = [(ix, p['doc_vec'].flatten())
+                                       for ix, p in enumerate(results) if p['success']]
 
-                        # If LDA model, dump topics in mongodb document_topics collection.
-                        if is_topic_model:
-                            print("FILLING TOPIC DB")
-                            mongodb.get_document_topics_collection().insert_many(
-                                [dict(
-                                    model_run_info_id=self.model_run_info["model_run_info_id"],
-                                    id=doc_id,
-                                    topics={
-                                        f"topic_{topic_id}": value for topic_id, value in enumerate(topic_list)}
-                                ) for doc_id, topic_list in zip(sub_ids, vectors)]
-                            )
+                            if len(results) == 0:
+                                continue
 
-                        entities = [
-                            {"name": self.milvus_vector_field_name, "values": vectors,
-                                "type": DataType.FLOAT_VECTOR},
-                        ]
+                            locs, vectors = list(zip(*results))
+                            sub_sub_int_ids = sub_sub_docs.iloc[list(
+                                locs)]['int_id'].tolist()
+                            sub_sub_ids = sub_sub_docs.iloc[list(
+                                locs)]['id'].tolist()
 
-                        if not milvus_client.has_partition(collection_name, partition_group):
-                            milvus_client.create_partition(
-                                collection_name, partition_group)
+                            # If LDA model, dump topics in mongodb document_topics collection.
+                            if is_topic_model:
+                                print("FILLING TOPIC DB")
+                                mongodb.get_document_topics_collection().delete_many(
+                                    {"id": {"$in": sub_sub_ids}})
 
-                        ids = milvus_client.insert(collection_name, entities,
-                                                   sub_int_ids, partition_tag=partition_group)
+                                mongodb.get_document_topics_collection().insert_many(
+                                    [dict(
+                                        model_run_info_id=self.model_run_info["model_run_info_id"],
+                                        id=doc_id,
+                                        _id=doc_id,
+                                        topics={
+                                            f"topic_{topic_id}": value for topic_id, value in enumerate(topic_list)}
+                                    ) for doc_id, topic_list in zip(sub_sub_ids, vectors)]
+                                )
 
-                        assert len(set(ids).difference(sub_int_ids)) == 0
+                            entities = [
+                                {"name": self.milvus_vector_field_name, "values": self.normalize_vectors(vectors) if is_topic_model else vectors,
+                                    "type": DataType.FLOAT_VECTOR},
+                            ]
 
-                        milvus_client.flush([collection_name])
+                            if not milvus_client.has_partition(collection_name, partition_group):
+                                milvus_client.create_partition(
+                                    collection_name, partition_group)
+
+                            ids = milvus_client.insert(collection_name, entities,
+                                                       sub_sub_int_ids, partition_tag=partition_group)
+
+                            assert len(set(ids).difference(
+                                sub_sub_int_ids)) == 0
+
+                            milvus_client.flush([collection_name])
         finally:
             dask_client.close()
 
