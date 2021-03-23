@@ -67,10 +67,7 @@
                   <strong>Metadata</strong>
                 </div>
               </template> -->
-              <div>
-                <br /><MetadataViewer
-                  :metadata="metadata"
-                /><MapComponent /></div
+              <div><br /><MetadataViewer :metadata="metadata" /></div
             ></b-tab>
             <b-tab
               title="View document"
@@ -125,7 +122,6 @@
 // import Header from "../Header.vue";
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import MetadataViewer from "./MetadataViewer";
-import MapComponent from "./MapComponent";
 
 export default {
   name: "DocumentPage",
@@ -155,7 +151,7 @@ export default {
       return "/nlp/corpus/get_metadata_by_id?id=" + this.metadata.id;
     },
   },
-  components: { RelatedDocsPanel, MetadataViewer, MapComponent },
+  components: { RelatedDocsPanel, MetadataViewer },
 
   data: function () {
     return {

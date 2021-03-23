@@ -171,3 +171,46 @@ async def get_partition_topic_share(
     transform_params.pop("model_id")
 
     return model.get_partition_topic_share(**transform_params)
+
+
+@ router.get("/get_topics_by_doc_id")
+async def get_topics_by_doc_id(
+    model_id: str = DEFAULT_QUERY_FIELDS["model_id"],
+    doc_id: str = Query(..., description="Document id"),
+    topn_words: int = DEFAULT_QUERY_FIELDS["topn_words"],
+    total_word_score: float = DEFAULT_QUERY_FIELDS["total_word_score"],
+    sort: bool = Query(
+        True, description="Sort the result from largest topic value."),
+    format_words: bool = Query(
+        True, description="Flag whether the returned topic words will be in a string formatted value.")
+):
+    model = get_validated_model(LDA_MODEL_NAME, model_id)
+
+    topic_words = model.get_model_topic_words(
+        topn_words=topn_words,
+        total_word_score=total_word_score)
+
+    topic_words = {topic["topic_id"]: topic["topic_words"]
+                   for topic in topic_words}
+
+    doc_topic_data = mongodb.get_document_topics_collection().find_one(
+        {"model_run_info_id": model_id, "id": doc_id})
+
+    payload = []
+
+    items = doc_topic_data["topics"].items()
+    if sort:
+        items = sorted(items, key=lambda x: -x[1])
+
+    for topic_id_str, value in items:
+        topic_id = int(topic_id_str.split("_")[-1])
+        payload.append(
+            dict(
+                topic_id=topic_id,
+                topic_words=topic_words[topic_id] if not format_words else ", ".join(
+                    [i["word"] for i in topic_words[topic_id]]),
+                value=value
+            )
+        )
+
+    return payload
