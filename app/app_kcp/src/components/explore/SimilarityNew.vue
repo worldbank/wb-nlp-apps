@@ -2,10 +2,7 @@
   <div>
     <header>
       <h1 class="blog-post-title mb-3" dir="auto">
-        <a
-          href="https://mtt-wb21h.netlify.app/explore/subcategories/filtering_by_topic_share/"
-          >{{ page_title }}</a
-        >
+        {{ page_title }}
       </h1>
     </header>
     <div>
@@ -93,8 +90,8 @@
             v-if="selectedInput == 'file_upload'"
             class="input-group wbg-input-group mb-3 mt-3"
             style="display: flex"
-            @click="$refs.simFile.click()"
           >
+            <!-- @click="$refs.simFile.click()" -->
             <input
               type="text"
               class="form-control wbg-search-text pl-4"

@@ -134,6 +134,17 @@ export default {
   },
   computed: {
     metadata() {
+      if (
+        this.result !== undefined &&
+        this.$route.params.doc_id !== this.result.id &&
+        !this.loading
+      ) {
+        if (localStorage[this.$route.params.doc_id] === undefined) {
+          this.getMetadata();
+        } else {
+          this.loadStorage();
+        }
+      }
       return this.result;
     },
     metadata_download_link() {
@@ -147,20 +158,30 @@ export default {
       result: localStorage[this.$route.params.doc_id],
       submit_related: false,
       tabIndex: 0,
+      loading: false,
     };
   },
   methods: {
+    loadStorage() {
+      this.result = localStorage[this.$route.params.doc_id];
+    },
     getMetadata() {
-      //   this.$http
-      //     .get("/nlp/corpus/get_metadata_by_id", {
-      //       params: { id: this.$route.params.doc_id },
-      //     })
-      //     .then((response) => {
-      //       this.metadata = response.data;
-      //     });
-      this.result = this.$route.params.metadata;
-      localStorage[this.$route.params.doc_id] = this.result;
-      console.log(this.metadata);
+      if (this.$route.params.metadata !== undefined) {
+        this.result = this.$route.params.metadata;
+      } else {
+        this.loading = true;
+        this.$http
+          .get("/nlp/corpus/get_metadata_by_id", {
+            params: { id: this.$route.params.doc_id },
+          })
+          .then((response) => {
+            this.result = response.data;
+            localStorage[this.$route.params.doc_id] = this.result;
+          })
+          .finally(() => {
+            this.loading = false;
+          });
+      }
     },
     activateSubmit: function () {
       if (this.submit_related === false) {

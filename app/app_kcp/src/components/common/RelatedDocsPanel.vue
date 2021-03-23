@@ -143,6 +143,7 @@ export default {
     },
     sendSemanticSearch: function () {
       this.loading = true;
+      this.results = [];
       const body = this.similarityBody;
       console.log(this.similar_docs_by_id_url);
 
@@ -162,6 +163,9 @@ export default {
   },
   watch: {
     submit: function () {
+      this.sendSemanticSearch();
+    },
+    reference_id: function () {
       this.sendSemanticSearch();
     },
   },
