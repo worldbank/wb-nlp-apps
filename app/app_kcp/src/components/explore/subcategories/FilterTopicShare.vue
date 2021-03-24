@@ -65,6 +65,8 @@
 </template>
 
 <script>
+import saveState from "vue-save-state";
+
 import FilterTable from "../../common/FilterTable";
 import SearchResultCard from "../../common/SearchResultCard";
 import SearchResultLoading from "../../common/SearchResultLoading";
@@ -79,6 +81,7 @@ export default {
     share_url: String,
     share_text: String,
   },
+  mixins: [saveState],
   mounted() {
     window.vm = this;
   },
@@ -133,6 +136,11 @@ export default {
     };
   },
   methods: {
+    getSaveStateConfig() {
+      return {
+        cacheKey: "filterTopicSharePage",
+      };
+    },
     sendSearch: function (page_num = 1) {
       this.loading = true;
       this.curr_page_num = page_num;

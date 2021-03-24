@@ -26,6 +26,7 @@ export default {
   props: {
     model_name: String,
     placeholder: String,
+    parent_model_run_info_id: String,
   },
   mounted() {
     this.model_run_infos = [];
@@ -34,6 +35,10 @@ export default {
       this.model_run_infos = this.lda_model_run_infos;
     } else if (this.model_name === "word2vec") {
       this.model_run_infos = this.word2vec_model_run_infos;
+    }
+
+    if (this.parent_model_run_info_id) {
+      this.model_run_info_id = this.parent_model_run_info_id;
     }
   },
   computed: {

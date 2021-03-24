@@ -59,6 +59,7 @@
             <MLModelSelect
               @modelSelected="onModelSelectWord2Vec"
               :model_name="model_name.word2vec"
+              :parent_model_run_info_id="model_options.word2vec.model_id"
               placeholder="Choose a word embedding model..."
             />
           </div>
@@ -66,6 +67,7 @@
             <MLModelSelect
               @modelSelected="onModelSelectLDA"
               :model_name="model_name.lda"
+              :parent_model_run_info_id="model_options.lda.model_id"
               placeholder="Choose a topic model..."
             />
           </div>
@@ -236,6 +238,8 @@
 </template>
 
 <script>
+import saveState from "vue-save-state";
+
 import MLModelSelect from "../common/MLModelSelect";
 import SearchResultLoading from "../common/SearchResultLoading";
 import SearchResultCard from "../common/SearchResultCard";
@@ -257,6 +261,7 @@ export default {
     SearchResultCard,
     Pagination,
   },
+  mixins: [saveState],
   mounted() {
     window.vm = this;
   },
@@ -284,7 +289,7 @@ export default {
           num_pages: 0,
           from_result: 0,
           hits: [],
-          total: Object,
+          total: { value: null, message: null },
         },
         word2vec: {
           upload_nlp_api_url: "/nlp/search/word2vec/file",
@@ -296,7 +301,7 @@ export default {
           num_pages: 0,
           from_result: 0,
           hits: [],
-          total: Object,
+          total: { value: null, message: null },
         },
       },
 
@@ -384,6 +389,11 @@ export default {
     },
   },
   methods: {
+    getSaveStateConfig() {
+      return {
+        cacheKey: "filterTopicSharePage",
+      };
+    },
     onModelSelectWord2Vec(model_run_info_id) {
       console.log(model_run_info_id);
       this.model_options[this.model_name.word2vec].model_id = model_run_info_id;
