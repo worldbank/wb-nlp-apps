@@ -46,12 +46,22 @@
                 >Metadata</a
               >
             </div>
-            <div class="small mt-2 mb-2">
-              <a href="#"
+            <div
+              class="small mt-2 mb-2"
+              @click="$bvModal.show('modal-scoped-' + result.id)"
+            >
+              <a href="javascript:void(0);"
                 ><i class="fas fa-chart-bar fa-lg mr-1" aria-hidden="true"></i
                 >Topics</a
               >
             </div>
+            <b-modal
+              :id="'modal-scoped-' + result.id"
+              :title="result.title"
+              size="lg"
+            >
+              <DocumentTopic :doc_id="result.id" />
+            </b-modal>
           </div>
           <div class="sub-title">
             <div>
@@ -86,13 +96,14 @@
 
 <script>
 import RelatedDocsPanel from "./RelatedDocsPanel";
+import DocumentTopic from "./DocumentTopic";
 
 export default {
   name: "SearchResultCard",
   props: {
     result: Object,
   },
-  components: { RelatedDocsPanel },
+  components: { RelatedDocsPanel, DocumentTopic },
   data: function () {
     return {
       submit_related: false,
