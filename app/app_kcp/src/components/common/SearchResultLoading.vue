@@ -1,7 +1,7 @@
 <template>
   <div v-if="loading">
     <div class="document-row">
-      <div class="row" v-for="v in Array(size)" :key="'sk_' + v">
+      <div class="row" v-for="v in Array(size).keys()" :key="'sk_' + v">
         <div class="col-12">
           <b-skeleton height="231px"></b-skeleton>
         </div>
