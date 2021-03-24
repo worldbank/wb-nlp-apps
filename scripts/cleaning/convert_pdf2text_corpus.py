@@ -28,8 +28,13 @@ def joblib_convert_file(
     if logger is not None:
         logger.info(f"Processing {file_id}: {input_file.name}")
 
-    pages = document.PDFDoc2Txt().parse(source=input_file, source_type="file")
-    output_file = output_dir / input_file.name
+    output_file = output_dir / f"{input_file.stem}.txt"
+
+    if output_file.exists():
+        return True
+
+    pages = document.PDFDoc2Txt().parse(
+        source=str(input_file.resolve()), source_type="file")
 
     with open(output_file, "w") as out_file:
         out_file.write(" ".join(pages))
@@ -51,7 +56,7 @@ _logger = logging.getLogger(__file__)
 @click.option('--n-workers', 'n_workers', required=False, default=None)
 @click.option('--batch-size', 'batch_size', required=False, default=None)
 @click.version_option(wb_nlp.__version__)
-def main(cleaning_config_id: str, input_dir: Path, log_level: int, recursive: bool, n_workers: int = None, batch_size: int = None):
+def main(input_dir: Path, log_level: int, recursive: bool, n_workers: int = None, batch_size: int = None):
     '''
     Entry point for cleaning raw text data inside a directory given a config file.
     '''
@@ -114,5 +119,5 @@ def main(cleaning_config_id: str, input_dir: Path, log_level: int, recursive: bo
 
 
 if __name__ == '__main__':
-    # python -u ./scripts/cleaning/convert_pdf2txt_corpus.py --input-dir /data/wb536061/wb_nlp/data/corpus --recursive -vv |& tee ./logs/clean_corpus_db_config.py.log
+    # python -u ./scripts/cleaning/convert_pdf2text_corpus.py --input-dir data/corpus --recursive -vv |& tee ./logs/convert_pdf2text_corpus.py.log
     main()

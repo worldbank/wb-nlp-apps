@@ -33,7 +33,7 @@ class PDFDoc2Txt:
         pass
 
     def _parse(self, parser, content):
-        return parser(content, xmlContent=True, serverEndpoint=TIKA_SERVER_ENDPOINT)
+        return parser(content, xmlContent=True, serverEndpoint=TIKA_SERVER_ENDPOINT, requestOptions={"timeout": 600})
 
     def parse(self, source: Union[bytes, str], source_type: str = 'buffer') -> str:
         """Parse a PDF document to text from different source types.
