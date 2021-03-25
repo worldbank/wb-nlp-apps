@@ -69,6 +69,11 @@ export default {
         });
     },
   },
+  watch: {
+    doc_id: function () {
+      this.getSimilarWDI();
+    },
+  },
 };
 </script>
 <style scoped>
