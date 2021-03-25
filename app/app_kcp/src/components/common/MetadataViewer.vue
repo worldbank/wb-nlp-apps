@@ -47,7 +47,7 @@
       <p>
         The number of times a country is mentioned in the document is shown in
         the map below. This metric may indicate that the document is relevant
-        for countries that highly cited.
+        for countries that are highly cited.
       </p>
       <WBMapChart
         :countryData="privateCountryData"
