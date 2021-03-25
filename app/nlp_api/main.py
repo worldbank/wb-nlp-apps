@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from .routers import cleaner, models, metadata, search
-from .routers.subrouters import lda, word2vec
+from .routers.subrouters import lda, word2vec, wdi
 
 tags_metadata = [
     {
@@ -52,6 +52,12 @@ app.include_router(
 app.include_router(
     lda.router,
     prefix="/nlp/models",
+    # tags=["lda"],
+    responses={404: {"description": "Not found"}},
+)
+app.include_router(
+    wdi.router,
+    prefix="/nlp/extra",
     # tags=["lda"],
     responses={404: {"description": "Not found"}},
 )

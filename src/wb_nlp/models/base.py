@@ -458,6 +458,7 @@ class BaseModel:
     def process_doc(self, doc, normalize=True):
         """
         This method converts the text described by the `doc` object into its vector representation.
+        This function must only be used a cleaned text. No additional processing will be done excep lower casing.
         This method accepts a `doc` object containing the following fields from the docs_metadata:
         - id
         - int_id
@@ -473,7 +474,7 @@ class BaseModel:
             with open(fname, "rb") as open_file:
                 text = open_file.read().decode("utf-8", errors="ignore")
 
-        return self.transform_doc(text, normalize=normalize)
+        return self.transform_doc(text.lower(), normalize=normalize)
 
     def normalize_vectors(self, vectors):
         return [doc_vec / np.linalg.norm(doc_vec, ord=2) for doc_vec in vectors]
@@ -675,17 +676,22 @@ class BaseModel:
 
         return payload
 
-    def get_similar_docs_by_doc_id(self, doc_id, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
-        self.check_wvecs()
-
+    def get_milvus_doc_vector_by_doc_id(self, doc_id):
         int_id = self.get_int_id_from_doc_id(doc_id)
         doc = get_milvus_client().get_entity_by_id(
             self.model_collection_id, ids=[int_id])[0]
+
         if doc is None:
             raise ValueError(
                 f'Document id `{doc_id}` not found in the vector index `{self.model_collection_id}`.')
 
         doc_vec = np.array(doc.embedding)
+        return doc_vec
+
+    def get_similar_docs_by_doc_id(self, doc_id, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
+        self.check_wvecs()
+
+        doc_vec = self.get_milvus_doc_vector_by_doc_id(doc_id)
         topk = 2 * topn
         dsl = get_embedding_dsl(doc_vec,
                                 topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
@@ -714,14 +720,7 @@ class BaseModel:
     def get_similar_words_by_doc_id(self, doc_id, topn=10, serialize=False, metric="cosine_similarity"):
         self.check_wvecs()
 
-        int_id = self.get_int_id_from_doc_id(doc_id)
-        doc = get_milvus_client().get_entity_by_id(
-            self.model_collection_id, ids=[int_id])[0]
-        if doc is None:
-            raise ValueError(
-                f'Document id `{doc_id}` not found in the vector index `{self.model_collection_id}`.')
-
-        doc_vec = np.array(doc.embedding).reshape(1, -1)
+        doc_vec = self.get_milvus_doc_vector_by_doc_id(doc_id).reshape(1, -1)
 
         if cosine_similarity.__name__ == metric:
             sim = cosine_similarity(doc_vec, self.word_vectors).flatten()
