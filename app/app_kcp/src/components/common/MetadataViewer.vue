@@ -156,6 +156,7 @@ export default {
       return this.privateFilteredDocTopics;
     },
     countryData() {
+      this.privateCountryData = null;
       if (this.iso3map === null) {
         this.getISOInfo();
       } else {
