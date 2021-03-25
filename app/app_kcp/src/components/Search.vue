@@ -135,13 +135,19 @@
               class="sidebar-filter wb-ihsn-sidebar-filter filter-by-year filter-box"
             >
               <h6 class="togglable">
-                <i class="fa fa-search pr-2"></i>Filter by Year
+                <i class="fa fa-search pr-2"></i>Filter by Year {{ min_year }} -
+                {{ max_year }}
               </h6>
               <div class="sidebar-filter-entries">
                 <input type="hidden" />
                 <p class="mt-3 mb-2">Show studies conducted between</p>
                 <div class="form-group">
-                  <select name="from" id="from" class="form-control">
+                  <select
+                    name="from"
+                    id="from"
+                    v-model="min_year"
+                    class="form-control"
+                  >
                     <option
                       v-for="year_offset in 131"
                       :key="'from-' + (2022 - year_offset)"
@@ -154,7 +160,12 @@
                 </div>
                 <p class="mt-3 mb-2">and</p>
                 <div class="form-group">
-                  <select name="to" id="to" class="form-control">
+                  <select
+                    name="to"
+                    id="to"
+                    v-model="max_year"
+                    class="form-control"
+                  >
                     <option
                       v-for="year_offset in 132"
                       :key="'to-' + (2022 - year_offset)"
@@ -222,6 +233,23 @@
                     ><i class="fa fa-file-excel-o"></i
                   ></a>
                 </div>
+              </div>
+            </div>
+            <div v-if="min_year && max_year" class="active-filters-container">
+              <div class="active-filters">
+                <span
+                  class="badge badge-default wb-badge-close remove-filter years"
+                  data-type="years"
+                  data-value="0"
+                  >between {{ min_year }}-{{ max_year
+                  }}<i class="fa fa-close"></i
+                ></span>
+
+                <a
+                  href="#"
+                  class="btn-reset-search btn btn-outline-primary btn-sm"
+                  >Reset search</a
+                >
               </div>
             </div>
             <SearchResultLoading :loading="loading" :size="curr_size" />
@@ -326,6 +354,8 @@ export default {
   },
   data: function () {
     return {
+      min_year: null,
+      max_year: null,
       search_type: "keyword",
       keyword_search_api_url: "/nlp/search/keyword",
       semantic_search_api_url: "/nlp/search/word2vec/semantic",
@@ -546,5 +576,31 @@ export default {
   display: -webkit-box;
   -webkit-line-clamp: 1; /* number of lines to show */
   -webkit-box-orient: vertical;
+}
+.active-filters-container {
+  margin: 20px 0 30px;
+  border-radius: 3px;
+  position: relative;
+}
+.active-filters-container .active-filters {
+  background: #f3f3f3;
+  overflow: auto;
+  color: white;
+  clear: both;
+  padding: 10px;
+}
+.active-filters-container .active-filters .years {
+  background-color: #787878;
+}
+.active-filters-container .wb-badge-close {
+  padding: 10px 10px;
+  margin: 2px 4px 2px 0;
+  position: relative;
+  padding-right: 30px;
+  cursor: pointer;
+  transition: opacity 0.35s;
+}
+.btn-outline-primary {
+  color: #0071bc;
 }
 </style>

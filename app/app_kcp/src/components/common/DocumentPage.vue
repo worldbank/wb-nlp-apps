@@ -104,6 +104,16 @@
                   :submit="submit_related"
                 /></div
             ></b-tab>
+            <b-tab
+              :title-item-class="itemClass(3)"
+              :title-link-class="linkClass(3)"
+              v-on:click="activateSubmit()"
+              @click.prevent
+              title="Related WDI indicators"
+            >
+              <div>
+                <SimilarWDIViewer :doc_id="metadata.id" /></div
+            ></b-tab>
           </b-tabs>
         </div>
       </div>
@@ -114,6 +124,7 @@
 <script>
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import MetadataViewer from "./MetadataViewer";
+import SimilarWDIViewer from "./SimilarWDIViewer";
 
 export default {
   name: "DocumentPage",
@@ -141,7 +152,7 @@ export default {
       return "/nlp/corpus/get_metadata_by_id?id=" + this.metadata.id;
     },
   },
-  components: { RelatedDocsPanel, MetadataViewer },
+  components: { RelatedDocsPanel, MetadataViewer, SimilarWDIViewer },
 
   data: function () {
     return {
