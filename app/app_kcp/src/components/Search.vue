@@ -87,7 +87,6 @@
             <div class="col-12 col-md-12 text-center">
               <div class="form-check form-check-inline">
                 <input
-                  @click="sendSearch()"
                   class="form-check-input"
                   type="radio"
                   name="inlineRadioOptions"
@@ -104,7 +103,6 @@
               </div>
               <div class="form-check form-check-inline">
                 <input
-                  @click="sendSearch()"
                   class="form-check-input"
                   type="radio"
                   name="inlineRadioOptions"
@@ -385,9 +383,9 @@ export default {
   methods: {
     fileUpload(event) {
       this.uploaded_file = event.target.files[0];
-      this.search_type = "semantic";
       this.query_cache = this.query;
       this.query = "";
+      this.search_type = "semantic";
     },
     removeFile() {
       this.uploaded_file = null;
@@ -545,6 +543,11 @@ export default {
           }
         });
       });
+    },
+  },
+  watch: {
+    search_type: function () {
+      this.sendSearch();
     },
   },
 };
