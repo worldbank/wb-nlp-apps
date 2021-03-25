@@ -106,8 +106,7 @@
   </div>
 </template>
 <script>
-import MapChart from "vue-map-chart";
-
+import MapChart from "@avsolatorio/vue-map-chart";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 
