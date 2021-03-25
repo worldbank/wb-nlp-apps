@@ -49,7 +49,7 @@
         the map below. This metric may indicate that the document is relevant
         for countries that highly cited.
       </p>
-      <MapChart
+      <WBMapChart
         :countryData="privateCountryData"
         highColor="#0000ff"
         lowColor="#eeeeff"
@@ -106,16 +106,18 @@
   </div>
 </template>
 <script>
-import MapChart from "@avsolatorio/vue-map-chart";
+// import MapChart from "@avsolatorio/vue-map-chart";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
+
+import WBMapChart from "./MapChartWB";
 
 export default {
   props: {
     metadata: Object,
     show_raw_metadata: Boolean,
   },
-  components: { MapChart, VueJsonPretty },
+  components: { WBMapChart, VueJsonPretty },
   mounted() {
     window.viewer = this;
     this.privateFilteredDocTopics = null;
