@@ -87,6 +87,7 @@
             <div class="col-12 col-md-12 text-center">
               <div class="form-check form-check-inline">
                 <input
+                  @click="sendSearch()"
                   class="form-check-input"
                   type="radio"
                   name="inlineRadioOptions"
@@ -103,6 +104,7 @@
               </div>
               <div class="form-check form-check-inline">
                 <input
+                  @click="sendSearch()"
                   class="form-check-input"
                   type="radio"
                   name="inlineRadioOptions"
@@ -430,6 +432,9 @@ export default {
       });
     },
     sendKeywordSearch: function (from = 0) {
+      if (!this.query) {
+        return;
+      }
       if (from > this.total.value) {
         return;
       }
@@ -460,6 +465,9 @@ export default {
         .finally(() => (this.loading = false));
     },
     sendSemanticSearch: function (from = 0) {
+      if (!this.query) {
+        return;
+      }
       // if (from > this.total.value) {
       //   return;
       // }
