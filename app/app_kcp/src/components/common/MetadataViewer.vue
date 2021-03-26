@@ -52,10 +52,12 @@
       <WBMapChart
         :countryData="privateCountryData"
         highColor="#0000ff"
-        lowColor="#eeeeff"
+        lowColor="#fff"
         countryStrokeColor="#909090"
-        defaultCountryFillColor="#fefefe"
+        defaultCountryFillColor="#fff"
       />
+      <!-- lowColor="#eeeeff" -->
+      <!-- defaultCountryFillColor="#fefefe" -->
     </div>
 
     <div v-if="privateFilteredDocTopics">

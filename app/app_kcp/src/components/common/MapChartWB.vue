@@ -133,11 +133,15 @@ export default {
       var ssudVal = this.countryData.SS || 0;
 
       // Set values for disputed areas
-      this.processedCountryData.XXX_arunachal_pradesh = (cnVal + inVal) / 2;
-      this.processedCountryData.XXX_demchok = (cnVal + inVal) / 2;
-      this.processedCountryData.XXX_aksai_chin = (cnVal + inVal) / 2;
+      if (cnVal + inVal > 0) {
+        this.processedCountryData.XXX_arunachal_pradesh = (cnVal + inVal) / 2;
+        this.processedCountryData.XXX_demchok = (cnVal + inVal) / 2;
+        this.processedCountryData.XXX_aksai_chin = (cnVal + inVal) / 2;
+      }
 
-      this.processedCountryData.XXX_abyei = (sdudVal + ssudVal) / 2;
+      if (sdudVal + ssudVal > 0) {
+        this.processedCountryData.XXX_abyei = (sdudVal + ssudVal) / 2;
+      }
 
       this.processedCountryData.XXX_western_sahara = "No data";
     },
