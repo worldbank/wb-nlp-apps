@@ -13,7 +13,7 @@
         <span>{{ legend.name }}</span>
       </div>
       <div class="vue-map-legend-content">
-        <span>{{ countryData[legend.code] || 0 }}</span>
+        <span>{{ processedCountryData[legend.code] || 0 }}</span>
       </div>
     </div>
   </div>
@@ -116,6 +116,7 @@ export default {
   },
   data() {
     return {
+      processedCountryData: null,
       legend: legend,
       position: position,
       node: this.getOrCreateNode(),
@@ -123,6 +124,23 @@ export default {
     };
   },
   methods: {
+    processCountryData() {
+      this.processedCountryData = this.countryData;
+
+      var cnVal = this.countryData.CN || 0;
+      var inVal = this.countryData.IN || 0;
+      var sdudVal = this.countryData.SD || 0;
+      var ssudVal = this.countryData.SS || 0;
+
+      // Set values for disputed areas
+      this.processedCountryData.XXX_arunachal_pradesh = (cnVal + inVal) / 2;
+      this.processedCountryData.XXX_demchok = (cnVal + inVal) / 2;
+      this.processedCountryData.XXX_aksai_chin = (cnVal + inVal) / 2;
+
+      this.processedCountryData.XXX_abyei = (sdudVal + ssudVal) / 2;
+
+      this.processedCountryData.XXX_western_sahara = "No data";
+    },
     getOrCreateNode() {
       var node = document.getElementById(this.nodeId);
       if (!node) {
@@ -132,6 +150,12 @@ export default {
       return node;
     },
     onHoverCountry(country) {
+      if (
+        country.code.startsWith("XXX_") &&
+        country.name !== "Western Sahara"
+      ) {
+        return;
+      }
       this.legend = country;
       this.position = country.position;
       this.$emit("hoverCountry", country);
@@ -145,9 +169,11 @@ export default {
       this.$emit("hoverLeaveCountry", country);
     },
     renderMapCSS() {
+      this.processCountryData();
       const baseCss = getBaseCss(this.$props);
       const dynamicMapCss = getDynamicMapCss(
-        this.$props.countryData,
+        // this.$props.countryData,
+        this.$data.processedCountryData,
         this.chromaScale,
         this.$props.highColor,
         this.$props.chromaScaleOn
@@ -157,6 +183,7 @@ export default {
   },
   mounted() {
     document.body.appendChild(this.$data.node);
+
     this.renderMapCSS();
   },
 };
