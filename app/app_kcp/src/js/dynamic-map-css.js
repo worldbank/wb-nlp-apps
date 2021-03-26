@@ -17,10 +17,20 @@ const getMaxAndMinCountryDataValues = (countryData) => {
     return { min, max };
 };
 
-export const getBaseCss = ({ defaultCountryFillColor, countryStrokeColor, legendHeaderBackgroundColor, legendContentBackgroundColor, legendFontColorHeader, legendFontColorContent, legendBorderRadius, legendBorderColor, legendBoxShadow }) => (
+export const getBaseCss = ({ defaultCountryFillColor, countryStrokeColor, countryStrokeWidth, xxxMaskStrokeWidth, xxxStrokeDashArray, legendHeaderBackgroundColor, legendContentBackgroundColor, legendFontColorHeader, legendFontColorContent, legendBorderRadius, legendBorderColor, legendBoxShadow }) => (
     `.vue-world-map .land{
     fill:${defaultCountryFillColor};
     stroke:${countryStrokeColor};
+    stroke-width: ${countryStrokeWidth};
+  }
+  .vue-world-map .xxx-mask{
+    stroke: #fff;
+    stroke-width: ${xxxMaskStrokeWidth};
+  }
+  .vue-world-map .xxx{
+    stroke:${countryStrokeColor};
+    stroke-width: ${countryStrokeWidth};
+    stroke-dasharray: ${xxxStrokeDashArray};
   }
   .vue-map-legend-header{
     background:${legendHeaderBackgroundColor}

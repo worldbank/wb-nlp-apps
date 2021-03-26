@@ -73,6 +73,18 @@ export default {
       type: String,
       default: "#909090",
     },
+    countryStrokeWidth: {
+      type: String,
+      default: "0.5px",
+    },
+    xxxMaskStrokeWidth: {
+      type: String,
+      default: "0.75px",
+    },
+    xxxStrokeDashArray: {
+      type: String,
+      default: "1 1",
+    },
     legendHeaderBackgroundColor: {
       type: String,
       default: "white",
