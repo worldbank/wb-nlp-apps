@@ -105,10 +105,11 @@ services:
   nlp_api:
     volumes:
       - ${SERVER7_DATA_PATH}/models:/workspace/models
-      - ${SERVER7_DATA_PATH}/data/corpus:/workspace/data/corpus
-      - ${SERVER7_DATA_PATH}/data/raw:/workspace/data/raw
-      - ${SERVER7_DATA_PATH}/data/preprocessed:/workspace/data/preprocessed
-      - ${SERVER7_PATH}/data/whitelists:/workspace/data/whitelists
+      - ${SERVER7_DATA_PATH}/data:/workspace/data
+      # - ${SERVER7_DATA_PATH}/data/corpus:/workspace/data/corpus
+      # - ${SERVER7_DATA_PATH}/data/raw:/workspace/data/raw
+      # - ${SERVER7_DATA_PATH}/data/preprocessed:/workspace/data/preprocessed
+      # - ${SERVER7_PATH}/data/whitelists:/workspace/data/whitelists
 
   app_label:
     volumes:
