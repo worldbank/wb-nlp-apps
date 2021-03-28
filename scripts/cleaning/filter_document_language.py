@@ -54,16 +54,17 @@ def joblib_filter_english_file(
             pval = 0.05
             non_en_spell_df = filter_document_by_language(text, return_df=True)
 
-            en_txt = '\n'.join(
-                non_en_spell_df[non_en_spell_df['pval'] > pval]['sent'])
-            non_en_txt = '\n'.join(
-                non_en_spell_df[non_en_spell_df['pval'] <= pval]['sent'])
+            if non_en_spell_df is not None:
+                en_txt = '\n'.join(
+                    non_en_spell_df[non_en_spell_df['pval'] > pval]['sent'])
+                non_en_txt = '\n'.join(
+                    non_en_spell_df[non_en_spell_df['pval'] <= pval]['sent'])
 
-            with open(output_file, "w") as out_file:
-                out_file.write(en_txt)
+                with open(output_file, "w") as out_file:
+                    out_file.write(en_txt)
 
-            with open(non_en_output_file, "w") as non_en_out_file:
-                non_en_out_file.write(non_en_txt)
+                with open(non_en_output_file, "w") as non_en_out_file:
+                    non_en_out_file.write(non_en_txt)
 
     return True
 
@@ -105,6 +106,9 @@ def filter_document_by_language(txt, pval=0.05, en_dict=enchant.Dict("en_US"), r
             {'sent': sents[idx], 'clean': sent, 'score': a/n, 'a': a, 'b': b})
 
     non_en_spell_df = pd.DataFrame(non_en_spell)
+    if non_en_spell_df.empty:
+        return None
+
     means = non_en_spell_df[['score', 'a', 'b']].mean()
     rvb = beta(means['a'] + delta, means['b'] + delta)
     non_en_spell_df['pval'] = non_en_spell_df['score'].map(rvb.cdf)
