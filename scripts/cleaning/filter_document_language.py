@@ -49,21 +49,21 @@ def joblib_filter_english_file(
         non_en_output_file.parent.mkdir(parents=True)
 
     with open(input_file, "rb") as open_file:
-        text = open_file.read().decode("utf-8", errors="ignore")
+        text = open_file.read().decode("utf-8", errors="ignore").strip()
+        if text:
+            pval = 0.05
+            non_en_spell_df = filter_document_by_language(text, return_df=True)
 
-        pval = 0.05
-        non_en_spell_df = filter_document_by_language(text, return_df=True)
+            en_txt = '\n'.join(
+                non_en_spell_df[non_en_spell_df['pval'] > pval]['sent'])
+            non_en_txt = '\n'.join(
+                non_en_spell_df[non_en_spell_df['pval'] <= pval]['sent'])
 
-        en_txt = '\n'.join(
-            non_en_spell_df[non_en_spell_df['pval'] > pval]['sent'])
-        non_en_txt = '\n'.join(
-            non_en_spell_df[non_en_spell_df['pval'] <= pval]['sent'])
+            with open(output_file, "w") as out_file:
+                out_file.write(en_txt)
 
-        with open(output_file, "w") as out_file:
-            out_file.write(en_txt)
-
-        with open(non_en_output_file, "w") as non_en_out_file:
-            non_en_out_file.write(non_en_txt)
+            with open(non_en_output_file, "w") as non_en_out_file:
+                non_en_out_file.write(non_en_txt)
 
     return True
 
