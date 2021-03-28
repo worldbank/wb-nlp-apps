@@ -45,8 +45,8 @@ def joblib_filter_english_file(
 
     non_en_output_file = output_dir.parent / \
         "NON_EN_TXT_ORIG" / f"{input_file.stem}.txt"
-    if not non_en_output_file.parent.exists():
-        non_en_output_file.parent.mkdir(parents=True)
+    # if not non_en_output_file.parent.exists():
+    #     non_en_output_file.parent.mkdir(parents=True)
 
     with open(input_file, "rb") as open_file:
         text = open_file.read().decode("utf-8", errors="ignore").strip()
@@ -184,6 +184,9 @@ def main(input_dir: Path, log_level: int, recursive: bool, n_workers: int = None
 
             if not output_dir.exists():
                 output_dir.mkdir(parents=True)
+
+            if not (output_dir.parent / "NON_EN_TXT_ORIG").exists():
+                (output_dir.parent / "NON_EN_TXT_ORIG").mkdir(parents=True)
 
             res = Parallel(verbose=10, batch_size=batch_size)(
                 delayed(joblib_filter_english_file)(ix, i, output_dir) for ix, i in enumerate(input_dir.glob('*.txt'), 1))
