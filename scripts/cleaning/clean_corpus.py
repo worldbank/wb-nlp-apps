@@ -38,7 +38,6 @@ def joblib_clean_file(
         tokens = cleaner_func(text)
 
     if len(tokens) >= MIN_TOKEN_COUNT:
-
         output_file = output_dir / input_file.name
         text = " ".join(tokens).strip()
 

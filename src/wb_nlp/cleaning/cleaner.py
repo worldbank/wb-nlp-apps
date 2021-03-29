@@ -38,14 +38,16 @@ def fasttext_detect_language(spacy_object):
 
 
 def polyglot_detect_language(spacy_object):
-    lang = Detector(spacy_object.text)
+    lang = Detector(
+        ''.join(x for x in spacy_object.text if x.isprintable()), quiet=True)
     lang = lang.language
 
     return {"language": lang.code, "score": float(lang.confidence / 100)}
 
 
 def hybrid_detect_language(spacy_object):
-    lang = Detector(spacy_object.text)
+    lang = Detector(
+        ''.join(x for x in spacy_object.text if x.isprintable()), quiet=True)
     if lang.reliable:
         lang = lang.language
         data = {"language": lang.code, "score": float(lang.confidence / 100)}
