@@ -33,21 +33,26 @@ def joblib_clean_file(
     output_dir = target_dir / doc["corpus"]
 
     if not output_dir.exists():
-        output_dir.mkdir(parents=True)
+        try:
+            output_dir.mkdir(parents=True)
+        except FileExistsError:
+            pass
 
     if logger is not None:
         logger.info(f"Processing {file_id}: {input_file.name}")
 
-    with open(input_file, "rb") as in_file:
-        text = in_file.read().decode("utf-8", errors="ignore")
-        tokens = cleaner_func(text)
+    output_file = output_dir / input_file.name
 
-    if len(tokens) >= MIN_TOKEN_COUNT:
-        output_file = output_dir / input_file.name
-        text = " ".join(tokens).strip()
+    if not output_file.exists():
+        with open(input_file, "rb") as in_file:
+            text = in_file.read().decode("utf-8", errors="ignore")
+            tokens = cleaner_func(text)
 
-        with open(output_file, "w") as out_file:
-            out_file.write(text)
+        if len(tokens) >= MIN_TOKEN_COUNT:
+            text = " ".join(tokens).strip()
+
+            with open(output_file, "w") as out_file:
+                out_file.write(text)
 
     return True
 

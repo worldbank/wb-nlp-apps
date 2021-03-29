@@ -31,18 +31,18 @@ def joblib_clean_file(
     if logger is not None:
         logger.info(f"Processing {file_id}: {input_file.name}")
 
-    with open(input_file, "rb") as in_file:
-        text = in_file.read().decode("utf-8", errors="ignore")
+    output_file = output_dir / input_file.name
 
-        # tokens = lda_cleaner.get_clean_tokens(text)
-        tokens = cleaner_func(text)
+    if not output_file.exists():
+        with open(input_file, "rb") as in_file:
+            text = in_file.read().decode("utf-8", errors="ignore")
+            tokens = cleaner_func(text)
 
-    if len(tokens) >= MIN_TOKEN_COUNT:
-        output_file = output_dir / input_file.name
-        text = " ".join(tokens).strip()
+        if len(tokens) >= MIN_TOKEN_COUNT:
+            text = " ".join(tokens).strip()
 
-        with open(output_file, "w") as out_file:
-            out_file.write(text)
+            with open(output_file, "w") as out_file:
+                out_file.write(text)
 
     return True
 
