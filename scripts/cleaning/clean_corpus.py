@@ -18,6 +18,8 @@ from wb_nlp.dir_manager import get_data_dir
 from wb_nlp.utils.scripts import configure_logger, create_dask_cluster
 from wb_nlp.interfaces import mongodb
 
+MIN_TOKEN_COUNT = 10
+
 
 def joblib_clean_file(
         cleaner_func: Callable[[str], list],
@@ -35,10 +37,13 @@ def joblib_clean_file(
         # tokens = lda_cleaner.get_clean_tokens(text)
         tokens = cleaner_func(text)
 
-    output_file = output_dir / input_file.name
+    if len(tokens) >= MIN_TOKEN_COUNT:
 
-    with open(output_file, "w") as out_file:
-        out_file.write(" ".join(tokens))
+        output_file = output_dir / input_file.name
+        text = " ".join(tokens).strip()
+
+        with open(output_file, "w") as out_file:
+            out_file.write(text)
 
     return True
 
