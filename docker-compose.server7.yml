@@ -71,7 +71,7 @@ services:
       - ${SERVER7_DATA_PATH}/data/mongodb:/data/db
       # - ./data/mongodb:/data/db
     ports:
-      - 27018:27017
+      - 27020:27017
   # nlp-app-mongodb:
   #   image: mongo:latest
   #   environment:

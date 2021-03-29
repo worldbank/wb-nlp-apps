@@ -18,7 +18,7 @@ cleaning_config:
                 - MONEY
             fragmented_token_max_len: 5
             languages:
-                - {lang: en, score: 0.98}
+                - {lang: en, score: 0.90}
             max_token_length: 50
             min_token_length: 3
             pos_tags:
