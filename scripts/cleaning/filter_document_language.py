@@ -12,6 +12,7 @@ from scipy.stats import beta
 import pandas as pd
 # from nltk import sent_tokenize
 import enchant
+from polyglot.detect import Detector
 from joblib import Parallel, delayed
 import joblib
 import wb_nlp
@@ -50,7 +51,10 @@ def joblib_filter_english_file(
 
     with open(input_file, "rb") as open_file:
         text = open_file.read().decode("utf-8", errors="ignore").strip()
-        if text:
+        d = Detector(text)
+
+        # Only process texts that mainly contain English content.
+        if text and d.language.code == "en" and d.language.confidence > 50:
             pval = 0.05
             non_en_spell_df = filter_document_by_language(text, return_df=True)
 

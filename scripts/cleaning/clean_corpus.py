@@ -13,8 +13,10 @@ from joblib import Parallel, delayed
 import joblib
 import wb_nlp
 from wb_nlp.cleaning import cleaner
-from wb_nlp.utils.scripts import configure_logger, load_config, create_dask_cluster
-from wb_nlp.types.cleaning import CleaningConfig
+
+from wb_nlp.dir_manager import get_data_dir
+from wb_nlp.utils.scripts import configure_logger, create_dask_cluster
+from wb_nlp.interfaces import mongodb
 
 
 def joblib_clean_file(
@@ -45,11 +47,11 @@ _logger = logging.getLogger(__file__)
 
 
 @click.command()
-@click.option('-c', '--config', 'cfg_path', required=True,
-              type=click.Path(exists=True), help='path to yaml config file')
+@click.option('-c', '--cleaning-config-id', 'cleaning_config_id', required=True,
+              help='Configuration id of the cleaning pipeline that will be used.')
 @click.option('--input-dir', 'input_dir', required=True,
               type=click.Path(exists=True), help='path to directory of raw text files')
-@click.option('--output-dir-name', 'output_dir_name', required=True, help='name of the output directory')
+@click.option('--source-dir-name', 'source_dir_name', required=False, help='name of the source directory', default="EN_TXT_ORIG")
 @click.option('--quiet', 'log_level', flag_value=logging.WARNING, default=True)
 @click.option('-v', '--verbose', 'log_level', flag_value=logging.INFO)
 @click.option('-vv', '--very-verbose', 'log_level', flag_value=logging.DEBUG)
@@ -58,15 +60,20 @@ _logger = logging.getLogger(__file__)
 @click.option('--n-workers', 'n_workers', required=False, default=None)
 @click.option('--batch-size', 'batch_size', required=False, default=None)
 @click.version_option(wb_nlp.__version__)
-def main(cfg_path: Path, input_dir: Path, output_dir_name: str, log_level: int, recursive: bool, n_workers: int = None, batch_size: int = None):
+def main(cleaning_config_id: Path, input_dir: Path, source_dir_name: str, log_level: int, recursive: bool, n_workers: int = None, batch_size: int = None):
     '''
     Entry point for cleaning raw text data inside a directory given a config file.
     '''
     configure_logger(log_level)
 
     # YOUR CODE GOES HERE! Keep the main functionality in src/wb_nlp
-    cfg_path = Path(cfg_path)
     input_dir = Path(input_dir)
+
+    cleaning_configs_collection = mongodb.get_cleaning_configs_collection()
+
+    config = cleaning_configs_collection.find_one({"_id": cleaning_config_id})
+
+    assert config
 
     _logger.info('Checking directories...')
     if not input_dir.exists():
@@ -74,28 +81,32 @@ def main(cfg_path: Path, input_dir: Path, output_dir_name: str, log_level: int, 
 
     source_dirs = [input_dir]
     target_dirs = []
+
+    target_dir = Path(get_data_dir('corpus', 'cleaned', cleaning_config_id))
+
+    if not target_dir.exists():
+        _logger.info(
+            "Target directory %s doesn't exist... Creating it now...", target_dir)
+        target_dir.mkdir(parents=True)
+
     if recursive:
         # Assume that the input_directory is at the corpus level.
-        # Example: input_dir = '/data/raw/CORPUS'
-        # /data/raw/CORPUS/ADB/TXT_ORIG
-        # /data/raw/CORPUS/WB/TXT_ORIG
+        # Example: input_dir = 'data/corpus'
+        # data/corpus/ADB/EN_TXT_ORIG
+        # data/corpus/WB/EN_TXT_ORIG
         # Also, the output dir will be stored in the same path as the
         # parent of the input dir under the directory specified in the
         # output_dir parameter.
-        source_dirs = sorted(input_dir.glob('*/TXT_ORIG'))
-        target_dirs = [i.resolve().parent /
-                       output_dir_name for i in source_dirs]
+        source_dirs = sorted(input_dir.glob(f'*/{source_dir_name}'))
+        target_dirs = [target_dir / i.parent.name for i in source_dirs]
         _logger.info('List of source dirs... %s', source_dirs)
         _logger.info('List of target dirs... %s', target_dirs)
         assert source_dirs, "No source_dirs found. Aborting!"
     else:
-        target_dirs.append(input_dir.resolve().parent / output_dir_name)
+        target_dirs.append(target_dir / input_dir.parent.name)
 
     client = create_dask_cluster(_logger, n_workers=n_workers)
     _logger.info(client)
-
-    config = load_config(cfg_path, 'cleaning_config', _logger)
-    config = CleaningConfig(**config).dict()
 
     cleaner_object = cleaner.BaseCleaner(config=config)
 
@@ -127,6 +138,5 @@ def main(cfg_path: Path, input_dir: Path, output_dir_name: str, log_level: int, 
 
 
 if __name__ == '__main__':
-    # python -u ./scripts/cleaning/clean_corpus.py --config ./configs/cleaning/default.yml --input-dir ./data/raw/sample_data/TXT_SAMPLE --output-dir ./data/preprocessed/sample_data/clean_text -vv |& tee ./logs/clean_corpus.py.log
-    # python -u ./scripts/cleaning/clean_corpus.py --config ./configs/cleaning/default.yml --input-dir ./data/raw/sample_data/TXT_SAMPLE --output-dir-name TXT_TEST -vv |& tee ./logs/clean_corpus.py.log
+    # python -u ./scripts/cleaning/clean_corpus.py --cleaning-config-id 23f78350192d924e4a8f75278aca0e1c --input-dir data/corpus --source-dir-name EN_TXT_ORIG -vv |& tee ./logs/clean_corpus.py.log
     main()
