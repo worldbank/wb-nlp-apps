@@ -1,0 +1,48 @@
+cleaning_config:
+
+    cleaner:
+        flags:
+            correct_misspelling: True
+            exclude_entity_types: True
+            expand_acronyms: True
+            filter_stopwords: True
+            filter_language: True
+            fix_fragmented_tokens: True
+            include_pos_tags: True
+            tag_whitelisted_entities: True
+        params:
+            entities:
+                - CARDINAL
+                - TIME
+                - PERCENT
+                - MONEY
+            fragmented_token_max_len: 5
+            languages:
+                - {lang: en, score: 0.98}
+            max_token_length: 50
+            min_token_length: 3
+            pos_tags:
+                - ADJ
+                - ADV
+                - NOUN
+                - VERB
+
+    spell_checker:
+        lang: en_US
+        text: null
+        tokenize: null
+        chunkers: null
+        filters: null
+
+    respeller:
+        dictionary_file: null
+        spell_threshold: 0.25
+        allow_proper: True
+        spell_cache: null
+        infer_correct_words:
+            return_tokens_as_list: True
+            infer_correct_word_params:
+                sim_thresh: 0.0
+                print_log: False
+                min_len: 3
+                use_suggest_score: True
