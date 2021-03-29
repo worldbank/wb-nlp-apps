@@ -25,6 +25,7 @@ from wb_nlp.interfaces import language
 # quite slow (~75% of the `cached_infer_correct_word` function).
 
 USE_JOBLIB_MEMORY = False
+# EN_DICT = None
 
 if USE_JOBLIB_MEMORY:
     RESPELLER_CACHE_LOCATION = "/dev/shm/respeller-cachedir"
@@ -37,7 +38,17 @@ else:
 # # Returns self without any form of caching.
 # cache_decorator = lambda f: f
 
-en_dict = language.get_en_dict()
+#
+# en_dict = language.Language().get_en_dict()
+en_lang = language.Language()
+
+
+# def get_dict():
+#     # Use this since DictWithPWL fails when pickled/unpickled
+#     global EN_DICT
+#     if EN_DICT is None:
+#         EN_DICT = language.Language().get_en_dict()
+#     return EN_DICT
 
 # with open(dir_manager.get_data_dir("whitelists", "whitelists", "whitelist_words.txt")) as whitelist_words_file:
 
@@ -63,7 +74,7 @@ def get_suggestions(word: str, **kwargs) -> list:
         A list containing the most likely correct words based on enchant's dictionary.
 
     """
-    return en_dict.suggest(word)
+    return en_lang.get_en_dict().suggest(word)
 
 
 # @cache_decorator
@@ -413,7 +424,8 @@ class OptimizedSpellChecker(SpellChecker):
         spell_checker_conf = self.config['spell_checker']
 
         super().__init__(
-            lang=en_dict,  # spell_checker_conf.get('lang', lang),
+            # spell_checker_conf.get('lang', lang),
+            lang=en_lang.get_en_dict(),
             text=spell_checker_conf.get('text', text),
             tokenize=spell_checker_conf.get('tokenize', tokenize),
             chunkers=spell_checker_conf.get('chunkers', chunkers),
