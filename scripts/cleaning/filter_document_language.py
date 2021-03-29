@@ -54,7 +54,7 @@ def joblib_filter_english_file(
 
         # Only process texts that mainly contain English content.
         if text and (len(text.split()) >= 10):
-            d = Detector(text)
+            d = Detector(text, quiet=True)
             if d.language.code == "en" and d.language.confidence > 50:
                 pval = 0.05
                 non_en_spell_df = filter_document_by_language(text, return_df=True)
