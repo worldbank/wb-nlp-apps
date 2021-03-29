@@ -19,7 +19,19 @@ class Language:
         return self.en_dict
 
     def init_en_dict(self):
-        self.en_dict = enchant.DictWithPWL(self.tag, pwl=self.pwl)
+        # self.en_dict = enchant.DictWithPWL(self.tag, pwl=self.pwl)
+        self.en_dict = enchant.Dict(self.tag)
+
+        with open(self.pwl) as whitelist_words_file:
+
+            for word in whitelist_words_file.readlines():
+                word = word.strip()
+
+                # add word to personal dictionary
+                # en_us.add(word)
+
+                # add word just for this session
+                self.en_dict.add_to_session(word)
 
     def __getstate__(self):
         state = self.__dict__.copy()
