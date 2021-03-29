@@ -53,7 +53,7 @@ def joblib_filter_english_file(
         text = open_file.read().decode("utf-8", errors="ignore").strip()
 
         # Only process texts that mainly contain English content.
-        if text and len(text.split() >= 10):
+        if text and (len(text.split()) >= 10):
             d = Detector(text)
             if d.language.code == "en" and d.language.confidence > 50:
                 pval = 0.05
