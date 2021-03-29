@@ -6,6 +6,7 @@ model_config:
     library_version: 3.8.3
     docs: https://radimrehurek.com/gensim_3.8.3/models/word2vec.html
     references: null
+    description: Gensim word2vec model with size=100, window=5, min_count=5, sg=1, negative=5, seed=1029, iter=5
   word2vec_config:
     size: 100
     window: 5

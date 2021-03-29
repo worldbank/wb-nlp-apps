@@ -295,6 +295,10 @@ class ModelMeta(BaseModel):
         None,
         description="List of other references. Could be links to resources or brief notes on the model. Example: https: // markroxor.github.io/gensim/static/notebooks/lda_training_tips.html"
     )
+    description: str = Field(
+        None,
+        description="Notes on the model configuration."
+    )
 
 
 class DictionaryConfig(BaseModel):
@@ -698,7 +702,9 @@ class LDAModelConfig(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.model_config_id = generate_model_hash(json.loads(self.json()))
+        temp_data = json.loads(self.json())
+        temp_data["meta"].pop("description")
+        self.model_config_id = generate_model_hash(temp_data)
 
 
 class MalletModelConfig(BaseModel):
@@ -724,7 +730,9 @@ class MalletModelConfig(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.model_config_id = generate_model_hash(json.loads(self.json()))
+        temp_data = json.loads(self.json())
+        temp_data["meta"].pop("description")
+        self.model_config_id = generate_model_hash(temp_data)
 
 
 class Word2VecModelConfig(BaseModel):
@@ -744,7 +752,9 @@ class Word2VecModelConfig(BaseModel):
 
         super().__init__(**temp_data)
 
-        self.model_config_id = generate_model_hash(json.loads(self.json()))
+        temp_data = json.loads(self.json())
+        temp_data["meta"].pop("description")
+        self.model_config_id = generate_model_hash(temp_data)
 
 
 class ModelRunInfo(BaseModel):
@@ -763,6 +773,14 @@ class ModelRunInfo(BaseModel):
         ...,
         description="Configuration of the cleaning pipeline used in the experiment."
     )
+    # model_config: dict = Field(
+    #     ...,
+    #     description="Actual model configuration data"
+    # )
+    # cleaning_config: dict = Field(
+    #     ...,
+    #     description="Actual cleaning configuration data"
+    # )
     processed_corpus_id: str = Field(
         ...,
         description="Some unique identifier of the input data. Example: dictionary_id + hash of the cleaned corpus."
@@ -784,9 +802,16 @@ class ModelRunInfo(BaseModel):
 
         temp_data = json.loads(self.json())
         description = temp_data.pop("description")
+        # model_config = temp_data.pop("model_config")
+        # cleaning_config = temp_data.pop("cleaning_config")
+
+        # assert cleaning_config["cleaning_config_id"] == temp_data["cleaning_config_id"]
+        # assert model_config["model_config_id"] == temp_data["model_config_id"]
 
         self.model_run_info_id = generate_model_hash(temp_data)
         self.description = description
+        # self.model_config = model_config
+        # self.cleaning_config = cleaning_config
 
 
 # model_config:

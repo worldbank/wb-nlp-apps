@@ -26,11 +26,16 @@ from wb_nlp.extraction import phrase
 from wb_nlp import dir_manager
 
 # Download fasttext language model from: https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz
-FASTTEXT_LANG_MODEL = fasttext.load_model(
-    dir_manager.get_path_from_root("models", "fasttext", "lid.176.ftz"))
+FASTTEXT_LANG_MODEL = None
 
 
 def fasttext_detect_language(spacy_object):
+    global FASTTEXT_LANG_MODEL
+
+    if FASTTEXT_LANG_MODEL is None:
+        FASTTEXT_LANG_MODEL = fasttext.load_model(
+            dir_manager.get_path_from_root("models", "fasttext", "lid.176.ftz"))
+
     ln, sc = FASTTEXT_LANG_MODEL.predict(spacy_object.text)
     ln = ln[0].split('__')[-1]
     sc = sc[0]
