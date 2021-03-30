@@ -54,7 +54,7 @@ class MultiDirGenerator:
     This class creates a generator that returns a tuple containing a loaded file with its doc_id.
     """
 
-    def __init__(self, base_dir: str, source_dir_name: str = None, split: bool = True, min_tokens: int = 5, include_extra: bool = False, return_doc_id: bool: True, logger=None):
+    def __init__(self, base_dir: str, source_dir_name: str = None, split: bool = True, min_tokens: int = 5, include_extra: bool = False, return_doc_id: bool = True, logger=None):
         self.base_dir = base_dir
         self.source_dir_name = source_dir_name
         self.split = split
