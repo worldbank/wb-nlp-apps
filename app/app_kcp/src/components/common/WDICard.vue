@@ -6,11 +6,12 @@
           <a :href="result.url_wb" target="_blank">{{ result.name }}</a>
         </p>
       </div>
-      <div class="col-4" v-view="viewHandler">
-        <!-- {{ viewEvent }} -->
+      <div class="col-4">
+        <!-- <div class="col-4" v-view="viewHandler"> -->
+        <!-- v-if="result.url_wb && viewEvent.percentInView > 0.9" -->
         <iframe
           class="wdi-frame"
-          v-if="result.url_wb && viewEvent.percentInView > 0.9"
+          v-if="result.url_wb"
           loading="lazy"
           :src="
             'https://data.worldbank.org/share/widget?indicators=' +
@@ -44,19 +45,19 @@ export default {
   data() {
     return {
       indicator_name: null,
-      viewEvent: {
-        type: "",
-        percentInView: 0,
-        percentTop: 0,
-        percentCenter: 0,
-      },
+      //   viewEvent: {
+      //     type: "",
+      //     percentInView: 0,
+      //     percentTop: 0,
+      //     percentCenter: 0,
+      //   },
     };
   },
   methods: {
-    viewHandler(e) {
-      if (e.type === "exit") return;
-      Object.assign(this.viewEvent, e);
-    },
+    // viewHandler(e) {
+    //   if (e.type === "exit") return;
+    //   Object.assign(this.viewEvent, e);
+    // },
     getIndicatorName(result) {
       if (result.url_wb) {
         var name = result.url_wb.split("/");
