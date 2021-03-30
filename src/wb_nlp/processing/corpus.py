@@ -4,7 +4,7 @@ Module containing common functions used across the scripts.
 import os
 from pathlib import Path
 import glob
-
+import functools
 from flashtext import KeywordProcessor
 from wb_nlp import dir_manager
 # export DASK_DISTRIBUTED__SCHEDULER__ALLOWED_FAILURES=210
@@ -20,6 +20,7 @@ with open(dir_manager.get_data_dir('whitelists', 'whitelists', 'phrases.txt')) a
     keyword_processor.add_keywords_from_dict(phrases_map)
 
 
+@functools.lru_cache(maxsize=None)
 def load_file(fname: Path, split: bool = True):
     '''
     Simply loads a file and has an option to return the raw string or a list split by whitespaces
