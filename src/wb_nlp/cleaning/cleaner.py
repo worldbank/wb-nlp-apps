@@ -132,6 +132,10 @@ class BaseCleaner:
             .replace("“", '"')
             .replace("”", '"')
         )
+        # Special case
+        text = re.sub(r"(?i)\bcovid-19\b", "covid", text)
+        text = re.sub(r"(?i)\bcovid19\b", "covid", text)
+        text = re.sub(r"(?i)\bcovid\b", "covid", text)
 
         text = re.sub(r"\s+", " ", text).strip()[:MAX_LENGTH]
         doc = nlp(text)
