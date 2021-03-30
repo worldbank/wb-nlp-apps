@@ -29,7 +29,7 @@ from wb_nlp.interfaces.milvus import (
 from wb_nlp.interfaces import mongodb
 from wb_nlp.types.models import ModelRunInfo, ModelTypes
 from wb_nlp import dir_manager
-from wb_nlp.processing.corpus import MultiDirGenerator, load_file
+from wb_nlp.processing.corpus import MultiDirGenerator, replace_phrases
 from wb_nlp.utils.scripts import (
     configure_logger,
     create_dask_cluster,
@@ -249,6 +249,7 @@ class BaseModel:
                     split=True,
                     min_tokens=self.model_config['min_tokens'],
                     include_extra=False,
+                    cached=True,
                     logger=self.logger
                 )
 
@@ -281,7 +282,7 @@ class BaseModel:
                     corpus_token_counts[doc_id] = len(doc_content)
 
                 # Free up memory by clearing the document cache
-                load_file.cache_clear()
+                file_generator.clear_cache()
 
                 self.logger.info('Saving corpus to %s...', self.corpus_path)
                 MmCorpus.serialize(str(self.corpus_path), corpus)
@@ -308,6 +309,7 @@ class BaseModel:
                 min_tokens=0,
                 include_extra=True,
                 return_doc_id=False,
+                cached=True,
                 logger=self.logger
             )
 
@@ -499,6 +501,8 @@ class BaseModel:
             fname = self.cleaned_docs_dir / doc["corpus"] / f"{doc['id']}.txt"
             with open(fname, "rb") as open_file:
                 text = open_file.read().decode("utf-8", errors="ignore")
+
+        text = replace_phrases(text)
 
         return self.transform_doc(text.lower(), normalize=normalize)
 
