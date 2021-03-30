@@ -54,12 +54,13 @@ class MultiDirGenerator:
     This class creates a generator that returns a tuple containing a loaded file with its doc_id.
     """
 
-    def __init__(self, base_dir: str, source_dir_name: str = None, split: bool = True, min_tokens: int = 5, include_extra: bool = False, logger=None):
+    def __init__(self, base_dir: str, source_dir_name: str = None, split: bool = True, min_tokens: int = 5, include_extra: bool = False, return_doc_id: bool: True, logger=None):
         self.base_dir = base_dir
         self.source_dir_name = source_dir_name
         self.split = split
         self.min_tokens = min_tokens
         self.include_extra = include_extra
+        self.return_doc_id = return_doc_id
         self.logger = logger
 
         if source_dir_name is None:
@@ -86,4 +87,9 @@ class MultiDirGenerator:
                     source_dir, split=self.split,
                     min_tokens=self.min_tokens):
 
-                yield tokens_doc_id
+                value = tokens_doc_id
+
+                if not self.return_doc_id:
+                    value = value[0]
+
+                yield value

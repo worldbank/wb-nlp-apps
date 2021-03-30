@@ -304,6 +304,7 @@ class BaseModel:
                 split=True,
                 min_tokens=0,
                 include_extra=True,
+                return_doc_id=False,
                 logger=self.logger
             )
 
