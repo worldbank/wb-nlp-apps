@@ -111,7 +111,7 @@
               @click.prevent
               title="Related WDI indicators"
             >
-              <div>
+              <div v-if="tabIndex == 3">
                 <SimilarWDIViewer :doc_id="metadata.id" /></div
             ></b-tab>
           </b-tabs>

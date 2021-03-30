@@ -11,6 +11,7 @@
         <iframe
           class="wdi-frame"
           v-if="result.url_wb"
+          loading="lazy"
           :src="
             'https://data.worldbank.org/share/widget?indicators=' +
             getIndicatorName(result) +
