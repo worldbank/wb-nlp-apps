@@ -8,7 +8,7 @@ import click
 from IPython.core import ultratb
 
 import wb_nlp
-from wb_nlp.models.word2vec import Word2VecModel
+from wb_nlp.models import word2vec_base
 
 
 # fallback to debugger on error
@@ -28,8 +28,17 @@ _logger = logging.getLogger(__name__)
 @click.option('-vv', '--very-verbose', 'log_level', flag_value=logging.DEBUG)
 @click.version_option(wb_nlp.__version__)
 def main(model_config_id: str, cleaning_config_id: str, log_level: int):
-    pass
+
+    wvec_model = word2vec_base.Word2VecModel(
+        model_config_id=model_config_id,  # "702984027cfedde344961b8b9461bfd3",
+        cleaning_config_id=cleaning_config_id,  # "23f78350192d924e4a8f75278aca0e1c",
+        raise_empty_doc_status=False,
+        log_level=log_level,  # logging.DEBUG,
+    )
+
+    wvec_model.train_model(retrain=True)
 
 
 if __name__ == '__main__':
+    # python -u ./scripts/models/train_word2vec_model.py --model-config-id <model_config_id> --cleaning-config-id <cleaning_config_id> -vv |& tee ./data/logs/train_word2vec_model.py.log
     main()

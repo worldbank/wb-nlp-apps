@@ -1,6 +1,7 @@
 '''This module implements the word2vec model service that is responsible
 for training the model as well as a backend interface for the API.
 '''
+import os
 import gc
 import json
 import logging
@@ -416,6 +417,21 @@ class BaseModel:
 
         if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
             params['id2word'] = dict(self.g_dict.id2token)
+
+        cpu_count = os.cpu_count()
+        if self.model_name == ModelTypes.lda.value:
+            # Note however that for hyper-threaded CPUs,
+            # this estimation returns a too high number – set workers
+            # directly to the number of your real cores (not hyperthreads)
+            # minus one, for optimal performance.
+            params["workers"] = (cpu_count // 2) - 1
+        else:
+            if cpu_count >= 8:
+                cpu_count = cpu_count - 4
+            else:
+                cpu_count = max(1, cpu_count - 1)
+
+            params["workers"] = cpu_count
 
         return params
 
