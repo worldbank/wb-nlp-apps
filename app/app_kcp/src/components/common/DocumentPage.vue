@@ -111,6 +111,8 @@
               @click.prevent
               title="Related WDI indicators"
             >
+              <br />
+              <h4>Related World Development Indicators</h4>
               <div v-if="tabIndex == 3">
                 <SimilarWDIViewer :doc_id="metadata.id" /></div
             ></b-tab>
