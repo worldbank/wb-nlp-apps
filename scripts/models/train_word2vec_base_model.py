@@ -26,15 +26,15 @@ def main(model_config_id: str, cleaning_config_id: str, description: str, log_le
 
     print(model_config_id, cleaning_config_id, description, log_level)
 
-    # wvec_model = word2vec_base.Word2VecModel(
-    #     model_config_id=model_config_id,  # "702984027cfedde344961b8b9461bfd3",
-    #     cleaning_config_id=cleaning_config_id,  # "23f78350192d924e4a8f75278aca0e1c",
-    #     raise_empty_doc_status=False,
-    #     model_run_info_description=description,
-    #     log_level=log_level,  # logging.DEBUG,
-    # )
+    wvec_model = word2vec_base.Word2VecModel(
+        model_config_id=model_config_id,  # "702984027cfedde344961b8b9461bfd3",
+        cleaning_config_id=cleaning_config_id,  # "23f78350192d924e4a8f75278aca0e1c",
+        raise_empty_doc_status=False,
+        model_run_info_description=description,
+        log_level=log_level,  # logging.DEBUG,
+    )
 
-    # wvec_model.train_model(retrain=True)
+    wvec_model.train_model(retrain=True)
 
 
 if __name__ == '__main__':
