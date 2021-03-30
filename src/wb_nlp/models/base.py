@@ -47,6 +47,7 @@ class BaseModel:
         model_class,
         model_config_type,
         expected_model_name,
+        model_run_info_description="",
         raise_empty_doc_status=True,
         log_level=logging.WARNING,
     ):
@@ -58,6 +59,7 @@ class BaseModel:
         self.model_config_id = model_config_id
         self.model_class = model_class  # Example: LdaMulticore
         self.model_config_type = model_config_type  # Example: LDAModelConfig
+        self.model_run_info_description = model_run_info_description
 
         self.expected_model_name = expected_model_name
 
@@ -200,6 +202,8 @@ class BaseModel:
 
         self.model_run_info = json.loads(
             ModelRunInfo(**self.model_run_info).json())
+
+        self.model_run_info["description"] = self.model_run_info_description
 
         assert self.model_run_info["model_run_info_id"] == self.model_id
 

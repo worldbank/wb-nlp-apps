@@ -56,6 +56,7 @@ class MalletModel(LDAModel):
         model_class=LdaMallet,
         model_config_type=MalletModelConfig,
         expected_model_name=ModelTypes.mallet.value,
+        model_run_info_description="",
         raise_empty_doc_status=True,
         log_level=logging.WARNING,
     ):
@@ -68,6 +69,7 @@ class MalletModel(LDAModel):
         self.model_class = model_class  # Example: LdaMallet
         self.model_config_type = model_config_type  # Example: MalletModelConfig
         self.expected_model_name = expected_model_name
+        self.model_run_info_description = model_run_info_description
 
         self.validate_and_prepare_requirements()
 

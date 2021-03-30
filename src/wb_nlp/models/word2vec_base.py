@@ -30,6 +30,7 @@ class Word2VecModel(BaseModel):
         model_class=Word2Vec,
         model_config_type=Word2VecModelConfig,
         expected_model_name=ModelTypes.word2vec.value,
+        model_run_info_description="",
         raise_empty_doc_status=True,
         log_level=logging.WARNING,
     ):
@@ -42,6 +43,7 @@ class Word2VecModel(BaseModel):
         self.model_class = model_class  # Example: LdaMulticore
         self.model_config_type = model_config_type  # Example: LDAModelConfig
         self.expected_model_name = expected_model_name
+        self.model_run_info_description = model_run_info_description
 
         self.validate_and_prepare_requirements()
 

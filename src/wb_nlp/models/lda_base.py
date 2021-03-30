@@ -29,6 +29,7 @@ class LDAModel(BaseModel):
         model_class=LdaMulticore,
         model_config_type=LDAModelConfig,
         expected_model_name=ModelTypes.lda.value,
+        model_run_info_description="",
         raise_empty_doc_status=True,
         log_level=logging.WARNING,
     ):
@@ -41,6 +42,7 @@ class LDAModel(BaseModel):
         self.model_class = model_class  # Example: LdaMulticore
         self.model_config_type = model_config_type  # Example: LDAModelConfig
         self.expected_model_name = expected_model_name
+        self.model_run_info_description = model_run_info_description
 
         self.validate_and_prepare_requirements()
 
@@ -519,6 +521,8 @@ if __name__ == '__main__':
     lda_model.train_model()
     # Do this if the model is available in disk but the model_run_info is not. This is to dump the model_run_info to db in case it's not present.
     # lda_model.save()
+
+    # lda_model.drop_milvus_collection()
 
     lda_model.build_doc_vecs(pool_workers=3)
     print(lda_model.get_similar_words('bank'))
