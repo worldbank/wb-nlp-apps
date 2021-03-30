@@ -7,6 +7,7 @@ model_config:
     docs: https://radimrehurek.com/gensim/models/ldamulticore.html#module-gensim.models.ldamulticore
     references:
       - https://markroxor.github.io/gensim/static/notebooks/lda_training_tips.html
+    description: Gensim LDA model with 75 topics, 5 passes, symmetric alpha, auto eta, eval_every 5, 1000 iterations, and 1029 random_state
   min_tokens: 50
   dictionary_config:
     no_below: 10

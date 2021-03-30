@@ -29,7 +29,7 @@ from wb_nlp.interfaces.milvus import (
 from wb_nlp.interfaces import mongodb
 from wb_nlp.types.models import ModelRunInfo, ModelTypes
 from wb_nlp import dir_manager
-from wb_nlp.processing.corpus import MultiDirGenerator
+from wb_nlp.processing.corpus import MultiDirGenerator, load_file
 from wb_nlp.utils.scripts import (
     configure_logger,
     create_dask_cluster,
@@ -279,6 +279,9 @@ class BaseModel:
                     corpus.append(g_dict.doc2bow(doc_content))
                     corpus_ids.append(doc_id)
                     corpus_token_counts[doc_id] = len(doc_content)
+
+                # Free up memory by clearing the document cache
+                load_file.cache_clear()
 
                 self.logger.info('Saving corpus to %s...', self.corpus_path)
                 MmCorpus.serialize(str(self.corpus_path), corpus)
