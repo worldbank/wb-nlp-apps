@@ -247,6 +247,7 @@ class BaseModel:
                     source_dir_name='',
                     split=True,
                     min_tokens=self.model_config['min_tokens'],
+                    include_extra=False,
                     logger=self.logger
                 )
 
@@ -301,6 +302,7 @@ class BaseModel:
                 source_dir_name='',
                 split=True,
                 min_tokens=0,
+                include_extra=True,
                 logger=self.logger
             )
 
