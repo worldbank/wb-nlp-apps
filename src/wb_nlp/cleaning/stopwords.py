@@ -15,7 +15,7 @@ roman_nums = set([
 ])
 
 noise_words = set([
-    "include", "shall",
+    "include", "shall", "tion", "ment", "provide"
 ])
 
 # https://www.ranks.nl/stopwords
@@ -1246,7 +1246,9 @@ except LookupError:
         "Please check if the nltk stopwords corpus is avaialable in your system."
     )
 
-stopwords.update(roman_nums).update(
-    mysql_stops).update(noise_words).update(long_list)
+stopwords.update(roman_nums)
+stopwords.update(mysql_stops)
+stopwords.update(noise_words)
+stopwords.update(long_list)
 
 stopwords = list(stopwords)

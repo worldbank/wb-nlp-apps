@@ -203,7 +203,8 @@ class BaseCleaner:
         if self.config["cleaner"]["flags"]["correct_misspelling"]:
             tokens = self.spelling_model.fix_spellings(tokens)
 
-        return tokens
+        # Final removal of stop words
+        return [token for token in tokens if token not in nlp.Defaults.stop_words]
 
     def get_clean_text(self, text: str) -> str:
         """Cleans a given text.
