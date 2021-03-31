@@ -276,6 +276,7 @@
             />
             <Pagination
               @pageNumReceived="sendSearch"
+              @currSizeSet="setCurrSize"
               :num_pages="num_pages"
               :curr_page_num="curr_page_num"
               :has_hits="hits.length > 0 && !no_more_hits"
@@ -386,15 +387,16 @@ export default {
       file_search_api_url: this.$config.search_url.file,
       suggestion_api_url:
         this.$config.nlp_api_url.word2vec + "/get_similar_words",
-      page_sizes: [10, 25, 50, 100],
-      suggestions: [], // ["data", "poverty", "climate", "poor", "household"],
+      page_sizes: this.$config.pagination.page_sizes,
+      suggestions: [],
+      suggestion_anchor: "",
       suggestion_count: 6,
       start: 0,
       end: 0,
       next: 0,
-      page_window: 2,
+      page_window: this.$config.pagination.page_window,
       curr_page_num: 0,
-      curr_size: 10,
+      curr_size: this.$config.pagination.size,
       num_pages: 0,
       next_override: false,
       query: "",
@@ -432,6 +434,9 @@ export default {
       if (!this.query) {
         return;
       }
+      if (this.query === this.suggestion_anchor) {
+        return;
+      }
       this.suggestions = [];
 
       this.$http
@@ -448,6 +453,7 @@ export default {
             })
             .filter((word) => word)
             .slice(0, this.suggestion_count - 1);
+          this.suggestion_anchor = this.query;
         })
         .catch((error) => {
           console.log(error);
@@ -579,8 +585,9 @@ export default {
         })
         .finally(() => (this.loading = false));
     },
-    setSize: function (size) {
+    setCurrSize: function (size) {
       this.curr_size = size;
+      this.sendSearch();
     },
     flowSideBar: function () {
       $(function () {

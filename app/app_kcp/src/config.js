@@ -28,5 +28,10 @@ export default {
     corpus_url: "/nlp/corpus",
     extra_url: {
         wdi: "/nlp/extra/wdi"
+    },
+    pagination: {
+        page_sizes: [10, 25, 50, 100],
+        page_window: 2,
+        size: 10,
     }
 }
