@@ -473,14 +473,14 @@ export default {
 
       if (this.search_type == "keyword") {
         this.next_override = false;
-        this.sendKeywordSearch(from);
         this.getSuggestions();
+        this.sendKeywordSearch(from);
       } else if (this.search_type == "semantic") {
         if (this.uploaded_file != null) {
           this.sendFileSearch(from);
         } else {
-          this.sendSemanticSearch(from);
           this.getSuggestions();
+          this.sendSemanticSearch(from);
         }
       } else {
         return;
