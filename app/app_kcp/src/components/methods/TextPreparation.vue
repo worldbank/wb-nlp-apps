@@ -9,9 +9,47 @@
       the development of the pipeline.
       <hr />
       <h5>PDF processing</h5>
-      <p>Conversion to text</p>
+      <p>
+        Raw documents scraped from the different organizations primarily come as
+        PDF files. In order for us to apply NLP models to improve discovery of
+        these documents, we need to convert these PDF files into text documents.
+      </p>
+      <p>
+        Different libraries are available such as PDF2text, PDFminer, etc.
+        However, the library that we found that is most robust and flexible is
+        Apachetika. Apachetika is an open source library implemented in Java
+        with wrappers for Python. We implemented a pipeline that automatically
+        captures content of pages in a PDF file, perform initial cleaning such
+        as detection of headers and footers, and produce a raw text version of
+        the file. On top of that, our implementation also accepts source of
+        different formats including URLs to PDF files or binary content.
+      </p>
       <h5>Metadata normalization</h5>
-      <p>This is the process of metadata normalization</p>
+      <p>
+        The document repositories of the different organizations provide a
+        variety of metadata. Some fields are common across sources such as
+        title, authors, date of publication, and country, while most fields come
+        as relatively similar but may imply different content such as topics
+        especially when organizations use their respective curated taxonomies.
+        Also, some sources provide a wider variety of information compared to
+        other sources. Given these cases, we developed a schema that capture the
+        most common fields and also attempted to normalize some of the different
+        related fields such as topics and document types.
+      </p>
+      <p>
+        After defining a schema and constraints, we wrote scripts for each data
+        source to properly map and transform the native fields into the
+        standardized schema. The steps of standardization include extraction of
+        authors into a list, mapping of topics mapped into a list of curated
+        items, extraction of year from the date of publication date, definition
+        of corpus ID, assigning the link of the PDF document to the url_pdf
+        field, and assigning the link of the text version of the document to the
+        url_text field, etc.
+      </p>
+      <p>
+        Further automated augmentation of the metadata from the contents of the
+        document are done and will be further discussed below.
+      </p>
       <h5>Stop words</h5>
       <p>Stop words (include CSV file)</p>
       <h5>Phrase detection</h5>
