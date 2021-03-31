@@ -72,7 +72,7 @@
         <span class="stop-word">an</span>, <span class="stop-word">if</span>,
         and other common words. Other tokens that may add noise to the analysis
         are also added to the stop words, this may include roman numerals and
-        prepositions. words (include CSV file)
+        prepositions.
       </p>
       <p>
         Most NLP libraries come with a predefined stop words list. In our case,
