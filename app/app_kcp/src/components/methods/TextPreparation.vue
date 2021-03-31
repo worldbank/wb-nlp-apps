@@ -61,7 +61,25 @@
       </div>
 
       <h5>Stop words</h5>
-      <p>Stop words (include CSV file)</p>
+      <p>
+        Stop words are list of curated words that are excluded in the vocabulary
+        of an NLP model or analysis. In general, stop words are identified based
+        on the amount of information that they possess. If a word doesn't covey
+        any concrete meaning or information with respect to the context of the
+        analysis or model, then it's useful for it to be excluded in the
+        vocabulary. Example of these words are:
+        <span class="stop-word">the</span>, <span class="stop-word">a</span>,
+        <span class="stop-word">an</span>, <span class="stop-word">if</span>,
+        and other common words. Other tokens that may add noise to the analysis
+        are also added to the stop words, this may include roman numerals and
+        prepositions. words (include CSV file)
+      </p>
+      <p>
+        Most NLP libraries come with a predefined stop words list. In our case,
+        we use a combined stopwords from NLTK, SpaCy, and a custom list. This
+        stop words list is then used in our cleaning pipeline to remove the
+        unimportant words in our final cleaned dataset.
+      </p>
       <h5>Phrase detection</h5>
       <p>Phrase detection</p>
       <h5>Spell checking and vocabulary</h5>
