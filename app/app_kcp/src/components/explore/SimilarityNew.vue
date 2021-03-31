@@ -280,8 +280,8 @@ export default {
       },
       model_options: {
         lda: {
-          upload_nlp_api_url: "/nlp/search/lda/file",
-          url_nlp_api_url: "/nlp/search/lda/url",
+          upload_nlp_api_url: this.$config.search_url.lda.file,
+          url_nlp_api_url: this.$config.search_url.lda.url,
           model_run_info_id: "",
           model_id: null,
           curr_page_num: 1,
@@ -292,8 +292,8 @@ export default {
           total: { value: null, message: null },
         },
         word2vec: {
-          upload_nlp_api_url: "/nlp/search/word2vec/file",
-          url_nlp_api_url: "/nlp/search/word2vec/url",
+          upload_nlp_api_url: this.$config.search_url.word2vec.file,
+          url_nlp_api_url: this.$config.search_url.word2vec.url,
           model_run_info_id: "",
           model_id: null,
           curr_page_num: 1,
@@ -346,7 +346,7 @@ export default {
     },
     apiParams() {
       const formData = new FormData();
-      formData.append("model_id", this.model_option.model_id); // "777a9cf47411f6c4932e8941f177f90a");
+      formData.append("model_id", this.model_option.model_id);
 
       if (this.selectedInput === "file_upload") {
         formData.append("file", this.uploaded_file);

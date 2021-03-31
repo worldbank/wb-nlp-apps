@@ -51,7 +51,7 @@ export default {
   computed: {
     searchParams() {
       const params = new URLSearchParams();
-      params.append("model_id", "777a9cf47411f6c4932e8941f177f90a");
+      params.append("model_id", this.$config.default_model.word2vec.model_id);
       params.append("doc_id", this.doc_id);
       params.append("topn", this.topn);
       return params;
@@ -85,7 +85,7 @@ export default {
     getSimilarWDI() {
       this.loading = true;
       this.$http
-        .get("/nlp/extra/wdi/get_similar_wdi_by_doc_id", {
+        .get(this.$config.extra_url.wdi + "/get_similar_wdi_by_doc_id", {
           params: this.searchParams,
         })
         .then((response) => {

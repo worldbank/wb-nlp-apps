@@ -169,7 +169,9 @@ export default {
       return this.result;
     },
     metadata_download_link() {
-      return "/nlp/corpus/get_metadata_by_id?id=" + this.metadata.id;
+      return (
+        this.$config.corpus_url + "/get_metadata_by_id?id=" + this.metadata.id
+      );
     },
   },
   components: { RelatedDocsPanel, MetadataViewer, SimilarWDIViewer },
@@ -198,7 +200,7 @@ export default {
       } else {
         this.loading = true;
         this.$http
-          .get("/nlp/corpus/get_metadata_by_id", {
+          .get(this.$config.corpus_url + "/get_metadata_by_id", {
             params: { id: this.$route.params.doc_id },
           })
           .then((response) => {

@@ -343,7 +343,7 @@ export default {
     },
     suggestionBody() {
       const body = {
-        model_id: "777a9cf47411f6c4932e8941f177f90a",
+        model_id: this.$config.default_model.word2vec.model_id,
         raw_text: this.query,
         topn_words: this.suggestion_count,
       };
@@ -351,7 +351,7 @@ export default {
     },
     searchParams() {
       const params = new URLSearchParams();
-      params.append("model_id", "777a9cf47411f6c4932e8941f177f90a");
+      params.append("model_id", this.$config.default_model.word2vec.model_id);
       params.append("query", this.query);
       params.append("from_result", this.from_result);
       params.append("size", this.curr_size);
@@ -359,7 +359,7 @@ export default {
     },
     fileParams() {
       const formData = new FormData();
-      formData.append("model_id", "777a9cf47411f6c4932e8941f177f90a");
+      formData.append("model_id", this.$config.default_model.word2vec.model_id);
       formData.append("file", this.uploaded_file);
       formData.append("from_result", this.from_result);
       formData.append("size", this.curr_size);
@@ -381,10 +381,11 @@ export default {
       min_year: null,
       max_year: null,
       search_type: "keyword",
-      keyword_search_api_url: "/nlp/search/keyword",
-      semantic_search_api_url: "/nlp/search/word2vec/semantic",
-      file_search_api_url: "/nlp/search/word2vec/file",
-      suggestion_api_url: "/nlp/models/word2vec/get_similar_words",
+      keyword_search_api_url: this.$config.search_url.keyword,
+      semantic_search_api_url: this.$config.search_url.semantic,
+      file_search_api_url: this.$config.search_url.file,
+      suggestion_api_url:
+        this.$config.nlp_api_url.word2vec + "/get_similar_words",
       page_sizes: [10, 25, 50, 100],
       suggestions: [], // ["data", "poverty", "climate", "poor", "household"],
       suggestion_count: 6,

@@ -115,7 +115,6 @@ export default {
   },
   data: function () {
     return {
-      nlp_api_url: "/nlp/models/lda",
       page_sizes: [10, 25, 50, 100],
       start: 0,
       end: 0,
@@ -154,7 +153,7 @@ export default {
 
       this.$http
         .post(
-          this.nlp_api_url + "/get_docs_by_topic_composition",
+          this.$config.nlp_api_url.lda + "/get_docs_by_topic_composition",
           this.searchBody
         )
         .then((response) => {

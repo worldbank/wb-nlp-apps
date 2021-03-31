@@ -166,7 +166,6 @@ export default {
       topicValue: {},
       selected_topic: [],
       topic_ranges: {},
-      nlp_api_url: "/nlp/models/lda",
       model_name: "lda",
       model_run_info_id: null,
       filter: "",
@@ -260,10 +259,13 @@ export default {
       Object.entries(data).forEach(([key, val]) => (data[key] = val / 100));
 
       this.$http
-        .post(this.nlp_api_url + "/get_docs_by_topic_composition_count", {
-          model_id: this.model_run_info_id,
-          topic_percentage: data,
-        })
+        .post(
+          this.$config.nlp_api_url.lda + "/get_docs_by_topic_composition_count",
+          {
+            model_id: this.model_run_info_id,
+            topic_percentage: data,
+          }
+        )
         .then((response) => {
           this.total_hits = response.data.total;
         })
@@ -272,7 +274,7 @@ export default {
     getTopicRanges: function () {
       this.$http
         .get(
-          this.nlp_api_url +
+          this.$config.nlp_api_url.lda +
             "/get_model_topic_ranges?model_id=" +
             this.model_run_info_id
         )
@@ -282,7 +284,7 @@ export default {
     },
     getModelTopics: function () {
       this.$http
-        .get(this.nlp_api_url + "/get_model_topic_words", {
+        .get(this.$config.nlp_api_url.lda + "/get_model_topic_words", {
           params: this.searchParams,
         })
         .then((response) => {

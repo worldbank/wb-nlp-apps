@@ -57,21 +57,21 @@ export default {
       model_run_infos: [],
       lda_model_run_infos: [
         {
-          value: "6694f3a38bc16dee91be5ccf4a64b6d8",
+          value: this.$config.default_model.lda.model_id,
           text: "LDA model with 300 topics trained on all documents.",
         },
         {
-          value: "6694f3a38bc16dee91be5ccf4a64b6d9",
+          value: this.$config.default_model.lda.model_id,
           text: "LDA model with 100 topics trained on all documents.",
         },
       ],
       word2vec_model_run_infos: [
         {
-          value: "777a9cf47411f6c4932e8941f177f90a",
+          value: this.$config.default_model.word2vec.model_id,
           text: "Word2Vec model with 300 dimensions trained on all documents.",
         },
         {
-          value: "777a9cf47411f6c4932e8941f177f90a",
+          value: this.$config.default_model.word2vec.model_id,
           text: "Word2Vec model with 100 dimensions trained on all documents.",
         },
       ],

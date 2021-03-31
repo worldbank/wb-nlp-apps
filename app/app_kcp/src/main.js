@@ -13,6 +13,7 @@ import checkView from 'vue-check-view'
 
 import router from './router'
 import App from './App.vue'
+import config from './config'
 
 // CSS files
 // import 'bootstrap/dist/css/bootstrap.css'
@@ -23,7 +24,7 @@ Vue.config.productionTip = false
 Vue.prototype.$http = axios
 Vue.prototype.$Plotly = Plotly
 Vue.prototype.$window = window
-
+Vue.prototype.$config = config
 
 // Install BootstrapVue
 Vue.use(BootstrapVue)

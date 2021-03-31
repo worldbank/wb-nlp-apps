@@ -90,7 +90,9 @@ export default {
     },
     getIndicatorMetadata() {
       this.$http
-        .get("/nlp/extra/wdi/get_wdi_metadata", { params: this.searchParams })
+        .get(this.$config.extra_url.wdi + "/get_wdi_metadata", {
+          params: this.searchParams,
+        })
         .then((response) => {
           this.indicator_meta = response.data;
         });
