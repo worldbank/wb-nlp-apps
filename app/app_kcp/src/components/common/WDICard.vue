@@ -110,5 +110,12 @@ export default {
 .wdi-definition {
   max-height: 350px;
   overflow-y: scroll;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+.wdi-definition::-webkit-scrollbar {
+  /* WebKit */
+  width: 0;
+  height: 0;
 }
 </style>
