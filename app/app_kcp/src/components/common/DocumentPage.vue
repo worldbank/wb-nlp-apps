@@ -114,8 +114,26 @@
               <br />
               <h4>Related World Development Indicators</h4>
               <div v-if="tabIndex == 3">
-                <SimilarWDIViewer :doc_id="metadata.id" /></div
+                <SimilarWDIViewer
+                  render_style="horizontal"
+                  :doc_id="metadata.id"
+                /></div
             ></b-tab>
+            <!-- <b-tab
+              :title-item-class="itemClass(4)"
+              :title-link-class="linkClass(4)"
+              v-on:click="activateSubmit()"
+              @click.prevent
+              title="Related WDI indicators - vertical"
+            >
+              <br />
+              <h4>Related World Development Indicators</h4>
+              <div v-if="tabIndex == 4">
+                <SimilarWDIViewer
+                  render_style="vertical"
+                  :doc_id="metadata.id"
+                /></div
+            ></b-tab> -->
           </b-tabs>
         </div>
       </div>

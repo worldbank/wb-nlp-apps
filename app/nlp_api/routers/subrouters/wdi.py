@@ -4,7 +4,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
 import pandas as pd
 import numpy as np
-
+from pydantic import AnyHttpUrl
+import requests
 from sklearn.metrics.pairwise import cosine_similarity
 from wb_nlp.types.models import (
     ModelTypes
@@ -42,3 +43,25 @@ async def get_similar_wdi_by_doc_id(doc_id: str, model_id: str, topn: int = 10):
     ret_cols = ["id", "name", "url_data", "url_meta", "url_wb", "score"]
 
     return wdi_df[ret_cols].head(topn).to_dict("records")
+
+
+@ router.get("/get_wdi_metadata")
+async def get_wdi_metadata(url_meta: AnyHttpUrl):
+    '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
+    '''
+
+    data = {"Longdefinition": None, "Shortdefinition": None}
+    try:
+        response = requests.get(url_meta)
+        response = response.json()
+        meta = response["source"][0]["concept"][0]["variable"][0]["metatype"]
+        data = {r["id"]: r["value"] for r in meta}
+    except:
+        pass
+
+    return data
+
+# https://api.worldbank.org/v2/sources/2/series/it.net.secr/metadata?format=json
+
+# Longdefinition
+# Shortdefinition

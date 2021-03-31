@@ -3,87 +3,42 @@
     <div v-if="results.length === 0">
       <b-skeleton-img height="300px"></b-skeleton-img>
     </div>
-    <vue-horizontal v-if="results.length > 0">
+
+    <vue-horizontal v-if="results.length > 0 && render_style === 'horizontal'">
       <div
         class="related-section"
-        :style="'height: ' + panel_section_height + 'px;'"
         v-for="result in results"
         :key="'wdi_' + result.id"
       >
         <WDICard :result="result" />
-        <!-- <div class="row wdi-group">
-          <div class="col-12">
-            <p class="lead">
-              <a :href="result.url_wb" target="_blank">{{ result.name }}</a>
-            </p>
-          </div>
-          <div class="col-4" v-view="viewHandler">
-            {{ viewEvent }}
-            <iframe
-              class="wdi-frame"
-              v-if="result.url_wb && viewEvent.percentInView > 0.9"
-              loading="lazy"
-              :src="
-                'https://data.worldbank.org/share/widget?indicators=' +
-                getIndicatorName(result) +
-                '&view=map'
-              "
-              width="450"
-              height="300"
-              frameBorder="0"
-              scrolling="no"
-            ></iframe>
-          </div>
-
-          <div class="col-4 offset-md-4">
-            <a :href="result.url_data" target="_blank">Link to data</a>
-            <br />
-            <a :href="result.url_meta" target="_blank">Link to metadata</a>
-          </div>
-        </div> -->
       </div>
     </vue-horizontal>
-    <!--
-  <div v-if="results.length > 0">
-    <div class="row wdi-group" v-for="result in results" :key="result.id">
-      <div class="col-12">
-        <p class="lead">
-          <a :href="result.url_wb" target="_blank">{{ result.name }}</a>
-        </p>
-      </div>
 
-      <div class="col-6 mx-auto">
-        <iframe
-          class="wdi-frame"
-          v-if="result.url_wb"
-          loading="lazy"
-          :src="
-            'https://data.worldbank.org/share/widget?indicators=' +
-            getIndicatorName(result) +
-            '&view=map'
-          "
-          width="450"
-          height="300"
-          frameBorder="0"
-          scrolling="no"
-        ></iframe>
+    <div v-if="results.length > 0 && render_style === 'vertical'">
+      <div
+        class="related-section"
+        v-for="result in results"
+        :key="'wdi_' + result.id"
+      >
+        <WDICard :result="result" />
       </div>
-
-      <div class="col-6">
-        <a :href="result.url_data" target="_blank">Link to data</a>
-        <br />
-        <a :href="result.url_meta" target="_blank">Link to metadata</a>
-      </div>
-    </div> -->
+    </div>
   </div>
 </template>
 <script>
 import VueHorizontal from "vue-horizontal";
 import WDICard from "./WDICard";
 export default {
-  components: { WDICard, VueHorizontal },
+  components: {
+    WDICard,
+    VueHorizontal,
+  },
   name: "SimilarWDIViewer",
   props: {
+    render_style: {
+      default: "horizontal",
+      type: String,
+    },
     doc_id: String,
     topn: {
       type: Number,
@@ -91,11 +46,6 @@ export default {
     },
   },
   mounted() {
-    window._satellite = {
-      track: function (v) {
-        console.log(v);
-      },
-    };
     this.getSimilarWDI();
   },
   computed: {
@@ -169,10 +119,11 @@ export default {
   width: 100%;
   padding: 0px 20px;
   margin: 3px;
-  height: 400px;
+  height: 500px;
   background: #ffffff;
   /* background: #f3f3f3; */
   border: 2px solid #ebebeb;
   border-radius: 4px;
+  margin-bottom: 20px;
 }
 </style>
