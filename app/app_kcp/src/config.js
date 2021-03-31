@@ -33,5 +33,87 @@ export default {
         page_sizes: [10, 25, 50, 100],
         page_window: 2,
         size: 10,
+    },
+    sample_metadata: {
+        "hex_id": "7b1575229ffccf9",
+        "url_txt": "http://documents.worldbank.org/curated/en/369571538245763939/text/569840NEWS0Ban10121051970BOX354963B.txt",
+        "country": [
+            "World"
+        ],
+        "url_pdf": "http://documents.worldbank.org/curated/en/369571538245763939/pdf/569840NEWS0Ban10121051970BOX354963B.pdf",
+        "year": 1997,
+        "der_language_detected": "en",
+        "corpus": "WB",
+        "doc_type": [
+            "Newsletter"
+        ],
+        "title": "Bank's World",
+        "adm_region": [
+            "The World Region"
+        ],
+        "date_published": "1997-12-05T00:00:00",
+        "int_id": 554320239546846460,
+        "path_original": "data/corpus/WB/wb_12853118.txt",
+        "tokens": 17160,
+        "id": "wb_12853118",
+        "views": 0,
+        "last_update_date": "2021-02-16T06:14:46.624679",
+        "topics_src": [
+            "Energy",
+            "Environment",
+            "Health; Nutrition and Population",
+            "Science and Technology Development",
+            "Social Protections and Labor",
+            "Water Resources"
+        ],
+        "der_clean_token_count": 6744,
+        "digital_identifier": "090224b0828b321d",
+        "der_language_score": 0.999995416533436,
+        "filename_original": "569840NEWS0Ban10121051970BOX354963B.txt",
+        "wb_subtopic_src": [
+            "Climate Change and Environment",
+            "Climate Change and Health",
+            "Energy Demand",
+            "Energy and Environment",
+            "Energy and Mining",
+            "Global Environment",
+            "Hydrology",
+            "Labor Markets",
+            "Science of Climate Change"
+        ],
+        "collection": "Bank's World (Bank notes)",
+        "language_src": "English",
+        "major_doc_type": [
+            "Publications and Research"
+        ],
+        "der_countries": {
+            "YEM": 2,
+            "MEX": 1,
+            "AFG": 1,
+            "SAU": 1,
+            "CHN": 10,
+            "JPN": 3,
+            "THA": 1,
+            "IDN": 2,
+            "VNM": 1,
+            "SDN": 3,
+            "BGD": 1,
+            "SWE": 1,
+            "ESP": 1,
+            "PSE": 1,
+            "MYS": 1,
+            "YUG": 3,
+            "POL": 1,
+            "SUN": 1,
+            "SYR": 1,
+            "KOR": 1,
+            "BRA": 1,
+            "RUS": 1,
+            "DEU": 3,
+            "KEN": 1,
+            "EGY": 1,
+            "PAN": 3,
+            "IND": 2
+        }
     }
 }

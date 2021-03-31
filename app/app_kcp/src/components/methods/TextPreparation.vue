@@ -50,6 +50,16 @@
         Further automated augmentation of the metadata from the contents of the
         document are done and will be further discussed below.
       </p>
+
+      <p class="lead">Sample metadata</p>
+      <div v-if="this.$config.sample_metadata" class="sample-metadata">
+        <vue-json-pretty
+          :data="this.$config.sample_metadata"
+          :highlightMouseoverNode="true"
+        >
+        </vue-json-pretty>
+      </div>
+
       <h5>Stop words</h5>
       <p>Stop words (include CSV file)</p>
       <h5>Phrase detection</h5>
@@ -73,8 +83,12 @@
 </template>
 
 <script>
+import VueJsonPretty from "vue-json-pretty";
+import "vue-json-pretty/lib/styles.css";
+
 export default {
   name: "TextPreparation",
+  components: { VueJsonPretty },
   props: {
     page_title: String,
   },
@@ -88,5 +102,13 @@ h3 {
 }
 a {
   color: #42b983;
+}
+.sample-metadata {
+  word-wrap: break-word;
+  max-height: 400px;
+  overflow-y: scroll;
+  margin-bottom: 20px;
+  border: 1px solid #8ab7ff;
+  padding: 10px;
 }
 </style>
