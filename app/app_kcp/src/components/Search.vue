@@ -84,6 +84,22 @@
                 </div>
               </div>
             </div>
+
+            <div class="col-12 col-md-12 text-center">
+              <span v-if="suggestions.length > 0" class="keyword-suggestions">
+                <span class="suggestions">Suggestions:</span>
+                <span
+                  @click="searchSuggestion(word)"
+                  v-for="word in suggestions"
+                  :key="'suggest_' + word"
+                  class="suggestion"
+                  >{{ word }}
+                </span>
+                <br />
+                <br />
+              </span>
+            </div>
+
             <div class="col-12 col-md-12 text-center">
               <div class="form-check form-check-inline">
                 <input
@@ -325,6 +341,14 @@ export default {
       }
       return false;
     },
+    suggestionBody() {
+      const body = {
+        model_id: "777a9cf47411f6c4932e8941f177f90a",
+        raw_text: this.query,
+        topn_words: this.suggestion_count,
+      };
+      return body;
+    },
     searchParams() {
       const params = new URLSearchParams();
       params.append("model_id", "777a9cf47411f6c4932e8941f177f90a");
@@ -360,7 +384,10 @@ export default {
       keyword_search_api_url: "/nlp/search/keyword",
       semantic_search_api_url: "/nlp/search/word2vec/semantic",
       file_search_api_url: "/nlp/search/word2vec/file",
+      suggestion_api_url: "/nlp/models/word2vec/get_similar_words",
       page_sizes: [10, 25, 50, 100],
+      suggestions: [], // ["data", "poverty", "climate", "poor", "household"],
+      suggestion_count: 6,
       start: 0,
       end: 0,
       next: 0,
@@ -400,6 +427,36 @@ export default {
     resetFrom: function () {
       this.from_result = 0;
     },
+    getSuggestions: function () {
+      if (!this.query) {
+        return;
+      }
+      this.suggestions = [];
+
+      this.$http
+        .post(this.suggestion_api_url, this.suggestionBody)
+        .then((response) => {
+          this.suggestions = response.data
+            .map((o) => {
+              if (
+                o.score < 0.99 &&
+                o.word.replaceAll("_", " ") !== this.query
+              ) {
+                return o.word;
+              }
+            })
+            .filter((word) => word)
+            .slice(0, this.suggestion_count - 1);
+        })
+        .catch((error) => {
+          console.log(error);
+          this.errored = true;
+        });
+    },
+    searchSuggestion: function (word) {
+      this.query = word;
+      this.sendSearch();
+    },
     sendSearch: function (page_num = 1) {
       this.curr_page_num = page_num;
       var from = (page_num - 1) * this.curr_size;
@@ -410,11 +467,13 @@ export default {
       if (this.search_type == "keyword") {
         this.next_override = false;
         this.sendKeywordSearch(from);
+        this.getSuggestions();
       } else if (this.search_type == "semantic") {
         if (this.uploaded_file != null) {
           this.sendFileSearch(from);
         } else {
           this.sendSemanticSearch(from);
+          this.getSuggestions();
         }
       } else {
         return;
@@ -436,6 +495,7 @@ export default {
       if (from > this.total.value) {
         return;
       }
+      this.query = this.query.replaceAll("_", " ");
       this.from_result = from;
       this.loading = true;
 
@@ -613,5 +673,19 @@ export default {
 }
 .btn-outline-primary {
   color: #0071bc;
+}
+.keyword-suggestions {
+  width: 100%;
+  margin-left: 15px;
+  padding: 5px;
+  padding-bottom: 25px;
+}
+.suggestions {
+  margin-right: 10px;
+}
+.suggestion {
+  color: #0062cc;
+  margin-right: 10px;
+  cursor: pointer;
 }
 </style>
