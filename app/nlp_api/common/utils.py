@@ -38,6 +38,7 @@ def get_model_by_model_id(model_id):
         model = word2vec_base.Word2VecModel(
             model_config_id=model_run_info["model_config_id"],
             cleaning_config_id=model_run_info["cleaning_config_id"],
+            model_run_info_id=model_id,
             raise_empty_doc_status=False,
         )
 
@@ -46,6 +47,7 @@ def get_model_by_model_id(model_id):
         model = lda_base.LDAModel(
             model_config_id=model_run_info["model_config_id"],
             cleaning_config_id=model_run_info["cleaning_config_id"],
+            model_run_info_id=model_id,
             raise_empty_doc_status=False,
         )
 
