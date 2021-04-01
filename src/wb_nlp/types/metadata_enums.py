@@ -346,6 +346,7 @@ class WBDocTypes(WBEnum):
     environment_working_paper = "Environment Working Paper"
     environmental_action_plan = "Environmental Action Plan"
     environmental_and_social_framework = "Environmental and Social Framework"
+    environmental_and_social_management_framework = "Environmental and Social Management Framework"
     flash_report = "Flash Report"
     financial_assessment = "Financial Assessment"
     financial_flows = "Financial Flows"
