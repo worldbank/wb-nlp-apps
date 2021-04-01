@@ -56,16 +56,27 @@ class BaseModel:
         configure_logger(log_level)
         self.log_level = log_level
         self.logger = logging.getLogger(__file__)
+        self.trainable = False
 
-        self.cleaning_config_id = cleaning_config_id
-        self.model_config_id = model_config_id
         self.model_class = model_class  # Example: LdaMulticore
         self.model_config_type = model_config_type  # Example: LDAModelConfig
-        self.model_run_info_description = model_run_info_description
-
         self.expected_model_name = expected_model_name
 
-        self.validate_and_prepare_requirements()
+        if model_run_info_id is None:
+            self.cleaning_config_id = cleaning_config_id
+            self.model_config_id = model_config_id
+            self.model_run_info_description = model_run_info_description
+
+            self.validate_and_prepare_requirements()
+            self.trainable = True
+
+        else:
+            self.validate_and_load_model_run_info_from_db(
+                model_run_info_id=model_run_info_id,
+                model_config_id=model_config_id,
+                cleaning_config_id=cleaning_config_id,
+            )
+            self.trainable = False
 
         self.model = None
         self.mallet_model = None
@@ -134,6 +145,10 @@ class BaseModel:
         return res["int_id"]
 
     def set_processed_corpus_id(self):
+        # Generate an identifier corresponding to the processed data.
+        # If no additional processing is needed such as in word2vec,
+        # this is set to the cleaned_corpus_id, otherwise we compute
+        # additional identifiers.
         if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
             self.dictionary_params = self.model_config['dictionary_config']
             processed_corpus_ids = [self.cleaned_corpus_id,
@@ -165,30 +180,15 @@ class BaseModel:
         # hash of the hashes of the individual files.
         self.cleaned_corpus_id = get_cleaned_corpus_id(self.cleaned_docs_dir)
 
-        # Get the configuration of the model from mongodb.
-        model_configs_collection = mongodb.get_model_configs_collection()
-        self.model_config = model_configs_collection.find_one(
-            {"_id": self.model_config_id})
+        self.validate_and_load_model_config()
 
-        # Do this to make sure that the config is consistent with the expected schema.
-        self.model_config_type(**self.model_config)
-        self.model_name = self.model_config["meta"]["model_name"]
-
-        # Perform basic validation of the configuration.
-        assert self.model_name == self.expected_model_name
-        assert gensim.__version__ == self.model_config['meta']['library_version']
-
-        # Set the `dim` attribute to be used when creating the milvus
-        # index for the model.
-        params = self.model_config[f"{self.model_name}_config"]
-        self.dim = params.get("num_topics", params.get("size"))
-
-        # Generate an identifier corresponding to the processed data.
-        # If no additional processing is needed such as in word2vec,
-        # this is set to the cleaned_corpus_id, otherwise we compute
-        # additional identifiers.
         self.set_processed_corpus_id()
 
+        self.set_and_validate_model_run_info()
+
+        self.set_trained_model_attributes()
+
+    def set_and_validate_model_run_info(self):
         # Define the metadata corresponding to the model.
         # The model_run_info specifies the set of metadata
         # necessary to replicate the model from scratch.
@@ -209,6 +209,47 @@ class BaseModel:
 
         assert self.model_run_info["model_run_info_id"] == self.model_id
 
+    def validate_and_load_model_run_info_from_db(self, model_run_info_id, model_config_id, cleaning_config_id):
+        # Load model_run_info from db.
+        model_runs_info_collection = mongodb.get_model_runs_info_collection()
+        model_run_info = model_runs_info_collection.find_one(
+            {"model_run_info_id": model_run_info_id})
+
+        assert model_config_id == model_run_info["model_config_id"]
+        assert cleaning_config_id == model_run_info["cleaning_config_id"]
+
+        self.model_run_info = model_run_info
+        self.model_name = model_run_info["model_name"]
+        self.model_config_id = model_run_info["model_config_id"]
+        self.cleaning_config_id = model_run_info["cleaning_config_id"]
+        self.processed_corpus_id = model_run_info["processed_corpus_id"]
+        self.model_id = model_run_info["model_run_info_id"]
+        self.model_run_info_description = model_run_info["description"]
+
+        self.validate_and_load_model_config()
+
+        self.set_trained_model_attributes()
+
+    def validate_and_load_model_config(self):
+        # Get the configuration of the model from mongodb.
+        model_configs_collection = mongodb.get_model_configs_collection()
+        self.model_config = model_configs_collection.find_one(
+            {"_id": self.model_config_id})
+
+        # Do this to make sure that the config is consistent with the expected schema.
+        self.model_config_type(**self.model_config)
+        self.model_name = self.model_config["meta"]["model_name"]
+
+        # Perform basic validation of the configuration.
+        assert self.model_name == self.expected_model_name
+        assert gensim.__version__ == self.model_config['meta']['library_version']
+
+        # Set the `dim` attribute to be used when creating the milvus
+        # index for the model.
+        params = self.model_config[f"{self.model_name}_config"]
+        self.dim = params.get("num_topics", params.get("size"))
+
+    def set_trained_model_attributes(self):
         # Set attributes corresponding where we want the trained model
         # will be saved.
         self.model_collection_id = f'{self.model_name}_{self.model_id}'
@@ -342,6 +383,10 @@ class BaseModel:
                 self.dim = dim
 
     def save_model(self):
+        if not self.trainable:
+            self.log("Model state is set to trainable=False and can't be saved!")
+            return
+
         self.check_model()
         model_runs_info_collection = mongodb.get_model_runs_info_collection()
         # model_runs_info_collection.delete_many({})
@@ -445,6 +490,11 @@ class BaseModel:
     def train_model(self, retrain=False):
         # TODO: Add a way to augment the content of the docs
         # with an external dataset without metadata.
+        if not self.trainable:
+            self.log(
+                "Model is set to trainable=False state since it was loaded from an existing model_run_info_id. Training will not continue!")
+            return
+
         if self.model_file_name.exists() and not retrain:
             self.log(
                 'Warning: A model with the same configuration is available on disk. Loading...')

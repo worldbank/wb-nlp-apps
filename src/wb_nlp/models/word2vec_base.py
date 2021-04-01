@@ -308,14 +308,16 @@ if __name__ == '__main__':
         log_level=logging.DEBUG,
     )
     # %time
-    wvec_model.train_model()  # retrain=True)
+    wvec_model.train_model(retrain=True)
     # Do this if the model is available in disk but the model_run_info is not. This is to dump the model_run_info to db in case it's not present.
     # wvec_model.save()
+
+    # wvec_model.drop_milvus_collection()
 
     wvec_model.build_doc_vecs(pool_workers=3)
     print(wvec_model.get_similar_words('bank'))
     print(wvec_model.get_similar_documents('bank'))
-    print(wvec_model.get_similar_docs_by_doc_id(doc_id='wb_725385'))
-    print(wvec_model.get_similar_words_by_doc_id(doc_id='wb_725385'))
+    # print(wvec_model.get_similar_docs_by_doc_id(doc_id='wb_725385'))
+    # print(wvec_model.get_similar_words_by_doc_id(doc_id='wb_725385'))
 
     # wvec_model.drop_milvus_collection()
