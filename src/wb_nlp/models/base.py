@@ -49,6 +49,7 @@ class BaseModel:
         model_config_type,
         expected_model_name,
         model_run_info_description="",
+        model_run_info_id=None,
         raise_empty_doc_status=True,
         log_level=logging.WARNING,
     ):
@@ -71,10 +72,10 @@ class BaseModel:
         self.raise_empty_doc_status = raise_empty_doc_status
 
         # # Try to load the model
-        # self.load()
-        # self.set_model_specific_attributes()
+        self.load()
+        self.set_model_specific_attributes()
 
-        # self.create_milvus_collection()
+        self.create_milvus_collection()
 
     def log(self, message):
 
@@ -531,11 +532,13 @@ class BaseModel:
 
         projection = ["id", "int_id", "hex_id", "corpus"]
 
+        cleaned_ids = [i.stem for i in self.cleaned_docs_dir.glob("*/*.txt")]
+
         docs_metadata_df = pd.DataFrame(
             list(docs_metadata_collection.find(projection=projection)), columns=projection)
 
         docs_for_processing = docs_metadata_df[
-            ~docs_metadata_df['int_id'].isin(collection_doc_ids)]
+            ~docs_metadata_df['int_id'].isin(collection_doc_ids) & docs_metadata_df["id"].isin(cleaned_ids)]
 
         dask_client = create_dask_cluster(
             logger=self.logger, n_workers=pool_workers)

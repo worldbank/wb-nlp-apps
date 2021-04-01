@@ -31,30 +31,45 @@ class Word2VecModel(BaseModel):
         model_config_type=Word2VecModelConfig,
         expected_model_name=ModelTypes.word2vec.value,
         model_run_info_description="",
+        model_run_info_id=None,
         raise_empty_doc_status=True,
         log_level=logging.WARNING,
     ):
-        configure_logger(log_level)
-        self.log_level = log_level
-        self.logger = logging.getLogger(__file__)
 
-        self.cleaning_config_id = cleaning_config_id
-        self.model_config_id = model_config_id
-        self.model_class = model_class  # Example: LdaMulticore
-        self.model_config_type = model_config_type  # Example: LDAModelConfig
-        self.expected_model_name = expected_model_name
-        self.model_run_info_description = model_run_info_description
+        super().__init__(
+            model_config_id=model_config_id,
+            cleaning_config_id=cleaning_config_id,
+            model_class=model_class,
+            model_config_type=model_config_type,
+            expected_model_name=expected_model_name,
+            model_run_info_description=model_run_info_description,
+            model_run_info_id=model_run_info_id,
+            raise_empty_doc_status=raise_empty_doc_status,
+            log_level=log_level,
+        )
 
-        self.validate_and_prepare_requirements()
+        # configure_logger(log_level)
+        # self.log_level = log_level
+        # self.logger = logging.getLogger(__file__)
 
-        self.model = None
-        self.raise_empty_doc_status = raise_empty_doc_status
+        # self.cleaning_config_id = cleaning_config_id
+        # self.model_config_id = model_config_id
+        # self.model_class = model_class  # Example: LdaMulticore
+        # self.model_config_type = model_config_type  # Example: LDAModelConfig
+        # self.model_run_info_description = model_run_info_description
 
-        # Try to load the model
-        self.load()
-        self.set_model_specific_attributes()
+        # self.expected_model_name = expected_model_name
 
-        self.create_milvus_collection()
+        # self.validate_and_prepare_requirements()
+
+        # self.model = None
+        # self.raise_empty_doc_status = raise_empty_doc_status
+
+        # # Try to load the model
+        # self.load()
+        # self.set_model_specific_attributes()
+
+        # self.create_milvus_collection()
 
     def combine_word_vectors(self, word_vecs):
         return word_vecs.mean(axis=0).reshape(1, -1)
@@ -287,7 +302,7 @@ if __name__ == '__main__':
 
     wvec_model = word2vec_base.Word2VecModel(
         model_config_id="702984027cfedde344961b8b9461bfd3",
-        cleaning_config_id="23f78350192d924e4a8f75278aca0e1c",
+        cleaning_config_id="229abf370f281efa7c9f3c4ddc20159d",
         raise_empty_doc_status=False,
         log_level=logging.DEBUG,
     )

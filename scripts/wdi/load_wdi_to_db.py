@@ -3,8 +3,10 @@ from wb_nlp import dir_manager
 from wb_nlp.models import word2vec_base
 
 wvec_model = word2vec_base.Word2VecModel(
+    # "702984027cfedde344961b8b9461bfd3",
     model_config_id="702984027cfedde344961b8b9461bfd3",
-    cleaning_config_id="23f78350192d924e4a8f75278aca0e1c",
+    # "23f78350192d924e4a8f75278aca0e1c",
+    cleaning_config_id="229abf370f281efa7c9f3c4ddc20159d",
     raise_empty_doc_status=False,
     log_level=None,
 )
