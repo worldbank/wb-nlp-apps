@@ -131,11 +131,12 @@ class WBGeographicRegions(WBEnum):
     @classmethod
     def clean(cls, value):
         mappings = {
-            "Latin America & Caribbean": "Latin America and Caribbean",
+            "latin america & caribbean": "Latin America and Caribbean",
+            "africa west": "West Africa",
             None: "",
         }
 
-        value = mappings.get(value, value)
+        value = mappings.get(value.lower(), value)
 
         return value
 
@@ -172,15 +173,14 @@ class WBAdminRegions(WBEnum):
     def clean(cls, value):
 
         mappings = {
-            "Latin America & Caribbean": "Latin America and Caribbean",
-            "Latin America &amp; Caribbean": "Latin America and Caribbean",
-            "OTH": "Others",
-            "Other": "Others",
-            "OTHER": "Others",
+            "latin america & caribbean": "Latin America and Caribbean",
+            "latin america &amp; caribbean": "Latin America and Caribbean",
+            "oth": "Others",
+            "other": "Others",
             None: "",
         }
 
-        value = mappings.get(value, value)
+        value = mappings.get(value.lower(), value)
 
         return value
 
@@ -346,6 +346,7 @@ class WBDocTypes(WBEnum):
     environment_working_paper = "Environment Working Paper"
     environmental_action_plan = "Environmental Action Plan"
     environmental_and_social_framework = "Environmental and Social Framework"
+    flash_report = "Flash Report"
     financial_assessment = "Financial Assessment"
     financial_flows = "Financial Flows"
     financial_sector_assessment_program = "Financial Sector Assessment Program"
@@ -360,6 +361,7 @@ class WBDocTypes(WBEnum):
     health_sector_review = "Health Sector Review"
     human_capital_working_paper = "Human Capital Working Paper"
     ieg_approach_paper = "IEG Approach Paper"
+    ieg_evaluation = "IEG Evaluation"
     impact_evaluation_report = "Impact Evaluation Report"
     insolvency_assessment = "Insolvency Assessment"
     inspection_panel_notice_of_registration = "Inspection Panel Notice of Registration"
@@ -393,6 +395,7 @@ class WBDocTypes(WBEnum):
     poverty_and_social_policy_working_paper = "Poverty and Social Policy Working Paper"
     preliminary_decision_point_document = "Preliminary Decision Point Document"
     price_prospects_for_major_primary_commodities = "Price Prospects for Major Primary Commodities"
+    procurement_assessment = "Procurement Assessment"
     program_for_results_fiduciary_systems_assessment = "Program-for-Results Fiduciary Systems Assessment"
     program_for_results_technical_assessment = "Program-for-Results Technical Assessment"
     proj_pap_sp = "PROJ-PAP-SP"
@@ -402,15 +405,18 @@ class WBDocTypes(WBEnum):
     public_environmental_expenditure_review = "Public Environmental Expenditure Review"
     public_investment_review = "Public Investment Review"
     recent_economic_developments_in_infrastructure = "Recent Economic Developments in Infrastructure"
+    reference_material = "Reference Material"
     report_on_the_world_bank_research_program = "Report on the World Bank Research Program"
     risk_and_vulnerability_assessment = "Risk and Vulnerability Assessment"
     rp_sp_full = "RP-SP-FULL"
     rural_development_assessment = "Rural Development Assessment"
     safeguards_diagnostic_review = "Safeguards Diagnostic Review"
+    sector_report = "Sector Report"
     sector_or_thematic_evaluation = "Sector or Thematic Evaluation"
     social_action_plan = "Social Action Plan"
     social_analysis = "Social Analysis"
     strategic_environmental_assessment_analysis = "Strategic Environmental Assessment/Analysis"
+    technical_assessment = "Technical Assessment"
     the_environmental_and_social_review_summary = "The Environmental and Social Review Summary"
     tranche_release_document = "Tranche Release Document"
     transitional_support_strategy = "Transitional Support Strategy"
@@ -468,6 +474,7 @@ class WBDocTypes(WBEnum):
     memorandum_and_recommendation_of_the_president = "Memorandum and Recommendation of the President"
     minutes = "Minutes"
     monthly_operational_summary = "Monthly Operational Summary"
+    news_story = "News Story"
     newsletter = "Newsletter"
     note_on_cancelled_operation = "Note on Cancelled Operation"
     other_agricultural_study = "Other Agricultural Study"
