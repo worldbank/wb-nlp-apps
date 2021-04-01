@@ -30,30 +30,23 @@ class LDAModel(BaseModel):
         model_config_type=LDAModelConfig,
         expected_model_name=ModelTypes.lda.value,
         model_run_info_description="",
+        model_run_info_id=None,
         raise_empty_doc_status=True,
         log_level=logging.WARNING,
     ):
-        configure_logger(log_level)
-        self.log_level = log_level
-        self.logger = logging.getLogger(__file__)
 
-        self.cleaning_config_id = cleaning_config_id
-        self.model_config_id = model_config_id
-        self.model_class = model_class  # Example: LdaMulticore
-        self.model_config_type = model_config_type  # Example: LDAModelConfig
-        self.expected_model_name = expected_model_name
-        self.model_run_info_description = model_run_info_description
+        super().__init__(
+            model_config_id=model_config_id,
+            cleaning_config_id=cleaning_config_id,
+            model_class=model_class,
+            model_config_type=model_config_type,
+            expected_model_name=expected_model_name,
+            model_run_info_description=model_run_info_description,
+            model_run_info_id=model_run_info_id,
+            raise_empty_doc_status=raise_empty_doc_status,
+            log_level=log_level,
+        )
 
-        self.validate_and_prepare_requirements()
-
-        self.model = None
-        self.raise_empty_doc_status = raise_empty_doc_status
-
-        # Try to load the model
-        self.load()
-        self.set_model_specific_attributes()
-
-        self.create_milvus_collection()
         self.topic_composition_ranges = None
 
     def set_model_specific_attributes(self):
