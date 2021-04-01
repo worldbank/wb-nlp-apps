@@ -102,7 +102,7 @@ class Word2VecModel(BaseModel):
         return dict(doc_vec=doc_vec, success=success)
 
     def get_similar_words_graph(self, document, topn=10, topn_sub=5, edge_thresh=0.5, n_clusters=5, serialize=False, metric="cosine_similarity"):
-
+        anchor_word = document.lower()
         words = []
         word_ids = []
         top_results = self.get_similar_words(
@@ -203,14 +203,15 @@ class Word2VecModel(BaseModel):
         links = [{"source": int(words.index(
             l[0])), "target": int(words.index(l[1]))} for l in nx_graph.edges]
         categories = [{"name": f"cluster {i + 1}"}
-                      for i in range(max(word_clusters))]
+                      for i in range(max(word_clusters) + 1)]
 
         for word, word_id, cluster_id, pos in zip(words, word_ids, word_clusters, nodes_pos):
             nodes.append(
                 dict(
                     id=int(words.index(word)),
                     name=word,
-                    symbolSize=centrality[word],
+                    symbolSize=centrality[word] if word != anchor_word else 2 * max(
+                        centrality.values()),
                     x=pos[0],
                     y=pos[1],
                     value=centrality[word],
