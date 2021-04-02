@@ -799,6 +799,7 @@ class BaseModel:
             dask_client.close()
 
     def get_doc_vec(self, document, normalize=True, assert_success=True, flatten=True):
+        document = replace_phrases(document)
         doc_vec_payload = self.transform_doc(document, normalize=normalize)
         doc_vec = doc_vec_payload['doc_vec']
 
