@@ -226,6 +226,12 @@ class BaseModel:
         self.model_id = model_run_info["model_run_info_id"]
         self.model_run_info_description = model_run_info["description"]
 
+        self.cleaned_docs_dir = Path(dir_manager.get_data_dir(
+            "corpus", "cleaned", self.cleaning_config_id))
+
+        # Make sure that the directory where we expect the cleaned files are exists.
+        assert self.cleaned_docs_dir.exists()
+
         self.validate_and_load_model_config()
 
         self.set_trained_model_attributes()
