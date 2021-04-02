@@ -633,8 +633,14 @@ class BaseModel:
                             sub_sub_docs["text"] = sub_sub_docs.apply(
                                 lambda _doc: read_text_file(self.cleaned_docs_dir / _doc["corpus"] / f"{_doc['id']}.txt"), axis=1)
 
+                            sub_sub_docs["_l"] = sub_sub_docs["text"].map(len)
+                            sub_sub_docs = sub_sub_docs.sort_values("_l")
+
                             self.log(sub_sub_docs.head(20)["text"].map(
                                 lambda x: x[:100]))
+
+                            self.log(
+                                f"Smallest and largest files for this group has {sub_sub_docs.iloc[0]['_l']} and {sub_sub_docs.iloc[-1]['_l']} characters, respectively...")
 
                             self.log(
                                 f"Finished reading {len(sub_sub_docs)} files, starting vector generation...")
