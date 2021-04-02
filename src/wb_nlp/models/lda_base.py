@@ -96,7 +96,7 @@ class LDAModel(BaseModel):
             doc_topics = self.model[doc]
 
         found_topics = {i for i, v in doc_topics}
-        print(found_topics)
+        # print(found_topics)
         for i in range(self.model.num_topics):
             if i not in found_topics:
                 doc_topics.append((i, 0))

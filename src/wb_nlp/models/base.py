@@ -598,8 +598,7 @@ class BaseModel:
         milvus_client = get_milvus_client()
         normalize = not is_topic_model
 
-        self.log(
-            f"Loading group {group_id + 1} / {max_group + 1}...")
+        print(f"Loading group {group_id + 1} / {max_group + 1}...")
         docs["text"] = docs.apply(
             lambda _doc: read_text_file(self.cleaned_docs_dir / _doc["corpus"] / f"{_doc['id']}.txt"), axis=1)
 
@@ -617,8 +616,7 @@ class BaseModel:
 
         results = self.process_docs(docs, normalize=normalize)
 
-        self.log(
-            f"Finished vector generation, storing vectors to db...")
+        print(f"{group_id + 1}. Finished vector generation, storing vectors to db...")
 
         results = [(ix, p['doc_vec'].flatten())
                    for ix, (_, p) in enumerate(results.iterrows()) if p['success']]
