@@ -10,15 +10,10 @@
       <p>{{ metadata.date_published }}</p>
     </div>
 
-    <div v-if="metadata.topics_src.concat(metadata.wb_subtopic_src).length > 0">
+    <div v-if="getTopics().length > 0">
       <div class="xsl-caption field-caption">Topics</div>
       <ul>
-        <li
-          v-for="topic_name in metadata.topics_src.concat(
-            metadata.wb_subtopic_src
-          )"
-          :key="topic_name"
-        >
+        <li v-for="topic_name in getTopics()" :key="topic_name">
           {{ topic_name }}
         </li>
       </ul>
@@ -148,6 +143,19 @@ export default {
     },
   },
   methods: {
+    getTopics() {
+      if (this.metadata.topics_src) {
+        if (this.metadata.wb_subtopic_src) {
+          return this.metadata.topics_src.concat(this.metadata.wb_subtopic_src);
+        } else {
+          return this.metadata.topics_src;
+        }
+      } else if (this.metadata.wb_subtopic_src) {
+        return this.metadata.wb_subtopic_src;
+      } else {
+        return [];
+      }
+    },
     topicPercent(value) {
       return Math.round(100 * value);
     },
