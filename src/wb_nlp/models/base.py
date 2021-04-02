@@ -625,7 +625,11 @@ class BaseModel:
                         else:
                             group_value = np.zeros(len(sub_docs))
 
-                        for _, sub_sub_docs in sub_docs.groupby(group_value):
+                        max_group = max(group_value)
+
+                        for group_id, sub_sub_docs in sub_docs.groupby(group_value):
+                            self.log(
+                                f"Loading group {group_id + 1} / {max_group + 1}...")
                             sub_sub_docs["text"] = sub_sub_docs.apply(
                                 lambda _doc: read_text_file(self.cleaned_docs_dir / _doc["corpus"] / f"{_doc['id']}.txt"), axis=1)
 
