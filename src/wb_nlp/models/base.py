@@ -621,7 +621,7 @@ class BaseModel:
                         group_size = 10000
                         if group_size < len(sub_docs):
                             group_value = np.array(
-                                range(len(sub_docs))) % group_size
+                                range(len(sub_docs))) % (len(sub_docs) // group_size)
                         else:
                             group_value = np.zeros(len(sub_docs))
 
@@ -633,8 +633,14 @@ class BaseModel:
                             sub_sub_docs["text"] = sub_sub_docs.apply(
                                 lambda _doc: read_text_file(self.cleaned_docs_dir / _doc["corpus"] / f"{_doc['id']}.txt"), axis=1)
 
+                            self.log(
+                                f"Finished reading {len(sub_sub_docs)} files, starting vector generation...")
+
                             results = Parallel(verbose=10, batch_size='auto')(
                                 delayed(self.process_doc)(doc, normalize) for idx, doc in sub_sub_docs.iterrows())
+
+                            self.log(
+                                f"Finished vector generation, storing vectors to db...")
 
                             results = [(ix, p['doc_vec'].flatten())
                                        for ix, p in enumerate(results) if p['success']]
