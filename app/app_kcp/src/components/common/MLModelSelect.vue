@@ -31,11 +31,13 @@ export default {
   mounted() {
     this.model_run_infos = [];
 
-    if (this.model_name === "lda") {
-      this.model_run_infos = this.lda_model_run_infos;
-    } else if (this.model_name === "word2vec") {
-      this.model_run_infos = this.word2vec_model_run_infos;
-    }
+    this.getModelRunInfos();
+
+    // if (this.model_name === "lda") {
+    //   this.model_run_infos = this.lda_model_run_infos;
+    // } else if (this.model_name === "word2vec") {
+    //   this.model_run_infos = this.word2vec_model_run_infos;
+    // }
 
     if (this.parent_model_run_info_id) {
       this.model_run_info_id = this.parent_model_run_info_id;
@@ -77,11 +79,29 @@ export default {
       ],
     };
   },
-  // methods: {
-  //   onSelectItem(event) {
-  //     this.$emit("clicked", this.model_run_info_id);
-  //   },
-  // },
+  methods: {
+    getModelRunInfos() {
+      const url =
+        "/nlp/models/get_available_models?model_type=" + this.model_name;
+
+      this.$http.get(url).then((response) => {
+        this.model_run_infos = response.data.map((o) => {
+          return { value: o.model_run_info_id, text: o.description };
+        });
+        // if (model_name === "lda") {
+        //   this.lda_model_run_infos = data;
+        // } else if (model_name === "word2vec") {
+        //   this.word2vec_model_run_infos = data;
+        // }
+      });
+    },
+    // getLDAModelRunInfos() {
+    //   this.getModelRunInfos("lda");
+    // },
+    // getWord2vecModelRunInfos() {
+    //   this.getModelRunInfos("word2vec");
+    // },
+  },
   watch: {
     model_run_info_id: function () {
       this.$emit("modelSelected", this.model_run_info_id);

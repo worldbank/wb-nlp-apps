@@ -809,7 +809,7 @@ class BaseModel:
 
     @lru_cache(maxsize=128)
     def cached_milvus_result(self, document, metric_type="IP"):
-        print(f"First access for {document}...")
+        # print(f"First access for {document}...")
         doc_vec = self.get_doc_vec(
             document, normalize=True, assert_success=True, flatten=True)
 
