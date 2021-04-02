@@ -43,7 +43,11 @@
           <div class="study-meta d-flex">
             <div
               class="small mt-2 mb-2 mr-3"
-              @click="$bvModal.show('modal-scoped-meta-' + result.id)"
+              @click="
+                $bvModal.show(
+                  'modal-scoped-meta-' + random_id() + '-' + result.id
+                )
+              "
             >
               <a href="javascript:void(0);"
                 ><i class="fas fa-database mr-1" aria-hidden="true"></i
@@ -51,7 +55,7 @@
               >
             </div>
             <b-modal
-              :id="'modal-scoped-meta-' + result.id"
+              :id="'modal-scoped-meta-' + random_id() + '-' + result.id"
               :title="result.title"
               size="lg"
             >
@@ -59,7 +63,9 @@
             </b-modal>
             <div
               class="small mt-2 mb-2"
-              @click="$bvModal.show('modal-scoped-' + result.id)"
+              @click="
+                $bvModal.show('modal-scoped-' + random_id() + '-' + result.id)
+              "
             >
               <a href="javascript:void(0);"
                 ><i class="fas fa-chart-bar fa-lg mr-1" aria-hidden="true"></i
@@ -67,7 +73,7 @@
               >
             </div>
             <b-modal
-              :id="'modal-scoped-' + result.id"
+              :id="'modal-scoped-' + random_id() + '-' + result.id"
               :title="result.title"
               size="lg"
             >
@@ -120,6 +126,7 @@ export default {
     return {
       submit_related: false,
       match: { rank: 1, score: 0.96 },
+      rrandom_id: null,
     };
   },
   computed: {
@@ -137,6 +144,12 @@ export default {
     },
   },
   methods: {
+    random_id() {
+      if (this.rrandom_id === null) {
+        this.rrandom_id = Math.random();
+      }
+      return this.rrandom_id;
+    },
     getDate: function (date) {
       date = new Date(date).toDateString();
       date = date.split(" ");
