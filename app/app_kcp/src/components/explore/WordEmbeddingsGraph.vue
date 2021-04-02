@@ -40,6 +40,9 @@
       >{{ rw.word }}
     </b-badge>
     <br />
+    <div v-if="this.graph === null && loading">
+      <b-skeleton-img></b-skeleton-img>
+    </div>
     <br />
     <b-container fluid>
       <v-chart
@@ -52,10 +55,6 @@
         autoresize="true"
         :loading="loading"
       />
-      <!-- <div v-if="this.graph === null">
-        <b-skeleton-img></b-skeleton-img>
-
-      </div> -->
     </b-container>
   </div>
 </template>
@@ -100,7 +99,7 @@ export default {
     page_title: String,
   },
   mounted() {
-    this.getGraph();
+    // this.getGraph();
     window.vm = this;
   },
   computed: {
