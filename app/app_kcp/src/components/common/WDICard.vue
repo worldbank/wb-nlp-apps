@@ -33,7 +33,7 @@
 
       <div class="col-5 offset-md-3">
         <div v-if="indicator_meta">
-          <p class="lead">Definition</p>
+          <!-- <p class="lead">Definition</p> -->
           <div class="wdi-definition">
             <p>
               {{

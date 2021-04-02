@@ -5,7 +5,8 @@
       <div class="row">
         <div class="col-3 col-lg-3">
           <img
-            src="/static/files/doc_thumb.png"
+            :src="document_cover"
+            onerror="if (this.src != '/static/files/doc_thumb.png') this.src = '/static/files/doc_thumb.png';"
             title="document thumbnail"
             alt="document thumbnail"
           />
@@ -154,6 +155,15 @@ export default {
     this.getMetadata();
   },
   computed: {
+    document_cover() {
+      return (
+        "/nlp/static/" +
+        this.result.corpus +
+        "/COVER/" +
+        this.result.id +
+        ".png"
+      );
+    },
     metadata() {
       if (
         this.result !== undefined &&
