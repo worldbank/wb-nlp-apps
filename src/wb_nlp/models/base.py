@@ -1,6 +1,7 @@
 '''This module implements the word2vec model service that is responsible
 for training the model as well as a backend interface for the API.
 '''
+from functools import partial
 import os
 import gc
 import json
@@ -537,7 +538,7 @@ class BaseModel:
         if len(collection_doc_ids) == 0:
             raise ValueError('Document vectors not available!')
 
-    def transform_doc(self, document, normalize=True):
+    def transform_doc(self, document, normalize=True, tolist=False):
         # This function is the primary method of converting a document
         # into its vector representation based on the model.
         # This should be implemented in the respective models.
@@ -546,6 +547,20 @@ class BaseModel:
         # - success  # Whether the transformation went successfully
         self.check_model()
         return dict(doc_vec=None, success=None)
+
+    def transform_docs(self, docs, normalize=True, tolist=False):
+        """
+        This method accepts a dataframe as input that must contain a `phrase_text` column.
+        It will expand the dataframe to include derived columns, namely, `doc_vec` and `success`.
+        """
+        p_transform_doc = partial(
+            self.transform_doc, normalize=normalize, tolist=tolist)
+        cols = ["doc_vec", "success"]
+
+        docs[cols] = docs["phrase_text"].map(
+            p_transform_doc).apply(pd.Series)[cols]
+
+        return docs
 
     def process_doc(self, doc, normalize=True):
         """
@@ -570,8 +585,66 @@ class BaseModel:
 
         return self.transform_doc(text.lower(), normalize=normalize)
 
+    def process_docs(self, docs, normalize=True):
+        docs["phrase_text"] = docs["text"].map(replace_phrases)
+        return self.transform_docs(docs, normalize=normalize)
+
     def normalize_vectors(self, vectors):
         return [doc_vec / np.linalg.norm(doc_vec, ord=2) for doc_vec in vectors]
+
+    def build_docs_group(self, docs, is_topic_model, milvus_client, collection_name, partition_group):
+        normalize = not is_topic_model
+        results = self.process_docs(docs, normalize=normalize)
+
+        self.log(
+            f"Finished vector generation, storing vectors to db...")
+
+        results = [(ix, p['doc_vec'].flatten())
+                   for ix, (_, p) in enumerate(results.iterrows()) if p['success']]
+
+        if len(results) == 0:
+            return False
+
+        locs, vectors = list(zip(*results))
+        doc_int_ids = docs.iloc[list(
+            locs)]['int_id'].tolist()
+        doc_ids = docs.iloc[list(
+            locs)]['id'].tolist()
+
+        # If LDA model, dump topics in mongodb document_topics collection.
+        if is_topic_model:
+            print("FILLING TOPIC DB")
+            mongodb.get_document_topics_collection().delete_many(
+                {"id": {"$in": doc_ids}})
+
+            mongodb.get_document_topics_collection().insert_many(
+                [dict(
+                    model_run_info_id=self.model_run_info["model_run_info_id"],
+                    id=doc_id,
+                    _id=doc_id,
+                    topics={
+                        f"topic_{topic_id}": value for topic_id, value in enumerate(topic_list)}
+                ) for doc_id, topic_list in zip(doc_ids, vectors)]
+            )
+
+        entities = [
+            {"name": self.milvus_vector_field_name, "values": self.normalize_vectors(vectors) if is_topic_model else vectors,
+                "type": DataType.FLOAT_VECTOR},
+        ]
+
+        if not milvus_client.has_partition(collection_name, partition_group):
+            milvus_client.create_partition(
+                collection_name, partition_group)
+
+        ids = milvus_client.insert(collection_name, entities,
+                                   doc_int_ids, partition_tag=partition_group)
+
+        assert len(set(ids).difference(
+            doc_int_ids)) == 0
+
+        milvus_client.flush([collection_name])
+
+        return True
 
     def build_doc_vecs(self, pool_workers=None):
         # Input is a dataframe containing the following columns:
@@ -645,56 +718,59 @@ class BaseModel:
                             self.log(
                                 f"Finished reading {len(sub_sub_docs)} files, starting vector generation...")
 
-                            results = Parallel(verbose=10, batch_size='auto')(
-                                delayed(self.process_doc)(doc, normalize) for idx, doc in sub_sub_docs.iterrows())
+                            self.build_docs_group(
+                                sub_sub_docs, is_topic_model, milvus_client, collection_name, partition_group)
 
-                            self.log(
-                                f"Finished vector generation, storing vectors to db...")
+                            # results = Parallel(verbose=10, batch_size='auto')(
+                            #     delayed(self.process_doc)(doc, normalize) for idx, doc in sub_sub_docs.iterrows())
 
-                            results = [(ix, p['doc_vec'].flatten())
-                                       for ix, p in enumerate(results) if p['success']]
+                            # self.log(
+                            #     f"Finished vector generation, storing vectors to db...")
 
-                            if len(results) == 0:
-                                continue
+                            # results = [(ix, p['doc_vec'].flatten())
+                            #            for ix, p in enumerate(results) if p['success']]
 
-                            locs, vectors = list(zip(*results))
-                            sub_sub_int_ids = sub_sub_docs.iloc[list(
-                                locs)]['int_id'].tolist()
-                            sub_sub_ids = sub_sub_docs.iloc[list(
-                                locs)]['id'].tolist()
+                            # if len(results) == 0:
+                            #     continue
 
-                            # If LDA model, dump topics in mongodb document_topics collection.
-                            if is_topic_model:
-                                print("FILLING TOPIC DB")
-                                mongodb.get_document_topics_collection().delete_many(
-                                    {"id": {"$in": sub_sub_ids}})
+                            # locs, vectors = list(zip(*results))
+                            # sub_sub_int_ids = sub_sub_docs.iloc[list(
+                            #     locs)]['int_id'].tolist()
+                            # sub_sub_ids = sub_sub_docs.iloc[list(
+                            #     locs)]['id'].tolist()
 
-                                mongodb.get_document_topics_collection().insert_many(
-                                    [dict(
-                                        model_run_info_id=self.model_run_info["model_run_info_id"],
-                                        id=doc_id,
-                                        _id=doc_id,
-                                        topics={
-                                            f"topic_{topic_id}": value for topic_id, value in enumerate(topic_list)}
-                                    ) for doc_id, topic_list in zip(sub_sub_ids, vectors)]
-                                )
+                            # # If LDA model, dump topics in mongodb document_topics collection.
+                            # if is_topic_model:
+                            #     print("FILLING TOPIC DB")
+                            #     mongodb.get_document_topics_collection().delete_many(
+                            #         {"id": {"$in": sub_sub_ids}})
 
-                            entities = [
-                                {"name": self.milvus_vector_field_name, "values": self.normalize_vectors(vectors) if is_topic_model else vectors,
-                                    "type": DataType.FLOAT_VECTOR},
-                            ]
+                            #     mongodb.get_document_topics_collection().insert_many(
+                            #         [dict(
+                            #             model_run_info_id=self.model_run_info["model_run_info_id"],
+                            #             id=doc_id,
+                            #             _id=doc_id,
+                            #             topics={
+                            #                 f"topic_{topic_id}": value for topic_id, value in enumerate(topic_list)}
+                            #         ) for doc_id, topic_list in zip(sub_sub_ids, vectors)]
+                            #     )
 
-                            if not milvus_client.has_partition(collection_name, partition_group):
-                                milvus_client.create_partition(
-                                    collection_name, partition_group)
+                            # entities = [
+                            #     {"name": self.milvus_vector_field_name, "values": self.normalize_vectors(vectors) if is_topic_model else vectors,
+                            #         "type": DataType.FLOAT_VECTOR},
+                            # ]
 
-                            ids = milvus_client.insert(collection_name, entities,
-                                                       sub_sub_int_ids, partition_tag=partition_group)
+                            # if not milvus_client.has_partition(collection_name, partition_group):
+                            #     milvus_client.create_partition(
+                            #         collection_name, partition_group)
 
-                            assert len(set(ids).difference(
-                                sub_sub_int_ids)) == 0
+                            # ids = milvus_client.insert(collection_name, entities,
+                            #                            sub_sub_int_ids, partition_tag=partition_group)
 
-                            milvus_client.flush([collection_name])
+                            # assert len(set(ids).difference(
+                            #     sub_sub_int_ids)) == 0
+
+                            # milvus_client.flush([collection_name])
         finally:
             dask_client.close()
 

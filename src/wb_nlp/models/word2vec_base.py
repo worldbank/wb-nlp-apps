@@ -1,6 +1,7 @@
 '''This module implements the word2vec model service that is responsible
 for training the model as well as a backend interface for the API.
 '''
+from functools import partial
 import logging
 import json
 from gensim.models import Word2Vec
@@ -312,7 +313,7 @@ if __name__ == '__main__':
     # Do this if the model is available in disk but the model_run_info is not. This is to dump the model_run_info to db in case it's not present.
     # wvec_model.save()
 
-    # wvec_model.drop_milvus_collection()
+    wvec_model.drop_milvus_collection()
 
     wvec_model.build_doc_vecs(pool_workers=3)
     print(wvec_model.get_similar_words('bank'))
