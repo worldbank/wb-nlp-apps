@@ -633,6 +633,9 @@ class BaseModel:
                             sub_sub_docs["text"] = sub_sub_docs.apply(
                                 lambda _doc: read_text_file(self.cleaned_docs_dir / _doc["corpus"] / f"{_doc['id']}.txt"), axis=1)
 
+                            self.log(sub_sub_docs.head(20)["text"].map(
+                                lambda x: x[:100]))
+
                             self.log(
                                 f"Finished reading {len(sub_sub_docs)} files, starting vector generation...")
 
