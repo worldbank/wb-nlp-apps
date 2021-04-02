@@ -2,9 +2,11 @@ from typing import Optional
 from enum import Enum
 import uvicorn
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from .routers import cleaner, models, metadata, search
 from .routers.subrouters import lda, word2vec, wdi
+from wb_nlp import dir_manager
 
 tags_metadata = [
     {
@@ -61,6 +63,9 @@ app.include_router(
     # tags=["lda"],
     responses={404: {"description": "Not found"}},
 )
+
+app.mount("/nlp/static",
+          StaticFiles(directory=dir_manager.get_data_dir("corpus")), "static")
 
 
 @app.get("/")

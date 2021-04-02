@@ -28,6 +28,7 @@ dependencies:
   - xz=5.2.5
   - zlib=1.2.11
   - pip:
+    - aiofiles==0.6.0
     - attrs==20.3.0
     - blis==0.7.4
     - catalogue==1.0.0
