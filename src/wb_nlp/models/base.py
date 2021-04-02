@@ -636,7 +636,7 @@ class BaseModel:
                             sub_sub_docs["_l"] = sub_sub_docs["text"].map(len)
                             sub_sub_docs = sub_sub_docs.sort_values("_l")
 
-                            self.log(sub_sub_docs.head(20)["text"].map(
+                            self.log(sub_sub_docs.head(20).set_index("id")["text"].map(
                                 lambda x: x[:100]))
 
                             self.log(
