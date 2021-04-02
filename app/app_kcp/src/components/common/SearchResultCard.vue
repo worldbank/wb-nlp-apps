@@ -41,12 +41,22 @@
             </div>
           </div>
           <div class="study-meta d-flex">
-            <div class="small mt-2 mb-2 mr-3">
-              <a href="#"
+            <div
+              class="small mt-2 mb-2 mr-3"
+              @click="$bvModal.show('modal-scoped-meta-' + result.id)"
+            >
+              <a href="javascript:void(0);"
                 ><i class="fas fa-database mr-1" aria-hidden="true"></i
                 >Metadata</a
               >
             </div>
+            <b-modal
+              :id="'modal-scoped-meta-' + result.id"
+              :title="result.title"
+              size="lg"
+            >
+              <DocumentMetadata :metadata="result" />
+            </b-modal>
             <div
               class="small mt-2 mb-2"
               @click="$bvModal.show('modal-scoped-' + result.id)"
@@ -98,13 +108,14 @@
 <script>
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import DocumentTopic from "./DocumentTopic";
+import DocumentMetadata from "./DocumentMetadata";
 
 export default {
   name: "SearchResultCard",
   props: {
     result: Object,
   },
-  components: { RelatedDocsPanel, DocumentTopic },
+  components: { RelatedDocsPanel, DocumentTopic, DocumentMetadata },
   data: function () {
     return {
       submit_related: false,
