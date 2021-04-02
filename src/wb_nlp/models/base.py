@@ -1,7 +1,7 @@
 '''This module implements the word2vec model service that is responsible
 for training the model as well as a backend interface for the API.
 '''
-from functools import partial
+from functools import partial, lru_cache
 import os
 import gc
 import json
@@ -796,6 +796,7 @@ class BaseModel:
         finally:
             dask_client.close()
 
+    @lru_cache(maxsize=128)
     def get_doc_vec(self, document, normalize=True, assert_success=True, flatten=True):
         document = replace_phrases(document)
         doc_vec_payload = self.transform_doc(document, normalize=normalize)
@@ -806,6 +807,22 @@ class BaseModel:
 
         return doc_vec.flatten() if flatten else doc_vec
 
+    @lru_cache(maxsize=128)
+    def cached_milvus_result(self, document, metric_type="IP"):
+        print(f"First access for {document}...")
+        doc_vec = self.get_doc_vec(
+            document, normalize=True, assert_success=True, flatten=True)
+
+        topk = 1000  # from_result + (2 * size)  # Add buffer
+        dsl = get_embedding_dsl(
+            doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
+        results = get_milvus_client().search(self.model_collection_id, dsl)
+
+        entities = results[0]
+        print(entities[:10])
+
+        return entities
+
     def search_similar_documents(self, document, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10):
         # document: any text
         # topn: number of returned related documents in the database
@@ -814,15 +831,18 @@ class BaseModel:
         # show_duplicates: option if exact duplicates of documents are to be considered as return documents
         self.check_wvecs()
 
-        doc_vec = self.get_doc_vec(
-            document, normalize=True, assert_success=True, flatten=True)
+        # doc_vec = self.get_doc_vec(
+        #     document, normalize=True, assert_success=True, flatten=True)
 
-        topk = from_result + (2 * size)  # Add buffer
-        dsl = get_embedding_dsl(
-            doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
-        results = get_milvus_client().search(self.model_collection_id, dsl)
+        # topk = from_result + (2 * size)  # Add buffer
+        # dsl = get_embedding_dsl(
+        #     doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
+        # results = get_milvus_client().search(self.model_collection_id, dsl)
 
-        entities = results[0]
+        # entities = results[0]
+
+        entities = self.cached_milvus_result(document, metric_type=metric_type)
+
         payload = []
 
         for rank, ent in enumerate(entities):
