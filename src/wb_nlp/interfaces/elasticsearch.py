@@ -83,8 +83,13 @@ def make_nlp_docs_from_docs_metadata(docs_metadata):
 
     root_path = Path(get_path_from_root())
 
-    for data in docs_metadata:
+    for ix, data in enumerate(docs_metadata):
         doc_path = root_path / data["path_original"]
+        if ix and ix % 10000 == 0:
+            print(ix)
+
+        if not doc_path.exists():
+            continue
 
         # create and save and article
         nlp_doc = NLPDoc(meta={'id': data["_id"]}, **data)
