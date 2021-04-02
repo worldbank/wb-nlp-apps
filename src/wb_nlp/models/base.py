@@ -396,6 +396,8 @@ class BaseModel:
                     'Warning: dimension declared is not aligned with loaded model. Using loaded model dim.')
                 self.dim = dim
 
+            self.set_model_word_vectors()
+
     def save_model(self):
         if not self.trainable:
             self.log("Model state is set to trainable=False and can't be saved!")
