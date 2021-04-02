@@ -618,7 +618,7 @@ class BaseModel:
                     normalize = not is_topic_model
                     for partition_group, sub_docs in docs_for_processing.groupby('corpus'):
                         # Partition corpus into sub groups of size at most 1000
-                        group_size = 10000
+                        group_size = 1000
                         if group_size < len(sub_docs):
                             group_value = np.array(
                                 range(len(sub_docs))) % (len(sub_docs) // group_size)
