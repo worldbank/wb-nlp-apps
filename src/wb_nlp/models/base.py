@@ -40,6 +40,13 @@ from wb_nlp.utils.scripts import (
 )
 
 
+def read_text_file(fname):
+    with open(fname, "rb") as open_file:
+        text = open_file.read().decode("utf-8", errors="ignore")
+
+    return text
+
+
 class BaseModel:
     def __init__(
         self,
@@ -611,7 +618,7 @@ class BaseModel:
                     normalize = not is_topic_model
                     for partition_group, sub_docs in docs_for_processing.groupby('corpus'):
                         # Partition corpus into sub groups of size at most 1000
-                        group_size = 1000
+                        group_size = 10000
                         if group_size < len(sub_docs):
                             group_value = np.array(
                                 range(len(sub_docs))) % group_size
@@ -619,6 +626,8 @@ class BaseModel:
                             group_value = np.zeros(len(sub_docs))
 
                         for _, sub_sub_docs in sub_docs.groupby(group_value):
+                            sub_sub_docs["text"] = sub_sub_docs.apply(
+                                lambda _doc: read_text_file(self.cleaned_docs_dir / _doc["corpus"] / f"{_doc['id']}.txt"), axis=1)
 
                             results = Parallel(verbose=10, batch_size='auto')(
                                 delayed(self.process_doc)(doc, normalize) for idx, doc in sub_sub_docs.iterrows())
