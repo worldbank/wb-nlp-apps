@@ -88,10 +88,13 @@ def common_semantic_search(
         )
 
         print(f"Elapsed 7: {timer.elapsed}")
+        hits = [h for h in sorted(response, key=lambda x: id_rank[x["id"]])]
+
+        print(f"Elapsed 8: {timer.elapsed}")
 
         return dict(
             total=total,
-            hits=[h for h in sorted(response, key=lambda x: id_rank[x["id"]])],
+            hits=hits,
             next=from_result + size,
             result=result,
         )

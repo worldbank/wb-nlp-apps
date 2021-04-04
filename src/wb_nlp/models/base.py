@@ -39,6 +39,7 @@ from wb_nlp.utils.scripts import (
     get_cleaned_corpus_id,
     get_cleaner,
 )
+from wb_nlp import live_cache
 
 
 def read_text_file(fname):
@@ -135,13 +136,14 @@ class BaseModel:
             get_milvus_client().drop_collection(self.model_collection_id)
 
     def get_doc_id_from_int_id(self, int_id):
-        # docs_metadata_collection = mongodb.get_docs_metadata_collection()
-        docs_metadata_collection = mongodb.get_collection(
-            db_name="test_nlp", collection_name="docs_metadata")
+        return live_cache.DOCS_INT_ID_TO_ID[int_id]
+        # # docs_metadata_collection = mongodb.get_docs_metadata_collection()
+        # docs_metadata_collection = mongodb.get_collection(
+        #     db_name="test_nlp", collection_name="docs_metadata")
 
-        res = docs_metadata_collection.find_one(
-            {"int_id": int_id}, projection=["id"])
-        return res["id"]
+        # res = docs_metadata_collection.find_one(
+        #     {"int_id": int_id}, projection=["id"])
+        # return res["id"]
 
     def get_int_id_from_doc_id(self, doc_id):
         # docs_metadata_collection = mongodb.get_docs_metadata_collection()
