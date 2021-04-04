@@ -35,6 +35,7 @@ dependencies:
     - chardet==4.0.0
     - click==7.1.2
     - cloudpickle==1.6.0
+    - contexttimer==0.3.3
     - crc16==0.1.1
     - cymem==2.0.5
     - dask==2020.12.0

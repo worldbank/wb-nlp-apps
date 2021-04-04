@@ -13,7 +13,7 @@ from gensim.corpora import Dictionary, MmCorpus
 from gensim.models.wrappers.ldamallet import malletmodel2ldamodel
 import pandas as pd
 import numpy as np
-
+from contexttimer import Timer
 import joblib
 from joblib import delayed, Parallel
 
@@ -810,27 +810,33 @@ class BaseModel:
     @lru_cache(maxsize=128)
     def cached_milvus_result(self, document, topk, metric_type="IP"):
         # print(f"First access for {document}...")
-        doc_vec = self.get_doc_vec(
-            document, normalize=True, assert_success=True, flatten=True)
+        with Timer() as timer:
+            print(f"CMR Elapsed 1: {timer.elapsed}")
+            doc_vec = self.get_doc_vec(
+                document, normalize=True, assert_success=True, flatten=True)
 
-        # topk = 1000  # from_result + (2 * size)  # Add buffer
-        # topk = (((from_result + size) // batch_size) + 1) * batch_size
-        dsl = get_embedding_dsl(
-            doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
-        results = get_milvus_client().search(self.model_collection_id, dsl)
+            # topk = 1000  # from_result + (2 * size)  # Add buffer
+            # topk = (((from_result + size) // batch_size) + 1) * batch_size
+            print(f"CMR Elapsed 2: {timer.elapsed}")
+            dsl = get_embedding_dsl(
+                doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
+            print(f"CMR Elapsed 3: {timer.elapsed}")
+            results = get_milvus_client().search(self.model_collection_id, dsl)
 
-        entities = []
+            print(f"CMR Elapsed 4: {timer.elapsed}")
+            entities = []
+            for position, ent in enumerate(results[0]):
+                entities.append(
+                    dict(
+                        id=ent.id,
+                        distance=ent.distance,
+                        position=position)
+                )
+            print(entities[:10])
 
-        for position, ent in enumerate(results[0]):
-            entities.append(
-                dict(
-                    id=ent.id,
-                    distance=ent.distance,
-                    position=position)
-            )
-        print(entities[:10])
+            print(f"CMR Elapsed 4: {timer.elapsed}")
 
-        return entities
+            return entities
 
     def search_similar_documents(self, document, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10, batch_size=100):
         # document: any text
@@ -850,35 +856,39 @@ class BaseModel:
 
         # entities = results[0]
 
-        topk = (((from_result + size) // batch_size) + 1) * batch_size
+        with Timer() as timer:
+            print(f"SSD Elapsed 1: {timer.elapsed}")
+            topk = (((from_result + size) // batch_size) + 1) * batch_size
+            entities = self.cached_milvus_result(
+                document, topk=topk, metric_type=metric_type)
 
-        entities = self.cached_milvus_result(
-            document, topk=topk, metric_type=metric_type)
+            print(f"SSD Elapsed 2: {timer.elapsed}")
+            payload = []
+            for ent in entities:
 
-        payload = []
-
-        for ent in entities:
-
-            if from_result > ent["position"]:
-                continue
-
-            if not show_duplicates:
-                # TODO: Make sure that this is true for Milvus.
-                # If we change the metric_type, this should be adjusted somehow.
-                if ent["distance"] > duplicate_threshold:
+                if from_result > ent["position"]:
                     continue
 
-            payload.append({'id': self.get_doc_id_from_int_id(ent["id"]), 'score': float(np.round(
-                ent["distance"], decimals=5)), 'rank': ent["position"] + 1})
+                if not show_duplicates:
+                    # TODO: Make sure that this is true for Milvus.
+                    # If we change the metric_type, this should be adjusted somehow.
+                    if ent["distance"] > duplicate_threshold:
+                        continue
 
-            if len(payload) == size:
-                break
+                payload.append({'id': self.get_doc_id_from_int_id(ent["id"]), 'score': float(np.round(
+                    ent["distance"], decimals=5)), 'rank': ent["position"] + 1})
 
-        payload = sorted(payload, key=lambda x: x['rank'])
-        if serialize:
-            payload = pd.DataFrame(payload).to_json()
+                if len(payload) == size:
+                    break
 
-        return payload
+            print(f"SSD Elapsed 3: {timer.elapsed}")
+            payload = sorted(payload, key=lambda x: x['rank'])
+            if serialize:
+                payload = pd.DataFrame(payload).to_json()
+
+            print(f"SSD Elapsed 4: {timer.elapsed}")
+
+            return payload
 
     def get_similar_documents(self, document, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
         # document: any text
