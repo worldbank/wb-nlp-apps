@@ -4,7 +4,7 @@ import json
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query, Form
 import pydantic
 from pydantic import HttpUrl
-
+from contexttimer import Timer
 from wb_nlp.interfaces import mongodb, elasticsearch
 
 from wb_nlp.types.models import (
@@ -50,41 +50,51 @@ def common_semantic_search(
         size: int = 10,
         clean: bool = True):
 
-    model = get_validated_model(model_name, model_id)
-    # model = get_validated_model(ModelTypes(
-    #     "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
+    with Timer() as timer:
 
-    print("QUERY: ", query[:100])
-    if clean:
-        query = clean_text(model_name, model_id, query)
-        # query = model.clean_text(query)
+        print(f"Elapsed 1: {timer.elapsed}")
+        model = get_validated_model(model_name, model_id)
+        # model = get_validated_model(ModelTypes(
+        #     "word2vec"), "777a9cf47411f6c4932e8941f177f90a")
 
-    # print("CLEANED QUERY: ", query)
+        print(f"Elapsed 2: {timer.elapsed}")
+        print("QUERY: ", query[:100])
+        if clean:
+            query = clean_text(model_name, model_id, query)
+            # query = model.clean_text(query)
 
-    result = model.search_similar_documents(
-        document=query,
-        from_result=from_result,
-        size=size)
+        # print("CLEANED QUERY: ", query)
 
-    id_rank = {res["id"]: res["rank"] for res in result}
+        print(f"Elapsed 3: {timer.elapsed}")
+        result = model.search_similar_documents(
+            document=query,
+            from_result=from_result,
+            size=size)
 
-    docs_metadata = mongodb.get_collection(
-        db_name="test_nlp", collection_name="docs_metadata")
-    # docs_metadata = mongodb.get_docs_metadata_collection()
+        print(f"Elapsed 4: {timer.elapsed}")
+        id_rank = {res["id"]: res["rank"] for res in result}
 
-    response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
+        print(f"Elapsed 5: {timer.elapsed}")
+        docs_metadata = mongodb.get_collection(
+            db_name="test_nlp", collection_name="docs_metadata")
+        # docs_metadata = mongodb.get_docs_metadata_collection()
 
-    total = dict(
-        value=None,
-        message="many"
-    )
+        print(f"Elapsed 6: {timer.elapsed}")
+        response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
 
-    return dict(
-        total=total,
-        hits=[h for h in sorted(response, key=lambda x: id_rank[x["id"]])],
-        next=from_result + size,
-        result=result,
-    )
+        total = dict(
+            value=None,
+            message="many"
+        )
+
+        print(f"Elapsed 7: {timer.elapsed}")
+
+        return dict(
+            total=total,
+            hits=[h for h in sorted(response, key=lambda x: id_rank[x["id"]])],
+            next=from_result + size,
+            result=result,
+        )
 
 
 @ router.get("/{model_name}/semantic")

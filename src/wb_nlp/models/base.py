@@ -808,22 +808,31 @@ class BaseModel:
         return doc_vec.flatten() if flatten else doc_vec
 
     @lru_cache(maxsize=128)
-    def cached_milvus_result(self, document, metric_type="IP"):
+    def cached_milvus_result(self, document, topk, metric_type="IP"):
         # print(f"First access for {document}...")
         doc_vec = self.get_doc_vec(
             document, normalize=True, assert_success=True, flatten=True)
 
-        topk = 1000  # from_result + (2 * size)  # Add buffer
+        # topk = 1000  # from_result + (2 * size)  # Add buffer
+        # topk = (((from_result + size) // batch_size) + 1) * batch_size
         dsl = get_embedding_dsl(
             doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
         results = get_milvus_client().search(self.model_collection_id, dsl)
 
-        entities = results[0]
+        entities = []
+
+        for position, ent in enumerate(results[0]):
+            entities.append(
+                dict(
+                    id=ent.id,
+                    distance=ent.distance,
+                    position=position)
+            )
         print(entities[:10])
 
         return entities
 
-    def search_similar_documents(self, document, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10):
+    def search_similar_documents(self, document, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10, batch_size=100):
         # document: any text
         # topn: number of returned related documents in the database
         # return_data: string corresponding to a column in the docs or list of column names
@@ -841,23 +850,26 @@ class BaseModel:
 
         # entities = results[0]
 
-        entities = self.cached_milvus_result(document, metric_type=metric_type)
+        topk = (((from_result + size) // batch_size) + 1) * batch_size
+
+        entities = self.cached_milvus_result(
+            document, topk=topk, metric_type=metric_type)
 
         payload = []
 
-        for rank, ent in enumerate(entities):
+        for ent in entities:
 
-            if from_result > rank:
+            if from_result > ent["position"]:
                 continue
 
             if not show_duplicates:
                 # TODO: Make sure that this is true for Milvus.
                 # If we change the metric_type, this should be adjusted somehow.
-                if ent.distance > duplicate_threshold:
+                if ent["distance"] > duplicate_threshold:
                     continue
 
-            payload.append({'id': self.get_doc_id_from_int_id(ent.id), 'score': float(np.round(
-                ent.distance, decimals=5)), 'rank': rank + 1})
+            payload.append({'id': self.get_doc_id_from_int_id(ent["id"]), 'score': float(np.round(
+                ent["distance"], decimals=5)), 'rank': ent["position"] + 1})
 
             if len(payload) == size:
                 break
