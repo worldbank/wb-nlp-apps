@@ -100,6 +100,15 @@
               </span>
             </div>
 
+            <p v-if="uploaded_file && uploaded_file.size > 2000000">
+              <span style="color: red"
+                >File size is large: ~{{
+                  Math.round(uploaded_file.size / 1000000)
+                }}
+                MB. Results may take some time to render...</span
+              >
+            </p>
+
             <div class="col-12 col-md-12 text-center">
               <div class="form-check form-check-inline">
                 <input
