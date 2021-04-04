@@ -36,7 +36,7 @@
         <FilterTable @topicRangeReceived="submitTopicSearch" />
 
         <a name="results"></a>
-        <div v-show="this.model_id">
+        <div v-if="this.model_id">
           <h2>Filtering Results</h2>
 
           <SearchResultLoading :loading="loading" :size="curr_size" />
@@ -85,6 +85,8 @@ export default {
   mixins: [saveState],
   mounted() {
     window.vm = this;
+    this.model_id = null;
+    this.hits = [];
   },
   computed: {
     searchBody() {

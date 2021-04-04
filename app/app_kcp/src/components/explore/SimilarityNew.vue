@@ -170,6 +170,15 @@
               v-model="url"
             />
           </div>
+
+          <p class="lead" v-if="uploaded_file && uploaded_file.size > 2000000">
+            <span style="color: red"
+              >File size is large: ~{{
+                Math.round(uploaded_file.size / 1000000)
+              }}
+              MB. Results may take some time to render...</span
+            >
+          </p>
           <br />
           <b-button
             class="btn btn-primary wbg-button"
@@ -181,9 +190,15 @@
         </form>
         <br />
         <a name="results"></a>
-        <h3 v-if="stateReady" class="mt-4 mb-3">Comparison of results</h3>
+        <h3 v-if="stateReady && model_option.model_id" class="mt-4 mb-3">
+          Comparison of results
+        </h3>
 
-        <b-tabs v-if="stateReady" v-model="tabIndex" content-class="mt-3">
+        <b-tabs
+          v-if="stateReady && model_option.model_id"
+          v-model="tabIndex"
+          content-class="mt-3"
+        >
           <b-tab title="Embedding model" active>
             <SearchResultLoading
               :loading="loading"
@@ -270,6 +285,8 @@ export default {
   mixins: [saveState],
   mounted() {
     window.vm = this;
+    this.model_options.lda.model_id = null;
+    this.model_options.word2vec.model_id = null;
   },
   data() {
     return {

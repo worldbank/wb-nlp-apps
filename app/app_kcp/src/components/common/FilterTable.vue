@@ -6,7 +6,14 @@
       :model_name="model_name"
       placeholder="Choose topic model..."
     />
-    <div v-show="model_run_info_id">
+    <div v-if="loading" class="d-flex justify-content-center">
+      <b-spinner
+        style="margin: 20px"
+        variant="primary"
+        label="Spinning"
+      ></b-spinner>
+    </div>
+    <div v-show="model_run_info_id && rows.length > 0">
       <h3 class="mb-3 mt-5">Available topics</h3>
       <p class="mt-2">
         Scroll for more topics. You may also use the search box below to narrow
@@ -160,6 +167,7 @@ export default {
   },
   data: function () {
     return {
+      loading: false,
       hits_loading: false,
       total_hits: null,
       topic_data: {},
@@ -285,6 +293,7 @@ export default {
         });
     },
     getModelTopics: function () {
+      this.loading = true;
       this.$http
         .get(this.$config.nlp_api_url.lda + "/get_model_topic_words", {
           params: this.searchParams,
