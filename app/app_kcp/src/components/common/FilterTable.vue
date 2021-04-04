@@ -236,7 +236,9 @@ export default {
     onModelSelect: function (model_run_info_id) {
       this.model_run_info_id = model_run_info_id;
       this.getModelTopics();
-      this.getTopicRanges();
+
+      // Call this inside the getModelTopics then clause to prevent race condition when running a single API worker.
+      // this.getTopicRanges();
     },
     formatTopicText: function (topic, with_topic_id = false) {
       var topic_words = topic.topic_words
@@ -304,6 +306,8 @@ export default {
               topic_words: topic_words,
             };
           });
+
+          this.getTopicRanges();
 
           // this.current_lda_model_topics = response.data;
           // this.current_lda_model_topics_options = this.lodash.map(
