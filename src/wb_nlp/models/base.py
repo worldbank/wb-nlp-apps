@@ -1,6 +1,7 @@
 '''This module implements the word2vec model service that is responsible
 for training the model as well as a backend interface for the API.
 '''
+from functools import partial, lru_cache
 import os
 import gc
 import json
@@ -12,7 +13,7 @@ from gensim.corpora import Dictionary, MmCorpus
 from gensim.models.wrappers.ldamallet import malletmodel2ldamodel
 import pandas as pd
 import numpy as np
-
+from contexttimer import Timer
 import joblib
 from joblib import delayed, Parallel
 
@@ -29,7 +30,7 @@ from wb_nlp.interfaces.milvus import (
 from wb_nlp.interfaces import mongodb
 from wb_nlp.types.models import ModelRunInfo, ModelTypes
 from wb_nlp import dir_manager
-from wb_nlp.processing.corpus import MultiDirGenerator
+from wb_nlp.processing.corpus import MultiDirGenerator, replace_phrases
 from wb_nlp.utils.scripts import (
     configure_logger,
     create_dask_cluster,
@@ -38,6 +39,14 @@ from wb_nlp.utils.scripts import (
     get_cleaned_corpus_id,
     get_cleaner,
 )
+from wb_nlp import live_cache
+
+
+def read_text_file(fname):
+    with open(fname, "rb") as open_file:
+        text = open_file.read().decode("utf-8", errors="ignore")
+
+    return text
 
 
 class BaseModel:
@@ -49,32 +58,44 @@ class BaseModel:
         model_config_type,
         expected_model_name,
         model_run_info_description="",
+        model_run_info_id=None,
         raise_empty_doc_status=True,
         log_level=logging.WARNING,
     ):
         configure_logger(log_level)
         self.log_level = log_level
         self.logger = logging.getLogger(__file__)
+        self.trainable = False
 
-        self.cleaning_config_id = cleaning_config_id
-        self.model_config_id = model_config_id
         self.model_class = model_class  # Example: LdaMulticore
         self.model_config_type = model_config_type  # Example: LDAModelConfig
-        self.model_run_info_description = model_run_info_description
-
         self.expected_model_name = expected_model_name
 
-        self.validate_and_prepare_requirements()
+        if model_run_info_id is None:
+            self.cleaning_config_id = cleaning_config_id
+            self.model_config_id = model_config_id
+            self.model_run_info_description = model_run_info_description
+
+            self.validate_and_prepare_requirements()
+            self.trainable = True
+
+        else:
+            self.validate_and_load_model_run_info_from_db(
+                model_run_info_id=model_run_info_id,
+                model_config_id=model_config_id,
+                cleaning_config_id=cleaning_config_id,
+            )
+            self.trainable = False
 
         self.model = None
         self.mallet_model = None
         self.raise_empty_doc_status = raise_empty_doc_status
 
         # # Try to load the model
-        # self.load()
-        # self.set_model_specific_attributes()
+        self.load()
+        self.set_model_specific_attributes()
 
-        # self.create_milvus_collection()
+        self.create_milvus_collection()
 
     def log(self, message):
 
@@ -115,13 +136,14 @@ class BaseModel:
             get_milvus_client().drop_collection(self.model_collection_id)
 
     def get_doc_id_from_int_id(self, int_id):
-        # docs_metadata_collection = mongodb.get_docs_metadata_collection()
-        docs_metadata_collection = mongodb.get_collection(
-            db_name="test_nlp", collection_name="docs_metadata")
+        return live_cache.DOCS_INT_ID_TO_ID[int_id]
+        # # docs_metadata_collection = mongodb.get_docs_metadata_collection()
+        # docs_metadata_collection = mongodb.get_collection(
+        #     db_name="test_nlp", collection_name="docs_metadata")
 
-        res = docs_metadata_collection.find_one(
-            {"int_id": int_id}, projection=["id"])
-        return res["id"]
+        # res = docs_metadata_collection.find_one(
+        #     {"int_id": int_id}, projection=["id"])
+        # return res["id"]
 
     def get_int_id_from_doc_id(self, doc_id):
         # docs_metadata_collection = mongodb.get_docs_metadata_collection()
@@ -133,6 +155,10 @@ class BaseModel:
         return res["int_id"]
 
     def set_processed_corpus_id(self):
+        # Generate an identifier corresponding to the processed data.
+        # If no additional processing is needed such as in word2vec,
+        # this is set to the cleaned_corpus_id, otherwise we compute
+        # additional identifiers.
         if self.model_name in [ModelTypes.lda.value, ModelTypes.mallet.value]:
             self.dictionary_params = self.model_config['dictionary_config']
             processed_corpus_ids = [self.cleaned_corpus_id,
@@ -164,30 +190,15 @@ class BaseModel:
         # hash of the hashes of the individual files.
         self.cleaned_corpus_id = get_cleaned_corpus_id(self.cleaned_docs_dir)
 
-        # Get the configuration of the model from mongodb.
-        model_configs_collection = mongodb.get_model_configs_collection()
-        self.model_config = model_configs_collection.find_one(
-            {"_id": self.model_config_id})
+        self.validate_and_load_model_config()
 
-        # Do this to make sure that the config is consistent with the expected schema.
-        self.model_config_type(**self.model_config)
-        self.model_name = self.model_config["meta"]["model_name"]
-
-        # Perform basic validation of the configuration.
-        assert self.model_name == self.expected_model_name
-        assert gensim.__version__ == self.model_config['meta']['library_version']
-
-        # Set the `dim` attribute to be used when creating the milvus
-        # index for the model.
-        params = self.model_config[f"{self.model_name}_config"]
-        self.dim = params.get("num_topics", params.get("size"))
-
-        # Generate an identifier corresponding to the processed data.
-        # If no additional processing is needed such as in word2vec,
-        # this is set to the cleaned_corpus_id, otherwise we compute
-        # additional identifiers.
         self.set_processed_corpus_id()
 
+        self.set_and_validate_model_run_info()
+
+        self.set_trained_model_attributes()
+
+    def set_and_validate_model_run_info(self):
         # Define the metadata corresponding to the model.
         # The model_run_info specifies the set of metadata
         # necessary to replicate the model from scratch.
@@ -208,6 +219,53 @@ class BaseModel:
 
         assert self.model_run_info["model_run_info_id"] == self.model_id
 
+    def validate_and_load_model_run_info_from_db(self, model_run_info_id, model_config_id, cleaning_config_id):
+        # Load model_run_info from db.
+        model_runs_info_collection = mongodb.get_model_runs_info_collection()
+        model_run_info = model_runs_info_collection.find_one(
+            {"model_run_info_id": model_run_info_id})
+
+        assert model_config_id == model_run_info["model_config_id"]
+        assert cleaning_config_id == model_run_info["cleaning_config_id"]
+
+        self.model_run_info = model_run_info
+        self.model_name = model_run_info["model_name"]
+        self.model_config_id = model_run_info["model_config_id"]
+        self.cleaning_config_id = model_run_info["cleaning_config_id"]
+        self.processed_corpus_id = model_run_info["processed_corpus_id"]
+        self.model_id = model_run_info["model_run_info_id"]
+        self.model_run_info_description = model_run_info["description"]
+
+        self.cleaned_docs_dir = Path(dir_manager.get_data_dir(
+            "corpus", "cleaned", self.cleaning_config_id))
+
+        # Make sure that the directory where we expect the cleaned files are exists.
+        assert self.cleaned_docs_dir.exists()
+
+        self.validate_and_load_model_config()
+
+        self.set_trained_model_attributes()
+
+    def validate_and_load_model_config(self):
+        # Get the configuration of the model from mongodb.
+        model_configs_collection = mongodb.get_model_configs_collection()
+        self.model_config = model_configs_collection.find_one(
+            {"_id": self.model_config_id})
+
+        # Do this to make sure that the config is consistent with the expected schema.
+        self.model_config_type(**self.model_config)
+        self.model_name = self.model_config["meta"]["model_name"]
+
+        # Perform basic validation of the configuration.
+        assert self.model_name == self.expected_model_name
+        assert gensim.__version__ == self.model_config['meta']['library_version']
+
+        # Set the `dim` attribute to be used when creating the milvus
+        # index for the model.
+        params = self.model_config[f"{self.model_name}_config"]
+        self.dim = params.get("num_topics", params.get("size"))
+
+    def set_trained_model_attributes(self):
         # Set attributes corresponding where we want the trained model
         # will be saved.
         self.model_collection_id = f'{self.model_name}_{self.model_id}'
@@ -249,6 +307,7 @@ class BaseModel:
                     split=True,
                     min_tokens=self.model_config['min_tokens'],
                     include_extra=False,
+                    cached=True,
                     logger=self.logger
                 )
 
@@ -280,6 +339,9 @@ class BaseModel:
                     corpus_ids.append(doc_id)
                     corpus_token_counts[doc_id] = len(doc_content)
 
+                # Free up memory by clearing the document cache
+                file_generator.clear_cache()
+
                 self.logger.info('Saving corpus to %s...', self.corpus_path)
                 MmCorpus.serialize(str(self.corpus_path), corpus)
 
@@ -305,6 +367,7 @@ class BaseModel:
                 min_tokens=0,
                 include_extra=True,
                 return_doc_id=False,
+                cached=True,
                 logger=self.logger
             )
 
@@ -335,7 +398,13 @@ class BaseModel:
                     'Warning: dimension declared is not aligned with loaded model. Using loaded model dim.')
                 self.dim = dim
 
+            self.set_model_word_vectors()
+
     def save_model(self):
+        if not self.trainable:
+            self.log("Model state is set to trainable=False and can't be saved!")
+            return
+
         self.check_model()
         model_runs_info_collection = mongodb.get_model_runs_info_collection()
         # model_runs_info_collection.delete_many({})
@@ -439,6 +508,11 @@ class BaseModel:
     def train_model(self, retrain=False):
         # TODO: Add a way to augment the content of the docs
         # with an external dataset without metadata.
+        if not self.trainable:
+            self.log(
+                "Model is set to trainable=False state since it was loaded from an existing model_run_info_id. Training will not continue!")
+            return
+
         if self.model_file_name.exists() and not retrain:
             self.log(
                 'Warning: A model with the same configuration is available on disk. Loading...')
@@ -468,7 +542,7 @@ class BaseModel:
         if len(collection_doc_ids) == 0:
             raise ValueError('Document vectors not available!')
 
-    def transform_doc(self, document, normalize=True):
+    def transform_doc(self, document, normalize=True, tolist=False):
         # This function is the primary method of converting a document
         # into its vector representation based on the model.
         # This should be implemented in the respective models.
@@ -477,6 +551,20 @@ class BaseModel:
         # - success  # Whether the transformation went successfully
         self.check_model()
         return dict(doc_vec=None, success=None)
+
+    def transform_docs(self, docs, normalize=True, tolist=False):
+        """
+        This method accepts a dataframe as input that must contain a `phrase_text` column.
+        It will expand the dataframe to include derived columns, namely, `doc_vec` and `success`.
+        """
+        p_transform_doc = partial(
+            self.transform_doc, normalize=normalize, tolist=tolist)
+        cols = ["doc_vec", "success"]
+
+        docs[cols] = docs["phrase_text"].map(
+            p_transform_doc).apply(pd.Series)[cols]
+
+        return docs
 
     def process_doc(self, doc, normalize=True):
         """
@@ -497,10 +585,87 @@ class BaseModel:
             with open(fname, "rb") as open_file:
                 text = open_file.read().decode("utf-8", errors="ignore")
 
+        text = replace_phrases(text)
+
         return self.transform_doc(text.lower(), normalize=normalize)
+
+    def process_docs(self, docs, normalize=True):
+        docs["phrase_text"] = docs["text"].map(replace_phrases)
+        return self.transform_docs(docs, normalize=normalize)
 
     def normalize_vectors(self, vectors):
         return [doc_vec / np.linalg.norm(doc_vec, ord=2) for doc_vec in vectors]
+
+    def build_docs_group(self, docs, is_topic_model, group_id, max_group, collection_name, partition_group):
+        milvus_client = get_milvus_client()
+        normalize = not is_topic_model
+
+        print(f"Loading group {group_id + 1} / {max_group + 1}...")
+        docs["text"] = docs.apply(
+            lambda _doc: read_text_file(self.cleaned_docs_dir / _doc["corpus"] / f"{_doc['id']}.txt"), axis=1)
+
+        docs["_l"] = docs["text"].map(len)
+        docs = docs.sort_values("_l")
+
+        self.log(docs.head(20).set_index("id")["text"].map(
+            lambda x: x[:100]))
+
+        self.log(
+            f"Smallest and largest files for this group has {docs.iloc[0]['_l']} and {docs.iloc[-1]['_l']} characters, respectively...")
+
+        self.log(
+            f"Finished reading {len(docs)} files, starting vector generation...")
+
+        results = self.process_docs(docs, normalize=normalize)
+
+        print(f"{group_id + 1}. Finished vector generation, storing vectors to db...")
+
+        results = [(ix, p['doc_vec'].flatten())
+                   for ix, (_, p) in enumerate(results.iterrows()) if p['success']]
+
+        if len(results) == 0:
+            return False
+
+        locs, vectors = list(zip(*results))
+        doc_int_ids = docs.iloc[list(
+            locs)]['int_id'].tolist()
+        doc_ids = docs.iloc[list(
+            locs)]['id'].tolist()
+
+        # If LDA model, dump topics in mongodb document_topics collection.
+        if is_topic_model:
+            print("FILLING TOPIC DB")
+            mongodb.get_document_topics_collection().delete_many(
+                {"id": {"$in": doc_ids}})
+
+            mongodb.get_document_topics_collection().insert_many(
+                [dict(
+                    model_run_info_id=self.model_run_info["model_run_info_id"],
+                    id=doc_id,
+                    _id=doc_id,
+                    topics={
+                        f"topic_{topic_id}": value for topic_id, value in enumerate(topic_list)}
+                ) for doc_id, topic_list in zip(doc_ids, vectors)]
+            )
+
+        entities = [
+            {"name": self.milvus_vector_field_name, "values": self.normalize_vectors(vectors) if is_topic_model else vectors,
+                "type": DataType.FLOAT_VECTOR},
+        ]
+
+        if not milvus_client.has_partition(collection_name, partition_group):
+            milvus_client.create_partition(
+                collection_name, partition_group)
+
+        ids = milvus_client.insert(collection_name, entities,
+                                   doc_int_ids, partition_tag=partition_group)
+
+        assert len(set(ids).difference(
+            doc_int_ids)) == 0
+
+        milvus_client.flush([collection_name])
+
+        return True
 
     def build_doc_vecs(self, pool_workers=None):
         # Input is a dataframe containing the following columns:
@@ -524,11 +689,13 @@ class BaseModel:
 
         projection = ["id", "int_id", "hex_id", "corpus"]
 
+        cleaned_ids = [i.stem for i in self.cleaned_docs_dir.glob("*/*.txt")]
+
         docs_metadata_df = pd.DataFrame(
             list(docs_metadata_collection.find(projection=projection)), columns=projection)
 
         docs_for_processing = docs_metadata_df[
-            ~docs_metadata_df['int_id'].isin(collection_doc_ids)]
+            ~docs_metadata_df['int_id'].isin(collection_doc_ids) & docs_metadata_df["id"].isin(cleaned_ids)]
 
         dask_client = create_dask_cluster(
             logger=self.logger, n_workers=pool_workers)
@@ -548,63 +715,92 @@ class BaseModel:
                         group_size = 1000
                         if group_size < len(sub_docs):
                             group_value = np.array(
-                                range(len(sub_docs))) % group_size
+                                range(len(sub_docs))) % (len(sub_docs) // group_size)
                         else:
                             group_value = np.zeros(len(sub_docs))
 
-                        for _, sub_sub_docs in sub_docs.groupby(group_value):
+                        max_group = max(group_value)
 
-                            results = Parallel(verbose=10, batch_size='auto')(
-                                delayed(self.process_doc)(doc, normalize) for idx, doc in sub_sub_docs.iterrows())
+                        results = Parallel(verbose=10, batch_size='auto')(
+                            delayed(self.build_docs_group)(docs, is_topic_model, group_id, max_group, collection_name, partition_group) for group_id, docs in sub_docs.groupby(group_value))
 
-                            results = [(ix, p['doc_vec'].flatten())
-                                       for ix, p in enumerate(results) if p['success']]
+                        # for group_id, sub_sub_docs in sub_docs.groupby(group_value):
+                        #     self.log(
+                        #         f"Loading group {group_id + 1} / {max_group + 1}...")
+                        #     sub_sub_docs["text"] = sub_sub_docs.apply(
+                        #         lambda _doc: read_text_file(self.cleaned_docs_dir / _doc["corpus"] / f"{_doc['id']}.txt"), axis=1)
 
-                            if len(results) == 0:
-                                continue
+                        #     sub_sub_docs["_l"] = sub_sub_docs["text"].map(len)
+                        #     sub_sub_docs = sub_sub_docs.sort_values("_l")
 
-                            locs, vectors = list(zip(*results))
-                            sub_sub_int_ids = sub_sub_docs.iloc[list(
-                                locs)]['int_id'].tolist()
-                            sub_sub_ids = sub_sub_docs.iloc[list(
-                                locs)]['id'].tolist()
+                        #     self.log(sub_sub_docs.head(20).set_index("id")["text"].map(
+                        #         lambda x: x[:100]))
 
-                            # If LDA model, dump topics in mongodb document_topics collection.
-                            if is_topic_model:
-                                print("FILLING TOPIC DB")
-                                mongodb.get_document_topics_collection().delete_many(
-                                    {"id": {"$in": sub_sub_ids}})
+                        #     self.log(
+                        #         f"Smallest and largest files for this group has {sub_sub_docs.iloc[0]['_l']} and {sub_sub_docs.iloc[-1]['_l']} characters, respectively...")
 
-                                mongodb.get_document_topics_collection().insert_many(
-                                    [dict(
-                                        model_run_info_id=self.model_run_info["model_run_info_id"],
-                                        id=doc_id,
-                                        _id=doc_id,
-                                        topics={
-                                            f"topic_{topic_id}": value for topic_id, value in enumerate(topic_list)}
-                                    ) for doc_id, topic_list in zip(sub_sub_ids, vectors)]
-                                )
+                        #     self.log(
+                        #         f"Finished reading {len(sub_sub_docs)} files, starting vector generation...")
 
-                            entities = [
-                                {"name": self.milvus_vector_field_name, "values": self.normalize_vectors(vectors) if is_topic_model else vectors,
-                                    "type": DataType.FLOAT_VECTOR},
-                            ]
+                        #     self.build_docs_group(
+                        #         sub_sub_docs, is_topic_model, milvus_client, collection_name, partition_group)
 
-                            if not milvus_client.has_partition(collection_name, partition_group):
-                                milvus_client.create_partition(
-                                    collection_name, partition_group)
+                        # results = Parallel(verbose=10, batch_size='auto')(
+                        #     delayed(self.process_doc)(doc, normalize) for idx, doc in sub_sub_docs.iterrows())
 
-                            ids = milvus_client.insert(collection_name, entities,
-                                                       sub_sub_int_ids, partition_tag=partition_group)
+                        # self.log(
+                        #     f"Finished vector generation, storing vectors to db...")
 
-                            assert len(set(ids).difference(
-                                sub_sub_int_ids)) == 0
+                        # results = [(ix, p['doc_vec'].flatten())
+                        #            for ix, p in enumerate(results) if p['success']]
 
-                            milvus_client.flush([collection_name])
+                        # if len(results) == 0:
+                        #     continue
+
+                        # locs, vectors = list(zip(*results))
+                        # sub_sub_int_ids = sub_sub_docs.iloc[list(
+                        #     locs)]['int_id'].tolist()
+                        # sub_sub_ids = sub_sub_docs.iloc[list(
+                        #     locs)]['id'].tolist()
+
+                        # # If LDA model, dump topics in mongodb document_topics collection.
+                        # if is_topic_model:
+                        #     print("FILLING TOPIC DB")
+                        #     mongodb.get_document_topics_collection().delete_many(
+                        #         {"id": {"$in": sub_sub_ids}})
+
+                        #     mongodb.get_document_topics_collection().insert_many(
+                        #         [dict(
+                        #             model_run_info_id=self.model_run_info["model_run_info_id"],
+                        #             id=doc_id,
+                        #             _id=doc_id,
+                        #             topics={
+                        #                 f"topic_{topic_id}": value for topic_id, value in enumerate(topic_list)}
+                        #         ) for doc_id, topic_list in zip(sub_sub_ids, vectors)]
+                        #     )
+
+                        # entities = [
+                        #     {"name": self.milvus_vector_field_name, "values": self.normalize_vectors(vectors) if is_topic_model else vectors,
+                        #         "type": DataType.FLOAT_VECTOR},
+                        # ]
+
+                        # if not milvus_client.has_partition(collection_name, partition_group):
+                        #     milvus_client.create_partition(
+                        #         collection_name, partition_group)
+
+                        # ids = milvus_client.insert(collection_name, entities,
+                        #                            sub_sub_int_ids, partition_tag=partition_group)
+
+                        # assert len(set(ids).difference(
+                        #     sub_sub_int_ids)) == 0
+
+                        # milvus_client.flush([collection_name])
         finally:
             dask_client.close()
 
+    @lru_cache(maxsize=128)
     def get_doc_vec(self, document, normalize=True, assert_success=True, flatten=True):
+        document = replace_phrases(document)
         doc_vec_payload = self.transform_doc(document, normalize=normalize)
         doc_vec = doc_vec_payload['doc_vec']
 
@@ -613,7 +809,38 @@ class BaseModel:
 
         return doc_vec.flatten() if flatten else doc_vec
 
-    def search_similar_documents(self, document, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10):
+    @lru_cache(maxsize=128)
+    def cached_milvus_result(self, document, topk, metric_type="IP"):
+        # print(f"First access for {document}...")
+        with Timer() as timer:
+            print(f"CMR Elapsed 1: {timer.elapsed}")
+            doc_vec = self.get_doc_vec(
+                document, normalize=True, assert_success=True, flatten=True)
+
+            # topk = 1000  # from_result + (2 * size)  # Add buffer
+            # topk = (((from_result + size) // batch_size) + 1) * batch_size
+            print(f"CMR Elapsed 2: {timer.elapsed}")
+            dsl = get_embedding_dsl(
+                doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
+            print(f"CMR Elapsed 3: {timer.elapsed}")
+            results = get_milvus_client().search(self.model_collection_id, dsl)
+
+            print(f"CMR Elapsed 4: {timer.elapsed}")
+            entities = []
+            for position, ent in enumerate(results[0]):
+                entities.append(
+                    dict(
+                        id=ent.id,
+                        distance=ent.distance,
+                        position=position)
+                )
+            print(entities[:10])
+
+            print(f"CMR Elapsed 4: {timer.elapsed}")
+
+            return entities
+
+    def search_similar_documents(self, document, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10, batch_size=100):
         # document: any text
         # topn: number of returned related documents in the database
         # return_data: string corresponding to a column in the docs or list of column names
@@ -621,39 +848,49 @@ class BaseModel:
         # show_duplicates: option if exact duplicates of documents are to be considered as return documents
         self.check_wvecs()
 
-        doc_vec = self.get_doc_vec(
-            document, normalize=True, assert_success=True, flatten=True)
+        # doc_vec = self.get_doc_vec(
+        #     document, normalize=True, assert_success=True, flatten=True)
 
-        topk = from_result + (2 * size)  # Add buffer
-        dsl = get_embedding_dsl(
-            doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
-        results = get_milvus_client().search(self.model_collection_id, dsl)
+        # topk = from_result + (2 * size)  # Add buffer
+        # dsl = get_embedding_dsl(
+        #     doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
+        # results = get_milvus_client().search(self.model_collection_id, dsl)
 
-        entities = results[0]
-        payload = []
+        # entities = results[0]
 
-        for rank, ent in enumerate(entities):
+        with Timer() as timer:
+            print(f"SSD Elapsed 1: {timer.elapsed}")
+            topk = (((from_result + size) // batch_size) + 1) * batch_size
+            entities = self.cached_milvus_result(
+                document, topk=topk, metric_type=metric_type)
 
-            if from_result > rank:
-                continue
+            print(f"SSD Elapsed 2: {timer.elapsed}")
+            payload = []
+            for ent in entities:
 
-            if not show_duplicates:
-                # TODO: Make sure that this is true for Milvus.
-                # If we change the metric_type, this should be adjusted somehow.
-                if ent.distance > duplicate_threshold:
+                if from_result > ent["position"]:
                     continue
 
-            payload.append({'id': self.get_doc_id_from_int_id(ent.id), 'score': float(np.round(
-                ent.distance, decimals=5)), 'rank': rank + 1})
+                if not show_duplicates:
+                    # TODO: Make sure that this is true for Milvus.
+                    # If we change the metric_type, this should be adjusted somehow.
+                    if ent["distance"] > duplicate_threshold:
+                        continue
 
-            if len(payload) == size:
-                break
+                payload.append({'id': self.get_doc_id_from_int_id(ent["id"]), 'score': float(np.round(
+                    ent["distance"], decimals=5)), 'rank': ent["position"] + 1})
 
-        payload = sorted(payload, key=lambda x: x['rank'])
-        if serialize:
-            payload = pd.DataFrame(payload).to_json()
+                if len(payload) == size:
+                    break
 
-        return payload
+            print(f"SSD Elapsed 3: {timer.elapsed}")
+            payload = sorted(payload, key=lambda x: x['rank'])
+            if serialize:
+                payload = pd.DataFrame(payload).to_json()
+
+            print(f"SSD Elapsed 4: {timer.elapsed}")
+
+            return payload
 
     def get_similar_documents(self, document, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
         # document: any text

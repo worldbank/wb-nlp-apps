@@ -6,7 +6,14 @@
       :model_name="model_name"
       placeholder="Choose topic model..."
     />
-    <div v-show="model_run_info_id">
+    <div v-if="loading" class="d-flex justify-content-center">
+      <b-spinner
+        style="margin: 20px"
+        variant="primary"
+        label="Spinning"
+      ></b-spinner>
+    </div>
+    <div v-show="model_run_info_id && rows.length > 0">
       <h3 class="mb-3 mt-5">Available topics</h3>
       <p class="mt-2">
         Scroll for more topics. You may also use the search box below to narrow
@@ -160,13 +167,13 @@ export default {
   },
   data: function () {
     return {
+      loading: false,
       hits_loading: false,
       total_hits: null,
       topic_data: {},
       topicValue: {},
       selected_topic: [],
       topic_ranges: {},
-      nlp_api_url: "/nlp/models/lda",
       model_name: "lda",
       model_run_info_id: null,
       filter: "",
@@ -237,7 +244,9 @@ export default {
     onModelSelect: function (model_run_info_id) {
       this.model_run_info_id = model_run_info_id;
       this.getModelTopics();
-      this.getTopicRanges();
+
+      // Call this inside the getModelTopics then clause to prevent race condition when running a single API worker.
+      // this.getTopicRanges();
     },
     formatTopicText: function (topic, with_topic_id = false) {
       var topic_words = topic.topic_words
@@ -260,10 +269,13 @@ export default {
       Object.entries(data).forEach(([key, val]) => (data[key] = val / 100));
 
       this.$http
-        .post(this.nlp_api_url + "/get_docs_by_topic_composition_count", {
-          model_id: this.model_run_info_id,
-          topic_percentage: data,
-        })
+        .post(
+          this.$config.nlp_api_url.lda + "/get_docs_by_topic_composition_count",
+          {
+            model_id: this.model_run_info_id,
+            topic_percentage: data,
+          }
+        )
         .then((response) => {
           this.total_hits = response.data.total;
         })
@@ -272,7 +284,7 @@ export default {
     getTopicRanges: function () {
       this.$http
         .get(
-          this.nlp_api_url +
+          this.$config.nlp_api_url.lda +
             "/get_model_topic_ranges?model_id=" +
             this.model_run_info_id
         )
@@ -281,8 +293,9 @@ export default {
         });
     },
     getModelTopics: function () {
+      this.loading = true;
       this.$http
-        .get(this.nlp_api_url + "/get_model_topic_words", {
+        .get(this.$config.nlp_api_url.lda + "/get_model_topic_words", {
           params: this.searchParams,
         })
         .then((response) => {
@@ -302,6 +315,8 @@ export default {
               topic_words: topic_words,
             };
           });
+
+          this.getTopicRanges();
 
           // this.current_lda_model_topics = response.data;
           // this.current_lda_model_topics_options = this.lodash.map(

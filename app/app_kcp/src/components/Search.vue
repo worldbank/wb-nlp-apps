@@ -84,6 +84,31 @@
                 </div>
               </div>
             </div>
+
+            <div class="col-12 col-md-12 text-center">
+              <span v-if="suggestions.length > 0" class="keyword-suggestions">
+                <span class="suggestions">Suggestions:</span>
+                <span
+                  @click="searchSuggestion(word)"
+                  v-for="word in suggestions"
+                  :key="'suggest_' + word"
+                  class="suggestion"
+                  >{{ word }}
+                </span>
+                <br />
+                <br />
+              </span>
+            </div>
+
+            <p v-if="uploaded_file && uploaded_file.size > 2000000">
+              <span style="color: red"
+                >File size is large: ~{{
+                  Math.round(uploaded_file.size / 1000000)
+                }}
+                MB. Results may take some time to render...</span
+              >
+            </p>
+
             <div class="col-12 col-md-12 text-center">
               <div class="form-check form-check-inline">
                 <input
@@ -260,6 +285,7 @@
             />
             <Pagination
               @pageNumReceived="sendSearch"
+              @currSizeSet="setCurrSize"
               :num_pages="num_pages"
               :curr_page_num="curr_page_num"
               :has_hits="hits.length > 0 && !no_more_hits"
@@ -325,9 +351,17 @@ export default {
       }
       return false;
     },
+    suggestionBody() {
+      const body = {
+        model_id: this.$config.default_model.word2vec.model_id,
+        raw_text: this.query,
+        topn_words: this.suggestion_count,
+      };
+      return body;
+    },
     searchParams() {
       const params = new URLSearchParams();
-      params.append("model_id", "777a9cf47411f6c4932e8941f177f90a");
+      params.append("model_id", this.$config.default_model.word2vec.model_id);
       params.append("query", this.query);
       params.append("from_result", this.from_result);
       params.append("size", this.curr_size);
@@ -335,7 +369,7 @@ export default {
     },
     fileParams() {
       const formData = new FormData();
-      formData.append("model_id", "777a9cf47411f6c4932e8941f177f90a");
+      formData.append("model_id", this.$config.default_model.word2vec.model_id);
       formData.append("file", this.uploaded_file);
       formData.append("from_result", this.from_result);
       formData.append("size", this.curr_size);
@@ -357,16 +391,21 @@ export default {
       min_year: null,
       max_year: null,
       search_type: "keyword",
-      keyword_search_api_url: "/nlp/search/keyword",
-      semantic_search_api_url: "/nlp/search/word2vec/semantic",
-      file_search_api_url: "/nlp/search/word2vec/file",
-      page_sizes: [10, 25, 50, 100],
+      keyword_search_api_url: this.$config.search_url.keyword,
+      semantic_search_api_url: this.$config.search_url.semantic,
+      file_search_api_url: this.$config.search_url.file,
+      suggestion_api_url:
+        this.$config.nlp_api_url.word2vec + "/get_similar_words",
+      page_sizes: this.$config.pagination.page_sizes,
+      suggestions: [],
+      suggestion_anchor: "",
+      suggestion_count: 6,
       start: 0,
       end: 0,
       next: 0,
-      page_window: 2,
+      page_window: this.$config.pagination.page_window,
       curr_page_num: 0,
-      curr_size: 10,
+      curr_size: this.$config.pagination.size,
       num_pages: 0,
       next_override: false,
       query: "",
@@ -400,6 +439,40 @@ export default {
     resetFrom: function () {
       this.from_result = 0;
     },
+    getSuggestions: function () {
+      if (!this.query) {
+        return;
+      }
+      if (this.query === this.suggestion_anchor) {
+        return;
+      }
+      this.suggestions = [];
+
+      this.$http
+        .post(this.suggestion_api_url, this.suggestionBody)
+        .then((response) => {
+          this.suggestions = response.data
+            .map((o) => {
+              if (
+                o.score < 0.99 &&
+                o.word.replaceAll("_", " ") !== this.query
+              ) {
+                return o.word;
+              }
+            })
+            .filter((word) => word)
+            .slice(0, this.suggestion_count - 1);
+          this.suggestion_anchor = this.query;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.errored = true;
+        });
+    },
+    searchSuggestion: function (word) {
+      this.query = word;
+      this.sendSearch();
+    },
     sendSearch: function (page_num = 1) {
       this.curr_page_num = page_num;
       var from = (page_num - 1) * this.curr_size;
@@ -409,11 +482,13 @@ export default {
 
       if (this.search_type == "keyword") {
         this.next_override = false;
+        this.getSuggestions();
         this.sendKeywordSearch(from);
       } else if (this.search_type == "semantic") {
         if (this.uploaded_file != null) {
           this.sendFileSearch(from);
         } else {
+          this.getSuggestions();
           this.sendSemanticSearch(from);
         }
       } else {
@@ -436,6 +511,7 @@ export default {
       if (from > this.total.value) {
         return;
       }
+      this.query = this.query.replaceAll("_", " ");
       this.from_result = from;
       this.loading = true;
 
@@ -518,8 +594,9 @@ export default {
         })
         .finally(() => (this.loading = false));
     },
-    setSize: function (size) {
+    setCurrSize: function (size) {
       this.curr_size = size;
+      this.sendSearch();
     },
     flowSideBar: function () {
       $(function () {
@@ -613,5 +690,19 @@ export default {
 }
 .btn-outline-primary {
   color: #0071bc;
+}
+.keyword-suggestions {
+  width: 100%;
+  margin-left: 15px;
+  padding: 5px;
+  padding-bottom: 25px;
+}
+.suggestions {
+  margin-right: 10px;
+}
+.suggestion {
+  color: #0062cc;
+  margin-right: 10px;
+  cursor: pointer;
 }
 </style>

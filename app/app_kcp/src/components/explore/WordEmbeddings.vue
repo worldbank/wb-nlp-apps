@@ -62,7 +62,7 @@ export default {
   },
   data: function () {
     return {
-      nlp_api_url: "/nlp/models/word2vec/get_similar_words",
+      nlp_api_url: this.$config.nlp_api_url.word2vec + "/get_similar_words",
       related_words: [],
       raw_text: "",
       loading: true,
@@ -81,7 +81,7 @@ export default {
       this.loading = true;
       this.related_words = [];
       const body = {
-        model_id: "777a9cf47411f6c4932e8941f177f90a",
+        model_id: this.$config.default_model.word2vec.model_id,
         raw_text: text,
         topn_words: 10,
         metric: "cosine_similarity",

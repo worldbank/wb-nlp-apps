@@ -4,7 +4,8 @@
       <div class="row">
         <div class="col-3 col-lg-3">
           <img
-            src="/static/files/doc_thumb.png"
+            :src="document_cover"
+            onerror="if (this.src != '/static/files/doc_thumb.png') this.src = '/static/files/doc_thumb.png';"
             title="document thumbnail"
             alt="document thumbnail"
           />
@@ -40,15 +41,31 @@
             </div>
           </div>
           <div class="study-meta d-flex">
-            <div class="small mt-2 mb-2 mr-3">
-              <a href="#"
+            <div
+              class="small mt-2 mb-2 mr-3"
+              @click="
+                $bvModal.show(
+                  'modal-scoped-meta-' + random_id() + '-' + result.id
+                )
+              "
+            >
+              <a href="javascript:void(0);"
                 ><i class="fas fa-database mr-1" aria-hidden="true"></i
                 >Metadata</a
               >
             </div>
+            <b-modal
+              :id="'modal-scoped-meta-' + random_id() + '-' + result.id"
+              :title="result.title"
+              size="lg"
+            >
+              <DocumentMetadata :metadata="result" />
+            </b-modal>
             <div
               class="small mt-2 mb-2"
-              @click="$bvModal.show('modal-scoped-' + result.id)"
+              @click="
+                $bvModal.show('modal-scoped-' + random_id() + '-' + result.id)
+              "
             >
               <a href="javascript:void(0);"
                 ><i class="fas fa-chart-bar fa-lg mr-1" aria-hidden="true"></i
@@ -56,7 +73,7 @@
               >
             </div>
             <b-modal
-              :id="'modal-scoped-' + result.id"
+              :id="'modal-scoped-' + random_id() + '-' + result.id"
               :title="result.title"
               size="lg"
             >
@@ -97,25 +114,42 @@
 <script>
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import DocumentTopic from "./DocumentTopic";
+import DocumentMetadata from "./DocumentMetadata";
 
 export default {
   name: "SearchResultCard",
   props: {
     result: Object,
   },
-  components: { RelatedDocsPanel, DocumentTopic },
+  components: { RelatedDocsPanel, DocumentTopic, DocumentMetadata },
   data: function () {
     return {
       submit_related: false,
       match: { rank: 1, score: 0.96 },
+      rrandom_id: null,
     };
   },
   computed: {
+    document_cover() {
+      return (
+        "/nlp/static/" +
+        this.result.corpus +
+        "/COVER/" +
+        this.result.id +
+        ".png"
+      );
+    },
     document_link() {
       return "/document/" + this.result.id;
     },
   },
   methods: {
+    random_id() {
+      if (this.rrandom_id === null) {
+        this.rrandom_id = Math.random();
+      }
+      return this.rrandom_id;
+    },
     getDate: function (date) {
       date = new Date(date).toDateString();
       date = date.split(" ");

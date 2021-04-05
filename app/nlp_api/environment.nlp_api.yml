@@ -28,12 +28,14 @@ dependencies:
   - xz=5.2.5
   - zlib=1.2.11
   - pip:
+    - aiofiles==0.6.0
     - attrs==20.3.0
     - blis==0.7.4
     - catalogue==1.0.0
     - chardet==4.0.0
     - click==7.1.2
     - cloudpickle==1.6.0
+    - contexttimer==0.3.3
     - crc16==0.1.1
     - cymem==2.0.5
     - dask==2020.12.0

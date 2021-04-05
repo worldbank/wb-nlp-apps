@@ -132,6 +132,10 @@ class BaseCleaner:
             .replace("“", '"')
             .replace("”", '"')
         )
+        # Special case
+        text = re.sub(r"(?i)\bcovid-19\b", "covid", text)
+        text = re.sub(r"(?i)\bcovid19\b", "covid", text)
+        text = re.sub(r"(?i)\bcovid\b", "covid", text)
 
         text = re.sub(r"\s+", " ", text).strip()[:MAX_LENGTH]
         doc = nlp(text)
@@ -199,7 +203,8 @@ class BaseCleaner:
         if self.config["cleaner"]["flags"]["correct_misspelling"]:
             tokens = self.spelling_model.fix_spellings(tokens)
 
-        return tokens
+        # Final removal of stop words
+        return [token for token in tokens if token not in nlp.Defaults.stop_words]
 
     def get_clean_text(self, text: str) -> str:
         """Cleans a given text.

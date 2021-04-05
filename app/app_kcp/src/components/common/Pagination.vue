@@ -7,13 +7,15 @@
         <div id="items-per-page" class="items-per-page light switch-page-size">
           <small
             >Results per page:
-            <span
-              class="wbg-pagination-btn"
-              :class="size === curr_size ? 'active' : ''"
-              v-for="size in page_sizes"
-              v-bind:key="size"
-              @click="setSize(size)"
-              >{{ size }}</span
+            <a href="#result">
+              <span
+                class="wbg-pagination-btn"
+                :class="size === curr_size ? 'active' : ''"
+                v-for="size in page_sizes"
+                v-bind:key="size"
+                @click="setSize(size)"
+                >{{ size }}</span
+              ></a
             >
           </small>
         </div>
@@ -88,12 +90,13 @@ export default {
   },
   data: function () {
     return {
-      curr_size: 10,
+      curr_size: this.$config.pagination.size,
     };
   },
   methods: {
     setSize: function (size) {
       this.curr_size = size;
+      this.$emit("currSizeSet", this.curr_size);
     },
     sendPageNum: function (page_num) {
       this.$emit("pageNumReceived", page_num);

@@ -25,7 +25,7 @@ cleaning_config:
                 - ADJ
                 - ADV
                 - NOUN
-                - VERB
+                # - VERB
 
     spell_checker:
         lang: en_US

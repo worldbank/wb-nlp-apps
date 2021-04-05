@@ -9,9 +9,11 @@ import VueLodash from 'vue-lodash'
 
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import VueFriendlyIframe from 'vue-friendly-iframe'
+import checkView from 'vue-check-view'
 
 import router from './router'
 import App from './App.vue'
+import config from './config'
 
 // CSS files
 // import 'bootstrap/dist/css/bootstrap.css'
@@ -22,7 +24,7 @@ Vue.config.productionTip = false
 Vue.prototype.$http = axios
 Vue.prototype.$Plotly = Plotly
 Vue.prototype.$window = window
-
+Vue.prototype.$config = config
 
 // Install BootstrapVue
 Vue.use(BootstrapVue)
@@ -33,6 +35,7 @@ Vue.use(VueFriendlyIframe)
 Vue.use(VueLodash, { lodash: lodash })
     // Vue.use(VueAxios, axios)
 
+Vue.use(checkView)
 Vue.component("v-select", vSelect)
 
 window.app = new Vue({
