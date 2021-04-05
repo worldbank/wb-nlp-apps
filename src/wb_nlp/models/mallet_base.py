@@ -101,7 +101,7 @@ class MalletModel(LDAModel):
 
             self.drop_milvus_collection()
 
-            self.extract_dfr_data()
+            # self.extract_dfr_data()
             self.save()
 
         else:
