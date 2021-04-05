@@ -1,6 +1,7 @@
 '''This module implements the word2vec model service that is responsible
 for training the model as well as a backend interface for the API.
 '''
+from functools import partial
 import logging
 import json
 from gensim.models import Word2Vec
@@ -31,30 +32,45 @@ class Word2VecModel(BaseModel):
         model_config_type=Word2VecModelConfig,
         expected_model_name=ModelTypes.word2vec.value,
         model_run_info_description="",
+        model_run_info_id=None,
         raise_empty_doc_status=True,
         log_level=logging.WARNING,
     ):
-        configure_logger(log_level)
-        self.log_level = log_level
-        self.logger = logging.getLogger(__file__)
 
-        self.cleaning_config_id = cleaning_config_id
-        self.model_config_id = model_config_id
-        self.model_class = model_class  # Example: LdaMulticore
-        self.model_config_type = model_config_type  # Example: LDAModelConfig
-        self.expected_model_name = expected_model_name
-        self.model_run_info_description = model_run_info_description
+        super().__init__(
+            model_config_id=model_config_id,
+            cleaning_config_id=cleaning_config_id,
+            model_class=model_class,
+            model_config_type=model_config_type,
+            expected_model_name=expected_model_name,
+            model_run_info_description=model_run_info_description,
+            model_run_info_id=model_run_info_id,
+            raise_empty_doc_status=raise_empty_doc_status,
+            log_level=log_level,
+        )
 
-        self.validate_and_prepare_requirements()
+        # configure_logger(log_level)
+        # self.log_level = log_level
+        # self.logger = logging.getLogger(__file__)
 
-        self.model = None
-        self.raise_empty_doc_status = raise_empty_doc_status
+        # self.cleaning_config_id = cleaning_config_id
+        # self.model_config_id = model_config_id
+        # self.model_class = model_class  # Example: LdaMulticore
+        # self.model_config_type = model_config_type  # Example: LDAModelConfig
+        # self.model_run_info_description = model_run_info_description
 
-        # Try to load the model
-        self.load()
-        self.set_model_specific_attributes()
+        # self.expected_model_name = expected_model_name
 
-        self.create_milvus_collection()
+        # self.validate_and_prepare_requirements()
+
+        # self.model = None
+        # self.raise_empty_doc_status = raise_empty_doc_status
+
+        # # Try to load the model
+        # self.load()
+        # self.set_model_specific_attributes()
+
+        # self.create_milvus_collection()
 
     def combine_word_vectors(self, word_vecs):
         return word_vecs.mean(axis=0).reshape(1, -1)
@@ -87,7 +103,7 @@ class Word2VecModel(BaseModel):
         return dict(doc_vec=doc_vec, success=success)
 
     def get_similar_words_graph(self, document, topn=10, topn_sub=5, edge_thresh=0.5, n_clusters=5, serialize=False, metric="cosine_similarity"):
-
+        anchor_word = document.lower()
         words = []
         word_ids = []
         top_results = self.get_similar_words(
@@ -188,14 +204,15 @@ class Word2VecModel(BaseModel):
         links = [{"source": int(words.index(
             l[0])), "target": int(words.index(l[1]))} for l in nx_graph.edges]
         categories = [{"name": f"cluster {i + 1}"}
-                      for i in range(max(word_clusters))]
+                      for i in range(max(word_clusters) + 1)]
 
         for word, word_id, cluster_id, pos in zip(words, word_ids, word_clusters, nodes_pos):
             nodes.append(
                 dict(
                     id=int(words.index(word)),
                     name=word,
-                    symbolSize=centrality[word],
+                    symbolSize=centrality[word] if word != anchor_word else 2 * max(
+                        centrality.values()),
                     x=pos[0],
                     y=pos[1],
                     value=centrality[word],
@@ -287,19 +304,21 @@ if __name__ == '__main__':
 
     wvec_model = word2vec_base.Word2VecModel(
         model_config_id="702984027cfedde344961b8b9461bfd3",
-        cleaning_config_id="23f78350192d924e4a8f75278aca0e1c",
+        cleaning_config_id="229abf370f281efa7c9f3c4ddc20159d",
         raise_empty_doc_status=False,
         log_level=logging.DEBUG,
     )
     # %time
-    wvec_model.train_model()  # retrain=True)
+    wvec_model.train_model(retrain=True)
     # Do this if the model is available in disk but the model_run_info is not. This is to dump the model_run_info to db in case it's not present.
     # wvec_model.save()
+
+    wvec_model.drop_milvus_collection()
 
     wvec_model.build_doc_vecs(pool_workers=3)
     print(wvec_model.get_similar_words('bank'))
     print(wvec_model.get_similar_documents('bank'))
-    print(wvec_model.get_similar_docs_by_doc_id(doc_id='wb_725385'))
-    print(wvec_model.get_similar_words_by_doc_id(doc_id='wb_725385'))
+    # print(wvec_model.get_similar_docs_by_doc_id(doc_id='wb_725385'))
+    # print(wvec_model.get_similar_words_by_doc_id(doc_id='wb_725385'))
 
     # wvec_model.drop_milvus_collection()

@@ -31,11 +31,13 @@ export default {
   mounted() {
     this.model_run_infos = [];
 
-    if (this.model_name === "lda") {
-      this.model_run_infos = this.lda_model_run_infos;
-    } else if (this.model_name === "word2vec") {
-      this.model_run_infos = this.word2vec_model_run_infos;
-    }
+    this.getModelRunInfos();
+
+    // if (this.model_name === "lda") {
+    //   this.model_run_infos = this.lda_model_run_infos;
+    // } else if (this.model_name === "word2vec") {
+    //   this.model_run_infos = this.word2vec_model_run_infos;
+    // }
 
     if (this.parent_model_run_info_id) {
       this.model_run_info_id = this.parent_model_run_info_id;
@@ -57,31 +59,49 @@ export default {
       model_run_infos: [],
       lda_model_run_infos: [
         {
-          value: "6694f3a38bc16dee91be5ccf4a64b6d8",
+          value: this.$config.default_model.lda.model_id,
           text: "LDA model with 300 topics trained on all documents.",
         },
         {
-          value: "6694f3a38bc16dee91be5ccf4a64b6d9",
+          value: this.$config.default_model.lda.model_id,
           text: "LDA model with 100 topics trained on all documents.",
         },
       ],
       word2vec_model_run_infos: [
         {
-          value: "777a9cf47411f6c4932e8941f177f90a",
+          value: this.$config.default_model.word2vec.model_id,
           text: "Word2Vec model with 300 dimensions trained on all documents.",
         },
         {
-          value: "777a9cf47411f6c4932e8941f177f90a",
+          value: this.$config.default_model.word2vec.model_id,
           text: "Word2Vec model with 100 dimensions trained on all documents.",
         },
       ],
     };
   },
-  // methods: {
-  //   onSelectItem(event) {
-  //     this.$emit("clicked", this.model_run_info_id);
-  //   },
-  // },
+  methods: {
+    getModelRunInfos() {
+      const url =
+        "/nlp/models/get_available_models?model_type=" + this.model_name;
+
+      this.$http.get(url).then((response) => {
+        this.model_run_infos = response.data.map((o) => {
+          return { value: o.model_run_info_id, text: o.description };
+        });
+        // if (model_name === "lda") {
+        //   this.lda_model_run_infos = data;
+        // } else if (model_name === "word2vec") {
+        //   this.word2vec_model_run_infos = data;
+        // }
+      });
+    },
+    // getLDAModelRunInfos() {
+    //   this.getModelRunInfos("lda");
+    // },
+    // getWord2vecModelRunInfos() {
+    //   this.getModelRunInfos("word2vec");
+    // },
+  },
   watch: {
     model_run_info_id: function () {
       this.$emit("modelSelected", this.model_run_info_id);

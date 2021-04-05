@@ -5,7 +5,8 @@
       <div class="row">
         <div class="col-3 col-lg-3">
           <img
-            src="/static/files/doc_thumb.png"
+            :src="document_cover"
+            onerror="if (this.src != '/static/files/doc_thumb.png') this.src = '/static/files/doc_thumb.png';"
             title="document thumbnail"
             alt="document thumbnail"
           />
@@ -111,9 +112,29 @@
               @click.prevent
               title="Related WDI indicators"
             >
-              <div>
-                <SimilarWDIViewer :doc_id="metadata.id" /></div
+              <br />
+              <h4>Related World Development Indicators</h4>
+              <div v-if="tabIndex == 3">
+                <SimilarWDIViewer
+                  render_style="horizontal"
+                  :doc_id="metadata.id"
+                /></div
             ></b-tab>
+            <!-- <b-tab
+              :title-item-class="itemClass(4)"
+              :title-link-class="linkClass(4)"
+              v-on:click="activateSubmit()"
+              @click.prevent
+              title="Related WDI indicators - vertical"
+            >
+              <br />
+              <h4>Related World Development Indicators</h4>
+              <div v-if="tabIndex == 4">
+                <SimilarWDIViewer
+                  render_style="vertical"
+                  :doc_id="metadata.id"
+                /></div
+            ></b-tab> -->
           </b-tabs>
         </div>
       </div>
@@ -134,6 +155,15 @@ export default {
     this.getMetadata();
   },
   computed: {
+    document_cover() {
+      return (
+        "/nlp/static/" +
+        this.result.corpus +
+        "/COVER/" +
+        this.result.id +
+        ".png"
+      );
+    },
     metadata() {
       if (
         this.result !== undefined &&
@@ -149,7 +179,9 @@ export default {
       return this.result;
     },
     metadata_download_link() {
-      return "/nlp/corpus/get_metadata_by_id?id=" + this.metadata.id;
+      return (
+        this.$config.corpus_url + "/get_metadata_by_id?id=" + this.metadata.id
+      );
     },
   },
   components: { RelatedDocsPanel, MetadataViewer, SimilarWDIViewer },
@@ -178,7 +210,7 @@ export default {
       } else {
         this.loading = true;
         this.$http
-          .get("/nlp/corpus/get_metadata_by_id", {
+          .get(this.$config.corpus_url + "/get_metadata_by_id", {
             params: { id: this.$route.params.doc_id },
           })
           .then((response) => {

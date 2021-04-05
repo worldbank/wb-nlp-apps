@@ -170,6 +170,15 @@
               v-model="url"
             />
           </div>
+
+          <p class="lead" v-if="uploaded_file && uploaded_file.size > 2000000">
+            <span style="color: red"
+              >File size is large: ~{{
+                Math.round(uploaded_file.size / 1000000)
+              }}
+              MB. Results may take some time to render...</span
+            >
+          </p>
           <br />
           <b-button
             class="btn btn-primary wbg-button"
@@ -181,11 +190,19 @@
         </form>
         <br />
         <a name="results"></a>
-        <h3 v-if="stateReady" class="mt-4 mb-3">Comparison of results</h3>
+        <h3 v-if="stateReady && model_option.model_id" class="mt-4 mb-3">
+          Comparison of results
+        </h3>
 
-        <b-tabs v-if="stateReady" v-model="tabIndex" content-class="mt-3">
+        <b-tabs
+          v-if="stateReady && model_option.model_id"
+          v-model="tabIndex"
+          content-class="mt-3"
+        >
           <b-tab title="Embedding model" active>
-            <SearchResultLoading :loading="loading" :size="size" />
+            <SearchResultLoading
+              :loading="loading"
+              :size="model_option.curr_size" />
             <div v-show="model_option.hits.length > 0">
               <div v-if="!loading">
                 <SearchResultCard
@@ -197,6 +214,7 @@
 
               <Pagination
                 @pageNumReceived="sendSearch"
+                @currSizeSet="setCurrSize"
                 :num_pages="model_option.num_pages"
                 :curr_page_num="model_option.curr_page_num"
                 :has_hits="has_hits"
@@ -207,7 +225,9 @@
               /></div
           ></b-tab>
           <b-tab title="Topic model">
-            <SearchResultLoading :loading="loading" :size="size" />
+            <SearchResultLoading
+              :loading="loading"
+              :size="model_option.curr_size" />
             <div v-show="model_option.hits.length > 0">
               <div v-if="!loading">
                 <SearchResultCard
@@ -219,6 +239,7 @@
 
               <Pagination
                 @pageNumReceived="sendSearch"
+                @currSizeSet="setCurrSize"
                 :num_pages="model_option.num_pages"
                 :curr_page_num="model_option.curr_page_num"
                 :has_hits="has_hits"
@@ -264,15 +285,16 @@ export default {
   mixins: [saveState],
   mounted() {
     window.vm = this;
+    this.model_options.lda.model_id = null;
+    this.model_options.word2vec.model_id = null;
   },
   data() {
     return {
       // common
       tabIndex: 0,
-      page_sizes: [10, 25, 50, 100],
-      page_window: 2,
-      curr_size: 10,
-      size: 10,
+      page_sizes: this.$config.pagination.page_sizes,
+      page_window: this.$config.pagination.page_window,
+
       next_override: true,
       model_name: {
         word2vec: "word2vec",
@@ -280,8 +302,8 @@ export default {
       },
       model_options: {
         lda: {
-          upload_nlp_api_url: "/nlp/search/lda/file",
-          url_nlp_api_url: "/nlp/search/lda/url",
+          upload_nlp_api_url: this.$config.search_url.lda.file,
+          url_nlp_api_url: this.$config.search_url.lda.url,
           model_run_info_id: "",
           model_id: null,
           curr_page_num: 1,
@@ -290,10 +312,11 @@ export default {
           from_result: 0,
           hits: [],
           total: { value: null, message: null },
+          curr_size: this.$config.pagination.size,
         },
         word2vec: {
-          upload_nlp_api_url: "/nlp/search/word2vec/file",
-          url_nlp_api_url: "/nlp/search/word2vec/url",
+          upload_nlp_api_url: this.$config.search_url.word2vec.file,
+          url_nlp_api_url: this.$config.search_url.word2vec.url,
           model_run_info_id: "",
           model_id: null,
           curr_page_num: 1,
@@ -302,6 +325,7 @@ export default {
           from_result: 0,
           hits: [],
           total: { value: null, message: null },
+          curr_size: this.$config.pagination.size,
         },
       },
 
@@ -346,7 +370,7 @@ export default {
     },
     apiParams() {
       const formData = new FormData();
-      formData.append("model_id", this.model_option.model_id); // "777a9cf47411f6c4932e8941f177f90a");
+      formData.append("model_id", this.model_option.model_id);
 
       if (this.selectedInput === "file_upload") {
         formData.append("file", this.uploaded_file);
@@ -354,7 +378,7 @@ export default {
         formData.append("url", this.url);
       }
       formData.append("from_result", this.model_option.from_result);
-      formData.append("size", this.curr_size);
+      formData.append("size", this.model_option.curr_size);
       return formData;
     },
     selectedModel() {
@@ -375,7 +399,8 @@ export default {
       return false;
     },
     no_more_hits() {
-      var next_from = this.model_option.curr_page_num * this.curr_size;
+      var next_from =
+        this.model_option.curr_page_num * this.model_option.curr_size;
 
       var no_more_hits = false;
       if (next_from > this.model_option.total.value) {
@@ -389,6 +414,10 @@ export default {
     },
   },
   methods: {
+    setCurrSize(size) {
+      this.model_options[this.selectedModel].curr_size = size;
+      this.sendSearch();
+    },
     getSaveStateConfig() {
       return {
         cacheKey: "filterTopicSharePage",
@@ -407,8 +436,9 @@ export default {
       console.log(this.selectedModel);
 
       this.loading = true;
+      console.log(this.model_options[this.selectedModel]);
       this.model_options[this.selectedModel].curr_page_num = page_num;
-      var from = (page_num - 1) * this.size;
+      var from = (page_num - 1) * this.model_option.curr_size;
 
       if (
         from > this.model_options[this.selectedModel].total.value &&
@@ -427,10 +457,12 @@ export default {
           this.model_options[this.selectedModel].next =
             this.model_options[this.selectedModel].curr_page_num + 1;
           this.model_options[this.selectedModel].num_pages = Math.floor(
-            this.model_options[this.selectedModel].total.value / this.size
+            this.model_options[this.selectedModel].total.value /
+              this.model_options[this.selectedModel].curr_size
           );
           if (
-            this.model_options[this.selectedModel].total.value % this.size >
+            this.model_options[this.selectedModel].total.value %
+              this.model_options[this.selectedModel].curr_size >
             0
           ) {
             this.model_options[this.selectedModel].num_pages += 1;

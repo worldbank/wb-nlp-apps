@@ -415,7 +415,7 @@ the string ‘auto’ to learn the asymmetric prior from the data."""
     )
 
     iterations: int = Field(
-        1000,
+        50,
         description="""Maximum number of iterations through the corpus when inferring the topic distribution of a corpus."""
     )
 

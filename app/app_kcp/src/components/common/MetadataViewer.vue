@@ -10,15 +10,10 @@
       <p>{{ metadata.date_published }}</p>
     </div>
 
-    <div v-if="metadata.topics_src.concat(metadata.wb_subtopic_src).length > 0">
+    <div v-if="getTopics().length > 0">
       <div class="xsl-caption field-caption">Topics</div>
       <ul>
-        <li
-          v-for="topic_name in metadata.topics_src.concat(
-            metadata.wb_subtopic_src
-          )"
-          :key="topic_name"
-        >
+        <li v-for="topic_name in getTopics()" :key="topic_name">
           {{ topic_name }}
         </li>
       </ul>
@@ -140,7 +135,7 @@ export default {
   computed: {
     topicsParams() {
       var search_params = new URLSearchParams();
-      search_params.append("model_id", "6694f3a38bc16dee91be5ccf4a64b6d8");
+      search_params.append("model_id", this.$config.default_model.lda.model_id);
       search_params.append("doc_id", this.metadata.id);
       search_params.append("sort", true);
 
@@ -148,6 +143,19 @@ export default {
     },
   },
   methods: {
+    getTopics() {
+      if (this.metadata.topics_src) {
+        if (this.metadata.wb_subtopic_src) {
+          return this.metadata.topics_src.concat(this.metadata.wb_subtopic_src);
+        } else {
+          return this.metadata.topics_src;
+        }
+      } else if (this.metadata.wb_subtopic_src) {
+        return this.metadata.wb_subtopic_src;
+      } else {
+        return [];
+      }
+    },
     topicPercent(value) {
       return Math.round(100 * value);
     },
@@ -191,7 +199,7 @@ export default {
     },
     getDocumentTopics() {
       this.$http
-        .get("/nlp/models/lda/get_topics_by_doc_id", {
+        .get(this.$config.nlp_api_url.lda + "/get_topics_by_doc_id", {
           params: this.topicsParams,
         })
         .then((response) => {

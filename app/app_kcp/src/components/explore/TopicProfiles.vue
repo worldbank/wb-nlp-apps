@@ -208,7 +208,6 @@ export default {
     return {
       errors: [],
       api_url: "/api",
-      nlp_api_url: "/nlp/models/lda",
       model_topics: [],
       related_words: [],
       current_lda_model_topics: [],
@@ -318,7 +317,7 @@ export default {
     },
     getModelTopics: function () {
       this.$http
-        .get(this.nlp_api_url + "/get_model_topic_words", {
+        .get(this.$config.nlp_api_url.lda + "/get_model_topic_words", {
           params: this.searchParams,
         })
         .then((response) => {
@@ -364,7 +363,7 @@ export default {
 
         this.$http
           .get(this.api_url + "/get_lda_model_topics" + "?" + $.param(options))
-          // .get(this.nlp_api_url + "/get_model_topic_words" + "?" + $.param(options))
+          // .get(this.$config.nlp_api_url.lda + "/get_model_topic_words" + "?" + $.param(options))
           .then((response) => {
             this.current_lda_model_topics = response.data;
             this.current_lda_model_topics_options = this.lodash.map(
@@ -413,7 +412,7 @@ export default {
 
       this.$http
         .post(this.api_url + "/lda_compare_partition_topic_share", options)
-        // .post(this.nlp_api_url + "/get_partition_topic_share", options)
+        // .post(this.$config.nlp_api_url.lda + "/get_partition_topic_share", options)
         .then((response) => {
           let data = response.data;
 

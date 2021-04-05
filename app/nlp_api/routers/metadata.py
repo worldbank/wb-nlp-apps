@@ -29,6 +29,10 @@ def get_doc_metadata_by_id(id: str = "wb_725385"):
     """
 
     doc = mongodb.get_docs_metadata_collection().find_one({"id": id})
+    if doc is None:
+        doc = mongodb.get_collection(
+            "test_nlp", "docs_metadata").find_one({"id": id})
+
     doc = metadata.MetadataModel(**doc)
 
     return doc

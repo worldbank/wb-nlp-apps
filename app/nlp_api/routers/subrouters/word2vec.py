@@ -12,7 +12,7 @@ from wb_nlp.types.models import (
 from ...common.utils import get_validated_model
 
 router = APIRouter(
-    prefix="/word2vec2",
+    prefix="/word2vec",
     tags=["Word2vec Model"],
     dependencies=[],
     responses={404: {"description": "Not found"}},

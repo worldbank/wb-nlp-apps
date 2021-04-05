@@ -40,6 +40,9 @@
       >{{ rw.word }}
     </b-badge>
     <br />
+    <div v-if="this.graph === null && loading">
+      <b-skeleton-img></b-skeleton-img>
+    </div>
     <br />
     <b-container fluid>
       <v-chart
@@ -52,10 +55,6 @@
         autoresize="true"
         :loading="loading"
       />
-      <!-- <div v-if="this.graph === null">
-        <b-skeleton-img></b-skeleton-img>
-
-      </div> -->
     </b-container>
   </div>
 </template>
@@ -100,7 +99,7 @@ export default {
     page_title: String,
   },
   mounted() {
-    this.getGraph();
+    // this.getGraph();
     window.vm = this;
   },
   computed: {
@@ -225,7 +224,7 @@ export default {
   },
   // data: function () {
   //   return {
-  //     nlp_api_url: "/nlp/models/word2vec/get_similar_words",
+  //     nlp_api_url: this.$config.nlp_api_url.word2vec + "/get_similar_words",
   //     related_words: [],
   //     raw_text: "",
   //     loading: true,
@@ -251,7 +250,7 @@ export default {
       }
       this.related_words = [];
       const body = {
-        model_id: "777a9cf47411f6c4932e8941f177f90a",
+        model_id: this.$config.default_model.word2vec.model_id,
         raw_text: text,
         topn_words: 8,
         topn_sub: 5,
@@ -260,7 +259,10 @@ export default {
       };
 
       this.$http
-        .post("/nlp/models/word2vec2/get_similar_words_graph", body)
+        .post(
+          this.$config.nlp_api_url.word2vec + "/get_similar_words_graph",
+          body
+        )
         .then((response) => {
           var graph = response.data.graph_data;
           this.related_words = response.data.similar_words;

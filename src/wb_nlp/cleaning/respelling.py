@@ -74,7 +74,13 @@ def get_suggestions(word: str, **kwargs) -> list:
         A list containing the most likely correct words based on enchant's dictionary.
 
     """
-    return en_lang.get_en_dict().suggest(word)
+
+    if en_lang.get_en_dict().check(word):
+        suggest = [word]
+    else:
+        suggest = en_lang.get_en_dict().suggest(word)
+
+    return suggest
 
 
 # @cache_decorator

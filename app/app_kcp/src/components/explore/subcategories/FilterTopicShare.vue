@@ -36,10 +36,10 @@
         <FilterTable @topicRangeReceived="submitTopicSearch" />
 
         <a name="results"></a>
-        <div v-show="this.model_id">
+        <div v-if="this.model_id">
           <h2>Filtering Results</h2>
 
-          <SearchResultLoading :loading="loading" :size="size" />
+          <SearchResultLoading :loading="loading" :size="curr_size" />
           <SearchResultCard
             v-for="result in hits"
             :result="result"
@@ -48,6 +48,7 @@
 
           <Pagination
             @pageNumReceived="sendSearch"
+            @currSizeSet="setCurrSize"
             :num_pages="num_pages"
             :curr_page_num="curr_page_num"
             :has_hits="hits.length > 0 && !no_more_hits"
@@ -84,6 +85,8 @@ export default {
   mixins: [saveState],
   mounted() {
     window.vm = this;
+    this.model_id = null;
+    this.hits = [];
   },
   computed: {
     searchBody() {
@@ -91,7 +94,7 @@ export default {
         model_id: this.model_id,
         topic_percentage: this.topic_percentage,
         from_result: this.from_result,
-        size: this.size,
+        size: this.curr_size,
       };
       return body;
     },
@@ -115,14 +118,13 @@ export default {
   },
   data: function () {
     return {
-      nlp_api_url: "/nlp/models/lda",
-      page_sizes: [10, 25, 50, 100],
+      page_sizes: this.$config.pagination.page_sizes,
       start: 0,
       end: 0,
       next: 0,
-      page_window: 2,
+      page_window: this.$config.pagination.page_window,
       curr_page_num: 0,
-      curr_size: 10,
+      curr_size: this.$config.pagination.size,
       num_pages: 0,
       next_override: false,
       model_id: null,
@@ -144,7 +146,7 @@ export default {
     sendSearch: function (page_num = 1) {
       this.loading = true;
       this.curr_page_num = page_num;
-      var from = (page_num - 1) * this.size;
+      var from = (page_num - 1) * this.curr_size;
 
       if (from > this.total.value) {
         return;
@@ -154,7 +156,7 @@ export default {
 
       this.$http
         .post(
-          this.nlp_api_url + "/get_docs_by_topic_composition",
+          this.$config.nlp_api_url.lda + "/get_docs_by_topic_composition",
           this.searchBody
         )
         .then((response) => {
@@ -163,8 +165,8 @@ export default {
           this.next = this.curr_page_num + 1;
           this.start = this.from_result + 1;
           this.end = this.from_result + this.hits.length;
-          this.num_pages = Math.floor(this.total.value / this.size);
-          if (this.total.value % this.size > 0) {
+          this.num_pages = Math.floor(this.total.value / this.curr_size);
+          if (this.total.value % this.curr_size > 0) {
             this.num_pages += 1;
           }
         })
@@ -180,10 +182,9 @@ export default {
 
       this.sendSearch();
     },
-
-    setSize: function (size) {
-      this.size = size;
+    setCurrSize: function (size) {
       this.curr_size = size;
+      this.sendSearch();
     },
   },
 };
