@@ -819,11 +819,13 @@ class BaseModel:
 
             # topk = 1000  # from_result + (2 * size)  # Add buffer
             # topk = (((from_result + size) // batch_size) + 1) * batch_size
-            print(f"CMR Elapsed 2: {timer.elapsed}")
-            dsl = get_embedding_dsl(
-                doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
-            print(f"CMR Elapsed 3: {timer.elapsed}")
-            results = get_milvus_client().search(self.model_collection_id, dsl)
+            # print(f"CMR Elapsed 2: {timer.elapsed}")
+            # dsl = get_embedding_dsl(
+            #     doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
+            # print(f"CMR Elapsed 3: {timer.elapsed}")
+            # results = get_milvus_client().search(self.model_collection_id, dsl)
+            results = self.search_milvus(
+                doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type="IP")
 
             print(f"CMR Elapsed 4: {timer.elapsed}")
             entities = []
@@ -839,6 +841,16 @@ class BaseModel:
             print(f"CMR Elapsed 4: {timer.elapsed}")
 
             return entities
+
+    def search_milvus(self, doc_vec, topk, vector_field_name, metric_type="IP"):
+
+        # topk = 1000  # from_result + (2 * size)  # Add buffer
+        # topk = (((from_result + size) // batch_size) + 1) * batch_size
+        # print(f"CMR Elapsed 2: {timer.elapsed}")
+        dsl = get_embedding_dsl(
+            doc_vec, topk, vector_field_name=vector_field_name, metric_type=metric_type)
+        # print(f"CMR Elapsed 3: {timer.elapsed}")
+        return get_milvus_client().search(self.model_collection_id, dsl)
 
     def search_similar_documents(self, document, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10, batch_size=100):
         # document: any text
