@@ -8,4 +8,4 @@ DESCRIPTION="Word2vec D100 W5 N15 I10 SG Full Corpus"
 # SG:   skip-gram
 # I:    iterations
 
-python -u ./scripts/models/train_word2vec_base_model.py --model-config-id ${MODEL_CONFIG_ID} --cleaning-config-id ${CLEANING_CONFIG_ID} --description "${DESCRIPTION}" -vv |& tee ./data/logs/train_word2vec_base_model.py.`basename "$0"`.log
+python -u ./scripts/models/train_word2vec_base_model.py --model-config-id ${MODEL_CONFIG_ID} --cleaning-config-id ${CLEANING_CONFIG_ID} --description "${DESCRIPTION}" -vv |& tee ./data/logs/train_word2vec_base_model.py.`basename "$0"`.`date +%Y-%m-%d+%H:%M:%S`.log

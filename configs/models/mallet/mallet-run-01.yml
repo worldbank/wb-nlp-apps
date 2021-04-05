@@ -1,0 +1,30 @@
+model_config:
+  meta:
+    model_name: mallet  # To be filled up in the model training
+    library: Gensim
+    model_implementation: LDA Mallet
+    library_version: 3.8.3
+    docs: https://radimrehurek.com/gensim_3.8.3/models/wrappers/ldamallet.html
+    references:
+      - http://mallet.cs.umass.edu/dist/mallet-2.0.8.tar.gz
+  min_tokens: 50
+  dictionary_config:
+    no_below: 10
+    no_above: 0.98
+    keep_n: 200000
+    keep_tokens: null
+  mallet_config:
+    mallet_path: models/mallet/mallet-2.0.8/bin/mallet
+    num_topics: 75
+    alpha: 5
+    id2word: null
+    workers: 7
+    prefix: models/mallet/tmp/tmp_
+    optimize_interval: 10
+    iterations: 1000
+    topic_threshold: 0.0
+    random_seed: 1029
+  dfr_config:
+    tw_file: tw.json
+    dt_file: dt.json
+    info_file: info.json
