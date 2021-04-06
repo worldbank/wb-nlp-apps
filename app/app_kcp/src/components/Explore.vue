@@ -74,14 +74,6 @@
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/training-subset/"
-                  class="wbg_sidebar second-level"
-                  :class="{ active: $route.name === 'explore_training-subset' }"
-                  >Training subset</router-link
-                >
-              </li>
-              <li>
-                <router-link
                   to="/explore/topic-composition/"
                   :class="{
                     active: $route.name === 'explore_topic-composition',

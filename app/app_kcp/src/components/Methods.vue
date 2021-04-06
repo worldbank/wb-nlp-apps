@@ -68,6 +68,11 @@
                   >Visualizations</router-link
                 >
               </li>
+              <li>
+                <router-link to="/methods/training-materials"
+                  >Training materials</router-link
+                >
+              </li>
             </ol>
           </section>
         </aside>
