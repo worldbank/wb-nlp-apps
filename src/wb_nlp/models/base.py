@@ -685,7 +685,7 @@ class BaseModel:
             milvus_client.create_collection(
                 collection_name, self.collection_params)
 
-        collection_doc_ids = set(get_collection_ids(collection_name))
+        collection_doc_ids = list(set(get_collection_ids(collection_name)))
 
         projection = ["id", "int_id", "hex_id", "corpus"]
 
@@ -695,7 +695,12 @@ class BaseModel:
             list(docs_metadata_collection.find(projection=projection)), columns=projection)
 
         docs_for_processing = docs_metadata_df[
-            ~docs_metadata_df['int_id'].isin(collection_doc_ids) & docs_metadata_df["id"].isin(cleaned_ids)]
+            (~docs_metadata_df['int_id'].isin(collection_doc_ids)) & docs_metadata_df["id"].isin(cleaned_ids)]
+
+        print(
+            f"Collection size: {len(collection_doc_ids)}\nCleaned ids count: {len(cleaned_ids)}\ndocs_metadata_df size: {docs_metadata_df.shape[0]}")
+        print(
+            f"Sample milvus_ids: {collection_doc_ids[:10]}\nSample clean_ids: {cleaned_ids[:10]}")
 
         dask_client = create_dask_cluster(
             logger=self.logger, n_workers=pool_workers)
