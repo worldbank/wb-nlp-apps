@@ -338,6 +338,10 @@ export default {
         if (this.$route.query.page !== undefined) {
           page_num = Number(this.$route.query.page);
         }
+
+        if (this.$route.params.uploaded_file) {
+          this.uploaded_file = this.$route.params.uploaded_file;
+        }
         this.sendSearch(page_num);
       }
     }
