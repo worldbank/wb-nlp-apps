@@ -92,17 +92,45 @@ def get_ids(index=None):
     return existing_ids
 
 
-def get_metadata_by_ids(doc_ids, index=None, source_fields=None):
+def get_metadata_by_ids(doc_ids, index=None, source=None, source_includes=None, source_excludes=None):
+    '''
+    This method returns the metadata corresponding to the list of ids in `doc_ids`.
+    The source input parametrize the return value for the _source field.
+        source = False                          : Don't return any
+        source = []                             : Return all values in the _source
+        source = dict(excludes=["body"])        : Return all values except the body.
+    '''
     if index is None:
         index = DOC_INDEX
-    if source_fields is None:
-        source_fields = []
+
+    if source is False:
+        pass
+    elif source is None:
+        source = {}
+        if source_excludes:
+            source["excludes"] = source_excludes
+        if source_includes:
+            source["includes"] = source_includes
+    elif isinstance(source, list):
+        _source = {}
+        if source_excludes:
+            _source["excludes"] = source_excludes
+        if source_includes:
+            _source["includes"] = sorted(set(source + source_includes))
+        source = _source
+    elif isinstance(source, dict):
+        if source_excludes:
+            source["excludes"] = sorted(
+                set(source_excludes + source.get("excludes", [])))
+        if source_includes:
+            source["includes"] = sorted(
+                set(source_includes + source.get("includes", [])))
 
     return [obj["_source"] for obj in scan(
         get_client(),
         query=dict(
             query=dict(terms={"_id": doc_ids}),
-            _source=source_fields),
+            _source=source),
         size=len(doc_ids),
         index=index)]
 

@@ -76,7 +76,7 @@ def common_semantic_search(
 
         print(f"Elapsed 5: {timer.elapsed}")
         response = elasticsearch.get_metadata_by_ids(
-            doc_ids=list(id_rank.keys()))
+            doc_ids=list(id_rank.keys()), source_excludes=["body"])
 
         total = dict(
             value=None,
