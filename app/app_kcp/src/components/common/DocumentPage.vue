@@ -18,7 +18,20 @@
             >
           </h3>
           <div class="abstract">
-            <p>{{ metadata.abstract || "" }}</p>
+            <read-more
+              more-str="read more"
+              :text="metadata.abstract || ''"
+              link="#"
+              less-str="read less"
+              :max-chars="500"
+            ></read-more>
+            <!-- <read-more
+              more-str="read more"
+              less-str="read less"
+              :text="(metadata.body || '').slice(0, 49)"
+              link="#"
+            ></read-more> -->
+            <!-- <p>{{ metadata.abstract || "" }}</p> -->
           </div>
           <div class="study-country">
             {{ metadata.country[0] }}, {{ metadata.year }}
@@ -149,7 +162,10 @@
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import MetadataViewer from "./MetadataViewer";
 import SimilarWDIViewer from "./SimilarWDIViewer";
+import ReadMore from "vue-read-more";
+import Vue from "vue";
 
+Vue.use(ReadMore);
 export default {
   name: "DocumentPage",
   props: {},
@@ -273,11 +289,20 @@ export default {
 </script>
 
 <style>
+/* p {
+  margin-bottom: 1px;
+}
+span > a {
+  float: right;
+} */
 .tab-link-format {
   margin: 10px;
   background-color: transparent !important;
   padding-top: 5px !important;
   border: 0px !important;
+}
+.study-country {
+  margin-top: 10px;
 }
 
 .tab-item-format {
