@@ -79,6 +79,34 @@ def get_connections():
     return connections
 
 
+def get_ids(index=None):
+    if index is None:
+        index = DOC_INDEX
+
+    existing_ids = {obj["_id"] for obj in scan(get_client(), query=dict(
+        query=dict(match_all={}),
+        _source=False),
+        size=5000,
+        index=index)}
+
+    return existing_ids
+
+
+def get_metadata_by_ids(doc_ids, index=None, source_fields=None):
+    if index is None:
+        index = DOC_INDEX
+    if source_fields is None:
+        source_fields = []
+
+    return [obj["_source"] for obj in scan(
+        get_client(),
+        query=dict(
+            query=dict(terms={"_id": doc_ids}),
+            _source=source_fields),
+        size=len(doc_ids),
+        index=index)]
+
+
 def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True):
     # test_docs_metadata = mongodb.get_collection(
     #     db_name="test_nlp", collection_name="docs_metadata")
@@ -86,12 +114,14 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True):
     existing_ids = set()
 
     if ignore_existing:
-        for obj in scan(get_client(), query=dict(
-                query=dict(match_all={}),
-                fields=["_id"]),
-                size=5000,
-                index=DOC_INDEX):
-            existing_ids.add(obj["_id"])
+        existing_ids = get_ids(index=DOC_INDEX)
+
+        # for obj in scan(get_client(), query=dict(
+        #         query=dict(match_all={}),
+        #         fields=["_id"]),
+        #         size=5000,
+        #         index=DOC_INDEX):
+        #     existing_ids.add(obj["_id"])
 
     root_path = Path(get_path_from_root())
 
@@ -137,7 +167,7 @@ def text_search(query, from_result=0, size=10, return_body=False, ignore_cache=F
     search = Search(using=get_client(), index=DOC_INDEX)
     search = search.query(query)
 
-    search = search[from_result:from_result + size]
+    search = search[from_result: from_result + size]
 
     if not return_body:
         search = search.source(excludes=["body", "doc"])
@@ -151,7 +181,7 @@ def ids_search(ids, from_result=0, size=10, return_body=False, ignore_cache=Fals
     search = Search(using=get_client(), index=DOC_INDEX)
     search = search.filter("ids", values=ids)
 
-    search = search[from_result:from_result + size]
+    search = search[from_result: from_result + size]
 
     if not return_body:
         search = search.source(excludes=["body", "doc"])

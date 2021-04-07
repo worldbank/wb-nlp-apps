@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Query, Form
 import pydantic
 from pydantic import HttpUrl
 from contexttimer import Timer
-from wb_nlp.interfaces import mongodb, elasticsearch
+from wb_nlp.interfaces import elasticsearch
 
 from wb_nlp.types.models import (
     ModelTypes
@@ -75,22 +75,18 @@ def common_semantic_search(
         id_rank = {res["id"]: res["rank"] for res in result}
 
         print(f"Elapsed 5: {timer.elapsed}")
-        docs_metadata = mongodb.get_collection(
-            db_name="test_nlp", collection_name="docs_metadata")
-        # docs_metadata = mongodb.get_docs_metadata_collection()
-
-        print(f"Elapsed 6: {timer.elapsed}")
-        response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
+        response = elasticsearch.get_metadata_by_ids(
+            doc_ids=list(id_rank.keys()))
 
         total = dict(
             value=None,
             message="many"
         )
 
-        print(f"Elapsed 7: {timer.elapsed}")
+        print(f"Elapsed 6: {timer.elapsed}")
         hits = [h for h in sorted(response, key=lambda x: id_rank[x["id"]])]
 
-        print(f"Elapsed 8: {timer.elapsed}")
+        print(f"Elapsed 7: {timer.elapsed}")
 
         return dict(
             total=total,
