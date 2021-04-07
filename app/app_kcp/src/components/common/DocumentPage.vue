@@ -17,6 +17,9 @@
               {{ metadata.title }}</a
             >
           </h3>
+          <div class="abstract">
+            <p>{{ metadata.abstract || "" }}</p>
+          </div>
           <div class="study-country">
             {{ metadata.country[0] }}, {{ metadata.year }}
           </div>
