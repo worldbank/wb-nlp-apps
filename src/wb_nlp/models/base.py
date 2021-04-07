@@ -705,6 +705,8 @@ class BaseModel:
 
         print(f"IS TOPIC MODEL: {is_topic_model}")
 
+        print(f"Processing {docs_for_processing.shape[0]} files...")
+
         try:
             with joblib.parallel_backend('dask'):
                 if not docs_for_processing.empty:
@@ -720,6 +722,8 @@ class BaseModel:
                             group_value = np.zeros(len(sub_docs))
 
                         max_group = max(group_value)
+
+                        print(f"Starting parallel process...")
 
                         results = Parallel(verbose=10, batch_size='auto')(
                             delayed(self.build_docs_group)(docs, is_topic_model, group_id, max_group, collection_name, partition_group) for group_id, docs in sub_docs.groupby(group_value))
@@ -795,6 +799,9 @@ class BaseModel:
                         #     sub_sub_int_ids)) == 0
 
                         # milvus_client.flush([collection_name])
+        except Exception as e:
+            dask_client.close()
+            raise(e)
         finally:
             dask_client.close()
 
