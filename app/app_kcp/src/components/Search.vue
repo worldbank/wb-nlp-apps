@@ -283,6 +283,7 @@
                 v-for="(result, idx, key) in hits"
                 :result="result"
                 :match="match_stats[idx]"
+                :highlights="highlights[idx]"
                 v-bind:key="result.id + key"
               />
             </div>
@@ -418,6 +419,7 @@ export default {
       query: "",
       from_result: 0,
       hits: [],
+      highlights: [],
       match_stats: [],
       total: Object,
       errored: false,
@@ -487,6 +489,7 @@ export default {
 
       this.hits = [];
       this.match_stats = [];
+      this.highlights = [];
       this.next_override = true;
 
       if (this.search_type == "keyword") {
@@ -530,6 +533,7 @@ export default {
         })
         .then((response) => {
           this.hits = response.data.hits;
+          this.highlights = response.data.highlights;
           this.match_stats = response.data.result;
           this.total = response.data.total;
           this.next = this.curr_page_num + 1;

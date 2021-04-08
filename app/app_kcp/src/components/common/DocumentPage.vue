@@ -329,4 +329,7 @@ span > a {
 .authors {
   font-size: medium;
 }
+.abstract p {
+  margin-bottom: 0.1rem;
+}
 </style>

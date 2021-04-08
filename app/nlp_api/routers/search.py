@@ -37,16 +37,21 @@ async def keyword_search(
 
     hits = []
     result = []
+    highlights = []
 
-    for ix, h in enumerate(response.hits, 1):
+    for ix, h in enumerate(response, 1):
         hits.append(h.to_dict())
         result.append(dict(id=h.meta.id, rank=ix +
                       from_result, score=h.meta.score))
+        highlight = h.meta.highlight
+        highlight["id"] = h.meta.id
+        highlights.append(highlight.to_dict())
 
     return dict(
         total=total,
         hits=hits,
         result=result,
+        highlights=highlights,
         next=from_result + size
     )
 

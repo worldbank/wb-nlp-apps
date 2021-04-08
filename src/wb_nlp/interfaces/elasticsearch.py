@@ -189,13 +189,17 @@ def faceted_search_nlp_docs():
         print(year.strftime('%Y'), ' (SELECTED):' if selected else ':', count)
 
 
-def text_search(query, from_result=0, size=10, return_body=False, ignore_cache=False):
+def text_search(query, from_result=0, size=10, return_body=False, ignore_cache=False, fragment_size=100):
     query = MultiMatch(query=query, fields=["title", "body"])
 
     search = Search(using=get_client(), index=DOC_INDEX)
     search = search.query(query)
 
     search = search[from_result: from_result + size]
+
+    search = search.highlight_options(order="score")
+    search = search.highlight(
+        "body", fragment_size=fragment_size)
 
     if not return_body:
         search = search.source(excludes=["body", "doc"])
@@ -205,11 +209,19 @@ def text_search(query, from_result=0, size=10, return_body=False, ignore_cache=F
     return response
 
 
-def ids_search(ids, from_result=0, size=10, return_body=False, ignore_cache=False):
+def ids_search(ids, query, from_result=0, size=10, return_body=False, ignore_cache=False, fragment_size=100):
+    # query = MultiMatch(query=query, fields=["title", "body"])
+
     search = Search(using=get_client(), index=DOC_INDEX)
     search = search.filter("ids", values=ids)
 
+    # search = search.query(query)
+
     search = search[from_result: from_result + size]
+
+    # search = search.highlight_options(order="score")
+    # search = search.highlight(
+    #     "body", fragment_size=fragment_size)
 
     if not return_body:
         search = search.source(excludes=["body", "doc"])

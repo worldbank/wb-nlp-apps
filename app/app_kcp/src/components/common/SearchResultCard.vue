@@ -62,6 +62,22 @@
               >
             </div>
           </div>
+
+          <div v-if="highlights" class="highlight">
+            <!-- <span v-html="highlights.body[0].replace(/\s\s+/g, ' ')"></span> -->
+            <!-- <span
+              v-html="highlights.body.join('... ').replace(/\s\s+/g, ' ')"
+            ></span> -->
+
+            <read-more
+              more-str="read more"
+              :text="highlights.body.join('... ').replace(/\s\s+/g, ' ') || ''"
+              link="#"
+              less-str="read less"
+              :max-chars="200"
+            ></read-more>
+          </div>
+
           <div class="study-meta d-flex">
             <div
               class="small mt-2 mb-2 mr-3"
@@ -133,12 +149,16 @@
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import DocumentTopic from "./DocumentTopic";
 import DocumentMetadata from "./DocumentMetadata";
+import ReadMore from "vue-read-more";
+import Vue from "vue";
 
+Vue.use(ReadMore);
 export default {
   name: "SearchResultCard",
   props: {
     result: Object,
     match: Object,
+    highlights: Object,
   },
   components: { RelatedDocsPanel, DocumentTopic, DocumentMetadata },
   data: function () {
@@ -185,5 +205,15 @@ export default {
 <style>
 .authors {
   font-size: medium;
+}
+.highlight {
+  font-size: small;
+}
+.highlight em {
+  font-weight: bold;
+  font-style: normal;
+}
+.highlight p {
+  margin-bottom: 0.1rem;
 }
 </style>
