@@ -43,8 +43,12 @@ async def keyword_search(
         hits.append(h.to_dict())
         result.append(dict(id=h.meta.id, rank=ix +
                       from_result, score=h.meta.score))
-        highlight = h.meta.highlight
-        highlight["id"] = h.meta.id
+        try:
+            highlight = h.meta.highlight
+            highlight["id"] = h.meta.id
+        except AttributeError:
+            # 'HitMeta' object has no attribute 'highlight'
+            highlight["body"] = []
         highlights.append(highlight.to_dict())
 
     return dict(
