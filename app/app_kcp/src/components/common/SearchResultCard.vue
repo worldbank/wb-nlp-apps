@@ -43,6 +43,22 @@
           <div class="study-country">
             {{ result.country[0] }}, {{ result.year }}
           </div>
+
+          <div v-if="highlights" class="highlight">
+            <!-- <span v-html="highlights.body[0].replace(/\s\s+/g, ' ')"></span> -->
+            <!-- <span
+              v-html="highlights.body.join('... ').replace(/\s\s+/g, ' ')"
+            ></span> -->
+
+            <read-more
+              more-str="read more"
+              :text="highlights.body.join('... ').replace(/\s\s+/g, ' ') || ''"
+              link="#"
+              less-str="read less"
+              :max-chars="200"
+            ></read-more>
+          </div>
+
           <div class="study-id d-md-flex mt-2">
             <span class="badge badge-pill badge-secondary"
               >ID: {{ result.id }}</span
@@ -61,21 +77,6 @@
                 ></span
               >
             </div>
-          </div>
-
-          <div v-if="highlights" class="highlight">
-            <!-- <span v-html="highlights.body[0].replace(/\s\s+/g, ' ')"></span> -->
-            <!-- <span
-              v-html="highlights.body.join('... ').replace(/\s\s+/g, ' ')"
-            ></span> -->
-
-            <read-more
-              more-str="read more"
-              :text="highlights.body.join('... ').replace(/\s\s+/g, ' ') || ''"
-              link="#"
-              less-str="read less"
-              :max-chars="200"
-            ></read-more>
           </div>
 
           <div class="study-meta d-flex">
