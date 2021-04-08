@@ -35,9 +35,18 @@ async def keyword_search(
     total = response.hits.total.to_dict()
     total["message"] = total["value"]
 
+    hits = []
+    result = []
+
+    for ix, h in enumerate(response.hits, 1):
+        hits.append(h.to_dict())
+        result.append(dict(id=h.meta.id, rank=ix +
+                      from_result, score=h.meta.score))
+
     return dict(
         total=total,
-        hits=[h.to_dict() for h in response.hits],
+        hits=hits,
+        result=result,
         next=from_result + size
     )
 

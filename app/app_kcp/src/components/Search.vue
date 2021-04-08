@@ -278,11 +278,14 @@
               </div>
             </div>
             <SearchResultLoading :loading="loading" :size="curr_size" />
-            <SearchResultCard
-              v-for="result in hits"
-              :result="result"
-              v-bind:key="result.id"
-            />
+            <div v-if="!loading">
+              <SearchResultCard
+                v-for="(result, idx, key) in hits"
+                :result="result"
+                :match="match_stats[idx]"
+                v-bind:key="result.id + key"
+              />
+            </div>
             <Pagination
               @pageNumReceived="sendSearch"
               @currSizeSet="setCurrSize"
@@ -415,6 +418,7 @@ export default {
       query: "",
       from_result: 0,
       hits: [],
+      match_stats: [],
       total: Object,
       errored: false,
       loading: false,
@@ -482,6 +486,7 @@ export default {
       var from = (page_num - 1) * this.curr_size;
 
       this.hits = [];
+      this.match_stats = [];
       this.next_override = true;
 
       if (this.search_type == "keyword") {
@@ -525,6 +530,7 @@ export default {
         })
         .then((response) => {
           this.hits = response.data.hits;
+          this.match_stats = response.data.result;
           this.total = response.data.total;
           this.next = this.curr_page_num + 1;
           // this.next = response.data.next;
@@ -558,6 +564,7 @@ export default {
         })
         .then((response) => {
           this.hits = response.data.hits;
+          this.match_stats = response.data.result;
           this.total = response.data.total;
           this.next = this.curr_page_num + 1;
           this.start = this.from_result + 1;
@@ -582,6 +589,7 @@ export default {
         .post(this.file_search_api_url, this.fileParams)
         .then((response) => {
           this.hits = response.data.hits;
+          this.match_stats = response.data.result;
           this.total = response.data.total;
           this.next = this.curr_page_num + 1;
           this.start = this.from_result + 1;

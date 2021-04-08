@@ -48,8 +48,18 @@
               >ID: {{ result.id }}</span
             >
             <div class="small ml-md-3 mt-2 mt-md-0">
-              Corpus: {{ result.corpus }}, Rank: {{ match.rank }}, Score:
-              {{ match.score }}
+              Corpus: {{ result.corpus
+              }}<span v-if="match && match.rank">, Rank: {{ match.rank }}</span
+              ><span v-if="match && match.score"
+                >, Score: {{ match.score.toFixed(4) }}</span
+              ><span v-if="match && match.topic"
+                ><span
+                  v-for="topic_id_score in Object.entries(match.topic)"
+                  :key="topic_id_score"
+                  >, {{ topic_id_score[0].replace("_", " ") }}:
+                  {{ topic_id_score[1].toFixed(4) * 100 }}%</span
+                ></span
+              >
             </div>
           </div>
           <div class="study-meta d-flex">
@@ -128,12 +138,12 @@ export default {
   name: "SearchResultCard",
   props: {
     result: Object,
+    match: Object,
   },
   components: { RelatedDocsPanel, DocumentTopic, DocumentMetadata },
   data: function () {
     return {
       submit_related: false,
-      match: { rank: 1, score: 0.96 },
       rrandom_id: null,
     };
   },
