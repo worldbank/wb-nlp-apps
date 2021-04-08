@@ -17,6 +17,7 @@
               {{ metadata.title }}</a
             >
           </h3>
+
           <div class="abstract">
             <read-more
               more-str="read more"
@@ -32,6 +33,16 @@
               link="#"
             ></read-more> -->
             <!-- <p>{{ metadata.abstract || "" }}</p> -->
+          </div>
+          <div v-if="metadata.author" class="authors">
+            Author(s):
+            <span v-for="author in metadata.author" :key="author"
+              ><a
+                :href="'https://scholar.google.com/scholar?q=' + author"
+                target="_blank"
+                >{{ author }}</a
+              >,
+            </span>
           </div>
           <div class="study-country">
             {{ metadata.country[0] }}, {{ metadata.year }}
@@ -314,5 +325,8 @@ span > a {
   margin-bottom: 50px;
   padding-right: 30px;
   padding-left: 30px;
+}
+.authors {
+  font-size: medium;
 }
 </style>

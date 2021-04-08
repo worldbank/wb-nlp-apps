@@ -29,6 +29,17 @@
               {{ result.title }}</router-link
             >
           </h5>
+
+          <div v-if="result.author" class="authors">
+            Author(s):
+            <span v-for="author in result.author" :key="author"
+              ><a
+                :href="'https://scholar.google.com/scholar?q=' + author"
+                target="_blank"
+                >{{ author }}</a
+              >,
+            </span>
+          </div>
           <div class="study-country">
             {{ result.country[0] }}, {{ result.year }}
           </div>
@@ -37,7 +48,8 @@
               >ID: {{ result.id }}</span
             >
             <div class="small ml-md-3 mt-2 mt-md-0">
-              Rank: {{ match.rank }}, Score: {{ match.score }}
+              Corpus: {{ result.corpus }}, Rank: {{ match.rank }}, Score:
+              {{ match.score }}
             </div>
           </div>
           <div class="study-meta d-flex">
@@ -83,10 +95,6 @@
           <div class="sub-title">
             <div>
               <span class="study-by">{{ result.major_doc_type[0] }}</span>
-            </div>
-            <div class="owner-collection">
-              Corpus:
-              <router-link to="/search/">{{ result.corpus }}</router-link>
             </div>
           </div>
           <div class="survey-stats">
@@ -164,3 +172,8 @@ export default {
   },
 };
 </script>
+<style>
+.authors {
+  font-size: medium;
+}
+</style>
