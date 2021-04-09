@@ -419,6 +419,8 @@ export default {
       this.query_cache = this.query;
       this.query = "";
       this.search_type = "semantic";
+      this.suggestion_anchor = "";
+      this.suggestions = [];
     },
     removeFile() {
       this.uploaded_file = null;

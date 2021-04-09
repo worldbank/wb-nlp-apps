@@ -8,7 +8,7 @@ from wb_nlp.interfaces import mongodb
 from wb_nlp.types.models import (
     ModelTypes,
 )
-from wb_nlp.models import word2vec_base, lda_base
+from wb_nlp.models import word2vec_base, lda_base, mallet_base
 from wb_nlp.processing import document
 
 # This is faster than lru_cache
@@ -51,6 +51,15 @@ def get_model_by_model_id(model_id):
         elif model_run_info["model_name"] == ModelTypes.lda.value:
 
             model = lda_base.LDAModel(
+                model_config_id=model_run_info["model_config_id"],
+                cleaning_config_id=model_run_info["cleaning_config_id"],
+                model_run_info_id=model_id,
+                raise_empty_doc_status=False,
+            )
+
+        elif model_run_info["model_name"] == ModelTypes.mallet.value:
+
+            model = mallet_base.MalletModel(
                 model_config_id=model_run_info["model_config_id"],
                 cleaning_config_id=model_run_info["cleaning_config_id"],
                 model_run_info_id=model_id,

@@ -57,54 +57,45 @@ export default {
     return {
       model_run_info_id: "",
       model_run_infos: [],
-      lda_model_run_infos: [
-        {
-          value: this.$config.default_model.lda.model_id,
-          text: "LDA model with 300 topics trained on all documents.",
-        },
-        {
-          value: this.$config.default_model.lda.model_id,
-          text: "LDA model with 100 topics trained on all documents.",
-        },
-      ],
-      word2vec_model_run_infos: [
-        {
-          value: this.$config.default_model.word2vec.model_id,
-          text: "Word2Vec model with 300 dimensions trained on all documents.",
-        },
-        {
-          value: this.$config.default_model.word2vec.model_id,
-          text: "Word2Vec model with 100 dimensions trained on all documents.",
-        },
-      ],
     };
   },
   methods: {
     getModelRunInfos() {
-      const url =
-        "/nlp/models/get_available_models?model_type=" + this.model_name;
+      var url = "";
+      if (this.model_name === "word2vec") {
+        url = "/nlp/models/get_available_models?model_type=" + this.model_name;
+      } else {
+        url =
+          "/nlp/models/get_available_models?model_type=lda&model_type=mallet";
+      }
 
       this.$http.get(url).then((response) => {
         this.model_run_infos = response.data.map((o) => {
-          return { value: o.model_run_info_id, text: o.description };
+          return {
+            value: o.model_run_info_id,
+            text: o.description,
+            model_run_info_id: o.model_run_info_id,
+            model_name: o.model_name,
+          };
         });
-        // if (model_name === "lda") {
-        //   this.lda_model_run_infos = data;
-        // } else if (model_name === "word2vec") {
-        //   this.word2vec_model_run_infos = data;
-        // }
       });
     },
-    // getLDAModelRunInfos() {
-    //   this.getModelRunInfos("lda");
-    // },
-    // getWord2vecModelRunInfos() {
-    //   this.getModelRunInfos("word2vec");
-    // },
   },
   watch: {
     model_run_info_id: function () {
-      this.$emit("modelSelected", this.model_run_info_id);
+      var result = this.model_run_infos.find(
+        (obj) => obj.value === this.model_run_info_id
+      );
+
+      if (result.model_name === "word2vec") {
+        result["url"] = this.$config.nlp_api_url.word2vec;
+      } else if (result.model_name === "lda") {
+        result["url"] = this.$config.nlp_api_url.lda;
+      } else if (result.model_name === "mallet") {
+        result["url"] = this.$config.nlp_api_url.mallet;
+      }
+
+      this.$emit("modelSelected", result);
     },
   },
 };

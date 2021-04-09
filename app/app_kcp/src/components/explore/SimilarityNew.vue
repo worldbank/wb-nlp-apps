@@ -427,13 +427,27 @@ export default {
         cacheKey: "filterTopicSharePage",
       };
     },
-    onModelSelectWord2Vec(model_run_info_id) {
-      console.log(model_run_info_id);
-      this.model_options[this.model_name.word2vec].model_id = model_run_info_id;
+    onModelSelectWord2Vec(result) {
+      this.model_options[
+        this.model_name.word2vec
+      ].upload_nlp_api_url = this.$config.search_url[result.model_name].file;
+      this.model_options[
+        this.model_name.word2vec
+      ].url_nlp_api_url = this.$config.search_url[result.model_name].url;
+      this.model_options[this.model_name.word2vec].model_id =
+        result.model_run_info_id;
+      console.log(result.model_run_info_id);
     },
-    onModelSelectLDA(model_run_info_id) {
-      console.log(model_run_info_id);
-      this.model_options[this.model_name.lda].model_id = model_run_info_id;
+    onModelSelectLDA(result) {
+      this.model_options[
+        this.model_name.lda
+      ].upload_nlp_api_url = this.$config.search_url[result.model_name].file;
+      this.model_options[
+        this.model_name.lda
+      ].url_nlp_api_url = this.$config.search_url[result.model_name].url;
+      this.model_options[this.model_name.lda].model_id =
+        result.model_run_info_id;
+      console.log(result.model_run_info_id);
     },
     sendSearch: function (page_num = 1) {
       console.log(page_num);

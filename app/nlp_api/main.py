@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from .routers import cleaner, models, metadata, search
-from .routers.subrouters import lda, word2vec, wdi
+from .routers.subrouters import lda, mallet, word2vec, wdi
 from wb_nlp import dir_manager
 
 tags_metadata = [
@@ -53,6 +53,12 @@ app.include_router(
 )
 app.include_router(
     lda.router,
+    prefix="/nlp/models",
+    # tags=["lda"],
+    responses={404: {"description": "Not found"}},
+)
+app.include_router(
+    mallet.router,
     prefix="/nlp/models",
     # tags=["lda"],
     responses={404: {"description": "Not found"}},

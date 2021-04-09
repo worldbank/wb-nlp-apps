@@ -31,7 +31,7 @@ services:
   app_kcp:
     volumes:
       - ${STAGING_PATH}/app/app_kcp:/app
-      - ${STAGING_PATH}/app/app_kcp/site.conf:/etc/nginx/conf.d/site.conf
+      # - ${STAGING_PATH}/app/app_kcp/site.conf:/etc/nginx/conf.d/site.conf
 
   api:
     volumes:

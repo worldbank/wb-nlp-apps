@@ -167,6 +167,7 @@ export default {
   },
   data: function () {
     return {
+      nlp_api_url: null,
       loading: false,
       hits_loading: false,
       total_hits: null,
@@ -183,6 +184,7 @@ export default {
   methods: {
     submitTopicRanges() {
       this.$emit("topicRangeReceived", {
+        model_name: this.model_name,
         model_id: this.model_run_info_id,
         topic_value: this.topicValue,
       });
@@ -241,8 +243,10 @@ export default {
         (matchedText) => `<strong>${matchedText}</strong>`
       );
     },
-    onModelSelect: function (model_run_info_id) {
-      this.model_run_info_id = model_run_info_id;
+    onModelSelect: function (result) {
+      this.model_run_info_id = result.model_run_info_id;
+      this.model_name = result.model_name;
+      this.nlp_api_url = result.url;
       this.getModelTopics();
 
       // Call this inside the getModelTopics then clause to prevent race condition when running a single API worker.
@@ -269,13 +273,10 @@ export default {
       Object.entries(data).forEach(([key, val]) => (data[key] = val / 100));
 
       this.$http
-        .post(
-          this.$config.nlp_api_url.lda + "/get_docs_by_topic_composition_count",
-          {
-            model_id: this.model_run_info_id,
-            topic_percentage: data,
-          }
-        )
+        .post(this.nlp_api_url + "/get_docs_by_topic_composition_count", {
+          model_id: this.model_run_info_id,
+          topic_percentage: data,
+        })
         .then((response) => {
           this.total_hits = response.data.total;
         })
@@ -284,7 +285,7 @@ export default {
     getTopicRanges: function () {
       this.$http
         .get(
-          this.$config.nlp_api_url.lda +
+          this.nlp_api_url +
             "/get_model_topic_ranges?model_id=" +
             this.model_run_info_id
         )
@@ -295,7 +296,7 @@ export default {
     getModelTopics: function () {
       this.loading = true;
       this.$http
-        .get(this.$config.nlp_api_url.lda + "/get_model_topic_words", {
+        .get(this.nlp_api_url + "/get_model_topic_words", {
           params: this.searchParams,
         })
         .then((response) => {
