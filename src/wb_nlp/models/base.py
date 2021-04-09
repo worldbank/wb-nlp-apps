@@ -642,7 +642,7 @@ class BaseModel:
                 [dict(
                     model_run_info_id=self.model_run_info["model_run_info_id"],
                     id=doc_id,
-                    _id=doc_id,
+                    _id=f"{self.model_run_info['model_run_info_id']}-{doc_id}",
                     topics={
                         f"topic_{topic_id}": value for topic_id, value in enumerate(topic_list)}
                 ) for doc_id, topic_list in zip(doc_ids, vectors)]
