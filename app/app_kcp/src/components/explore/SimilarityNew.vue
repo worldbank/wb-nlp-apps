@@ -206,9 +206,10 @@
             <div v-show="model_option.hits.length > 0">
               <div v-if="!loading">
                 <SearchResultCard
-                  v-for="result in model_option.hits"
+                  v-for="(result, idx, key) in model_option.hits"
                   :result="result"
-                  v-bind:key="'word2vec_' + result.id"
+                  :match="model_option.match_stats[idx]"
+                  v-bind:key="'word2vec_' + result.id + key"
                 />
               </div>
 
@@ -231,9 +232,10 @@
             <div v-show="model_option.hits.length > 0">
               <div v-if="!loading">
                 <SearchResultCard
-                  v-for="result in model_option.hits"
+                  v-for="(result, idx, key) in model_option.hits"
                   :result="result"
-                  v-bind:key="'lda_' + result.id"
+                  :match="model_option.match_stats[idx]"
+                  v-bind:key="'lda_' + result.id + key"
                 />
               </div>
 
@@ -311,6 +313,7 @@ export default {
           num_pages: 0,
           from_result: 0,
           hits: [],
+          match_stats: [],
           total: { value: null, message: null },
           curr_size: this.$config.pagination.size,
         },
@@ -324,6 +327,7 @@ export default {
           num_pages: 0,
           from_result: 0,
           hits: [],
+          match_stats: [],
           total: { value: null, message: null },
           curr_size: this.$config.pagination.size,
         },
@@ -453,6 +457,8 @@ export default {
         .post(this.apiUrl, this.apiParams)
         .then((response) => {
           this.model_options[this.selectedModel].hits = response.data.hits;
+          this.model_options[this.selectedModel].match_stats =
+            response.data.result;
           this.model_options[this.selectedModel].total = response.data.total;
           this.model_options[this.selectedModel].next =
             this.model_options[this.selectedModel].curr_page_num + 1;

@@ -26,11 +26,8 @@ import Similarity from '../components/explore/SimilarityNew.vue'
 import Sources from '../components/explore/subcategories/Sources.vue'
 import GeographicCoverage from '../components/explore/subcategories/GeographicCoverage.vue'
 import Metadata from '../components/explore/subcategories/Metadata.vue'
-import TrainingSubset from '../components/explore/subcategories/TrainingSubset.vue'
 import TopicBrowser from '../components/explore/subcategories/TopicBrowser.vue'
 import FilterTopicShare from '../components/explore/subcategories/FilterTopicShare.vue'
-
-
 
 // METHODS components
 import MethodsMethods from '../components/methods/Methods.vue'
@@ -42,13 +39,15 @@ import TopicClassification from '../components/methods/TopicClassification.vue'
 import Cataloguing from '../components/methods/Cataloguing.vue'
 import SearchEngine from '../components/methods/SearchEngine.vue'
 import Visualizations from '../components/methods/Visualizations.vue'
+import TrainingMaterials from '../components/methods/TrainingMaterials.vue'
+
+// COMMON
 import DocumentPage from '../components/common/DocumentPage.vue'
-
-
 
 Vue.use(VueRouter);
 
-const main_routes = [{
+const main_routes = [
+    {
         path: "",
         name: "home",
         component: Home,
@@ -99,12 +98,6 @@ const explore_subcategories_routes = [
         component: Metadata,
         props: { page_title: "Metadata" },
     },
-    {
-        path: "training-subset",
-        name: "explore_training-subset",
-        component: TrainingSubset,
-        props: { page_title: "Training Subset" },
-    },
 
     // TOPIC COMPOSITION
     {
@@ -139,7 +132,8 @@ const explore_subcategories_routes = [
     },
 ]
 
-const explore_routes = [{
+const explore_routes = [
+    {
         path: "",
         name: "explore",
         component: Introduction,
@@ -212,7 +206,8 @@ const explore_routes = [{
 ]
 
 
-const methods_routes = [{
+const methods_routes = [
+    {
         path: "",
         name: "methods",
         component: MethodsMethods,
@@ -266,9 +261,16 @@ const methods_routes = [{
         component: Visualizations,
         props: { page_title: "Visualizations" },
     },
+    {
+        path: "training-materials",
+        name: "methods_training-materials",
+        component: TrainingMaterials,
+        props: { page_title: "Training Materials" },
+    },
 ]
 
-const routes = [{
+const routes = [
+    {
         path: '',
         component: ExploreNav,
         children: main_routes

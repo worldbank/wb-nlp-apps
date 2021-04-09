@@ -1,6 +1,6 @@
 '''This router contains the implementation for the cleaning API.
 '''
-
+from functools import lru_cache
 from fastapi import APIRouter, Depends, HTTPException, Body
 import pandas as pd
 import numpy as np
@@ -20,6 +20,14 @@ router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
+
+
+@lru_cache(maxsize=None)
+def _get_wdi_metadata(url_meta):
+    response = requests.get(url_meta)
+    response = response.json()
+    meta = response["source"][0]["concept"][0]["variable"][0]["metatype"]
+    return {r["id"]: r["value"] for r in meta}
 
 
 @ router.get("/get_similar_wdi_by_doc_id")
@@ -52,11 +60,8 @@ async def get_wdi_metadata(url_meta: AnyHttpUrl):
 
     data = {"Longdefinition": None, "Shortdefinition": None}
     try:
-        response = requests.get(url_meta)
-        response = response.json()
-        meta = response["source"][0]["concept"][0]["variable"][0]["metatype"]
-        data = {r["id"]: r["value"] for r in meta}
-    except:
+        data = _get_wdi_metadata(url_meta)
+    except Exception as e:
         pass
 
     return data

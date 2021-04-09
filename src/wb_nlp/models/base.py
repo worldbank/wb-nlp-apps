@@ -685,7 +685,7 @@ class BaseModel:
             milvus_client.create_collection(
                 collection_name, self.collection_params)
 
-        collection_doc_ids = set(get_collection_ids(collection_name))
+        collection_doc_ids = list(set(get_collection_ids(collection_name)))
 
         projection = ["id", "int_id", "hex_id", "corpus"]
 
@@ -695,7 +695,12 @@ class BaseModel:
             list(docs_metadata_collection.find(projection=projection)), columns=projection)
 
         docs_for_processing = docs_metadata_df[
-            ~docs_metadata_df['int_id'].isin(collection_doc_ids) & docs_metadata_df["id"].isin(cleaned_ids)]
+            (~docs_metadata_df['int_id'].isin(collection_doc_ids)) & docs_metadata_df["id"].isin(cleaned_ids)]
+
+        print(
+            f"Collection size: {len(collection_doc_ids)}\nCleaned ids count: {len(cleaned_ids)}\ndocs_metadata_df size: {docs_metadata_df.shape[0]}")
+        print(
+            f"Sample milvus_ids: {collection_doc_ids[:10]}\nSample clean_ids: {cleaned_ids[:10]}")
 
         dask_client = create_dask_cluster(
             logger=self.logger, n_workers=pool_workers)
@@ -704,6 +709,8 @@ class BaseModel:
             ModelTypes.lda.value, ModelTypes.mallet.value]
 
         print(f"IS TOPIC MODEL: {is_topic_model}")
+
+        print(f"Processing {docs_for_processing.shape[0]} files...")
 
         try:
             with joblib.parallel_backend('dask'):
@@ -720,6 +727,8 @@ class BaseModel:
                             group_value = np.zeros(len(sub_docs))
 
                         max_group = max(group_value)
+
+                        print(f"Starting parallel process...")
 
                         results = Parallel(verbose=10, batch_size='auto')(
                             delayed(self.build_docs_group)(docs, is_topic_model, group_id, max_group, collection_name, partition_group) for group_id, docs in sub_docs.groupby(group_value))
@@ -795,6 +804,9 @@ class BaseModel:
                         #     sub_sub_int_ids)) == 0
 
                         # milvus_client.flush([collection_name])
+        except Exception as e:
+            dask_client.close()
+            raise(e)
         finally:
             dask_client.close()
 
@@ -819,11 +831,13 @@ class BaseModel:
 
             # topk = 1000  # from_result + (2 * size)  # Add buffer
             # topk = (((from_result + size) // batch_size) + 1) * batch_size
-            print(f"CMR Elapsed 2: {timer.elapsed}")
-            dsl = get_embedding_dsl(
-                doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
-            print(f"CMR Elapsed 3: {timer.elapsed}")
-            results = get_milvus_client().search(self.model_collection_id, dsl)
+            # print(f"CMR Elapsed 2: {timer.elapsed}")
+            # dsl = get_embedding_dsl(
+            #     doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type=metric_type)
+            # print(f"CMR Elapsed 3: {timer.elapsed}")
+            # results = get_milvus_client().search(self.model_collection_id, dsl)
+            results = self.search_milvus(
+                doc_vec, topk, vector_field_name=self.milvus_vector_field_name, metric_type="IP")
 
             print(f"CMR Elapsed 4: {timer.elapsed}")
             entities = []
@@ -839,6 +853,16 @@ class BaseModel:
             print(f"CMR Elapsed 4: {timer.elapsed}")
 
             return entities
+
+    def search_milvus(self, doc_vec, topk, vector_field_name, metric_type="IP"):
+
+        # topk = 1000  # from_result + (2 * size)  # Add buffer
+        # topk = (((from_result + size) // batch_size) + 1) * batch_size
+        # print(f"CMR Elapsed 2: {timer.elapsed}")
+        dsl = get_embedding_dsl(
+            doc_vec, topk, vector_field_name=vector_field_name, metric_type=metric_type)
+        # print(f"CMR Elapsed 3: {timer.elapsed}")
+        return get_milvus_client().search(self.model_collection_id, dsl)
 
     def search_similar_documents(self, document, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10, batch_size=100):
         # document: any text

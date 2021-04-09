@@ -41,9 +41,10 @@
 
           <SearchResultLoading :loading="loading" :size="curr_size" />
           <SearchResultCard
-            v-for="result in hits"
+            v-for="(result, idx, key) in hits"
             :result="result"
-            v-bind:key="result.id"
+            :match="match_stats[idx]"
+            v-bind:key="result.id + key"
           />
 
           <Pagination
@@ -132,6 +133,7 @@ export default {
       from_result: 0,
       size: 10,
       hits: [],
+      match_stats: [],
       total: Object,
       errored: false,
       loading: false,
@@ -152,6 +154,7 @@ export default {
         return;
       }
       this.hits = [];
+      this.match_stats = [];
       this.from_result = from;
 
       this.$http
@@ -161,6 +164,7 @@ export default {
         )
         .then((response) => {
           this.hits = response.data.hits;
+          this.match_stats = response.data.result.hits;
           this.total = response.data.total;
           this.next = this.curr_page_num + 1;
           this.start = this.from_result + 1;

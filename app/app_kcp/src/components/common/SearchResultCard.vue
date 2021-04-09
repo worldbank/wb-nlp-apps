@@ -29,17 +29,56 @@
               {{ result.title }}</router-link
             >
           </h5>
+
+          <div v-if="result.author" class="authors">
+            Author(s):
+            <span v-for="author in result.author" :key="author"
+              ><a
+                :href="'https://scholar.google.com/scholar?q=' + author"
+                target="_blank"
+                >{{ author }}</a
+              >,
+            </span>
+          </div>
           <div class="study-country">
             {{ result.country[0] }}, {{ result.year }}
           </div>
+
+          <div v-if="highlights" class="highlight">
+            <!-- <span v-html="highlights.body[0].replace(/\s\s+/g, ' ')"></span> -->
+            <!-- <span
+              v-html="highlights.body.join('... ').replace(/\s\s+/g, ' ')"
+            ></span> -->
+
+            <read-more
+              more-str="read more"
+              :text="highlights.body.join('... ').replace(/\s\s+/g, ' ') || ''"
+              link="#"
+              less-str="read less"
+              :max-chars="200"
+            ></read-more>
+          </div>
+
           <div class="study-id d-md-flex mt-2">
             <span class="badge badge-pill badge-secondary"
               >ID: {{ result.id }}</span
             >
             <div class="small ml-md-3 mt-2 mt-md-0">
-              Rank: {{ match.rank }}, Score: {{ match.score }}
+              Corpus: {{ result.corpus
+              }}<span v-if="match && match.rank">, Rank: {{ match.rank }}</span
+              ><span v-if="match && match.score"
+                >, Score: {{ match.score.toFixed(4) }}</span
+              ><span v-if="match && match.topic"
+                ><span
+                  v-for="topic_id_score in Object.entries(match.topic)"
+                  :key="topic_id_score"
+                  >, {{ topic_id_score[0].replace("_", " ") }}:
+                  {{ topic_id_score[1].toFixed(4) * 100 }}%</span
+                ></span
+              >
             </div>
           </div>
+
           <div class="study-meta d-flex">
             <div
               class="small mt-2 mb-2 mr-3"
@@ -84,10 +123,6 @@
             <div>
               <span class="study-by">{{ result.major_doc_type[0] }}</span>
             </div>
-            <div class="owner-collection">
-              Corpus:
-              <router-link to="/search/">{{ result.corpus }}</router-link>
-            </div>
           </div>
           <div class="survey-stats">
             <span>Created on: {{ getDate(result.date_published) }} </span>
@@ -115,17 +150,21 @@
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import DocumentTopic from "./DocumentTopic";
 import DocumentMetadata from "./DocumentMetadata";
+import ReadMore from "vue-read-more";
+import Vue from "vue";
 
+Vue.use(ReadMore);
 export default {
   name: "SearchResultCard",
   props: {
     result: Object,
+    match: Object,
+    highlights: Object,
   },
   components: { RelatedDocsPanel, DocumentTopic, DocumentMetadata },
   data: function () {
     return {
       submit_related: false,
-      match: { rank: 1, score: 0.96 },
       rrandom_id: null,
     };
   },
@@ -164,3 +203,18 @@ export default {
   },
 };
 </script>
+<style>
+.authors {
+  font-size: medium;
+}
+.highlight {
+  font-size: small;
+}
+.highlight em {
+  font-weight: bold;
+  font-style: normal;
+}
+.highlight p {
+  margin-bottom: 0.1rem;
+}
+</style>

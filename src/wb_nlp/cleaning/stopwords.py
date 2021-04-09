@@ -15,7 +15,9 @@ roman_nums = set([
 ])
 
 noise_words = set([
-    "include", "shall", "tion", "ment", "provide"
+    "ovid",
+    "include", "shall", "tion", "ment", "provide",
+    "cator",
 ])
 
 # https://www.ranks.nl/stopwords

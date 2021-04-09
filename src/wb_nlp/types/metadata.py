@@ -36,7 +36,7 @@ def make_list_or_null(value, delimiter):
 def pop_get(body, key):
     try:
         value = body.pop(key)
-        if value == "":
+        if value.strip() == "":
             value = None
     except KeyError:
         value = None
@@ -62,6 +62,7 @@ def migrate_nlp_schema(body):
     body["hex_id"] = hex_id
     body["int_id"] = int(body["hex_id"], 16)
 
+    body["abstract"] = pop_get(body, "abstract")
     body["adm_region"] = make_list_or_null(
         body["adm_region"], delimiter=WBAdminRegions.delimiter)
     body["author"] = make_list_or_null(body["author"], delimiter=",")
@@ -202,6 +203,10 @@ class MetadataModel(BaseModel):
     int_id: int = Field(
         ..., description="This will be the id derived from the `hex_id` that will be used in the Milvus index.")
 
+    abstract: str = Field(
+        None,
+        description="Abstract of the document."
+    )
     adm_region: List[WBAdminRegions] = Field(
         None, description="List of administrative regions. Example: Africa.")
     author: List[str] = Field(

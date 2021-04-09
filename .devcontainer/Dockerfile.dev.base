@@ -77,7 +77,7 @@ ARG ENV_DEV_FILE=environment.dev.yml
 ENV PROJECT_ID=$PROJECT_ID
 ENV ENV_DEV_FILE=$ENV_DEV_FILE
 
-COPY ${ENV_DEV_BASE_FILE} ${ENV_DEV_FILE}* /tmp/conda-tmp/
+COPY ${ENV_DEV_BASE_FILE} ${ENV_DEV_FILE} /tmp/conda-tmp/
 
 # If the dev env file doesn't exist, create a new file.
 RUN [ ! -f /tmp/conda-tmp/${ENV_DEV_FILE} ] && conda env export -n ${ENV_ID} --no-builds | grep -v "prefix" > /tmp/conda-tmp/${ENV_DEV_FILE} || echo 0

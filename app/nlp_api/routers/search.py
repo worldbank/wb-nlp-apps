@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Query, Form
 import pydantic
 from pydantic import HttpUrl
 from contexttimer import Timer
-from wb_nlp.interfaces import mongodb, elasticsearch
+from wb_nlp.interfaces import elasticsearch
 
 from wb_nlp.types.models import (
     ModelTypes
@@ -35,9 +35,27 @@ async def keyword_search(
     total = response.hits.total.to_dict()
     total["message"] = total["value"]
 
+    hits = []
+    result = []
+    highlights = []
+
+    for ix, h in enumerate(response, 1):
+        hits.append(h.to_dict())
+        result.append(dict(id=h.meta.id, rank=ix +
+                      from_result, score=h.meta.score))
+        try:
+            highlight = h.meta.highlight
+            highlight["id"] = h.meta.id
+        except AttributeError:
+            # 'HitMeta' object has no attribute 'highlight'
+            highlight["body"] = []
+        highlights.append(highlight.to_dict())
+
     return dict(
         total=total,
-        hits=[h.to_dict() for h in response.hits],
+        hits=hits,
+        result=result,
+        highlights=highlights,
         next=from_result + size
     )
 
@@ -75,22 +93,18 @@ def common_semantic_search(
         id_rank = {res["id"]: res["rank"] for res in result}
 
         print(f"Elapsed 5: {timer.elapsed}")
-        docs_metadata = mongodb.get_collection(
-            db_name="test_nlp", collection_name="docs_metadata")
-        # docs_metadata = mongodb.get_docs_metadata_collection()
-
-        print(f"Elapsed 6: {timer.elapsed}")
-        response = docs_metadata.find({"id": {"$in": list(id_rank.keys())}})
+        response = elasticsearch.get_metadata_by_ids(
+            doc_ids=list(id_rank.keys()), source_excludes=["body"])
 
         total = dict(
             value=None,
             message="many"
         )
 
-        print(f"Elapsed 7: {timer.elapsed}")
+        print(f"Elapsed 6: {timer.elapsed}")
         hits = [h for h in sorted(response, key=lambda x: id_rank[x["id"]])]
 
-        print(f"Elapsed 8: {timer.elapsed}")
+        print(f"Elapsed 7: {timer.elapsed}")
 
         return dict(
             total=total,

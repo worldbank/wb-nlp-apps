@@ -91,7 +91,7 @@ export default {
   color: #42b983;
 } */
 .table-container {
-  overflow: scroll;
-  height: 510px;
+  /* overflow: scroll;
+  height: 510px; */
 }
 </style>

@@ -8,7 +8,7 @@
           </div>
           <div class="col-12 col-md-8">
             <div class="input-group mb-3 mt-3" style="display: flex">
-              <input
+              <!-- <input
                 v-model="search_text"
                 type="text"
                 class="form-control wbg-search-text pl-4"
@@ -20,6 +20,62 @@
               <div class="input-group-append">
                 <button
                   @click="sendToSearch"
+                  class="btn btn-primary wbg-search-button pr-4 pl-4"
+                  type="button"
+                >
+                  Search
+                </button>
+              </div> -->
+              <input
+                v-model="search_text"
+                type="text"
+                class="form-control wbg-search-text pl-4"
+                :placeholder="uploaded_file ? '' : 'Enter your keywords...'"
+                aria-label="Field for search"
+                aria-describedby="basic-addon2"
+                v-on:keyup.enter="sendToSearch()"
+              />
+              <div v-if="hasUploadedFile" class="wbg-uploaded-file">
+                <div class="truncated-title">
+                  {{ this.uploaded_file.name }}
+                </div>
+                <i
+                  class="fas fa-times fa-sm ml-2"
+                  @click="removeFile"
+                  aria-hidden="true"
+                ></i>
+              </div>
+              <div
+                id="submit_file"
+                data-toggle="tooltip"
+                data-placement="bottom"
+                title="Upload a PDF or TXT document to search"
+              >
+                <div class="file-input">
+                  <input
+                    @change="fileUpload"
+                    type="file"
+                    name="file-input"
+                    :value="file_input"
+                    :disabled="hasUploadedFile"
+                    id="file-input"
+                    class="file-input__input"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="Upload a PDF or TXT document to search"
+                    accept=".txt,.doc,.docx,.pdf"
+                  />
+                  <label class="file-input__label white-bg" for="file-input"
+                    ><i
+                      class="fas fa-file-upload fa-lg"
+                      :style="hasUploadedFile ? 'color: gray' : ''"
+                    ></i
+                  ></label>
+                </div>
+              </div>
+              <div class="input-group-append">
+                <button
+                  @click="sendToSearch()"
                   class="btn btn-primary wbg-search-button pr-4 pl-4"
                   type="button"
                 >
@@ -221,13 +277,43 @@ export default {
     return {
       search_text: "",
       search_type: "keyword",
+      uploaded_file: null,
+      file_input: null,
+      search_text_cache: "",
     };
   },
+  computed: {
+    hasUploadedFile() {
+      if (this.uploaded_file !== null) {
+        if (this.uploaded_file.name !== undefined) {
+          return true;
+        }
+      }
+      return false;
+    },
+  },
   methods: {
+    fileUpload(event) {
+      this.uploaded_file = event.target.files[0];
+      this.search_text_cache = this.search_text;
+      this.search_text = "";
+      this.search_type = "semantic";
+    },
+    removeFile() {
+      this.uploaded_file = null;
+      this.file_input = null;
+      this.search_text = this.search_text_cache;
+    },
     sendToSearch() {
       this.$router.push({
-        path: "search",
-        query: { search_type: this.search_type, search_text: this.search_text },
+        name: "search",
+        query: {
+          search_type: this.search_type,
+          search_text: this.search_text,
+        },
+        params: {
+          uploaded_file: this.uploaded_file,
+        },
       });
 
       return;
@@ -235,3 +321,8 @@ export default {
   },
 };
 </script>
+<style scoped>
+.white-bg {
+  background-color: white;
+}
+</style>
