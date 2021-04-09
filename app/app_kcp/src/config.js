@@ -2,17 +2,17 @@ export default {
     default_model: {
         embedding_model: {
             model_name: "word2vec",
-            model_id: "0d63e5ae71e4f78fc427ddbec2fefc73",
+            model_id: "2617e5cf327e60cc8955189110e7f21d", // "0d63e5ae71e4f78fc427ddbec2fefc73",
         },
         topic_model: {
-            model_name: "lda",
-            model_id: "6694f3a38bc16dee91be5ccf4a64b6d8"
+            model_name: "mallet", // "lda",
+            model_id: "6fd8b418cbe4af7a1b3d24debfafa1ee", // "6694f3a38bc16dee91be5ccf4a64b6d8"
         },
         word2vec: {
-            model_id: "0d63e5ae71e4f78fc427ddbec2fefc73", // "777a9cf47411f6c4932e8941f177f90a",
+            model_id: "2617e5cf327e60cc8955189110e7f21d",  // "854ae5f9cdda093265212c435d1ddfd4",  // "777a9cf47411f6c4932e8941f177f90a",
         },
         lda: {
-            model_id: "6694f3a38bc16dee91be5ccf4a64b6d8"
+            model_id: "6fd8b418cbe4af7a1b3d24debfafa1ee",  // "749573cedb4b06aedcba2ec89bc46b46",  // "6694f3a38bc16dee91be5ccf4a64b6d8"
         }
     },
     nlp_api_url: {
