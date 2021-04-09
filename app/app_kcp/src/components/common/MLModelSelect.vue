@@ -81,8 +81,13 @@ export default {
   },
   methods: {
     getModelRunInfos() {
-      const url =
-        "/nlp/models/get_available_models?model_type=" + this.model_name;
+      var url = "";
+      if (this.model_name === "word2vec") {
+        url = "/nlp/models/get_available_models?model_type=" + this.model_name;
+      } else {
+        url =
+          "/nlp/models/get_available_models?model_type=lda&model_type=mallet";
+      }
 
       this.$http.get(url).then((response) => {
         this.model_run_infos = response.data.map((o) => {

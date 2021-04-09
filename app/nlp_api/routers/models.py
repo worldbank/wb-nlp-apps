@@ -3,6 +3,7 @@
 import json
 from fastapi import APIRouter, UploadFile, File, Query  # , HTTPException, Form
 import pydantic
+from typing import List
 
 from wb_nlp.interfaces import mongodb
 
@@ -29,7 +30,8 @@ router = APIRouter(
 
 @ router.get("/get_available_models")
 async def get_available_models(
-    model_type: ModelTypes,
+    model_type: List[ModelTypes] = Query(...,
+                                         description="List of model names."),
     expand: bool = Query(
         False,
         description="Flag that indicates whether the returned data will only have the ids for the model and cleaning configs or contain the full information."
@@ -41,20 +43,21 @@ async def get_available_models(
     '''
     configs = []
 
-    for conf in mongodb.get_model_runs_info_collection().find({"model_name": model_type.value}):
-        try:
-            info = json.loads(ModelRunInfo(**conf).json())
+    for mt in model_type:
+        for conf in mongodb.get_model_runs_info_collection().find({"model_name": mt.value}):
+            try:
+                info = json.loads(ModelRunInfo(**conf).json())
 
-            if expand:
-                info["model_config"] = mongodb.get_model_configs_collection().find_one(
-                    {"_id": info["model_config_id"]})
-                info["cleaning_config"] = mongodb.get_cleaning_configs_collection().find_one(
-                    {"_id": info["cleaning_config_id"]})
+                if expand:
+                    info["model_config"] = mongodb.get_model_configs_collection().find_one(
+                        {"_id": info["model_config_id"]})
+                    info["cleaning_config"] = mongodb.get_cleaning_configs_collection().find_one(
+                        {"_id": info["cleaning_config_id"]})
 
-            configs.append(info)
+                configs.append(info)
 
-        except pydantic.error_wrappers.ValidationError:
-            pass
+            except pydantic.error_wrappers.ValidationError:
+                pass
 
     return configs
 
