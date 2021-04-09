@@ -91,7 +91,12 @@ export default {
 
       this.$http.get(url).then((response) => {
         this.model_run_infos = response.data.map((o) => {
-          return { value: o.model_run_info_id, text: o.description };
+          return {
+            value: o.model_run_info_id,
+            text: o.description,
+            model_run_info_id: o.model_run_info_id,
+            model_name: o.model_name,
+          };
         });
         // if (model_name === "lda") {
         //   this.lda_model_run_infos = data;
@@ -109,7 +114,19 @@ export default {
   },
   watch: {
     model_run_info_id: function () {
-      this.$emit("modelSelected", this.model_run_info_id);
+      var result = this.model_run_infos.find(
+        (obj) => obj.value === this.model_run_info_id
+      );
+
+      if (result.model_name === "word2vec") {
+        result["url"] = this.$config.nlp_api_url.word2vec;
+      } else if (result.model_name === "lda") {
+        result["url"] = this.$config.nlp_api_url.lda;
+      } else if (result.model_name === "mallet") {
+        result["url"] = this.$config.nlp_api_url.mallet;
+      }
+
+      this.$emit("modelSelected", result);
     },
   },
 };
