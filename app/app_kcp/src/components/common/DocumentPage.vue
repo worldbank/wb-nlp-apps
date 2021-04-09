@@ -26,24 +26,11 @@
               less-str="read less"
               :max-chars="500"
             ></read-more>
-            <!-- <read-more
-              more-str="read more"
-              less-str="read less"
-              :text="(metadata.body || '').slice(0, 49)"
-              link="#"
-            ></read-more> -->
-            <!-- <p>{{ metadata.abstract || "" }}</p> -->
           </div>
-          <div v-if="metadata.author" class="authors">
-            Author(s):
-            <span v-for="author in metadata.author" :key="author"
-              ><a
-                :href="'https://scholar.google.com/scholar?q=' + author"
-                target="_blank"
-                >{{ author }}</a
-              >,
-            </span>
-          </div>
+
+          <!-- <Authors /> -->
+          <Authors :authors="metadata.author" />
+
           <div class="study-country">
             {{ metadata.country[0] }}, {{ metadata.year }}
           </div>
@@ -173,6 +160,7 @@
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import MetadataViewer from "./MetadataViewer";
 import SimilarWDIViewer from "./SimilarWDIViewer";
+import Authors from "./Authors";
 import ReadMore from "vue-read-more";
 import Vue from "vue";
 
@@ -214,7 +202,7 @@ export default {
       );
     },
   },
-  components: { RelatedDocsPanel, MetadataViewer, SimilarWDIViewer },
+  components: { RelatedDocsPanel, MetadataViewer, SimilarWDIViewer, Authors },
 
   data: function () {
     return {
@@ -325,9 +313,6 @@ span > a {
   margin-bottom: 50px;
   padding-right: 30px;
   padding-left: 30px;
-}
-.authors {
-  font-size: medium;
 }
 .abstract p {
   margin-bottom: 0.1rem;

@@ -30,47 +30,8 @@
             >
           </h5>
 
-          <div v-if="result.author" class="authors">
-            Author(s):
-            <span v-for="author in result.author" :key="author">
-              <router-link
-                :to="{
-                  name: 'search',
-                  query: {
-                    search_text: author,
-                    search_type: 'keyword',
-                    page: 1,
-                  },
-                }"
-                >{{ author }}</router-link
-              >,
-              <a
-                :href="
-                  'https://orcid.org/orcid-search/search?searchQuery=' + author
-                "
-                target="_blank"
-                ><img class="a-icon-or" src="/static/files/orcid_128x128.png"
-              /></a>
-              <a
-                :href="'https://scholar.google.com/scholar?q=' + author"
-                target="_blank"
-                ><img class="a-icon-gs" src="/static/files/google-scholar.png"
-              /></a>
-              <a
-                :href="
-                  'https://www.semanticscholar.org/search?sort=relevance&q=' +
-                  author
-                "
-                target="_blank"
-                ><img
-                  class="a-icon-ss"
-                  src="/static/files/ss-mstile-150x150.png"
-              /></a>
-            </span>
-          </div>
-          <div class="study-country">
-            {{ result.country[0] }}, {{ result.year }}
-          </div>
+          <!-- <Authors /> -->
+          <Authors :authors="result.author" />
 
           <div v-if="highlights" class="highlight">
             <read-more
@@ -80,6 +41,10 @@
               less-str="read less"
               :max-chars="200"
             ></read-more>
+          </div>
+
+          <div class="study-country">
+            {{ result.country[0] }}, {{ result.year }}
           </div>
 
           <div class="study-id d-md-flex mt-2">
@@ -173,6 +138,7 @@
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import DocumentTopic from "./DocumentTopic";
 import DocumentMetadata from "./DocumentMetadata";
+import Authors from "./Authors";
 import ReadMore from "vue-read-more";
 import Vue from "vue";
 
@@ -184,7 +150,12 @@ export default {
     match: Object,
     highlights: Object,
   },
-  components: { RelatedDocsPanel, DocumentTopic, DocumentMetadata },
+  components: {
+    RelatedDocsPanel,
+    DocumentTopic,
+    DocumentMetadata,
+    Authors,
+  },
   data: function () {
     return {
       submit_related: false,
@@ -227,8 +198,8 @@ export default {
 };
 </script>
 <style>
-.authors {
-  font-size: medium;
+.document-row .study-country {
+  font-size: small;
 }
 .highlight {
   font-size: small;
@@ -239,22 +210,5 @@ export default {
 }
 .highlight p {
   margin-bottom: 0.1rem;
-}
-.a-icon-or {
-  width: 30px;
-  height: 30px;
-  padding: 5px;
-}
-.a-icon-gs {
-  width: 30px;
-  height: 30px;
-  padding: 5px;
-}
-
-.a-icon-ss {
-  width: 30px;
-  height: 30px;
-  padding: 5px;
-  margin-right: 5px;
 }
 </style>
