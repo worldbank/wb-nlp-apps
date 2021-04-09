@@ -57,26 +57,6 @@ export default {
     return {
       model_run_info_id: "",
       model_run_infos: [],
-      lda_model_run_infos: [
-        {
-          value: this.$config.default_model.lda.model_id,
-          text: "LDA model with 300 topics trained on all documents.",
-        },
-        {
-          value: this.$config.default_model.lda.model_id,
-          text: "LDA model with 100 topics trained on all documents.",
-        },
-      ],
-      word2vec_model_run_infos: [
-        {
-          value: this.$config.default_model.word2vec.model_id,
-          text: "Word2Vec model with 300 dimensions trained on all documents.",
-        },
-        {
-          value: this.$config.default_model.word2vec.model_id,
-          text: "Word2Vec model with 100 dimensions trained on all documents.",
-        },
-      ],
     };
   },
   methods: {
@@ -98,19 +78,8 @@ export default {
             model_name: o.model_name,
           };
         });
-        // if (model_name === "lda") {
-        //   this.lda_model_run_infos = data;
-        // } else if (model_name === "word2vec") {
-        //   this.word2vec_model_run_infos = data;
-        // }
       });
     },
-    // getLDAModelRunInfos() {
-    //   this.getModelRunInfos("lda");
-    // },
-    // getWord2vecModelRunInfos() {
-    //   this.getModelRunInfos("word2vec");
-    // },
   },
   watch: {
     model_run_info_id: function () {

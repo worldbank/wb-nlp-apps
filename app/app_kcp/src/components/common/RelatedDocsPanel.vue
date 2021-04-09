@@ -105,20 +105,26 @@ export default {
     },
     model_id() {
       if (this.model_name === "word2vec") {
-        return this.$config.default_model.word2vec.model_id;
+        return this.$config.default_model.embedding_model.model_id;
       } else {
         // Default to lda model if model_name is not specified
-        return this.$config.default_model.lda.model_id;
+        return this.$config.default_model.topic_model.model_id;
       }
     },
     similar_docs_by_id_url() {
       if (this.model_name === "word2vec") {
         return (
-          this.$config.nlp_api_url.word2vec + "/get_similar_docs_by_doc_id"
+          this.$config.nlp_api_url[
+            this.$config.default_model.embedding_model.model_name
+          ] + "/get_similar_docs_by_doc_id"
         );
       } else {
         // Default to lda model if model_name is not specified
-        return this.$config.nlp_api_url.lda + "/get_similar_docs_by_doc_id";
+        return (
+          this.$config.nlp_api_url[
+            this.$config.default_model.topic_model.model_name
+          ] + "/get_similar_docs_by_doc_id"
+        );
       }
     },
     panel_section_height() {

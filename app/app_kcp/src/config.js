@@ -1,7 +1,15 @@
 export default {
     default_model: {
+        embedding_model: {
+            model_name: "word2vec",
+            model_id: "0d63e5ae71e4f78fc427ddbec2fefc73",
+        },
+        topic_model: {
+            model_name: "lda",
+            model_id: "6694f3a38bc16dee91be5ccf4a64b6d8"
+        },
         word2vec: {
-            model_id: "777a9cf47411f6c4932e8941f177f90a",
+            model_id: "0d63e5ae71e4f78fc427ddbec2fefc73", // "777a9cf47411f6c4932e8941f177f90a",
         },
         lda: {
             model_id: "6694f3a38bc16dee91be5ccf4a64b6d8"
@@ -23,6 +31,10 @@ export default {
         lda: {
             file: "/nlp/search/lda/file",
             url: "/nlp/search/lda/url",
+        },
+        mallet: {
+            file: "/nlp/search/mallet/file",
+            url: "/nlp/search/mallet/url",
         }
     },
     corpus_url: "/nlp/corpus",

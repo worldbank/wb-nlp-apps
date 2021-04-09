@@ -135,7 +135,10 @@ export default {
   computed: {
     topicsParams() {
       var search_params = new URLSearchParams();
-      search_params.append("model_id", this.$config.default_model.lda.model_id);
+      search_params.append(
+        "model_id",
+        this.$config.default_model.topic_model.model_id
+      );
       search_params.append("doc_id", this.metadata.id);
       search_params.append("sort", true);
 
@@ -199,9 +202,14 @@ export default {
     },
     getDocumentTopics() {
       this.$http
-        .get(this.$config.nlp_api_url.lda + "/get_topics_by_doc_id", {
-          params: this.topicsParams,
-        })
+        .get(
+          this.$config.nlp_api_url[
+            this.$config.default_model.topic_model.model_name
+          ] + "/get_topics_by_doc_id",
+          {
+            params: this.topicsParams,
+          }
+        )
         .then((response) => {
           this.doc_topics = response.data;
           this.filteredDocTopics();
