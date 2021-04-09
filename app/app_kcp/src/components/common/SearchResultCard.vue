@@ -109,7 +109,12 @@
           </div>
           <div class="sub-title">
             <div>
-              <span class="study-by">{{ result.major_doc_type[0] }}</span>
+              <span class="study-by">{{
+                result.major_doc_type[0].replace(
+                  "Publications and Research",
+                  "Document and Research"
+                )
+              }}</span>
             </div>
           </div>
           <div class="survey-stats">

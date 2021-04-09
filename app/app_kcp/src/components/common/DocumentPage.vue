@@ -36,7 +36,13 @@
           </div>
           <div class="sub-title">
             <div>
-              <span class="study-by">{{ metadata.major_doc_type[0] }}</span>
+              Category:
+              <span class="study-by">{{
+                metadata.major_doc_type[0].replace(
+                  "Publications and Research",
+                  "Document and Research"
+                )
+              }}</span>
             </div>
             <div class="owner-collection">
               Corpus:
