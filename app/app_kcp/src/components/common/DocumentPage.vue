@@ -13,10 +13,11 @@
         </div>
         <div class="col-9 col-lg-9">
           <h3 class="title">
-            <a :href="metadata.url_pdf" :title="metadata.title" target="_blank">
-              {{ metadata.title }}</a
-            >
+            {{ metadata.title }}
           </h3>
+
+          <!-- <Authors /> -->
+          <Authors :authors="metadata.author" />
 
           <div class="abstract">
             <read-more
@@ -27,9 +28,6 @@
               :max-chars="500"
             ></read-more>
           </div>
-
-          <!-- <Authors /> -->
-          <Authors :authors="metadata.author" />
 
           <div class="study-country">
             {{ metadata.country[0] }}, {{ metadata.year }}
@@ -47,6 +45,15 @@
             <div class="owner-collection">
               Corpus:
               <router-link to="/search/">{{ metadata.corpus }}</router-link>
+            </div>
+            <div v-if="metadata.corpus === 'WB' && metadata.url_pdf">
+              Open in:
+              <a
+                :href="document_wbdocs_link"
+                :title="metadata.title"
+                target="_blank"
+                >World Bank Documents and Reports</a
+              >
             </div>
           </div>
           <div class="survey-stats">
@@ -179,6 +186,17 @@ export default {
     this.getMetadata();
   },
   computed: {
+    document_wbdocs_link() {
+      return this.result.url_pdf
+        .replace(
+          "/curated/en/",
+          "/en/publication/documents-reports/documentdetail/"
+        )
+        .replace("/pdf/", "/")
+        .replace(".pdf", "");
+      // http://documents1.worldbank.org/curated/en/699851600091617671/pdf/The-African-Context-on-COVID-19.pdf
+      // https://documents.worldbank.org/en/publication/documents-reports/documentdetail/699851600091617671/the-african-context-on-covid-19
+    },
     document_cover() {
       return (
         "/nlp/static/" +

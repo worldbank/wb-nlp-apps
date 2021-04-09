@@ -7,7 +7,7 @@ dependencies:
   - bs4=4.9.1
   - ca-certificates=2020.12.8
   - certifi=2020.12.5
-  - gunicorn-20.1.0
+  - gunicorn=20.1.0
   # - graph-tool=2.37
   - ld_impl_linux-64=2.33.1
   - libedit=3.1.20191231
