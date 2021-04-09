@@ -32,12 +32,40 @@
 
           <div v-if="result.author" class="authors">
             Author(s):
-            <span v-for="author in result.author" :key="author"
-              ><a
+            <span v-for="author in result.author" :key="author">
+              <router-link
+                :to="{
+                  name: 'search',
+                  query: {
+                    search_text: author,
+                    search_type: 'keyword',
+                    page: 1,
+                  },
+                }"
+                >{{ author }}</router-link
+              >,
+              <a
+                :href="
+                  'https://orcid.org/orcid-search/search?searchQuery=' + author
+                "
+                target="_blank"
+                ><img class="a-icon-or" src="/static/files/orcid_128x128.png"
+              /></a>
+              <a
                 :href="'https://scholar.google.com/scholar?q=' + author"
                 target="_blank"
-                >{{ author }}</a
-              >,
+                ><img class="a-icon-gs" src="/static/files/google-scholar.png"
+              /></a>
+              <a
+                :href="
+                  'https://www.semanticscholar.org/search?sort=relevance&q=' +
+                  author
+                "
+                target="_blank"
+                ><img
+                  class="a-icon-ss"
+                  src="/static/files/ss-mstile-150x150.png"
+              /></a>
             </span>
           </div>
           <div class="study-country">
@@ -45,11 +73,6 @@
           </div>
 
           <div v-if="highlights" class="highlight">
-            <!-- <span v-html="highlights.body[0].replace(/\s\s+/g, ' ')"></span> -->
-            <!-- <span
-              v-html="highlights.body.join('... ').replace(/\s\s+/g, ' ')"
-            ></span> -->
-
             <read-more
               more-str="read more"
               :text="highlights.body.join('... ').replace(/\s\s+/g, ' ') || ''"
@@ -216,5 +239,22 @@ export default {
 }
 .highlight p {
   margin-bottom: 0.1rem;
+}
+.a-icon-or {
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+}
+.a-icon-gs {
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+}
+
+.a-icon-ss {
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  margin-right: 5px;
 }
 </style>

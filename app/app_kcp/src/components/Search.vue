@@ -332,23 +332,7 @@ export default {
     window.vm = this;
     this.flowSideBar();
 
-    if (this.$route.query.search_type !== undefined) {
-      this.search_type = this.$route.query.search_type;
-
-      if (this.$route.query.search_text !== undefined) {
-        this.query = this.$route.query.search_text;
-
-        var page_num = 1;
-        if (this.$route.query.page !== undefined) {
-          page_num = Number(this.$route.query.page);
-        }
-
-        if (this.$route.params.uploaded_file) {
-          this.uploaded_file = this.$route.params.uploaded_file;
-        }
-        this.sendSearch(page_num);
-      }
-    }
+    this.routeChangeSearch();
   },
   computed: {
     hasUploadedFile() {
@@ -637,10 +621,34 @@ export default {
         });
       });
     },
+    routeChangeSearch() {
+      if (!this.loading) {
+        if (this.$route.query.search_type !== undefined) {
+          this.search_type = this.$route.query.search_type;
+
+          if (this.$route.query.search_text !== undefined) {
+            this.query = this.$route.query.search_text;
+
+            var page_num = 1;
+            if (this.$route.query.page !== undefined) {
+              page_num = Number(this.$route.query.page);
+            }
+
+            if (this.$route.params.uploaded_file) {
+              this.uploaded_file = this.$route.params.uploaded_file;
+            }
+            this.sendSearch(page_num);
+          }
+        }
+      }
+    },
   },
   watch: {
     search_type: function () {
       this.sendSearch();
+    },
+    $route() {
+      this.routeChangeSearch();
     },
   },
 };

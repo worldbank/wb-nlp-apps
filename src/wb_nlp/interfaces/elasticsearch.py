@@ -190,7 +190,8 @@ def faceted_search_nlp_docs():
 
 
 def text_search(query, from_result=0, size=10, return_body=False, ignore_cache=False, fragment_size=100):
-    query = MultiMatch(query=query, fields=["title", "body"])
+    query = MultiMatch(query=query, fields=[
+                       "title", "body", "author", "abstract"])
 
     search = Search(using=get_client(), index=DOC_INDEX)
     search = search.query(query)
