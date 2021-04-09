@@ -7,6 +7,7 @@ dependencies:
   - bs4=4.9.1
   - ca-certificates=2020.12.8
   - certifi=2020.12.5
+  - gunicorn-20.1.0
   # - graph-tool=2.37
   - ld_impl_linux-64=2.33.1
   - libedit=3.1.20191231
@@ -49,6 +50,7 @@ dependencies:
     - gensim==3.8.3
     - h11==0.11.0
     - heapdict==1.0.1
+    - httptools==0.1.1
     - idna==2.10
     - iniconfig==1.1.1
     - joblib==1.0.0
@@ -100,6 +102,7 @@ dependencies:
     - umap-learn==0.5.1
     - urllib3==1.26.2
     - uvicorn==0.13.3
+    - uvloop==0.15.2
     - wasabi==0.8.0
     - wordninja==2.0.0
     - zict==2.0.0

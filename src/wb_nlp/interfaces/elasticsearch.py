@@ -11,7 +11,7 @@ from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl import Search
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet, DateHistogramFacet
-from elasticsearch_dsl.query import MultiMatch, Match
+from elasticsearch_dsl.query import MultiMatch, Match, Term
 
 from wb_nlp.dir_manager import get_path_from_root
 
@@ -66,10 +66,11 @@ class NLPDocFacetedSearch(FacetedSearch):
     # doc_types = [elasticsearch.NLPDoc, ]
     doc_types = [NLPDoc, ]
     # fields that should be searched
-    fields = ['country', 'title', 'body']
+    fields = ['country', 'author', 'title', 'body']
 
     facets = {
         # use bucket aggregations to define facets
+        'author': TermsFacet(field='author'),
         'countries': TermsFacet(field='country'),
         'publishing_frequency': DateHistogramFacet(field='date_published', interval='year')
     }
@@ -189,18 +190,19 @@ def faceted_search_nlp_docs():
         print(year.strftime('%Y'), ' (SELECTED):' if selected else ':', count)
 
 
-def text_search(query, from_result=0, size=10, return_body=False, ignore_cache=False, fragment_size=100):
-    query = MultiMatch(query=query, fields=[
-                       "title", "body", "author", "abstract"])
-
+def common_search(query, from_result=0, size=10, return_body=False, ignore_cache=False, return_highlights=True, highlight_field="body", fragment_size=100):
+    """
+    query: DSL query
+    """
     search = Search(using=get_client(), index=DOC_INDEX)
     search = search.query(query)
 
-    search = search[from_result: from_result + size]
+    if return_highlights:
+        search = search.highlight_options(order="score")
+        search = search.highlight(
+            highlight_field, fragment_size=fragment_size)
 
-    search = search.highlight_options(order="score")
-    search = search.highlight(
-        "body", fragment_size=fragment_size)
+    search = search[from_result: from_result + size]
 
     if not return_body:
         search = search.source(excludes=["body", "doc"])
@@ -208,6 +210,35 @@ def text_search(query, from_result=0, size=10, return_body=False, ignore_cache=F
     response = search.execute(ignore_cache=ignore_cache)
 
     return response
+
+
+def text_search(query, from_result=0, size=10, return_body=False, ignore_cache=False, return_highlights=True, highlight_field="body", fragment_size=100):
+    query = MultiMatch(query=query, fields=[
+                       "title", "body", "author", "abstract"])
+
+    return common_search(
+        query,
+        from_result=from_result,
+        size=size,
+        return_body=return_body,
+        ignore_cache=ignore_cache,
+        return_highlights=return_highlights,
+        highlight_field=highlight_field,
+        fragment_size=fragment_size)
+
+
+def author_search(query, from_result=0, size=10, return_body=False, ignore_cache=False, return_highlights=False, highlight_field="author", fragment_size=100):
+    query = Term(query=query, fields=["author"])
+
+    return common_search(
+        query,
+        from_result=from_result,
+        size=size,
+        return_body=return_body,
+        ignore_cache=ignore_cache,
+        return_highlights=return_highlights,
+        highlight_field=highlight_field,
+        fragment_size=fragment_size)
 
 
 def ids_search(ids, query, from_result=0, size=10, return_body=False, ignore_cache=False, fragment_size=100):

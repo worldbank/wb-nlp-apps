@@ -52,10 +52,9 @@ RUN /opt/conda/envs/${ENV_ID}/bin/python setup.py develop \
 ARG PORT=8919
 ENV PORT=$PORT
 
-CMD /opt/conda/envs/nlp_api/bin/uvicorn app.nlp_api.main:app  --reload --timeout-keep-alive 1200 --host 0.0.0.0 --port ${PORT}
+# CMD /opt/conda/envs/nlp_api/bin/uvicorn app.nlp_api.main:app  --reload --timeout-keep-alive 1200 --host 0.0.0.0 --port ${PORT}
 # CMD ["tail", "-f", "/dev/null"]
-
-
+CMD /opt/conda/envs/nlp_api/bin/gunicorn -w 4 --log-level info --timeout 1200 -k uvicorn.workers.UvicornWorker app.nlp_api.main:app -b 0.0.0.0:${PORT}
 
 #   - conda-forge/linux-64::gensim==3.8.3=py38h950e882_2
 #   - conda-forge/noarch::google-cloud-storage==1.31.0=pyh9f0ad1d_0

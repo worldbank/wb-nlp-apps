@@ -81,5 +81,7 @@ def read_root():
 
 if __name__ == '__main__':
     # Default port is 8000
+    # /opt/conda/envs/dev/bin/gunicorn -w 4 --log-level info --timeout 1200 -k uvicorn.workers.UvicornWorker app.nlp_api.main:app -b 0.0.0.0:8919
     # uvicorn app.nlp_api.main:app --reload --timeout-keep-alive 120 --host 0.0.0.0 --port 8919
+
     uvicorn.run(app, port=8919, host='0.0.0.0')
