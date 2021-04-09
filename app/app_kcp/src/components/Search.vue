@@ -474,6 +474,7 @@ export default {
       this.hits = [];
       this.match_stats = [];
       this.highlights = [];
+      this.suggestions = [];
       this.next_override = true;
 
       if (this.search_type == "keyword") {
