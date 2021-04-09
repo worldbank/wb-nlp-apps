@@ -184,6 +184,7 @@ export default {
   methods: {
     submitTopicRanges() {
       this.$emit("topicRangeReceived", {
+        model_name: this.model_name,
         model_id: this.model_run_info_id,
         topic_value: this.topicValue,
       });
