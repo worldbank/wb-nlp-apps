@@ -129,6 +129,7 @@ export default {
       num_pages: 0,
       next_override: false,
       model_id: null,
+      model_name: null,
       topic_percentage: {},
       from_result: 0,
       size: 10,
@@ -159,7 +160,8 @@ export default {
 
       this.$http
         .post(
-          this.$config.nlp_api_url.lda + "/get_docs_by_topic_composition",
+          this.$config.nlp_api_url[this.model_name] +
+            "/get_docs_by_topic_composition",
           this.searchBody
         )
         .then((response) => {
@@ -178,6 +180,7 @@ export default {
     },
     submitTopicSearch(filterPanelData) {
       this.model_id = filterPanelData.model_id;
+      this.model_name = filterPanelData.model_name;
       this.topic_percentage = {};
       Object.assign(this.topic_percentage, filterPanelData.topic_value);
       Object.entries(this.topic_percentage).forEach(
