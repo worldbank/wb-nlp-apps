@@ -3,42 +3,6 @@ services:
 
   dev:
     image: hello-world:latest
-    # build:
-    #   context: ./
-    #   dockerfile: .devcontainer/Dockerfile.dev.base
-    #   args:
-    #     USERNAME: vscode
-    #     USER_UID: 1000
-    #     ENV_ID: dev
-    #     ENV_DEV_BASE_FILE: "environment.dev.base.yml"
-    #     PROJECT_ID: wb_nlp
-    #     ENV_DEV_FILE: "environment.dev.yml"
-    # env_file:
-    #   - .env
-    # volumes:
-    #   - ${LOCAL_PATH}:/workspace
-    # links:
-    #   - mongodb
-    #   - web
-    #   - app
-    #   - api
-    #   # - es01
-    # depends_on:
-    #   - mongodb
-    #   - web
-    #   - app
-    #   - api
-    #   # - es01
-    # # ports:
-    # #   - "8000:8000"
-    # # deploy:
-    # #   resources:
-    # #     limits:
-    # #       cpus: '4'
-    # #       memory: 4G
-    # #     reservations:
-    # #       cpus: '3'
-    # #       memory: 3G
 
   api:
     build:
@@ -47,6 +11,7 @@ services:
       args:
         ENV_ID: prod
         ENV_PROD_FILE: "environment.prod.api.yml"
+    restart: always
     env_file:
       - .env
     volumes:
@@ -65,6 +30,7 @@ services:
   app:
     build:
       context: ./app/app_vue2
+    restart: always
     ports:
       - "8088:80"
     env_file:
@@ -80,13 +46,14 @@ services:
   app_kcp:
     build:
       context: ./app/app_kcp
+    restart: always
     ports:
       - "8099:80"
     env_file:
       - .env
     volumes:
       - ${LOCAL_PATH}/app/app_kcp:/app
-      - ${LOCAL_PATH}/app/app_kcp/site.conf:/etc/nginx/conf.d/site.conf
+      # - ${LOCAL_PATH}/app/app_kcp/site.conf:/etc/nginx/conf.d/site.conf
     links:
       - api
       - nlp_api
@@ -97,15 +64,18 @@ services:
   dfr:
     build:
       context: ./app/dfr
+    restart: always
     ports:
       - "8098:80"
     env_file:
       - .env
     volumes:
-      - ${LOCAL_PATH}/app/dfr/data:/usr/share/nginx/html/data
+      - ${LOCAL_PATH}/models/dfr/data:/usr/share/nginx/html/data
+      # - ${LOCAL_PATH}/app/dfr/data:/usr/share/nginx/html/data
 
   web:
     image: nginx:latest
+    restart: always
     ports:
       - "8880:80"
     env_file:
@@ -122,6 +92,7 @@ services:
 
   php:
     image: php:7-fpm
+    restart: always
     env_file:
       - .env
     volumes:
@@ -129,12 +100,16 @@ services:
 
   tika:
     image: apache/tika:latest
+    restart: always
 
   redis:
     image: redis:latest
+    restart: always
 
   selenium:
-    image: selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210209
+    # image: selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210209
+    image: selenium/standalone-chrome:88.0
+    restart: always
     ports:
       - "4444:4444"
     volumes:
@@ -142,6 +117,7 @@ services:
 
   mongodb:
     image: mongo:latest
+    restart: always
     env_file:
       - .env
     environment:
@@ -161,6 +137,7 @@ services:
   milvus:
     # image: milvusdb/milvus:cpu-latest
     image: milvusdb/milvus:0.11.0-cpu-d101620-4c44c0
+    restart: always
     env_file:
       - .env
     volumes:
@@ -174,6 +151,7 @@ services:
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    restart: always
     container_name: es01
     environment:
       - node.name=es01
@@ -195,6 +173,7 @@ services:
     #   # - default
   es02:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    restart: always
     container_name: es02
     environment:
       - node.name=es02
@@ -213,6 +192,7 @@ services:
     #   - elastic
   es03:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    restart: always
     container_name: es03
     environment:
       - node.name=es03
@@ -238,6 +218,7 @@ services:
         ENV_ID: nlp_api
         ENV_PROD_FILE: "environment.nlp_api.yml"
         PORT: 8919
+    restart: always
     env_file:
       - .env
     volumes:
@@ -256,6 +237,7 @@ services:
   app_label:
     build:
       context: ./app/app_label
+    restart: always
     ports:
       - "8998:80"
     env_file:
