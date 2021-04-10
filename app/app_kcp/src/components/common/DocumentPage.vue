@@ -17,7 +17,7 @@
           </h3>
 
           <!-- <Authors /> -->
-          <Authors :authors="metadata.author" />
+          <Authors :authors="metadata.author" authors_class="authors-large" />
 
           <div class="abstract">
             <read-more
