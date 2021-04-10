@@ -47,13 +47,14 @@ export default {
     authors: {
       type: Array,
       default: function () {
-        return [
-          "Jose Rizal",
-          "Richard Feynman",
-          "",
-          "Olivier Dupriez",
-          "Aivin Solatorio",
-        ];
+        return [];
+        // [
+        //   "Jose Rizal",
+        //   "Richard Feynman",
+        //   "",
+        //   "Olivier Dupriez",
+        //   "Aivin Solatorio",
+        // ];
       },
     },
     authors_class: {
