@@ -41,16 +41,15 @@ RUN ${CONDA_PATH}/bin/python -m nltk.downloader popular
     # && /opt/conda/envs/${ENV_ID}/bin/python -m spacy download en_core_web_sm
 
 WORKDIR /workspace
-# COPY . .
+COPY . .
 # data/ and models/ must be volume mounted!
-COPY ./setup.py ./setup.cfg ./
-COPY ./notebooks .
-COPY ./scripts .
-COPY ./model_runs .
-COPY ./configs .
-COPY ./app/nlp_api ./app/nlp_api
-COPY ./src .
-
+# COPY ./setup.py ./setup.cfg ./
+# COPY ./notebooks .
+# COPY ./scripts .
+# COPY ./model_runs .
+# COPY ./configs .
+# COPY ./app/nlp_api ./app/nlp_api
+# COPY ./src .
 
 RUN ${CONDA_PATH}/bin/python setup.py develop
 
