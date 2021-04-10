@@ -12,7 +12,7 @@ import numpy as np
 from wb_nlp.interfaces.milvus import (
     get_milvus_client, get_embedding_dsl
 )
-from wb_nlp.interfaces import mongodb
+from wb_nlp.interfaces import mongodb, elasticsearch
 
 from wb_nlp.types.models import LDAModelConfig, ModelTypes
 from wb_nlp.utils.scripts import (
@@ -303,7 +303,7 @@ class LDAModel(BaseModel):
 
     #     return payload
 
-    def _get_docs_by_topic_composition(self, topic_percentage, return_all_topics=False):
+    def _mdb_get_docs_by_topic_composition(self, topic_percentage, return_all_topics=False):
         self.check_wvecs()
         model_run_info_id = self.model_run_info["model_run_info_id"]
 
@@ -317,6 +317,41 @@ class LDAModel(BaseModel):
         cands = doc_topic_collection.find(topic_filters)
 
         doc_df = pd.DataFrame(cands)
+
+        if doc_df.empty:
+            return doc_df
+
+        doc_df = doc_df.set_index(
+            "id")["topics"].apply(pd.Series)
+
+        if not return_all_topics:
+            doc_df = doc_df[topic_cols]
+
+        doc_df = doc_df.round(5)
+
+        return doc_df
+
+    def _get_docs_by_topic_composition(self, topic_percentage, return_all_topics=False):
+        self.check_wvecs()
+        model_run_info_id = self.model_run_info["model_run_info_id"]
+
+        topic_cols = [f"topic_{id}" for id in sorted(topic_percentage)]
+        search = elasticsearch.DocTopic.search()
+
+        topic_filters = [dict(range={f"topics.topic_{id}": {"gte": val}})
+                         for id, val in sorted(topic_percentage.items())]
+        search = search.query(
+            dict(
+                bool=dict(
+                    must=[
+                        {"term": {"model_run_info_id": model_run_info_id}}] + topic_filters
+                )
+            )
+        )
+        search = search[0: search.count()]
+        response = search.execute()
+
+        doc_df = pd.DataFrame([h.to_dict() for h in response.hits])
 
         if doc_df.empty:
             return doc_df
@@ -515,7 +550,7 @@ if __name__ == '__main__':
     # Do this if the model is available in disk but the model_run_info is not. This is to dump the model_run_info to db in case it's not present.
     # lda_model.save()
 
-    # lda_model.drop_milvus_collection()
+    lda_model.drop_milvus_collection()
 
     lda_model.build_doc_vecs(pool_workers=3)
     print(lda_model.get_similar_words('bank'))
