@@ -43,7 +43,7 @@ RUN ${CONDA_PATH}/bin/python -m nltk.downloader popular
 WORKDIR /workspace
 # COPY . .
 # data/ and models/ must be volume mounted!
-COPY ./setup.py ./setup.cfg .
+COPY ./setup.py ./setup.cfg ./
 COPY ./notebooks .
 COPY ./scripts .
 COPY ./model_runs .
