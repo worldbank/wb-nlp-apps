@@ -252,7 +252,7 @@ def common_search(query, from_result=0, size=10, return_body=False, ignore_cache
     """
     query: DSL query
     """
-    search = Search(using=get_client(), index=NLPDoc.Index.name)
+    search = NLPDoc.search()
     search = search.query(query)
 
     if return_highlights:
@@ -302,7 +302,7 @@ def author_search(query, from_result=0, size=10, return_body=False, ignore_cache
 def ids_search(ids, query, from_result=0, size=10, return_body=False, ignore_cache=False, fragment_size=100):
     # query = MultiMatch(query=query, fields=["title", "body"])
 
-    search = Search(using=get_client(), index=NLPDoc.Index.name)
+    search = NLPDoc.search()
     search = search.filter("ids", values=ids)
 
     # search = search.query(query)
