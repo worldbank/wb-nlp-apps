@@ -46,6 +46,7 @@ services:
       args:
         ENV_ID: prod
         ENV_PROD_FILE: "environment.prod.api.yml"
+    restart: always
     env_file:
       - .env
     volumes:
@@ -64,6 +65,7 @@ services:
   app:
     build:
       context: ./app/app_vue2
+    restart: always
     ports:
       - "8088:80"
     env_file:
@@ -79,6 +81,7 @@ services:
   app_kcp:
     build:
       context: ./app/app_kcp
+    restart: always
     ports:
       - "8099:80"
     env_file:
@@ -96,6 +99,7 @@ services:
   dfr:
     build:
       context: ./app/dfr
+    restart: always
     ports:
       - "8098:80"
     env_file:
@@ -106,6 +110,7 @@ services:
 
   web:
     image: nginx:latest
+    restart: always
     ports:
       - "8880:80"
     env_file:
@@ -122,6 +127,7 @@ services:
 
   php:
     image: php:7-fpm
+    restart: always
     env_file:
       - .env
     volumes:
@@ -129,13 +135,16 @@ services:
 
   tika:
     image: apache/tika:latest
+    restart: always
 
   redis:
     image: redis:latest
+    restart: always
 
   selenium:
     # image: selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210209
     image: selenium/standalone-chrome:88.0
+    restart: always
     ports:
       - "4444:4444"
     volumes:
@@ -143,6 +152,7 @@ services:
 
   mongodb:
     image: mongo:latest
+    restart: always
     env_file:
       - .env
     environment:
@@ -162,6 +172,7 @@ services:
   milvus:
     # image: milvusdb/milvus:cpu-latest
     image: milvusdb/milvus:0.11.0-cpu-d101620-4c44c0
+    restart: always
     env_file:
       - .env
     volumes:
@@ -175,6 +186,7 @@ services:
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    restart: always
     container_name: es01
     environment:
       - node.name=es01
@@ -196,6 +208,7 @@ services:
     #   # - default
   es02:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    restart: always
     container_name: es02
     environment:
       - node.name=es02
@@ -214,6 +227,7 @@ services:
     #   - elastic
   es03:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    restart: always
     container_name: es03
     environment:
       - node.name=es03
@@ -239,6 +253,7 @@ services:
         ENV_ID: nlp_api
         ENV_PROD_FILE: "environment.nlp_api.yml"
         PORT: 8919
+    restart: always
     env_file:
       - .env
     volumes:
@@ -257,6 +272,7 @@ services:
   app_label:
     build:
       context: ./app/app_label
+    restart: always
     ports:
       - "8998:80"
     env_file:
