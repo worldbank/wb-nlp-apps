@@ -6,7 +6,7 @@ from pathlib import Path
 from elasticsearch import Elasticsearch, exceptions
 from elasticsearch.helpers import scan
 
-from elasticsearch_dsl import Document, Date, Integer, Keyword, Text
+from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, Object
 from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl import Search
 
@@ -20,6 +20,7 @@ connections.create_connection(hosts=['es01'])
 
 _ES_CLIENT = None
 DOC_INDEX = "nlp-documents"
+DOC_TOPIC_INDEX = "nlp-doc-topics"
 
 
 def get_client():
@@ -56,8 +57,26 @@ class NLPDoc(Document):
         return super(NLPDoc, self).save(**kwargs)
 
 
+class DocTopic(Document):
+    # _id=f"{self.model_run_info['model_run_info_id']}-{doc_id}",
+    id = Keyword()
+    topics = Object()
+    model_run_info_id = Keyword()
+
+    class Index:
+        name = DOC_TOPIC_INDEX
+        settings = {
+            "number_of_shards": 2,
+            "number_of_replicas": 1,
+        }
+
+    def save(self, **kwargs):
+        return super(DocTopic, self).save(**kwargs)
+
+
 try:
     NLPDoc.init()
+    DocTopic.init()
 except exceptions.ConnectionError:
     pass
 
@@ -76,13 +95,52 @@ class NLPDocFacetedSearch(FacetedSearch):
     }
 
 
+def store_docs_topics(doc_ids, vectors, model_run_info_id, ignore_existing=True):
+    existing_ids = set()
+
+    if ignore_existing:
+        existing_ids = get_ids(index=DocTopic.Index.name)
+
+    for ix, (doc_id, topic_list) in enumerate(zip(doc_ids, vectors)):
+        if ix and ix % 10000 == 0:
+            print(ix)
+
+        topics = {f"topic_{topic_id}": value for topic_id,
+                  value in enumerate(topic_list)}
+
+        es_id = f"{model_run_info_id}-{doc_id}"
+
+        if es_id in existing_ids:
+            continue
+
+        store_doc_topics(
+            es_id=es_id,
+            doc_id=doc_id,
+            topics=topics,
+            model_run_info_id=model_run_info_id)
+
+
+def store_doc_topics(es_id, doc_id, topics, model_run_info_id):
+    _id = f"{model_run_info_id}-{doc_id}"
+    assert es_id == _id
+
+    data = dict(
+        id=doc_id,
+        topics=topics,
+        model_run_info_id=model_run_info_id,
+    )
+
+    topic_doc = DocTopic(meta={'id': es_id}, **data)
+    topic_doc.save()
+
+
 def get_connections():
     return connections
 
 
 def get_ids(index=None):
     if index is None:
-        index = DOC_INDEX
+        index = NLPDoc.Index.name
 
     existing_ids = {obj["_id"] for obj in scan(get_client(), query=dict(
         query=dict(match_all={}),
@@ -102,7 +160,7 @@ def get_metadata_by_ids(doc_ids, index=None, source=None, source_includes=None, 
         source = dict(excludes=["body"])        : Return all values except the body.
     '''
     if index is None:
-        index = DOC_INDEX
+        index = NLPDoc.Index.name
 
     if source is False:
         pass
@@ -143,13 +201,13 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True):
     existing_ids = set()
 
     if ignore_existing:
-        existing_ids = get_ids(index=DOC_INDEX)
+        existing_ids = get_ids(index=NLPDoc.Index.name)
 
         # for obj in scan(get_client(), query=dict(
         #         query=dict(match_all={}),
         #         fields=["_id"]),
         #         size=5000,
-        #         index=DOC_INDEX):
+        #         index=NLPDoc.Index.name):
         #     existing_ids.add(obj["_id"])
 
     root_path = Path(get_path_from_root())
@@ -194,7 +252,7 @@ def common_search(query, from_result=0, size=10, return_body=False, ignore_cache
     """
     query: DSL query
     """
-    search = Search(using=get_client(), index=DOC_INDEX)
+    search = Search(using=get_client(), index=NLPDoc.Index.name)
     search = search.query(query)
 
     if return_highlights:
@@ -244,7 +302,7 @@ def author_search(query, from_result=0, size=10, return_body=False, ignore_cache
 def ids_search(ids, query, from_result=0, size=10, return_body=False, ignore_cache=False, fragment_size=100):
     # query = MultiMatch(query=query, fields=["title", "body"])
 
-    search = Search(using=get_client(), index=DOC_INDEX)
+    search = Search(using=get_client(), index=NLPDoc.Index.name)
     search = search.filter("ids", values=ids)
 
     # search = search.query(query)
