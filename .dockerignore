@@ -1,4 +1,5 @@
 data/
 data/mongodb/
+elasticsearch/
 models/
-milvus/wal/
+milvus/
