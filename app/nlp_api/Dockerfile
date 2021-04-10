@@ -43,12 +43,14 @@ RUN ${CONDA_PATH}/bin/python -m nltk.downloader popular
 WORKDIR /workspace
 # COPY . .
 # data/ and models/ must be volume mounted!
+COPY ./setup.py ./setup.cfg .
 COPY ./notebooks .
 COPY ./scripts .
 COPY ./model_runs .
 COPY ./configs .
 COPY ./app/nlp_api ./app/nlp_api
 COPY ./src .
+
 
 RUN ${CONDA_PATH}/bin/python setup.py develop
 
