@@ -31,7 +31,7 @@
           </h5>
 
           <!-- <Authors /> -->
-          <Authors :authors="result.author" />
+          <Authors :authors="result.author" authors_class="authors-small" />
 
           <div v-if="highlights" class="highlight">
             <read-more
