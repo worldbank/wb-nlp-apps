@@ -334,8 +334,7 @@ class LDAModel(BaseModel):
 
         return doc_df
 
-    def _get_docs_by_topic_composition(self, topic_percentage, return_all_topics=False):
-        self.check_wvecs()
+    def _get_docs_by_topic_composition_search(self, topic_percentage):
         model_run_info_id = self.model_run_info["model_run_info_id"]
 
         topic_cols = [f"topic_{id}" for id in sorted(topic_percentage)]
@@ -351,6 +350,13 @@ class LDAModel(BaseModel):
                 )
             )
         )
+        return search
+
+    def _get_docs_by_topic_composition(self, topic_percentage, return_all_topics=False):
+        self.check_wvecs()
+
+        search = self._get_docs_by_topic_composition_search(topic_percentage)
+
         search = search[0: search.count()]
         response = search.execute()
 
@@ -370,7 +376,10 @@ class LDAModel(BaseModel):
         return doc_df
 
     def get_docs_by_topic_composition_count(self, topic_percentage):
-        return len(self._get_docs_by_topic_composition(topic_percentage))
+        search = self._get_docs_by_topic_composition_search(topic_percentage)
+        return search.count()
+
+        # return len(self._get_docs_by_topic_composition(topic_percentage))
 
     def get_docs_by_topic_composition(self, topic_percentage, serialize=False, from_result=0, size=10, return_all_topics=False):
         '''
