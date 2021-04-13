@@ -337,7 +337,6 @@ class LDAModel(BaseModel):
     def _get_docs_by_topic_composition_search(self, topic_percentage):
         model_run_info_id = self.model_run_info["model_run_info_id"]
 
-        topic_cols = [f"topic_{id}" for id in sorted(topic_percentage)]
         search = elasticsearch.DocTopic.search()
 
         topic_filters = [dict(range={f"topics.topic_{id}": {"gte": val}})
@@ -356,6 +355,7 @@ class LDAModel(BaseModel):
         self.check_wvecs()
 
         search = self._get_docs_by_topic_composition_search(topic_percentage)
+        topic_cols = [f"topic_{id}" for id in sorted(topic_percentage)]
 
         search = search[0: search.count()]
         response = search.execute()
