@@ -12,7 +12,7 @@ from elasticsearch_dsl import Search
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet, DateHistogramFacet
 from elasticsearch_dsl.query import MultiMatch, Match, Term
-
+from wb_nlp.extraction import country_extractor
 from wb_nlp.dir_manager import get_path_from_root
 
 connections.create_connection(hosts=['es01'])
@@ -35,11 +35,17 @@ class NLPDoc(Document):
     title = Text(analyzer='snowball', fields={'raw': Keyword()})
     body = Text(analyzer='snowball')
     abstract = Text(analyzer='snowball')
+    adm_region = Keyword()
     author = Keyword()
     country = Keyword()
     corpus = Keyword()
     date_published = Date()
+    doc_type = Keyword()
+    geo_region = Keyword()
     last_update_date = Date()
+    major_doc_type = Keyword()
+    wb_subtopic_src = Keyword()
+    topics_src = Keyword()
     year = Integer()
     tokens = Integer()
     views = Integer()
@@ -54,6 +60,7 @@ class NLPDoc(Document):
     def save(self, **kwargs):
         self.tokens = len(self.body.split())
         self.views = 0
+        self.der_countries = country_extractor.get_country_counts(self.body)
         return super(NLPDoc, self).save(**kwargs)
 
 
@@ -83,15 +90,22 @@ except exceptions.ConnectionError:
 
 class NLPDocFacetedSearch(FacetedSearch):
     # doc_types = [elasticsearch.NLPDoc, ]
-    doc_types = [NLPDoc, ]
+    index = DOC_INDEX
+    doc_types = [NLPDoc]
+
     # fields that should be searched
-    fields = ['country', 'author', 'title', 'body']
+    fields = ['title^2', 'body^1.25', 'abstract^1.5', 'author', 'country']
 
     facets = {
         # use bucket aggregations to define facets
         'author': TermsFacet(field='author'),
-        'countries': TermsFacet(field='country'),
-        'publishing_frequency': DateHistogramFacet(field='date_published', interval='year')
+        'country': TermsFacet(field='country'),
+        'corpus': TermsFacet(field='corpus'),
+        'major_doc_type': TermsFacet(field='major_doc_type'),
+        'adm_region': TermsFacet(field='adm_region'),
+        'geo_region': TermsFacet(field='geo_region'),
+        'topics_src': TermsFacet(field='topics_src'),
+        # 'publishing_frequency': DateHistogramFacet(field='date_published', interval='year')
     }
 
 
@@ -214,6 +228,7 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True):
 
     for ix, data in enumerate(docs_metadata):
         doc_path = root_path / data["path_original"]
+        # doc_path = doc_path.parent / "TXT_ORIG" / doc_path.name
         if ix and ix % 10000 == 0:
             print(ix)
 
@@ -244,8 +259,8 @@ def faceted_search_nlp_docs():
     for (country, count, selected) in response.facets.countries:
         print(country, ' (SELECTED):' if selected else ':', count)
 
-    for (year, count, selected) in response.facets.publishing_frequency:
-        print(year.strftime('%Y'), ' (SELECTED):' if selected else ':', count)
+    # for (year, count, selected) in response.facets.publishing_frequency:
+    #     print(year.strftime('%Y'), ' (SELECTED):' if selected else ':', count)
 
 
 def common_search(query, from_result=0, size=10, return_body=False, ignore_cache=False, return_highlights=True, highlight_field="body", fragment_size=100):
