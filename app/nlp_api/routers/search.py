@@ -1,20 +1,17 @@
 '''This router contains the implementation for the cleaning API.
 '''
-import json
 from typing import List
-from fastapi import APIRouter, HTTPException, UploadFile, File, Query, Form
-import pydantic
+from fastapi import APIRouter, UploadFile, File, Form
 from pydantic import HttpUrl
 from contexttimer import Timer
 from wb_nlp.interfaces import elasticsearch
-
 from wb_nlp.types.models import (
     ModelTypes
 )
-from wb_nlp.types.metadata_enums import (
-    WBAdminRegions, WBGeographicRegions, WBGeographicRegions, WBTopics
+from ..common.utils import (
+    get_validated_model, read_uploaded_file,
+    read_url_file, clean_text, check_translate_keywords
 )
-from ..common.utils import get_validated_model, read_uploaded_file, read_url_file, clean_text
 
 
 router = APIRouter(
@@ -42,6 +39,10 @@ async def keyword_search(
     '''
     # response = elasticsearch.text_search(
     #     query, from_result=from_result, size=size)
+
+    payload = check_translate_keywords(query)
+    query = payload["query"]
+    translated = payload["translated"]
 
     fs = elasticsearch.NLPDocFacetedSearch(query=query, filters=dict(
         author=author,
@@ -80,6 +81,7 @@ async def keyword_search(
         hits=hits,
         result=result,
         highlights=highlights,
+        translated=translated,
         facets=facets,
         next=from_result + size
     )
@@ -91,7 +93,8 @@ def common_semantic_search(
         query: str,
         from_result: int = 0,
         size: int = 10,
-        clean: bool = True):
+        clean: bool = True,
+        translated: dict = None):
 
     with Timer() as timer:
 
@@ -134,6 +137,7 @@ def common_semantic_search(
         return dict(
             total=total,
             hits=hits,
+            translated=translated,
             next=from_result + size,
             result=result,
         )
@@ -153,9 +157,13 @@ async def semantic_search(
 
     print(model_name, model_id, query)
 
+    payload = check_translate_keywords(query)
+    query = payload["query"]
+    translated = payload["translated"]
+
     return common_semantic_search(
         model_name=model_name, model_id=model_id,
-        query=query, from_result=from_result, size=size, clean=clean)
+        query=query, from_result=from_result, size=size, clean=clean, translated=translated)
 
 
 @ router.post("/{model_name}/file")

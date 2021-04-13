@@ -48,6 +48,7 @@ dependencies:
     - fasttext==0.9.2
     - flashtext==2.7
     - gensim==3.8.3
+    - googletrans==3.1.0a0
     - h11==0.11.0
     - heapdict==1.0.1
     - httptools==0.1.1

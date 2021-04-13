@@ -1,4 +1,5 @@
 # import services.googletrans_client as gt
+from functools import lru_cache
 import googletrans
 from googletrans import client as gt
 
@@ -7,6 +8,7 @@ assert googletrans.__version__ == "3.1.0-alpha"
 _trans = gt.Translator()
 
 
+@lru_cache(maxsize=1024)
 def translate(text, src='auto', dest='en', with_extra_data=False):
     global _trans
 

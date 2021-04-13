@@ -17,7 +17,7 @@ from wb_nlp.types.models import (
 )
 
 # , read_uploaded_file, read_url_file
-from ..common.utils import get_validated_model
+from ..common.utils import get_validated_model, check_translate_keywords
 
 
 router = APIRouter(
@@ -68,9 +68,11 @@ async def get_text_vector(model_name: ModelTypes, transform_params: GetVectorPar
     '''
 
     model = get_validated_model(model_name, transform_params.model_id)
+    payload = check_translate_keywords(transform_params.raw_text)
+    text = payload["query"]
 
     return model.transform_doc(
-        document=transform_params.raw_text,
+        document=text,
         normalize=transform_params.normalize,
         tolist=True)
 
@@ -90,9 +92,11 @@ async def get_similar_words(model_name: ModelTypes, transform_params: SimilarWor
     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
     '''
     model = get_validated_model(model_name, transform_params.model_id)
+    payload = check_translate_keywords(transform_params.raw_text)
+    text = payload["query"]
 
     return model.get_similar_words(
-        document=transform_params.raw_text,
+        document=text,
         topn=transform_params.topn_words,
         metric=transform_params.metric.value)
 
@@ -103,9 +107,11 @@ async def get_similar_docs(model_name: ModelTypes, transform_params: SimilarDocs
     '''
 
     model = get_validated_model(model_name, transform_params.model_id)
+    payload = check_translate_keywords(transform_params.raw_text)
+    text = payload["query"]
 
     result = model.get_similar_documents(
-        document=transform_params.raw_text,
+        document=text,
         topn=transform_params.topn_docs,
         duplicate_threshold=transform_params.duplicate_threshold,
         show_duplicates=transform_params.show_duplicates,

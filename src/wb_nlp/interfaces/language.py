@@ -42,3 +42,13 @@ class Language:
     def __setstate__(self, state):
         self.__dict__.update(state)
         self.init_en_dict()
+
+
+EN_LANG = None
+
+
+def get_en_dict():
+    global EN_LANG
+    if EN_LANG is None:
+        EN_LANG = Language()
+    return EN_LANG.get_en_dict()
