@@ -33,7 +33,6 @@ dependencies:
     - attrs==20.3.0
     - blis==0.7.4
     - catalogue==1.0.0
-    - chardet==4.0.0
     - click==7.1.2
     - cloudpickle==1.6.0
     - contexttimer==0.3.3
