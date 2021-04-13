@@ -254,6 +254,7 @@ def common_search(query, from_result=0, size=10, return_body=False, ignore_cache
     """
     search = NLPDoc.search()
     search = search.query(query)
+    search = search.extra(track_total_hits=True)
 
     if return_highlights:
         search = search.highlight_options(order="score")
