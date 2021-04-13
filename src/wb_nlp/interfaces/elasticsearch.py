@@ -108,6 +108,13 @@ class NLPDocFacetedSearch(FacetedSearch):
         # 'publishing_frequency': DateHistogramFacet(field='date_published', interval='year')
     }
 
+    def search(self):
+        search = super().search()
+        search = search.extra(track_total_hits=True)
+        search = search.source(excludes=["body", "doc"])
+        # search.params(preserve_order=True).scan()
+        return search
+
 
 def store_docs_topics(doc_ids, vectors, model_run_info_id, ignore_existing=True):
     existing_ids = set()

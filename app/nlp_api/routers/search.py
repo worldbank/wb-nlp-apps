@@ -1,6 +1,7 @@
 '''This router contains the implementation for the cleaning API.
 '''
 import json
+from typing import List
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query, Form
 import pydantic
 from pydantic import HttpUrl
@@ -24,13 +25,32 @@ router = APIRouter(
 @ router.get("/keyword")
 async def keyword_search(
     query: str,
+    author: List[str] = None,
+    country: List[str] = None,
+    corpus: List[str] = None,
+    major_doc_type: List[str] = None,
+    adm_region: List[str] = None,
+    geo_region: List[str] = None,
+    topics_src: List[str] = None,
     from_result: int = 0,
     size: int = 10,
 ):
     '''This endpoint provides the service for the keyword search functionality. This uses Elasticsearch in the backend for the full-text search.
     '''
-    response = elasticsearch.text_search(
-        query, from_result=from_result, size=size)
+    # response = elasticsearch.text_search(
+    #     query, from_result=from_result, size=size)
+
+    fs = elasticsearch.NLPDocFacetedSearch(query=query, filters=dict(
+        author=author,
+        country=country,
+        corpus=corpus,
+        major_doc_type=major_doc_type,
+        adm_region=adm_region,
+        geo_region=geo_region,
+        topics_src=topics_src,
+    ))
+
+    response = fs[from_result: from_result + size].execute()
 
     total = response.hits.total.to_dict()
     total["message"] = total["value"]
@@ -38,6 +58,7 @@ async def keyword_search(
     hits = []
     result = []
     highlights = []
+    facets = response.aggregations.to_dict()
 
     for ix, h in enumerate(response, 1):
         hits.append(h.to_dict())
@@ -56,6 +77,7 @@ async def keyword_search(
         hits=hits,
         result=result,
         highlights=highlights,
+        facets=facets,
         next=from_result + size
     )
 
