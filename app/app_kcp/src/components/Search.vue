@@ -351,6 +351,15 @@ export default {
       };
       return body;
     },
+    keywordSearchBody() {
+      const body = {};
+      // body["model_id"] = this.$config.default_model.word2vec.model_id;
+      // body["query"] = this.query;
+      // body["from_result"] = this.from_result;
+      // body["size"] = this.curr_size;
+      // body["adm_region"] = ["Africa"]
+      return body;
+    },
     searchParams() {
       const params = new URLSearchParams();
       params.append("model_id", this.$config.default_model.word2vec.model_id);
@@ -404,6 +413,7 @@ export default {
       from_result: 0,
       hits: [],
       highlights: [],
+      facets: null,
       match_stats: [],
       total: Object,
       errored: false,
@@ -514,12 +524,13 @@ export default {
       this.loading = true;
 
       this.$http
-        .get(this.keyword_search_api_url, {
+        .post(this.keyword_search_api_url, this.keywordSearchBody, {
           params: this.searchParams,
         })
         .then((response) => {
           this.hits = response.data.hits;
           this.highlights = response.data.highlights;
+          this.facets = response.data.facets;
           this.match_stats = response.data.result;
           this.total = response.data.total;
           this.next = this.curr_page_num + 1;

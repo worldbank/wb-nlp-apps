@@ -1,9 +1,11 @@
+import logging
 from pathlib import Path
 import json
 from functools import lru_cache
 from fastapi import HTTPException
 import requests
-from wb_nlp.interfaces import mongodb
+from wb_nlp.interfaces import mongodb, language
+from wb_nlp.translate import translation
 
 from wb_nlp.types.models import (
     ModelTypes,
@@ -120,3 +122,21 @@ def read_url_file(url):
 def clean_text(model_name, model_id, text):
     model = get_validated_model(model_name, model_id)
     return model.clean_text(text)
+
+
+def check_translate_keywords(query):
+    en = language.get_en_dict()
+    tquery = []
+    translated = {}
+    for i in query.split():
+        if "_" not in i:
+            if not en.check(i):
+                try:
+                    tr = translation.translate(i)
+                    i = tr["translated"]
+                    translated[i] = tr
+                except Exception as e:
+                    logging.error(e)
+                    continue
+        tquery.append(i)
+    return dict(query=" ".join(tquery), translated=translated)

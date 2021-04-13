@@ -1,16 +1,17 @@
 '''This router contains the implementation for the cleaning API.
 '''
-import json
-from fastapi import APIRouter, HTTPException, UploadFile, File, Query, Form
-import pydantic
+from typing import List
+from fastapi import APIRouter, UploadFile, File, Form
 from pydantic import HttpUrl
 from contexttimer import Timer
 from wb_nlp.interfaces import elasticsearch
-
 from wb_nlp.types.models import (
     ModelTypes
 )
-from ..common.utils import get_validated_model, read_uploaded_file, read_url_file, clean_text
+from ..common.utils import (
+    get_validated_model, read_uploaded_file,
+    read_url_file, clean_text, check_translate_keywords
+)
 
 
 router = APIRouter(
@@ -21,16 +22,39 @@ router = APIRouter(
 )
 
 
-@ router.get("/keyword")
+@ router.post("/keyword")
 async def keyword_search(
     query: str,
+    author: List[str] = None,
+    country: List[str] = None,
+    corpus: List[str] = None,
+    major_doc_type: List[str] = None,
+    adm_region: List[str] = None,
+    geo_region: List[str] = None,
+    topics_src: List[str] = None,
     from_result: int = 0,
     size: int = 10,
 ):
     '''This endpoint provides the service for the keyword search functionality. This uses Elasticsearch in the backend for the full-text search.
     '''
-    response = elasticsearch.text_search(
-        query, from_result=from_result, size=size)
+    # response = elasticsearch.text_search(
+    #     query, from_result=from_result, size=size)
+
+    payload = check_translate_keywords(query)
+    query = payload["query"]
+    translated = payload["translated"]
+
+    fs = elasticsearch.NLPDocFacetedSearch(query=query, filters=dict(
+        author=author,
+        country=country,
+        corpus=corpus,
+        major_doc_type=major_doc_type,
+        adm_region=adm_region,
+        geo_region=geo_region,
+        topics_src=topics_src,
+    ))
+
+    response = fs[from_result: from_result + size].execute()
 
     total = response.hits.total.to_dict()
     total["message"] = total["value"]
@@ -38,6 +62,7 @@ async def keyword_search(
     hits = []
     result = []
     highlights = []
+    facets = response.aggregations.to_dict()
 
     for ix, h in enumerate(response, 1):
         hits.append(h.to_dict())
@@ -56,6 +81,8 @@ async def keyword_search(
         hits=hits,
         result=result,
         highlights=highlights,
+        translated=translated,
+        facets=facets,
         next=from_result + size
     )
 
@@ -66,7 +93,8 @@ def common_semantic_search(
         query: str,
         from_result: int = 0,
         size: int = 10,
-        clean: bool = True):
+        clean: bool = True,
+        translated: dict = None):
 
     with Timer() as timer:
 
@@ -109,6 +137,7 @@ def common_semantic_search(
         return dict(
             total=total,
             hits=hits,
+            translated=translated,
             next=from_result + size,
             result=result,
         )
@@ -128,9 +157,13 @@ async def semantic_search(
 
     print(model_name, model_id, query)
 
+    payload = check_translate_keywords(query)
+    query = payload["query"]
+    translated = payload["translated"]
+
     return common_semantic_search(
         model_name=model_name, model_id=model_id,
-        query=query, from_result=from_result, size=size, clean=clean)
+        query=query, from_result=from_result, size=size, clean=clean, translated=translated)
 
 
 @ router.post("/{model_name}/file")
