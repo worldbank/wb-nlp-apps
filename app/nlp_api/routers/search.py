@@ -11,6 +11,9 @@ from wb_nlp.interfaces import elasticsearch
 from wb_nlp.types.models import (
     ModelTypes
 )
+from wb_nlp.types.metadata_enums import (
+    WBAdminRegions, WBGeographicRegions, WBGeographicRegions, WBTopics
+)
 from ..common.utils import get_validated_model, read_uploaded_file, read_url_file, clean_text
 
 
@@ -22,7 +25,7 @@ router = APIRouter(
 )
 
 
-@ router.get("/keyword")
+@ router.post("/keyword")
 async def keyword_search(
     query: str,
     author: List[str] = None,
