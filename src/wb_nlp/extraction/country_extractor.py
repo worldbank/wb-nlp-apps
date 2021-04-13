@@ -27,5 +27,8 @@ def replace_countries(txt):
 
 def get_country_counts(txt):
     txt = re.sub(r"\s+", " ", txt)
-    replaced = replace_countries(txt)
+    try:
+        replaced = replace_countries(txt)
+    except IndexError:
+        return None
     return Counter([i.split('$')[-1].strip() for i in replaced.split() if i.startswith(anchor_code)])
