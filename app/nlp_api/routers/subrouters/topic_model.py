@@ -1,5 +1,7 @@
 '''This router contains the implementation for the cleaning API.
 '''
+from functools import lru_cache
+from contexttimer import Timer
 import json
 from fastapi import Query
 
@@ -36,6 +38,7 @@ DEFAULT_QUERY_FIELDS = dict(
 )
 
 
+@lru_cache(maxsize=16)
 def get_model_topic_words(
     model_name: str,
     model_id: str,
@@ -166,33 +169,42 @@ def get_topics_by_doc_id(
     sort: bool,
     format_words: bool
 ):
-    model = get_validated_model(model_name, model_id)
+    with Timer() as timer:
+        print(f"E1: {timer.elapsed}")
 
-    topic_words = model.get_model_topic_words(
-        topn_words=topn_words,
-        total_word_score=total_word_score)
-
-    topic_words = {topic["topic_id"]: topic["topic_words"]
-                   for topic in topic_words}
-
-    doc_topic_data = mongodb.get_document_topics_collection().find_one(
-        {"model_run_info_id": model_id, "id": doc_id})
-
-    payload = []
-
-    items = doc_topic_data["topics"].items()
-    if sort:
-        items = sorted(items, key=lambda x: -x[1])
-
-    for topic_id_str, value in items:
-        topic_id = int(topic_id_str.split("_")[-1])
-        payload.append(
-            dict(
-                topic_id=topic_id,
-                topic_words=topic_words[topic_id] if not format_words else ", ".join(
-                    [i["word"] for i in topic_words[topic_id]]),
-                value=value
-            )
+        topic_words = get_model_topic_words(
+            model_name=model_name,
+            model_id=model_id,
+            topn_words=topn_words,
+            total_word_score=total_word_score,
         )
+        print(f"E2: {timer.elapsed}")
+        topic_words = {topic["topic_id"]: topic["topic_words"]
+                       for topic in topic_words}
 
-    return payload
+        print(f"E3: {timer.elapsed}")
+
+        doc_topic_data = mongodb.get_document_topics_collection().find_one(
+            {"model_run_info_id": model_id, "id": doc_id})
+
+        print(f"E4: {timer.elapsed}")
+
+        payload = []
+
+        items = doc_topic_data["topics"].items()
+        if sort:
+            items = sorted(items, key=lambda x: -x[1])
+
+        for topic_id_str, value in items:
+            topic_id = int(topic_id_str.split("_")[-1])
+            payload.append(
+                dict(
+                    topic_id=topic_id,
+                    topic_words=topic_words[topic_id] if not format_words else ", ".join(
+                        [i["word"] for i in topic_words[topic_id]]),
+                    value=value
+                )
+            )
+        print(f"E5: {timer.elapsed}")
+
+        return payload
