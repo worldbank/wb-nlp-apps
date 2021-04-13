@@ -1,12 +1,13 @@
-from typing import Optional
-from enum import Enum
+import logging
 import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-
+from wb_nlp import dir_manager
+from wb_nlp.interfaces import mongodb
+from wb_nlp.types.models import ModelTypes
 from .routers import cleaner, models, metadata, search
 from .routers.subrouters import lda, mallet, word2vec, wdi
-from wb_nlp import dir_manager
+from .common.utils import get_validated_model
 
 tags_metadata = [
     {
@@ -74,9 +75,17 @@ app.mount("/nlp/static",
           StaticFiles(directory=dir_manager.get_data_dir("corpus")), "static")
 
 
-# @app.on_event("startup")
-# async def startup_event():
-#     pass
+@app.on_event("startup")
+async def startup_event():
+    model_runs_collection = mongodb.get_model_runs_info_collection()
+    for run in model_runs_collection.find({}):
+        model_id = run["model_run_info_id"]
+        model_name = ModelTypes(run["model_name"])
+        try:
+            get_validated_model(model_name, model_id)
+        except Exception as e:
+            logging.info(e)
+            continue
 
 
 @app.get("/")
