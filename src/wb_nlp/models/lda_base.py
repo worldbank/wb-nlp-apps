@@ -409,7 +409,7 @@ class LDAModel(BaseModel):
 
         return dict(total=doc_count, hits=payload)
 
-    def get_topic_composition_ranges(self, serialize=False):
+    def mdb_get_topic_composition_ranges(self, serialize=False):
         self.check_wvecs()
 
         if self.topic_composition_ranges is None:
@@ -424,6 +424,39 @@ class LDAModel(BaseModel):
                         "min": {"$min": f"$topics.topic_{i}"},
                         "max": {"$max": f"$topics.topic_{i}"}}}]))[0] for i in range(self.dim)
             ]).rename(columns={"_id": "topic"}).set_index("topic").T.to_dict()  # "records")
+
+        # Data structure: {topic_id: {min: <min_val>, max: <max_val>}}
+        payload = self.topic_composition_ranges
+
+        if serialize:
+            payload = pd.DataFrame(payload).to_json()
+
+        return payload
+
+    def get_topic_composition_ranges(self, serialize=False):
+        self.check_wvecs()
+
+        if self.topic_composition_ranges is None:
+            model_run_info_id = self.model_run_info["model_run_info_id"]
+
+            topic_stats = []
+            for i in range(self.dim):
+                search = elasticsearch.DocTopic.search()
+                query_body = dict(
+                    aggs={f"topic_{i}": dict(
+                        stats=dict(field=f"topics.topic_{i}"))},
+                    query=dict(
+                        term=dict(model_run_info_id=model_run_info_id)),
+                    size=0
+                )
+
+                search.update_from_dict(query_body)
+                result = search.execute()
+                topic_stats.append(result.aggregations.to_dict())
+
+            self.topic_composition_ranges = {
+                k: v for i in topic_stats for k, v in i.items()
+            }
 
         # Data structure: {topic_id: {min: <min_val>, max: <max_val>}}
         payload = self.topic_composition_ranges
