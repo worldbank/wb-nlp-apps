@@ -74,6 +74,11 @@ app.mount("/nlp/static",
           StaticFiles(directory=dir_manager.get_data_dir("corpus")), "static")
 
 
+# @app.on_event("startup")
+# async def startup_event():
+#     pass
+
+
 @app.get("/")
 def read_root():
     return {"NLP App": "Root"}

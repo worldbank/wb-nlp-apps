@@ -59,7 +59,7 @@ class MalletModel(LDAModel):
         model_run_info_description="",
         model_run_info_id=None,
         raise_empty_doc_status=True,
-        log_level=logging.WARNING,
+        log_level=logging.INFO,
     ):
 
         super().__init__(

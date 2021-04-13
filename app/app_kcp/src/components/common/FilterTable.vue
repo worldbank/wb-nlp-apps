@@ -272,6 +272,10 @@ export default {
       Object.assign(data, this.topicValue);
       Object.entries(data).forEach(([key, val]) => (data[key] = val / 100));
 
+      if (Object.keys(data).length === 0) {
+        return;
+      }
+
       this.$http
         .post(this.nlp_api_url + "/get_docs_by_topic_composition_count", {
           model_id: this.model_run_info_id,
