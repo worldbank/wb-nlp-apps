@@ -127,10 +127,9 @@ export default {
     processCountryData() {
       var totalCount = Object.values(this.countryData).reduce((a, b) => a + b);
 
-      this.processedCountryData = this.countryData;
+      var processedCountryData = this.countryData;
       Object.keys(this.countryData).forEach(
-        (k) =>
-          (this.processCountryData[k] = this.processCountryData[k] / totalCount)
+        (k) => (processedCountryData[k] = processedCountryData[k] / totalCount)
       );
 
       var cnVal = this.countryData.CN || 0;
@@ -140,16 +139,18 @@ export default {
 
       // Set values for disputed areas
       if (cnVal + inVal > 0) {
-        this.processedCountryData.XXX_arunachal_pradesh = (cnVal + inVal) / 2;
-        this.processedCountryData.XXX_demchok = (cnVal + inVal) / 2;
-        this.processedCountryData.XXX_aksai_chin = (cnVal + inVal) / 2;
+        processedCountryData.XXX_arunachal_pradesh = (cnVal + inVal) / 2;
+        processedCountryData.XXX_demchok = (cnVal + inVal) / 2;
+        processedCountryData.XXX_aksai_chin = (cnVal + inVal) / 2;
       }
 
       if (sdudVal + ssudVal > 0) {
-        this.processedCountryData.XXX_abyei = (sdudVal + ssudVal) / 2;
+        processedCountryData.XXX_abyei = (sdudVal + ssudVal) / 2;
       }
 
-      this.processedCountryData.XXX_western_sahara = "No data";
+      processedCountryData.XXX_western_sahara = "No data";
+
+      this.processedCountryData = processedCountryData;
     },
     getOrCreateNode() {
       var node = document.getElementById(this.nodeId);

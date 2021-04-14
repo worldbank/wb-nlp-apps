@@ -60,6 +60,12 @@ export const getBaseCss = ({ defaultCountryFillColor, countryStrokeColor, countr
 );
 
 const getScaleValue = (value, min, max, colorScaleUnit) => {
+  value = Number(value)
+  if (isNaN(value)) {
+    // Handle cases for "No Data" value.
+    return value
+  }
+
   let scaleValue = colorScaleUnit;
   if (min !== max) {
     scaleValue = colorScaleUnit * (value - min);
