@@ -119,7 +119,9 @@
     <div class="container">
       <div class="row justify-content-center mb-5">
         <div class="col-12 col-md-10">
-          <h3 class="text-center">Explore our corpus of 300,000 documents</h3>
+          <h3 class="text-center">
+            Explore our corpus of {{ corpus_size.toLocaleString() }} documents
+          </h3>
           <div class="small text-center">
             Last updated on Wednesday, January 6, 2021
           </div>
@@ -280,7 +282,11 @@ export default {
       uploaded_file: null,
       file_input: null,
       search_text_cache: "",
+      corpus_size: null,
     };
+  },
+  mounted() {
+    this.getCorpusSize();
   },
   computed: {
     hasUploadedFile() {
@@ -317,6 +323,11 @@ export default {
       });
 
       return;
+    },
+    getCorpusSize() {
+      this.$http.get("/nlp/corpus/get_corpus_size").then((response) => {
+        this.corpus_size = response.data.size;
+      });
     },
   },
 };

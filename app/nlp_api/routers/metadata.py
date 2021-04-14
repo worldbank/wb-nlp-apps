@@ -8,7 +8,7 @@ from functools import lru_cache
 
 from fastapi import APIRouter, Depends, HTTPException, Body
 
-from wb_nlp.interfaces import mongodb
+from wb_nlp.interfaces import mongodb, elasticsearch
 from wb_nlp.types import metadata
 # from wb_nlp.types.metadata_enums import Corpus
 
@@ -18,6 +18,13 @@ router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
+
+
+@router.get("/get_corpus_size")
+def get_corpus_size():
+    """This endpoint gets the current size of the corpus.
+    """
+    return dict(size=elasticsearch.get_indexed_corpus_size())
 
 
 @ router.get(
