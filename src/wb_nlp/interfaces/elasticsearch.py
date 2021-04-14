@@ -116,6 +116,10 @@ class NLPDocFacetedSearch(FacetedSearch):
         return search
 
 
+def get_indexed_corpus_size():
+    return NLPDoc.search().count()
+
+
 def store_docs_topics(doc_ids, vectors, model_run_info_id, ignore_existing=True):
     existing_ids = set()
 
@@ -215,7 +219,7 @@ def get_metadata_by_ids(doc_ids, index=None, source=None, source_includes=None, 
         index=index)]
 
 
-def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True):
+def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt_only=True):
     # test_docs_metadata = mongodb.get_collection(
     #     db_name="test_nlp", collection_name="docs_metadata")
     # elasticsearch.make_nlp_docs_from_docs_metadata(test_docs_metadata.find({}))
@@ -235,9 +239,13 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True):
 
     for ix, data in enumerate(docs_metadata):
         doc_path = root_path / data["path_original"]
-        # doc_path = doc_path.parent / "TXT_ORIG" / doc_path.name
+        en_doc_path = doc_path.parent / "EN_TXT_ORIG" / doc_path.name
+
         if ix and ix % 10000 == 0:
             print(ix)
+
+        if en_txt_only and not en_doc_path.exists():
+            continue
 
         if data["_id"] in existing_ids:
             continue
