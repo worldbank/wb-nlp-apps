@@ -13,7 +13,7 @@
         <span>{{ legend.name }}</span>
       </div>
       <div class="vue-map-legend-content">
-        <span>{{ processedCountryData[legend.code] || 0 }}</span>
+        <span>{{ getDisplayValue(legend.code) }}</span>
       </div>
     </div>
   </div>
@@ -124,13 +124,12 @@ export default {
     };
   },
   methods: {
-    processCountryData() {
+    processNormalizeCountryData() {
       var totalCount = Object.values(this.countryData).reduce((a, b) => a + b);
 
-      this.processedCountryData = this.countryData;
+      var processedCountryData = this.countryData;
       Object.keys(this.countryData).forEach(
-        (k) =>
-          (this.processCountryData[k] = this.processCountryData[k] / totalCount)
+        (k) => (processedCountryData[k] = processedCountryData[k] / totalCount)
       );
 
       var cnVal = this.countryData.CN || 0;
@@ -140,16 +139,30 @@ export default {
 
       // Set values for disputed areas
       if (cnVal + inVal > 0) {
-        this.processedCountryData.XXX_arunachal_pradesh = (cnVal + inVal) / 2;
-        this.processedCountryData.XXX_demchok = (cnVal + inVal) / 2;
-        this.processedCountryData.XXX_aksai_chin = (cnVal + inVal) / 2;
+        processedCountryData.XXX_arunachal_pradesh = (cnVal + inVal) / 2;
+        processedCountryData.XXX_demchok = (cnVal + inVal) / 2;
+        processedCountryData.XXX_aksai_chin = (cnVal + inVal) / 2;
       }
 
       if (sdudVal + ssudVal > 0) {
-        this.processedCountryData.XXX_abyei = (sdudVal + ssudVal) / 2;
+        processedCountryData.XXX_abyei = (sdudVal + ssudVal) / 2;
       }
 
-      this.processedCountryData.XXX_western_sahara = "No data";
+      processedCountryData.XXX_western_sahara = "No data";
+
+      this.processedCountryData = processedCountryData;
+    },
+    getDisplayValue(code) {
+      var value = this.processedCountryData[code];
+      if (value === "No data") {
+        return value;
+      }
+
+      if (isNaN(value)) {
+        return 0;
+      }
+
+      return (100 * value).toFixed(2) + "%";
     },
     getOrCreateNode() {
       var node = document.getElementById(this.nodeId);
@@ -179,7 +192,7 @@ export default {
       this.$emit("hoverLeaveCountry", country);
     },
     renderMapCSS() {
-      this.processCountryData();
+      this.processNormalizeCountryData();
       const baseCss = getBaseCss(this.$props);
       const dynamicMapCss = getDynamicMapCss(
         // this.$props.countryData,

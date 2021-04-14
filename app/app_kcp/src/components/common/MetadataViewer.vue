@@ -40,9 +40,9 @@
     <div v-if="privateCountryData">
       <div class="xsl-caption field-caption">Country popularity</div>
       <p>
-        The number of times a country is mentioned in the document is shown in
-        the map below. This metric may indicate that the document is relevant
-        for countries that are highly cited.
+        The relative proportion of the number of times a country is mentioned in
+        the document is shown in the map below. This metric may indicate that
+        the document is relevant for countries that are highly cited.
       </p>
       <WBMapChart
         :countryData="privateCountryData"
