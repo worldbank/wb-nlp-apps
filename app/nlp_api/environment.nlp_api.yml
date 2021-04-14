@@ -52,6 +52,7 @@ dependencies:
     - httptools==0.1.1
     - idna==2.10
     - iniconfig==1.1.1
+    - ipython
     - joblib==1.0.0
     - langdetect==1.0.7
     - msgpack==1.0.2
