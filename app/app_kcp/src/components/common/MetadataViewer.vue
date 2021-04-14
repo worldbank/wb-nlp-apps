@@ -47,7 +47,7 @@
       <WBMapChart
         :countryData="privateCountryData"
         highColor="#0000ff"
-        lowColor="#fff"
+        lowColor="#efefff"
         countryStrokeColor="#909090"
         defaultCountryFillColor="#fff"
       />
