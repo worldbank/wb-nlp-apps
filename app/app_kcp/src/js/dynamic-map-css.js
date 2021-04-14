@@ -1,24 +1,31 @@
 // We multiply this unit by the (value of a country - min) to get the
 // decimal value to provide to the Chroma scale instance.
-const getColorScaleUnit = (min, max) => 1 / (max - min);
+const getColorScaleUnit = (min, max) => {
+  if (max === min) {
+    // Handles the case where we only have one country in the data.
+    return 1
+  } else {
+    1 / (max - min);
+  }
+}
 
 const getMaxAndMinCountryDataValues = (countryData) => {
-    let min, max;
+  let min, max;
 
-    Object.keys(countryData).forEach((key) => {
-        if (key === 'unknown') return;
+  Object.keys(countryData).forEach((key) => {
+    if (key === 'unknown') return;
 
-        const value = countryData[key];
+    const value = countryData[key];
 
-        if (value < min || min === undefined) min = value;
-        if (value > max || max === undefined) max = value;
-    });
+    if (value < min || min === undefined) min = value;
+    if (value > max || max === undefined) max = value;
+  });
 
-    return { min, max };
+  return { min, max };
 };
 
 export const getBaseCss = ({ defaultCountryFillColor, countryStrokeColor, countryStrokeWidth, xxxMaskStrokeWidth, xxxStrokeDashArray, legendHeaderBackgroundColor, legendContentBackgroundColor, legendFontColorHeader, legendFontColorContent, legendBorderRadius, legendBorderColor, legendBoxShadow }) => (
-    `.vue-world-map .land{
+  `.vue-world-map .land{
     fill:${defaultCountryFillColor};
     stroke:${countryStrokeColor};
     stroke-width: ${countryStrokeWidth};
@@ -53,22 +60,22 @@ export const getBaseCss = ({ defaultCountryFillColor, countryStrokeColor, countr
 );
 
 export const getDynamicMapCss = (countryData, chromaScale, highColor, chromaScaleOn) => {
-    const { min, max } = getMaxAndMinCountryDataValues(countryData);
-    const colorScaleUnit = getColorScaleUnit(min, max);
-    const css = [];
-    Object.keys(countryData).forEach((key) => {
-        if (key === 'unknown') return;
+  const { min, max } = getMaxAndMinCountryDataValues(countryData);
+  const colorScaleUnit = getColorScaleUnit(min, max);
+  const css = [];
+  Object.keys(countryData).forEach((key) => {
+    if (key === 'unknown') return;
 
-        const value = countryData[key];
-        const scaleValue = colorScaleUnit * (value - min);
-        const hex = chromaScale(scaleValue).hex();
-        css.push(`.vue-world-map #${key} { fill: ${chromaScaleOn ? hex : highColor}; }`);
-    });
-    return css;
+    const value = countryData[key];
+    const scaleValue = colorScaleUnit * (value - min);
+    const hex = chromaScale(scaleValue).hex();
+    css.push(`.vue-world-map #${key} { fill: ${chromaScaleOn ? hex : highColor}; }`);
+  });
+  return css;
 };
 
 export const getCombinedCssString = (baseCss, dynamicCss) => {
-    dynamicCss.push(baseCss);
+  dynamicCss.push(baseCss);
 
-    return dynamicCss.join(' ');
+  return dynamicCss.join(' ');
 };
