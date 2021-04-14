@@ -5,7 +5,7 @@ const getColorScaleUnit = (min, max) => {
     // Handles the case where we only have one country in the data.
     return 1
   } else {
-    1 / (max - min);
+    return 1 / (max - min);
   }
 }
 
@@ -59,6 +59,14 @@ export const getBaseCss = ({ defaultCountryFillColor, countryStrokeColor, countr
   `
 );
 
+const getScaleValue = (value, min, max, colorScaleUnit) => {
+  let scaleValue = colorScaleUnit;
+  if (min !== max) {
+    scaleValue = colorScaleUnit * (value - min);
+  }
+  return scaleValue;
+}
+
 export const getDynamicMapCss = (countryData, chromaScale, highColor, chromaScaleOn) => {
   const { min, max } = getMaxAndMinCountryDataValues(countryData);
   const colorScaleUnit = getColorScaleUnit(min, max);
@@ -67,7 +75,7 @@ export const getDynamicMapCss = (countryData, chromaScale, highColor, chromaScal
     if (key === 'unknown') return;
 
     const value = countryData[key];
-    const scaleValue = colorScaleUnit * (value - min);
+    const scaleValue = getScaleValue(value, min, max, colorScaleUnit);
     const hex = chromaScale(scaleValue).hex();
     css.push(`.vue-world-map #${key} { fill: ${chromaScaleOn ? hex : highColor}; }`);
   });

@@ -125,7 +125,13 @@ export default {
   },
   methods: {
     processCountryData() {
+      var totalCount = Object.values(this.countryData).reduce((a, b) => a + b);
+
       this.processedCountryData = this.countryData;
+      Object.keys(this.countryData).forEach(
+        (k) =>
+          (this.processCountryData[k] = this.processCountryData[k] / totalCount)
+      );
 
       var cnVal = this.countryData.CN || 0;
       var inVal = this.countryData.IN || 0;
