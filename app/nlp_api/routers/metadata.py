@@ -35,10 +35,12 @@ def get_doc_metadata_by_id(id: str = "wb_725385"):
     """This enpoint fetches the metadata corresponding to the given `id`.
     """
 
-    doc = mongodb.get_docs_metadata_collection().find_one({"id": id})
-    if doc is None:
-        doc = mongodb.get_collection(
-            "test_nlp", "docs_metadata").find_one({"id": id})
+    # doc = mongodb.get_docs_metadata_collection().find_one({"id": id})
+    # if doc is None:
+    #     doc = mongodb.get_collection(
+    #         "test_nlp", "docs_metadata").find_one({"id": id})
+
+    doc = elasticsearch.NLPDoc.get(id=id).to_dict()
 
     doc = metadata.MetadataModel(**doc)
 
