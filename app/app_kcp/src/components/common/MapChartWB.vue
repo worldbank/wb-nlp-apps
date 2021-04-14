@@ -13,7 +13,7 @@
         <span>{{ legend.name }}</span>
       </div>
       <div class="vue-map-legend-content">
-        <span>{{ processedCountryData[legend.code] || 0 }}</span>
+        <span>{{ getDisplayValue(legend.code) }}</span>
       </div>
     </div>
   </div>
@@ -124,7 +124,7 @@ export default {
     };
   },
   methods: {
-    processCountryData() {
+    processNormalizeCountryData() {
       var totalCount = Object.values(this.countryData).reduce((a, b) => a + b);
 
       var processedCountryData = this.countryData;
@@ -151,6 +151,18 @@ export default {
       processedCountryData.XXX_western_sahara = "No data";
 
       this.processedCountryData = processedCountryData;
+    },
+    getDisplayValue(code) {
+      var value = this.processedCountryData[code];
+      if (value === "No data") {
+        return value;
+      }
+
+      if (isNaN(value)) {
+        return 0;
+      }
+
+      return (100 * value).toFixed(2) + "%";
     },
     getOrCreateNode() {
       var node = document.getElementById(this.nodeId);
@@ -180,7 +192,7 @@ export default {
       this.$emit("hoverLeaveCountry", country);
     },
     renderMapCSS() {
-      this.processCountryData();
+      this.processNormalizeCountryData();
       const baseCss = getBaseCss(this.$props);
       const dynamicMapCss = getDynamicMapCss(
         // this.$props.countryData,
