@@ -273,13 +273,14 @@
                   data-type="years"
                   data-value="0"
                   >between {{ min_year }}-{{ max_year
-                  }}<i class="fa fa-close"></i
+                  }}<i @click="resetYears" class="fa fa-close"></i
                 ></span>
 
                 <a
-                  href="#"
+                  @click="resetFilters"
+                  href="javascript:void(0);"
                   class="btn-reset-search btn btn-outline-primary btn-sm"
-                  >Reset search</a
+                  >Reset filters</a
                 >
               </div>
             </div>
@@ -369,6 +370,10 @@ export default {
       const params = new URLSearchParams();
       params.append("model_id", this.$config.default_model.word2vec.model_id);
       params.append("query", this.query);
+      if (this.min_year && this.max_year) {
+        params.append("min_year", this.min_year);
+        params.append("max_year", this.max_year);
+      }
       params.append("from_result", this.from_result);
       params.append("size", this.curr_size);
       return params;
@@ -440,6 +445,15 @@ export default {
     };
   },
   methods: {
+    resetYears() {
+      this.max_year = null;
+      this.min_year = null;
+      this.defaultKeywordSearch();
+    },
+    resetFilters() {
+      this.resetYears();
+      this.defaultKeywordSearch();
+    },
     keywordSearchBody() {
       const body = {};
       body["adm_region"] = this.selected_facets.adm_region;
@@ -712,7 +726,9 @@ export default {
       }
     },
     defaultKeywordSearch() {
-      this.sendKeywordSearch(0, true);
+      if (!this.loading) {
+        this.sendKeywordSearch(0, true);
+      }
     },
   },
   watch: {
