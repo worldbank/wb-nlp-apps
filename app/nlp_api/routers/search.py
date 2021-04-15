@@ -65,16 +65,18 @@ async def keyword_search(
     facets = response.aggregations.to_dict()
 
     for ix, h in enumerate(response, 1):
+        highlight = {}
         hits.append(h.to_dict())
         result.append(dict(id=h.meta.id, rank=ix +
                       from_result, score=h.meta.score))
         try:
-            highlight = h.meta.highlight
-            highlight["id"] = h.meta.id
+            highlight = h.meta.highlight.to_dict()
         except AttributeError:
             # 'HitMeta' object has no attribute 'highlight'
             highlight["body"] = []
-        highlights.append(highlight.to_dict())
+
+        highlight["id"] = h.meta.id
+        highlights.append(highlight)
 
     return dict(
         total=total,

@@ -153,8 +153,8 @@
           <hr />
         </div>
         <a name="results"></a>
-        <aside class="col-sm-3" id="blog-sidebar">
-          <div>
+        <aside class="col-sm-3" id="blog-sidebar-static">
+          <!-- <div>
             <div
               id="filter-by-access"
               class="sidebar-filter wb-ihsn-sidebar-filter filter-by-year filter-box"
@@ -202,7 +202,13 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
+
+          <SearchFilter
+            v-if="facets"
+            :facets="facets"
+            @filterChanged="setFilters"
+          />
         </aside>
         <div class="col-sm-9 blog-main">
           <article class="blog-post">
@@ -316,6 +322,7 @@ import SearchResultCard from "./common/SearchResultCard";
 import SearchResultLoading from "./common/SearchResultLoading";
 import Pagination from "./common/Pagination";
 import PageFooter from "./common/PageFooter";
+import SearchFilter from "./common/SearchFilter";
 window.onbeforeunload = function () {
   localStorage.clear();
 };
@@ -326,7 +333,13 @@ export default {
     share_url: String,
     share_text: String,
   },
-  components: { SearchResultCard, SearchResultLoading, Pagination, PageFooter },
+  components: {
+    SearchResultCard,
+    SearchResultLoading,
+    Pagination,
+    PageFooter,
+    SearchFilter,
+  },
   mixins: [saveState],
   mounted() {
     window.vm = this;
@@ -353,11 +366,14 @@ export default {
     },
     keywordSearchBody() {
       const body = {};
-      // body["model_id"] = this.$config.default_model.word2vec.model_id;
-      // body["query"] = this.query;
-      // body["from_result"] = this.from_result;
-      // body["size"] = this.curr_size;
-      // body["adm_region"] = ["Africa"]
+      body["adm_region"] = this.selected_facets.adm_region || [];
+      body["author"] = this.selected_facets.author || [];
+      body["country"] = this.selected_facets.country || [];
+      body["corpus"] = this.selected_facets.corpus || [];
+      body["major_doc_type"] = this.selected_facets.major_doc_type || [];
+      body["geo_region"] = this.selected_facets.geo_region || [];
+      body["topics_src"] = this.selected_facets.topics_src || [];
+
       return body;
     },
     searchParams() {
@@ -409,11 +425,22 @@ export default {
       curr_size: this.$config.pagination.size,
       num_pages: 0,
       next_override: false,
+
       query: "",
       from_result: 0,
       hits: [],
       highlights: [],
+
       facets: null,
+      selected_facets: {},
+      // author: [],
+      // country: [],
+      // corpus: [],
+      // major_doc_type: [],
+      // adm_region: [],
+      // geo_region: [],
+      // topics_src: [],
+
       match_stats: [],
       total: Object,
       errored: false,
@@ -424,6 +451,26 @@ export default {
     };
   },
   methods: {
+    setFilters(event) {
+      this.max_year = event.max_year;
+      this.min_year = event.min_year;
+
+      // this.adm_region = event.adm_region;
+      // this.author = event.author;
+      // this.country = event.country;
+      // this.corpus = event.corpus;
+      // this.major_doc_type = event.major_doc_type;
+      // this.geo_region = event.geo_region;
+      // this.topics_src = event.topics_src;
+
+      this.selected_facets.adm_region = event.adm_region;
+      this.selected_facets.author = event.author;
+      this.selected_facets.country = event.country;
+      this.selected_facets.corpus = event.corpus;
+      this.selected_facets.major_doc_type = event.major_doc_type;
+      this.selected_facets.geo_region = event.geo_region;
+      this.selected_facets.topics_src = event.topics_src;
+    },
     fileUpload(event) {
       this.uploaded_file = event.target.files[0];
       this.query_cache = this.query;
@@ -512,8 +559,8 @@ export default {
         },
       });
     },
-    sendKeywordSearch: function (from = 0) {
-      if (!this.query) {
+    sendKeywordSearch: function (from = 0, ignore_empty_query = false) {
+      if (!this.query && !ignore_empty_query) {
         return;
       }
       if (from > this.total.value) {
@@ -550,6 +597,8 @@ export default {
         .finally(() => (this.loading = false));
     },
     sendSemanticSearch: function (from = 0) {
+      this.facets = null;
+      this.selected_facets = {};
       if (!this.query) {
         return;
       }
@@ -652,8 +701,13 @@ export default {
             }
             this.sendSearch(page_num);
           }
+        } else {
+          this.matchAllSearch();
         }
       }
+    },
+    matchAllSearch() {
+      this.sendKeywordSearch(0, true);
     },
   },
   watch: {

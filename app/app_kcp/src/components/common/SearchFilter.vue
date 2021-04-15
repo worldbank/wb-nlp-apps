@@ -1,0 +1,229 @@
+<template>
+  <div>
+    <div
+      id="filter-by-access"
+      class="sidebar-filter wb-ihsn-sidebar-filter filter-by-year filter-box"
+    >
+      <h6 class="togglable">
+        <i class="fa fa-search pr-2"></i>Filter by Year
+        <!-- {{ min_year }} - {{ max_year }} -->
+      </h6>
+      <div class="sidebar-filter-entries">
+        <input type="hidden" />
+        <!-- <p class="mt-3 mb-2">Show studies conducted between</p> -->
+        <div class="form-group">
+          <p class="mt-3 mb-2">from</p>
+
+          <select name="from" id="from" v-model="min_year" class="form-control">
+            <option
+              v-for="year_offset in 131"
+              :key="'from-' + (2022 - year_offset)"
+              :value="2022 - year_offset"
+            >
+              {{ 2022 - year_offset }}
+            </option>
+            <option value="1890" selected>1890</option>
+          </select>
+        </div>
+        <!-- <p class="mt-3 mb-2">and</p> -->
+        <div class="form-group">
+          <p class="mt-3 mb-2">to</p>
+
+          <select name="to" id="to" v-model="max_year" class="form-control">
+            <option
+              v-for="year_offset in 132"
+              :key="'to-' + (2022 - year_offset)"
+              :value="2022 - year_offset"
+            >
+              {{ 2022 - year_offset }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
+      <h6 v-b-toggle.country-collapse>
+        <i class="fa fa-filter pr-2"></i> Country
+      </h6>
+      <b-collapse id="country-collapse">
+        <b-card>
+          <b-form-group v-slot="{ ariaDescribedby }">
+            <b-form-checkbox-group
+              v-model="country"
+              :options="getFacetOptions('country')"
+              :aria-describedby="ariaDescribedby"
+              name="country"
+              stacked
+            ></b-form-checkbox-group>
+          </b-form-group>
+        </b-card>
+      </b-collapse>
+    </div>
+
+    <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
+      <h6 v-b-toggle.major_doc_type-collapse>
+        <i class="fa fa-filter pr-2"></i> Document type
+      </h6>
+      <b-collapse id="major_doc_type-collapse">
+        <b-card>
+          <b-form-group v-slot="{ ariaDescribedby }">
+            <b-form-checkbox-group
+              v-model="major_doc_type"
+              :options="getFacetOptions('major_doc_type')"
+              :aria-describedby="ariaDescribedby"
+              name="major_doc_type"
+              stacked
+            ></b-form-checkbox-group>
+          </b-form-group>
+        </b-card>
+      </b-collapse>
+    </div>
+
+    <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
+      <h6 v-b-toggle.adm_region-collapse>
+        <i class="fa fa-filter pr-2"></i> Admin region
+      </h6>
+      <b-collapse id="adm_region-collapse">
+        <b-card>
+          <b-form-group v-slot="{ ariaDescribedby }">
+            <b-form-checkbox-group
+              v-model="adm_region"
+              :options="getFacetOptions('adm_region')"
+              :aria-describedby="ariaDescribedby"
+              name="adm_region"
+              stacked
+            ></b-form-checkbox-group>
+          </b-form-group>
+        </b-card>
+      </b-collapse>
+    </div>
+
+    <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
+      <h6 v-b-toggle.geo_region-collapse>
+        <i class="fa fa-filter pr-2"></i> Geographic region
+      </h6>
+      <b-collapse id="geo_region-collapse">
+        <b-card>
+          <b-form-group v-slot="{ ariaDescribedby }">
+            <b-form-checkbox-group
+              v-model="geo_region"
+              :options="getFacetOptions('geo_region')"
+              :aria-describedby="ariaDescribedby"
+              name="geo_region"
+              stacked
+            ></b-form-checkbox-group>
+          </b-form-group>
+        </b-card>
+      </b-collapse>
+    </div>
+
+    <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
+      <h6 v-b-toggle.topics_src-collapse>
+        <i class="fa fa-filter pr-2"></i> Topics
+      </h6>
+      <b-collapse id="topics_src-collapse">
+        <b-card>
+          <b-form-group v-slot="{ ariaDescribedby }">
+            <b-form-checkbox-group
+              v-model="topics_src"
+              :options="getFacetOptions('topics_src')"
+              :aria-describedby="ariaDescribedby"
+              name="topics_src"
+              stacked
+            ></b-form-checkbox-group>
+          </b-form-group>
+        </b-card>
+      </b-collapse>
+    </div>
+
+    <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
+      <h6 v-b-toggle.corpus-collapse>
+        <i class="fa fa-filter pr-2"></i> Corpus
+      </h6>
+      <b-collapse id="corpus-collapse">
+        <b-card>
+          <b-form-group v-slot="{ ariaDescribedby }">
+            <b-form-checkbox-group
+              v-model="corpus"
+              :options="getFacetOptions('corpus')"
+              :aria-describedby="ariaDescribedby"
+              name="corpus"
+              stacked
+            ></b-form-checkbox-group>
+          </b-form-group>
+        </b-card>
+      </b-collapse>
+    </div>
+
+    <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
+      <h6 v-b-toggle.author-collapse>
+        <i class="fa fa-filter pr-2"></i> Author
+      </h6>
+      <b-collapse id="author-collapse">
+        <b-card>
+          <b-form-group v-slot="{ ariaDescribedby }">
+            <b-form-checkbox-group
+              v-model="author"
+              :options="getFacetOptions('author')"
+              :aria-describedby="ariaDescribedby"
+              name="author"
+              stacked
+            ></b-form-checkbox-group>
+          </b-form-group>
+        </b-card>
+      </b-collapse>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "SearchFilter",
+  props: {
+    facets: {
+      type: Object,
+      default: function () {
+        return {};
+      },
+    },
+  },
+  mounted() {
+    window.sf = this;
+  },
+  methods: {
+    getFacetOptions(facet_name) {
+      return this.facets["_filter_" + facet_name][facet_name].buckets.map(
+        (o) => {
+          return {
+            text: o["key"] + "(" + o["doc_count"] + ")",
+            value: o["key"],
+          };
+        }
+      );
+    },
+  },
+  data() {
+    return {
+      min_year: null,
+      max_year: null,
+      author: [],
+      country: [],
+      corpus: [],
+      major_doc_type: [],
+      adm_region: [],
+      geo_region: [],
+      topics_src: [],
+    };
+  },
+  watch: {
+    $data: {
+      deep: true,
+
+      handler() {
+        this.$emit("filterChanged", this.$data);
+      },
+    },
+  },
+};
+</script>
