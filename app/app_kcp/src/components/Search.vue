@@ -364,18 +364,7 @@ export default {
       };
       return body;
     },
-    keywordSearchBody() {
-      const body = {};
-      body["adm_region"] = this.selected_facets.adm_region || [];
-      body["author"] = this.selected_facets.author || [];
-      body["country"] = this.selected_facets.country || [];
-      body["corpus"] = this.selected_facets.corpus || [];
-      body["major_doc_type"] = this.selected_facets.major_doc_type || [];
-      body["geo_region"] = this.selected_facets.geo_region || [];
-      body["topics_src"] = this.selected_facets.topics_src || [];
 
-      return body;
-    },
     searchParams() {
       const params = new URLSearchParams();
       params.append("model_id", this.$config.default_model.word2vec.model_id);
@@ -451,6 +440,18 @@ export default {
     };
   },
   methods: {
+    keywordSearchBody() {
+      const body = {};
+      body["adm_region"] = this.selected_facets.adm_region;
+      body["author"] = this.selected_facets.author;
+      body["country"] = this.selected_facets.country;
+      body["corpus"] = this.selected_facets.corpus;
+      body["major_doc_type"] = this.selected_facets.major_doc_type;
+      body["geo_region"] = this.selected_facets.geo_region;
+      body["topics_src"] = this.selected_facets.topics_src;
+
+      return body;
+    },
     setFilters(event) {
       this.max_year = event.max_year;
       this.min_year = event.min_year;
@@ -575,7 +576,7 @@ export default {
       this.loading = true;
 
       this.$http
-        .post(this.keyword_search_api_url, this.keywordSearchBody, {
+        .post(this.keyword_search_api_url, this.keywordSearchBody(), {
           params: this.searchParams,
         })
         .then((response) => {
