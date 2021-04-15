@@ -105,7 +105,7 @@ class NLPDocFacetedSearch(FacetedSearch):
         'adm_region': TermsFacet(field='adm_region'),
         'geo_region': TermsFacet(field='geo_region'),
         'topics_src': TermsFacet(field='topics_src'),
-        # 'publishing_frequency': DateHistogramFacet(field='date_published', interval='year')
+        'year': DateHistogramFacet(field='date_published', calendar_interval='year')
     }
 
     def search(self):

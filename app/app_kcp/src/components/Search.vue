@@ -470,6 +470,8 @@ export default {
       this.selected_facets.major_doc_type = event.major_doc_type;
       this.selected_facets.geo_region = event.geo_region;
       this.selected_facets.topics_src = event.topics_src;
+
+      this.defaultKeywordSearch();
     },
     fileUpload(event) {
       this.uploaded_file = event.target.files[0];
@@ -560,8 +562,10 @@ export default {
       });
     },
     sendKeywordSearch: function (from = 0, ignore_empty_query = false) {
-      if (!this.query && !ignore_empty_query) {
-        return;
+      if (!this.query) {
+        if (!ignore_empty_query) {
+          return;
+        }
       }
       if (from > this.total.value) {
         return;
@@ -702,11 +706,11 @@ export default {
             this.sendSearch(page_num);
           }
         } else {
-          this.matchAllSearch();
+          this.defaultKeywordSearch();
         }
       }
     },
-    matchAllSearch() {
+    defaultKeywordSearch() {
       this.sendKeywordSearch(0, true);
     },
   },
