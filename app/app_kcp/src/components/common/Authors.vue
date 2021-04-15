@@ -21,11 +21,13 @@
       <a
         :href="'https://orcid.org/orcid-search/search?searchQuery=' + author"
         target="_blank"
+        title="ORCID"
         ><img class="a-icon" src="/static/files/orcid_128x128.png"
       /></a>
       <a
         :href="'https://scholar.google.com/scholar?q=' + author"
         target="_blank"
+        title="Google Scholar"
         ><img class="a-icon" src="/static/files/google-scholar.png"
       /></a>
       <a
@@ -33,6 +35,7 @@
           'https://www.semanticscholar.org/search?sort=relevance&q=' + author
         "
         target="_blank"
+        title="Semantic Scholar"
         ><img
           class="a-icon a-icon-last"
           src="/static/files/ss-mstile-150x150.png"
