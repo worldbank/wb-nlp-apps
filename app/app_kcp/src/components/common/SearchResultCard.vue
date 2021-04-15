@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="document-row" data-url="#" title="View study">
+    <div class="document-row" data-url="#">
       <div class="row">
         <div class="col-3 col-lg-3">
           <img
