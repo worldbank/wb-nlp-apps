@@ -40,6 +40,7 @@ from wb_nlp.utils.scripts import (
     get_cleaner,
 )
 from wb_nlp import live_cache
+from wb_nlp.cleaning import stopwords
 
 
 def read_text_file(fname):
@@ -948,6 +949,7 @@ class BaseModel:
 
     def get_similar_words(self, document, topn=10, serialize=False, metric="cosine_similarity"):
 
+        buffer_topn = 2 * topn
         doc_vec = self.get_doc_vec(
             document, normalize=True, assert_success=True, flatten=False)
 
@@ -956,17 +958,26 @@ class BaseModel:
 
         if cosine_similarity.__name__ == metric:
             sim = cosine_similarity(doc_vec, self.word_vectors).flatten()
-            argidx = sim.argsort()[-topn:][::-1]
+            argidx = sim.argsort()[-buffer_topn:][::-1]
         elif euclidean_distances.__name__ == metric:
             sim = euclidean_distances(doc_vec, self.word_vectors).flatten()
-            argidx = sim.argsort()[:topn]
+            argidx = sim.argsort()[:buffer_topn]
         else:
             raise ValueError(f"Unknow metric: `{metric}")
 
         payload = []
-        for rank, top_sim_ix in enumerate(argidx, 1):
-            payload.append({"id": int(top_sim_ix), 'word': self.index2word[top_sim_ix], 'score': float(np.round(
+        rank = 1
+        for ix, top_sim_ix in enumerate(argidx, 1):
+            word = self.index2word[top_sim_ix]
+            if word in stopwords.noise_words:
+                continue
+
+            payload.append({"id": int(top_sim_ix), 'word': word, 'score': float(np.round(
                 sim[top_sim_ix], decimals=5)), 'rank': rank})
+
+            rank += 1
+            if rank > topn:
+                break
 
         payload = sorted(payload, key=lambda x: x['rank'])
         if serialize:
@@ -1017,22 +1028,31 @@ class BaseModel:
 
     def get_similar_words_by_doc_id(self, doc_id, topn=10, serialize=False, metric="cosine_similarity"):
         self.check_wvecs()
+        buffer_topn = 2 * topn
 
         doc_vec = self.get_milvus_doc_vector_by_doc_id(doc_id).reshape(1, -1)
 
         if cosine_similarity.__name__ == metric:
             sim = cosine_similarity(doc_vec, self.word_vectors).flatten()
-            argidx = sim.argsort()[-topn:][::-1]
+            argidx = sim.argsort()[-buffer_topn:][::-1]
         elif euclidean_distances.__name__ == metric:
             sim = euclidean_distances(doc_vec, self.word_vectors).flatten()
-            argidx = sim.argsort()[:topn]
+            argidx = sim.argsort()[:buffer_topn]
         else:
             raise ValueError(f"Unknow metric: `{metric}")
 
         payload = []
-        for rank, top_sim_ix in enumerate(argidx, 1):
-            payload.append({'word': self.index2word[top_sim_ix], 'score': float(np.round(
+        rank = 1
+        for ix, top_sim_ix in enumerate(argidx, 1):
+            word = self.index2word[top_sim_ix]
+            if word in stopwords.noise_words:
+                continue
+            payload.append({'word': word, 'score': float(np.round(
                 sim[top_sim_ix], decimals=5)), 'rank': rank})
+
+            rank += 1
+            if rank > topn:
+                break
 
         payload = sorted(payload, key=lambda x: x['rank'])
         if serialize:
