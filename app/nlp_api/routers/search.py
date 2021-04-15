@@ -1,5 +1,6 @@
 '''This router contains the implementation for the cleaning API.
 '''
+from datetime import datetime
 from typing import List
 from fastapi import APIRouter, UploadFile, File, Form
 from pydantic import HttpUrl
@@ -25,6 +26,8 @@ router = APIRouter(
 @ router.post("/keyword")
 async def keyword_search(
     query: str,
+    min_year: int = None,
+    max_year: int = None,
     author: List[str] = None,
     country: List[str] = None,
     corpus: List[str] = None,
@@ -44,7 +47,7 @@ async def keyword_search(
     query = payload["query"]
     translated = payload["translated"]
 
-    fs = elasticsearch.NLPDocFacetedSearch(query=query, filters=dict(
+    filters = dict(
         author=author,
         country=country,
         corpus=corpus,
@@ -52,7 +55,13 @@ async def keyword_search(
         adm_region=adm_region,
         geo_region=geo_region,
         topics_src=topics_src,
-    ))
+    )
+
+    if min_year and max_year:
+        filters["year"] = [datetime(y, 1, 1)
+                           for y in range(min_year, max_year + 1)]
+
+    fs = elasticsearch.NLPDocFacetedSearch(query=query, filters=filters)
 
     response = fs[from_result: from_result + size].execute()
 
@@ -65,16 +74,18 @@ async def keyword_search(
     facets = response.aggregations.to_dict()
 
     for ix, h in enumerate(response, 1):
+        highlight = {}
         hits.append(h.to_dict())
         result.append(dict(id=h.meta.id, rank=ix +
                       from_result, score=h.meta.score))
         try:
-            highlight = h.meta.highlight
-            highlight["id"] = h.meta.id
+            highlight = h.meta.highlight.to_dict()
         except AttributeError:
             # 'HitMeta' object has no attribute 'highlight'
             highlight["body"] = []
-        highlights.append(highlight.to_dict())
+
+        highlight["id"] = h.meta.id
+        highlights.append(highlight)
 
     return dict(
         total=total,
