@@ -106,4 +106,5 @@ dependencies:
     - uvloop==0.15.2
     - wasabi==0.8.0
     - wordninja==2.0.0
+    - xlrd
     - zict==2.0.0
