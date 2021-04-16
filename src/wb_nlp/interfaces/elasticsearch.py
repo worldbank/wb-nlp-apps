@@ -239,7 +239,7 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt
 
     for ix, data in enumerate(docs_metadata):
         doc_path = root_path / data["path_original"]
-        en_doc_path = doc_path.parent / "EN_TXT_ORIG" / doc_path.name
+        en_doc_path = doc_path.parent.parent / "EN_TXT_ORIG" / doc_path.name
 
         if ix and ix % 10000 == 0:
             print(ix)

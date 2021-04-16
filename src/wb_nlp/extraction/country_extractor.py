@@ -56,4 +56,8 @@ def get_country_counts(txt):
         replaced = replace_countries(txt)
     except IndexError:
         return None
-    return Counter([i.split('$')[-1].strip() for i in replaced.split() if i.startswith(anchor_code)])
+    counts = Counter([i.split('$')[-1].strip()
+                     for i in replaced.split() if i.startswith(anchor_code)])
+    counts = dict(counts.most_common())
+
+    return counts
