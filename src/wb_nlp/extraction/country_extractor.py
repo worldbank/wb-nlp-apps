@@ -1,9 +1,30 @@
 import re
 from collections import Counter
-from wb_nlp.extraction.whitelist import mappings
 
+import pandas as pd
 from flashtext import KeywordProcessor
+
+from wb_nlp.extraction.whitelist import mappings
+from wb_nlp.dir_manager import get_data_dir
 country_code_processor = KeywordProcessor()
+country_group_processor = KeywordProcessor()
+
+
+def get_normalized_country_group_name(code):
+    return [
+        code,
+        code.lower(),
+        code.replace("+", " "),
+        code.replace("_", " "),
+    ]
+
+
+country_groups_map = pd.read_excel(
+    get_data_dir("whitelists", "countries", "codelist.xlsx"),
+    sheet_name="groups", header=1, index_col=0).apply(lambda col_ser: col_ser.dropna().index.tolist(), axis=0).to_dict()
+
+country_group_processor.add_keywords_from_dict(
+    {k: get_normalized_country_group_name(k) for k in country_groups_map})
 
 mapping = mappings.get_countries_mapping()
 country_map = {}
@@ -19,6 +40,10 @@ for cname, normed in mapping.items():
         country_map[code] = [cname]
 
 country_code_processor.add_keywords_from_dict(country_map)
+
+
+def replace_country_group_names(txt):
+    return country_group_processor.replace_keywords(txt)
 
 
 def replace_countries(txt):

@@ -9,6 +9,7 @@ from wb_nlp.interfaces import elasticsearch
 from wb_nlp.types.models import (
     ModelTypes
 )
+from wb_nlp.extraction import country_extractor
 from ..common.utils import (
     get_validated_model, read_uploaded_file,
     read_url_file, clean_text, check_translate_keywords
@@ -42,6 +43,12 @@ async def keyword_search(
     '''
     # response = elasticsearch.text_search(
     #     query, from_result=from_result, size=size)
+    country_groups = set()
+    query_tokens = country_extractor.replace_country_group_names(query).split()
+    for token in query_tokens:
+        country_groups.update(
+            country_extractor.country_groups_map.get(token, []))
+    country_groups = sorted(country_groups)
 
     payload = check_translate_keywords(query)
     query = payload["query"]
@@ -49,7 +56,7 @@ async def keyword_search(
 
     filters = dict(
         author=author,
-        country=country,
+        country=country + country_groups,
         corpus=corpus,
         major_doc_type=major_doc_type,
         adm_region=adm_region,
