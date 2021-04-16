@@ -206,6 +206,7 @@
 
           <SearchFilter
             v-if="facets"
+            :filters="selected_facets"
             :facets="facets"
             @filterChanged="setFilters"
           />
@@ -266,13 +267,18 @@
                 </div>
               </div>
             </div>
-            <div v-if="min_year && max_year" class="active-filters-container">
+            <div
+              v-if="!isSelectedFacetsEmpty()"
+              class="active-filters-container"
+            >
               <div class="active-filters">
                 <span
+                  v-if="selected_facets.min_year && selected_facets.max_year"
                   class="badge badge-default wb-badge-close remove-filter years"
                   data-type="years"
                   data-value="0"
-                  >between {{ min_year }}-{{ max_year
+                  >between {{ selected_facets.min_year }}-{{
+                    selected_facets.max_year
                   }}<i @click="resetYears" class="fa fa-close"></i
                 ></span>
 
@@ -370,9 +376,11 @@ export default {
       const params = new URLSearchParams();
       params.append("model_id", this.$config.default_model.word2vec.model_id);
       params.append("query", this.query);
-      if (this.min_year && this.max_year) {
-        params.append("min_year", this.min_year);
-        params.append("max_year", this.max_year);
+      if (this.selected_facets.min_year) {
+        params.append("min_year", this.selected_facets.min_year);
+      }
+      if (this.selected_facets.max_year) {
+        params.append("max_year", this.selected_facets.max_year);
       }
       params.append("from_result", this.from_result);
       params.append("size", this.curr_size);
@@ -399,8 +407,8 @@ export default {
   },
   data: function () {
     return {
-      min_year: null,
-      max_year: null,
+      // min_year: null,
+      // max_year: null,
       search_type: "keyword",
       keyword_search_api_url: this.$config.search_url.keyword,
       semantic_search_api_url: this.$config.search_url.semantic,
@@ -446,13 +454,24 @@ export default {
   },
   methods: {
     resetYears() {
-      this.max_year = null;
-      this.min_year = null;
+      // this.max_year = null;
+      // this.min_year = null;
+      this.selected_facets.min_year = null;
+      this.selected_facets.max_year = null;
+
       this.defaultKeywordSearch();
     },
     resetFilters() {
-      this.resetYears();
+      var selected_facets = this.selected_facets;
+      Object.keys(selected_facets).forEach((k) => (selected_facets[k] = null));
+      // this.resetYears();
+      this.selected_facets = selected_facets;
       this.defaultKeywordSearch();
+    },
+    isSelectedFacetsEmpty() {
+      return Object.values(this.selected_facets).every(
+        (value) => (value || []).length === 0
+      );
     },
     keywordSearchBody() {
       const body = {};
@@ -467,8 +486,11 @@ export default {
       return body;
     },
     setFilters(event) {
-      this.max_year = event.max_year;
-      this.min_year = event.min_year;
+      // this.max_year = event.max_year;
+      // this.min_year = event.min_year;
+
+      this.selected_facets.min_year = event.min_year;
+      this.selected_facets.max_year = event.max_year;
 
       // this.adm_region = event.adm_region;
       // this.author = event.author;
@@ -597,6 +619,7 @@ export default {
           this.hits = response.data.hits;
           this.highlights = response.data.highlights;
           this.facets = response.data.facets;
+          this.selected_facets = response.data.filters;
           this.match_stats = response.data.result;
           this.total = response.data.total;
           this.next = this.curr_page_num + 1;

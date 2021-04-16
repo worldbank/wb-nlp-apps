@@ -47,7 +47,7 @@
         <i class="fa fa-filter pr-2"></i> Country
       </h6>
       <b-collapse id="country-collapse">
-        <b-card>
+        <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               v-model="country"
@@ -66,7 +66,7 @@
         <i class="fa fa-filter pr-2"></i> Document type
       </h6>
       <b-collapse id="major_doc_type-collapse">
-        <b-card>
+        <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               v-model="major_doc_type"
@@ -85,7 +85,7 @@
         <i class="fa fa-filter pr-2"></i> Admin region
       </h6>
       <b-collapse id="adm_region-collapse">
-        <b-card>
+        <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               v-model="adm_region"
@@ -104,7 +104,7 @@
         <i class="fa fa-filter pr-2"></i> Geographic region
       </h6>
       <b-collapse id="geo_region-collapse">
-        <b-card>
+        <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               v-model="geo_region"
@@ -123,7 +123,7 @@
         <i class="fa fa-filter pr-2"></i> Topics
       </h6>
       <b-collapse id="topics_src-collapse">
-        <b-card>
+        <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               v-model="topics_src"
@@ -142,7 +142,7 @@
         <i class="fa fa-filter pr-2"></i> Corpus
       </h6>
       <b-collapse id="corpus-collapse">
-        <b-card>
+        <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               v-model="corpus"
@@ -161,7 +161,7 @@
         <i class="fa fa-filter pr-2"></i> Author
       </h6>
       <b-collapse id="author-collapse">
-        <b-card>
+        <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               v-model="author"
@@ -181,6 +181,12 @@
 export default {
   name: "SearchFilter",
   props: {
+    filters: {
+      type: Object,
+      default: function () {
+        return {};
+      },
+    },
     facets: {
       type: Object,
       default: function () {
@@ -192,6 +198,18 @@ export default {
     window.sf = this;
   },
   methods: {
+    setSelectedFilters() {
+      this.min_year = this.filters.min_year;
+      this.max_year = this.filters.max_year;
+      this.author = this.filters.author || [];
+
+      this.country = this.filters.country || [];
+      this.corpus = this.filters.corpus || [];
+      this.major_doc_type = this.filters.major_doc_type || [];
+      this.adm_region = this.filters.adm_region || [];
+      this.geo_region = this.filters.geo_region || [];
+      this.topics_src = this.filters.topics_src || [];
+    },
     getFacetOptions(facet_name) {
       return this.facets["_filter_" + facet_name][facet_name].buckets.map(
         (o) => {
@@ -224,6 +242,18 @@ export default {
         this.$emit("filterChanged", this.$data);
       },
     },
+    filters: {
+      deep: true,
+      handler() {
+        this.setSelectedFilters();
+      },
+    },
   },
 };
 </script>
+<style>
+.facet-options {
+  max-height: 400px;
+  overflow-y: scroll;
+}
+</style>

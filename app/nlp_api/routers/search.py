@@ -56,7 +56,7 @@ async def keyword_search(
 
     filters = dict(
         author=author,
-        country=country + country_groups,
+        country=(country or []) + country_groups,
         corpus=corpus,
         major_doc_type=major_doc_type,
         adm_region=adm_region,
@@ -64,9 +64,13 @@ async def keyword_search(
         topics_src=topics_src,
     )
 
-    if min_year and max_year:
-        filters["year"] = [datetime(y, 1, 1)
-                           for y in range(min_year, max_year + 1)]
+    if min_year:
+        if max_year:
+            filters["year"] = [datetime(y, 1, 1)
+                               for y in range(min_year, max_year + 1)]
+        else:
+            filters["year"] = [datetime(y, 1, 1)
+                               for y in range(min_year, datetime.now().year + 1)]
 
     fs = elasticsearch.NLPDocFacetedSearch(query=query, filters=filters)
 
@@ -94,6 +98,9 @@ async def keyword_search(
         highlight["id"] = h.meta.id
         highlights.append(highlight)
 
+    filters["min_year"] = min_year
+    filters["max_year"] = max_year
+
     return dict(
         total=total,
         hits=hits,
@@ -101,6 +108,7 @@ async def keyword_search(
         highlights=highlights,
         translated=translated,
         facets=facets,
+        filters=filters,
         next=from_result + size
     )
 
