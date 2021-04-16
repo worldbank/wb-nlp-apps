@@ -98,13 +98,13 @@ class NLPDocFacetedSearch(FacetedSearch):
 
     facets = {
         # use bucket aggregations to define facets
-        'author': TermsFacet(field='author'),
-        'country': TermsFacet(field='country'),
-        'corpus': TermsFacet(field='corpus'),
-        'major_doc_type': TermsFacet(field='major_doc_type'),
-        'adm_region': TermsFacet(field='adm_region'),
-        'geo_region': TermsFacet(field='geo_region'),
-        'topics_src': TermsFacet(field='topics_src'),
+        'author': TermsFacet(field='author', size=100),
+        'country': TermsFacet(field='country', size=100),
+        'corpus': TermsFacet(field='corpus', size=100),
+        'major_doc_type': TermsFacet(field='major_doc_type', size=100),
+        'adm_region': TermsFacet(field='adm_region', size=100),
+        'geo_region': TermsFacet(field='geo_region', size=100),
+        'topics_src': TermsFacet(field='topics_src', size=100),
         'year': DateHistogramFacet(field='date_published', calendar_interval='year')
     }
 
