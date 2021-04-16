@@ -61,6 +61,7 @@ dependencies:
     - networkx==2.5
     - nltk==3.5
     - numpy==1.19.4
+    - openpyxl
     - PyICU==2.6
     - packaging==20.8
     - pandas==1.2.0
