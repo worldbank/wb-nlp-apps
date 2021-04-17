@@ -33,6 +33,7 @@ class IndicatorModel:
 
         self.wvec_model = self.load_wvec_model()
         self.load_metadata_file()
+        self.create_milvus_collection()
 
     def load_metadata_file(self):
         indicator_df = pd.read_csv(self.data_file)
@@ -102,10 +103,45 @@ class IndicatorModel:
 
         return self.wvec_model
 
-    def get_similar_indicators_by_doc_id(self, doc_id):
+    def get_similar_indicators_by_doc_id(self, doc_id, topn=10, ret_cols=None):
+        # wdi ret_cols = ["id", "name", "url_data", "url_meta", "url_wb", "score", "rank"]
+        required_cols = ["id", "name", "score", "rank"]
+        if ret_cols is None:
+            ret_cols = self.indicator_df.columns
+
+        ret_cols = required_cols + \
+            [i for i in ret_cols if i not in required_cols]
+
         avec = self.wvec_model.get_milvus_doc_vector_by_doc_id(
-            doc_id).reshape(1, -1)
-        pass
+            doc_id).flatten()
+
+        results = self.search_milvus(
+            avec, topn, vector_field_name=self.milvus_vector_field_name, metric_type="IP")
+
+        entities = []
+        ids = []
+        for position, ent in enumerate(results[0], 1):
+            entities.append(
+                dict(
+                    int_id=ent.id,
+                    score=ent.distance,
+                    rank=position)
+            )
+            ids.append(ent.id)
+
+        entities = pd.DataFrame(entities)
+
+        similar_df = self.indicator_df[self.indicator_df["int_id"].isin(ids)]
+        similar_df = entities.merge(
+            self.indicator_df, how="left", on="int_id").sort_values("rank")
+
+        return similar_df[ret_cols]
+
+    def search_milvus(self, doc_vec, topn, vector_field_name, metric_type="IP"):
+
+        dsl = get_embedding_dsl(
+            doc_vec, topn, vector_field_name=vector_field_name, metric_type=metric_type)
+        return get_milvus_client().search(self.model_collection_id, dsl)
 
     def get_similar_indicators_by_vector(self, vector):
         pass
@@ -134,6 +170,7 @@ class IndicatorModel:
 if __name__ == "__main__":
     from wb_nlp.models import indicators_base
     from wb_nlp import dir_manager
+    import logging
 
     model = indicators_base.IndicatorModel(
         data_file=dir_manager.get_data_dir(
@@ -142,7 +179,7 @@ if __name__ == "__main__":
         model_config_id="702984027cfedde344961b8b9461bfd3",
         cleaning_config_id="229abf370f281efa7c9f3c4ddc20159d",
         model_run_info_id="0d63e5ae71e4f78fc427ddbec2fefc73",
-        log_level=logging.DEBUG)
+        log_level=logging.INFO)
 
 
 # wdi_df = pd.read_csv(dir_manager.get_data_dir(
