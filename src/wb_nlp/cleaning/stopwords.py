@@ -18,6 +18,11 @@ noise_words = set([
     "ovid",
     "include", "shall", "tion", "ment", "provide",
     "cator",
+    "typically", "usually", "evidently", "invariably", "oftentimes", "surprisingly", "presumably",
+    "generally", "especially", "likely", "apparently", "essentially", "largely", "notably", "consequently",
+    "finally", "furthermore", "somewhat", "fairly", "likewise", "importantly", "additionally", "specifically",
+    "typically", "addition",
+    "instance", "similarly", "lastly",
 ])
 
 # https://www.ranks.nl/stopwords

@@ -16,7 +16,7 @@ import umap
 # from wb_nlp.graph.graph_interface import FixedInterGraph
 
 from wb_nlp.types.models import Word2VecModelConfig, ModelTypes
-
+from wb_nlp.cleaning import stopwords
 from wb_nlp.models.base import BaseModel
 from wb_nlp.utils.scripts import (
     configure_logger,
@@ -83,7 +83,8 @@ class Word2VecModel(BaseModel):
         document = document.lower()
 
         try:
-            tokens = [i for i in document.split() if i in self.model.wv.vocab]
+            tokens = [i for i in document.split() if (
+                i in self.model.wv.vocab) and (i not in stopwords.noise_words)]
             word_vecs = self.model.wv[tokens]
             doc_vec = self.combine_word_vectors(word_vecs)
 
