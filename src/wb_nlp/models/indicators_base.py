@@ -104,7 +104,25 @@ class IndicatorModel:
         return self.wvec_model
 
     def get_similar_indicators_by_doc_id(self, doc_id, topn=10, ret_cols=None):
+        avec = self.wvec_model.get_milvus_doc_vector_by_doc_id(
+            doc_id).flatten()
+
+        return self.get_similar_indicators_by_vector(vector=avec, topn=topn, ret_cols=ret_cols)
+
+    def search_milvus(self, doc_vec, topn, vector_field_name, metric_type="IP"):
+
+        dsl = get_embedding_dsl(
+            doc_vec, topn, vector_field_name=vector_field_name, metric_type=metric_type)
+        return get_milvus_client().search(self.model_collection_id, dsl)
+
+    def get_similar_indicators_by_document(self, document, topn=10, ret_cols=None):
+        result = self.wvec_model.process_doc(document, normalize=True)
+        return self.get_similar_indicators_by_vector(result["doc_vec"], topn=topn, ret_cols=ret_cols)
+
+    def get_similar_indicators_by_vector(self, vector, topn=10, ret_cols=None):
         # wdi ret_cols = ["id", "name", "url_data", "url_meta", "url_wb", "score", "rank"]
+        vector = vector.flatten()
+
         required_cols = ["id", "name", "score", "rank"]
         if ret_cols is None:
             ret_cols = self.indicator_df.columns
@@ -112,11 +130,8 @@ class IndicatorModel:
         ret_cols = required_cols + \
             [i for i in ret_cols if i not in required_cols]
 
-        avec = self.wvec_model.get_milvus_doc_vector_by_doc_id(
-            doc_id).flatten()
-
         results = self.search_milvus(
-            avec, topn, vector_field_name=self.milvus_vector_field_name, metric_type="IP")
+            vector, topn, vector_field_name=self.milvus_vector_field_name, metric_type="IP")
 
         entities = []
         ids = []
@@ -136,15 +151,6 @@ class IndicatorModel:
             self.indicator_df, how="left", on="int_id").sort_values("rank")
 
         return similar_df[ret_cols]
-
-    def search_milvus(self, doc_vec, topn, vector_field_name, metric_type="IP"):
-
-        dsl = get_embedding_dsl(
-            doc_vec, topn, vector_field_name=vector_field_name, metric_type=metric_type)
-        return get_milvus_client().search(self.model_collection_id, dsl)
-
-    def get_similar_indicators_by_vector(self, vector):
-        pass
 
     def create_milvus_collection(self):
         self.milvus_vector_field_name = "embedding"
