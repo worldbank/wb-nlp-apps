@@ -101,7 +101,7 @@ export default {
   width: 100%;
   padding: 0px 20px;
   margin: 3px;
-  height: 380px;
+  height: 400px;
   background: #ffffff;
   /* background: #f3f3f3; */
   border: 2px solid #ebebeb;
