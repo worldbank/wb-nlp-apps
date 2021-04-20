@@ -4,12 +4,12 @@ from wb_nlp.models.indicators_base import IndicatorModel
 from wb_nlp import dir_manager
 
 
-class WDIModel(IndicatorModel):
+class SDGModel(IndicatorModel):
     def __init__(
             self,
             data_file=dir_manager.get_data_dir(
-                "preprocessed", "timeseries", "wdi_time_series_metadata.csv"),
-            indicator_code="wdi",
+                "preprocessed", "timeseries", "sdg", "sdg_time_series_metadata_merged_data.csv"),
+            indicator_code="sdg",
             model_config_id=None, cleaning_config_id=None,
             model_run_info_id=None, log_level=logging.WARNING):
         super().__init__(

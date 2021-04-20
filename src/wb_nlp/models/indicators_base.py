@@ -45,7 +45,7 @@ class IndicatorModel:
 
         self.indicator_df = indicator_df
 
-    def generate_vectors(self):
+    def build_indicator_vectors(self):
         milvus_client = get_milvus_client()
         collection_name = self.model_collection_id
 
@@ -103,11 +103,12 @@ class IndicatorModel:
 
         return self.wvec_model
 
-    def get_similar_indicators_by_doc_id(self, doc_id, topn=10, ret_cols=None):
+    def get_similar_indicators_by_doc_id(self, doc_id, topn=10, ret_cols=None, as_records=True):
         avec = self.wvec_model.get_milvus_doc_vector_by_doc_id(
             doc_id).flatten()
 
-        return self.get_similar_indicators_by_vector(vector=avec, topn=topn, ret_cols=ret_cols)
+        df = self.get_similar_indicators_by_vector(
+            vector=avec, topn=topn, ret_cols=ret_cols, as_records=as_records)
 
     def search_milvus(self, doc_vec, topn, vector_field_name, metric_type="IP"):
 
@@ -115,11 +116,12 @@ class IndicatorModel:
             doc_vec, topn, vector_field_name=vector_field_name, metric_type=metric_type)
         return get_milvus_client().search(self.model_collection_id, dsl)
 
-    def get_similar_indicators_by_document(self, document, topn=10, ret_cols=None):
-        result = self.wvec_model.process_doc(document, normalize=True)
-        return self.get_similar_indicators_by_vector(result["doc_vec"], topn=topn, ret_cols=ret_cols)
+    def get_similar_indicators_by_document(self, document, topn=10, ret_cols=None, as_records=True):
+        result = self.wvec_model.process_doc(
+            {"text": document}, normalize=True)
+        return self.get_similar_indicators_by_vector(result["doc_vec"], topn=topn, ret_cols=ret_cols, as_records=as_records)
 
-    def get_similar_indicators_by_vector(self, vector, topn=10, ret_cols=None):
+    def get_similar_indicators_by_vector(self, vector, topn=10, ret_cols=None, as_records=True):
         # wdi ret_cols = ["id", "name", "url_data", "url_meta", "url_wb", "score", "rank"]
         vector = vector.flatten()
 
@@ -150,7 +152,12 @@ class IndicatorModel:
         similar_df = entities.merge(
             self.indicator_df, how="left", on="int_id").sort_values("rank")
 
-        return similar_df[ret_cols]
+        sim_data = similar_df[ret_cols]
+
+        if as_records:
+            sim_data = sim_data.to_dict("records")
+
+        return sim_data
 
     def create_milvus_collection(self):
         self.milvus_vector_field_name = "embedding"
