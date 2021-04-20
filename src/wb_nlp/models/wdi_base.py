@@ -11,13 +11,14 @@ class WDIModel(IndicatorModel):
                 "preprocessed", "timeseries", "wdi_time_series_metadata.csv"),
             indicator_code="wdi",
             model_config_id=None, cleaning_config_id=None,
-            model_run_info_id=None, log_level=logging.WARNING):
+            model_run_info_id=None, wvec_model=None, log_level=logging.WARNING):
         super().__init__(
             data_file=data_file,
             indicator_code=indicator_code,
             model_config_id=model_config_id,
             cleaning_config_id=cleaning_config_id,
             model_run_info_id=model_run_info_id,
+            wvec_model=wvec_model,
             log_level=log_level,
         )
 

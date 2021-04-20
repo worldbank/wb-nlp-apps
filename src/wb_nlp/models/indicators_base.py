@@ -15,7 +15,7 @@ from wb_nlp.models import word2vec_base
 
 
 class IndicatorModel:
-    def __init__(self, data_file, indicator_code, model_config_id, cleaning_config_id, model_run_info_id, log_level=logging.WARNING):
+    def __init__(self, data_file, indicator_code, model_config_id, cleaning_config_id, model_run_info_id, wvec_model=None, log_level=logging.WARNING):
         """
         Input
         =====
@@ -31,7 +31,10 @@ class IndicatorModel:
 
         self.model_collection_id = f"indicator_{model_run_info_id}_{indicator_code}"
 
-        self.wvec_model = self.load_wvec_model()
+        if wvec_model is None:
+            wvec_model = self.load_wvec_model()
+        self.wvec_model = wvec_model
+
         self.load_metadata_file()
         self.create_milvus_collection()
 
@@ -59,6 +62,9 @@ class IndicatorModel:
 
         docs_for_processing = docs_metadata_df[
             ~docs_metadata_df['int_id'].isin(collection_doc_ids)]
+
+        if docs_for_processing.empty:
+            return
 
         docs_for_processing["text"] = docs_for_processing["txt_meta"].map(
             self.wvec_model.clean_text)
@@ -107,7 +113,7 @@ class IndicatorModel:
         avec = self.wvec_model.get_milvus_doc_vector_by_doc_id(
             doc_id).flatten()
 
-        df = self.get_similar_indicators_by_vector(
+        return self.get_similar_indicators_by_vector(
             vector=avec, topn=topn, ret_cols=ret_cols, as_records=as_records)
 
     def search_milvus(self, doc_vec, topn, vector_field_name, metric_type="IP"):
