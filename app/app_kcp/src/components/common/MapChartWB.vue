@@ -127,15 +127,16 @@ export default {
     processNormalizeCountryData() {
       var totalCount = Object.values(this.countryData).reduce((a, b) => a + b);
 
-      var processedCountryData = this.countryData;
-      Object.keys(this.countryData).forEach(
+      var processedCountryData = JSON.parse(JSON.stringify(this.countryData));
+      // var processedCountryData = this.countryData;
+      Object.keys(processedCountryData).forEach(
         (k) => (processedCountryData[k] = processedCountryData[k] / totalCount)
       );
 
-      var cnVal = this.countryData.CN || 0;
-      var inVal = this.countryData.IN || 0;
-      var sdudVal = this.countryData.SD || 0;
-      var ssudVal = this.countryData.SS || 0;
+      var cnVal = processedCountryData.CN || 0;
+      var inVal = processedCountryData.IN || 0;
+      var sdudVal = processedCountryData.SD || 0;
+      var ssudVal = processedCountryData.SS || 0;
 
       // Set values for disputed areas
       if (cnVal + inVal > 0) {
@@ -150,7 +151,9 @@ export default {
 
       processedCountryData.XXX_western_sahara = "No data";
 
-      this.processedCountryData = processedCountryData;
+      this.processedCountryData = JSON.parse(
+        JSON.stringify(processedCountryData)
+      );
     },
     getDisplayValue(code) {
       var value = this.processedCountryData[code];
@@ -162,7 +165,7 @@ export default {
         return 0;
       }
 
-      return (100 * value).toFixed(2) + "%";
+      return (100 * value).toFixed(2) + "% | Count: " + this.countryData[code];
     },
     getOrCreateNode() {
       var node = document.getElementById(this.nodeId);
@@ -208,6 +211,7 @@ export default {
     document.body.appendChild(this.$data.node);
 
     this.renderMapCSS();
+    window.mapVM = this;
   },
 };
 </script>
