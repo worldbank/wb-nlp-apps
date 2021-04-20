@@ -62,19 +62,9 @@ export default {
       results: [],
       loading: false,
       indicator_name: null,
-      // viewEvent: {
-      //   type: "",
-      //   percentInView: 0,
-      //   percentTop: 0,
-      //   percentCenter: 0,
-      // },
     };
   },
   methods: {
-    // viewHandler(e) {
-    //   if (e.type === "exit") return;
-    //   Object.assign(this.viewEvent, e);
-    // },
     getIndicatorName(result) {
       if (result.url_wb) {
         var name = result.url_wb.split("/");
@@ -101,14 +91,6 @@ export default {
 };
 </script>
 <style scoped>
-.sdg-group {
-  margin-top: 20px !important;
-  margin-bottom: 75px !important;
-}
-.sdg-frame {
-  box-sizing: content-box;
-}
-
 .vue-horizontal {
   /* border: 3px solid #dbdbdb; */
   border: 0px;
@@ -119,7 +101,7 @@ export default {
   width: 100%;
   padding: 0px 20px;
   margin: 3px;
-  height: 500px;
+  height: 380px;
   background: #ffffff;
   /* background: #f3f3f3; */
   border: 2px solid #ebebeb;
