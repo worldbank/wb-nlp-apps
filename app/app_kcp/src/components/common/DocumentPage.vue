@@ -154,8 +154,15 @@
                 <SimilarSDGViewer
                   render_style="horizontal"
                   :doc_id="metadata.id"
-                /></div
-            ></b-tab>
+                />
+              </div>
+              <br />
+              <br />
+              <h4>Related microdata</h4>
+              <div v-if="tabIndex == 3">
+                <SimilarMicrodataViewer :doc_id="metadata.id" />
+              </div>
+            </b-tab>
             <!-- <b-tab
               :title-item-class="itemClass(4)"
               :title-link-class="linkClass(4)"
@@ -183,6 +190,7 @@ import RelatedDocsPanel from "./RelatedDocsPanel";
 import MetadataViewer from "./MetadataViewer";
 import SimilarWDIViewer from "./SimilarWDIViewer";
 import SimilarSDGViewer from "./SimilarSDGViewer";
+import SimilarMicrodataViewer from "./SimilarMicrodataViewer";
 import Authors from "./Authors";
 import ReadMore from "vue-read-more";
 import Vue from "vue";
@@ -242,6 +250,7 @@ export default {
     SimilarWDIViewer,
     Authors,
     SimilarSDGViewer,
+    SimilarMicrodataViewer,
   },
 
   data: function () {

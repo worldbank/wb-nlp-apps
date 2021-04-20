@@ -1,39 +1,19 @@
 <template>
   <div>
-    <div v-if="results.length === 0">
-      <b-skeleton-img height="300px"></b-skeleton-img>
-    </div>
-
-    <vue-horizontal v-if="results.length > 0 && render_style === 'horizontal'">
-      <div
-        class="sdg-related-section"
-        v-for="result in results"
-        :key="'sdg_' + result.id"
-      >
-        <SDGCard :result="result" />
-      </div>
-    </vue-horizontal>
-
-    <div v-if="results.length > 0 && render_style === 'vertical'">
-      <div
-        class="sdg-related-section"
-        v-for="result in results"
-        :key="'sdg_' + result.id"
-      >
-        <SDGCard :result="result" />
-      </div>
+    <div v-for="result in results" :key="'microdata-' + result.id">
+      <p class="lead">
+        <a :href="metadataLink(result)" target="_blank">{{ result.name }}</a>
+      </p>
+      <p>{{ result.id }}</p>
+      <br />
+      <br />
     </div>
   </div>
 </template>
 <script>
-import VueHorizontal from "vue-horizontal";
-import SDGCard from "./SDGCard";
 export default {
-  components: {
-    SDGCard,
-    VueHorizontal,
-  },
-  name: "SimilarSDGViewer",
+  components: {},
+  name: "SimilarMicrodataViewer",
   props: {
     render_style: {
       default: "horizontal",
@@ -46,7 +26,7 @@ export default {
     },
   },
   mounted() {
-    this.getSimilarSDG();
+    this.getSimilarMicrodata();
   },
   computed: {
     searchParams() {
@@ -65,6 +45,11 @@ export default {
     };
   },
   methods: {
+    metadataLink(result) {
+      return (
+        "https://microdata.worldbank.org/index.php/api/catalog/" + result.id
+      );
+    },
     getIndicatorName(result) {
       if (result.url_wb) {
         var name = result.url_wb.split("/");
@@ -72,12 +57,16 @@ export default {
         return this.indicator_name;
       }
     },
-    getSimilarSDG() {
+    getSimilarMicrodata() {
       this.loading = true;
       this.$http
-        .get(this.$config.extra_url.sdg + "/get_similar_indicators_by_doc_id", {
-          params: this.searchParams,
-        })
+        .get(
+          this.$config.extra_url.microdata +
+            "/get_similar_indicators_by_doc_id",
+          {
+            params: this.searchParams,
+          }
+        )
         .then((response) => {
           this.results = response.data;
         });
@@ -85,7 +74,7 @@ export default {
   },
   watch: {
     doc_id: function () {
-      this.getSimilarSDG();
+      this.getSimilarMicrodata();
     },
   },
 };
@@ -96,7 +85,7 @@ export default {
   border: 0px;
   padding: 5px;
 }
-.sdg-related-section {
+.microdata-related-section {
   /* width: 40vh; */
   width: 100%;
   padding: 0px 20px;

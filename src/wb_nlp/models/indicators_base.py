@@ -1,6 +1,6 @@
 import logging
 from hashlib import md5
-
+from pathlib import Path
 import pandas as pd
 from milvus import DataType
 from wb_nlp.interfaces.milvus import (
@@ -39,7 +39,10 @@ class IndicatorModel:
         self.create_milvus_collection()
 
     def load_metadata_file(self):
-        indicator_df = pd.read_csv(self.data_file)
+        if self.data_file.endswith(".csv"):
+            indicator_df = pd.read_csv(self.data_file)
+        else:
+            indicator_df = pd.read_pickle(self.data_file)
 
         indicator_df["hex_id"] = indicator_df['id'].map(
             lambda x: md5(x.encode('utf-8')).hexdigest()[:15])
@@ -49,54 +52,67 @@ class IndicatorModel:
         self.indicator_df = indicator_df
 
     def build_indicator_vectors(self):
-        milvus_client = get_milvus_client()
-        collection_name = self.model_collection_id
-
-        docs_metadata_df = self.indicator_df
-
-        if collection_name not in milvus_client.list_collections():
-            milvus_client.create_collection(
-                collection_name, self.collection_params)
-
-        collection_doc_ids = set(get_collection_ids(collection_name))
-
-        docs_for_processing = docs_metadata_df[
-            ~docs_metadata_df['int_id'].isin(collection_doc_ids)]
-
-        if docs_for_processing.empty:
+        p_lock = Path(dir_manager.get_data_dir(
+            "raw", self.model_collection_id))
+        if p_lock.exists():
             return
+        else:
+            try:
+                p_lock.touch(exist_ok=False)
+            except FileExistsError:
+                return
 
-        docs_for_processing["text"] = docs_for_processing["txt_meta"].map(
-            self.wvec_model.clean_text)
+        try:
+            milvus_client = get_milvus_client()
+            collection_name = self.model_collection_id
 
-        results = self.wvec_model.process_docs(
-            docs_for_processing, normalize=True)
-        results = [(ix, p['doc_vec'].flatten())
-                   for ix, (_, p) in enumerate(results.iterrows()) if p['success']]
+            docs_metadata_df = self.indicator_df
 
-        locs, vectors = list(zip(*results))
+            if collection_name not in milvus_client.list_collections():
+                milvus_client.create_collection(
+                    collection_name, self.collection_params)
 
-        doc_int_ids = docs_for_processing.iloc[list(
-            locs)]['int_id'].tolist()
-        doc_ids = docs_for_processing.iloc[list(
-            locs)]['id'].tolist()
+            collection_doc_ids = set(get_collection_ids(collection_name))
 
-        entities = [
-            {"name": self.milvus_vector_field_name, "values": vectors,
-                "type": DataType.FLOAT_VECTOR},
-        ]
+            docs_for_processing = docs_metadata_df[
+                ~docs_metadata_df['int_id'].isin(collection_doc_ids)]
 
-        if not milvus_client.has_partition(collection_name, self.indicator_code):
-            milvus_client.create_partition(
-                collection_name, self.indicator_code)
+            if docs_for_processing.empty:
+                return
 
-        ids = milvus_client.insert(collection_name, entities,
-                                   doc_int_ids, partition_tag=self.indicator_code)
+            docs_for_processing["text"] = docs_for_processing["txt_meta"].map(
+                self.wvec_model.clean_text)
 
-        assert len(set(ids).difference(
-            doc_int_ids)) == 0
+            results = self.wvec_model.process_docs(
+                docs_for_processing, normalize=True)
+            results = [(ix, p['doc_vec'].flatten())
+                       for ix, (_, p) in enumerate(results.iterrows()) if p['success']]
 
-        milvus_client.flush([collection_name])
+            locs, vectors = list(zip(*results))
+
+            doc_int_ids = docs_for_processing.iloc[list(
+                locs)]['int_id'].tolist()
+            doc_ids = docs_for_processing.iloc[list(
+                locs)]['id'].tolist()
+
+            entities = [
+                {"name": self.milvus_vector_field_name, "values": vectors,
+                    "type": DataType.FLOAT_VECTOR},
+            ]
+
+            if not milvus_client.has_partition(collection_name, self.indicator_code):
+                milvus_client.create_partition(
+                    collection_name, self.indicator_code)
+
+            ids = milvus_client.insert(collection_name, entities,
+                                       doc_int_ids, partition_tag=self.indicator_code)
+
+            assert len(set(ids).difference(
+                doc_int_ids)) == 0
+
+            milvus_client.flush([collection_name])
+        finally:
+            p_lock.unlink(missing_ok=True)
 
     def load_wvec_model(self):
         self.wvec_model = word2vec_base.Word2VecModel(

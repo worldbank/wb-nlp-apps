@@ -27,6 +27,7 @@ class IndicatorTypes(enum.Enum):
     """
     wdi = "wdi"  # World Development Indicators
     sdg = "sdg"  # Sustainable Development Goals
+    microdata = "microdata"
 
 
 class ModelTypes(enum.Enum):

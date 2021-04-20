@@ -40,7 +40,8 @@ export default {
     corpus_url: "/nlp/corpus",
     extra_url: {
         wdi: "/nlp/extra/indicators/wdi",
-        sdg: "/nlp/extra/indicators/sdg"
+        sdg: "/nlp/extra/indicators/sdg",
+        microdata: "/nlp/extra/indicators/microdata"
     },
     pagination: {
         page_sizes: [10, 25, 50, 100],
