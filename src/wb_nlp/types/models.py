@@ -22,6 +22,13 @@ class UploadTypes(enum.Enum):
     file_upload = "file_upload"
 
 
+class IndicatorTypes(enum.Enum):
+    """Types of available indicators
+    """
+    wdi = "wdi"  # World Development Indicators
+    sdg = "sdg"  # Sustainable Development Goals
+
+
 class ModelTypes(enum.Enum):
     '''Types of models available.
     '''
