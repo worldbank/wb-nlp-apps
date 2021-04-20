@@ -55,6 +55,7 @@ class NLPDoc(Document):
         settings = {
             "number_of_shards": 2,
             "number_of_replicas": 1,
+            "highlight": {"max_analyzed_offset": 5000000}
         }
 
     def save(self, **kwargs):
@@ -94,7 +95,7 @@ class NLPDocFacetedSearch(FacetedSearch):
     doc_types = [NLPDoc]
 
     # fields that should be searched
-    fields = ['title^2', 'body^1.25', 'abstract^1.5', 'author', 'country']
+    fields = ['title^5', 'body^1.25', 'abstract^1.5', 'author', 'country']
 
     facets = {
         # use bucket aggregations to define facets

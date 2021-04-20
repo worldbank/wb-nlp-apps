@@ -15,7 +15,7 @@ from wb_nlp.models import word2vec_base
 
 
 class IndicatorModel:
-    def __init__(self, data_file, indicator_code, model_config_id, cleaning_config_id, model_run_info_id, log_level=logging.WARNING):
+    def __init__(self, data_file, indicator_code, model_config_id, cleaning_config_id, model_run_info_id, wvec_model=None, log_level=logging.WARNING):
         """
         Input
         =====
@@ -31,7 +31,10 @@ class IndicatorModel:
 
         self.model_collection_id = f"indicator_{model_run_info_id}_{indicator_code}"
 
-        self.wvec_model = self.load_wvec_model()
+        if wvec_model is None:
+            wvec_model = self.load_wvec_model()
+        self.wvec_model = wvec_model
+
         self.load_metadata_file()
         self.create_milvus_collection()
 
@@ -45,7 +48,7 @@ class IndicatorModel:
 
         self.indicator_df = indicator_df
 
-    def generate_vectors(self):
+    def build_indicator_vectors(self):
         milvus_client = get_milvus_client()
         collection_name = self.model_collection_id
 
@@ -59,6 +62,9 @@ class IndicatorModel:
 
         docs_for_processing = docs_metadata_df[
             ~docs_metadata_df['int_id'].isin(collection_doc_ids)]
+
+        if docs_for_processing.empty:
+            return
 
         docs_for_processing["text"] = docs_for_processing["txt_meta"].map(
             self.wvec_model.clean_text)
@@ -103,8 +109,28 @@ class IndicatorModel:
 
         return self.wvec_model
 
-    def get_similar_indicators_by_doc_id(self, doc_id, topn=10, ret_cols=None):
+    def get_similar_indicators_by_doc_id(self, doc_id, topn=10, ret_cols=None, as_records=True):
+        avec = self.wvec_model.get_milvus_doc_vector_by_doc_id(
+            doc_id).flatten()
+
+        return self.get_similar_indicators_by_vector(
+            vector=avec, topn=topn, ret_cols=ret_cols, as_records=as_records)
+
+    def search_milvus(self, doc_vec, topn, vector_field_name, metric_type="IP"):
+
+        dsl = get_embedding_dsl(
+            doc_vec, topn, vector_field_name=vector_field_name, metric_type=metric_type)
+        return get_milvus_client().search(self.model_collection_id, dsl)
+
+    def get_similar_indicators_by_document(self, document, topn=10, ret_cols=None, as_records=True):
+        result = self.wvec_model.process_doc(
+            {"text": document}, normalize=True)
+        return self.get_similar_indicators_by_vector(result["doc_vec"], topn=topn, ret_cols=ret_cols, as_records=as_records)
+
+    def get_similar_indicators_by_vector(self, vector, topn=10, ret_cols=None, as_records=True):
         # wdi ret_cols = ["id", "name", "url_data", "url_meta", "url_wb", "score", "rank"]
+        vector = vector.flatten()
+
         required_cols = ["id", "name", "score", "rank"]
         if ret_cols is None:
             ret_cols = self.indicator_df.columns
@@ -112,11 +138,8 @@ class IndicatorModel:
         ret_cols = required_cols + \
             [i for i in ret_cols if i not in required_cols]
 
-        avec = self.wvec_model.get_milvus_doc_vector_by_doc_id(
-            doc_id).flatten()
-
         results = self.search_milvus(
-            avec, topn, vector_field_name=self.milvus_vector_field_name, metric_type="IP")
+            vector, topn, vector_field_name=self.milvus_vector_field_name, metric_type="IP")
 
         entities = []
         ids = []
@@ -135,16 +158,12 @@ class IndicatorModel:
         similar_df = entities.merge(
             self.indicator_df, how="left", on="int_id").sort_values("rank")
 
-        return similar_df[ret_cols]
+        sim_data = similar_df[ret_cols]
 
-    def search_milvus(self, doc_vec, topn, vector_field_name, metric_type="IP"):
+        if as_records:
+            sim_data = sim_data.to_dict("records")
 
-        dsl = get_embedding_dsl(
-            doc_vec, topn, vector_field_name=vector_field_name, metric_type=metric_type)
-        return get_milvus_client().search(self.model_collection_id, dsl)
-
-    def get_similar_indicators_by_vector(self, vector):
-        pass
+        return sim_data
 
     def create_milvus_collection(self):
         self.milvus_vector_field_name = "embedding"

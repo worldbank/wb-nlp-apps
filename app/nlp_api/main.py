@@ -4,9 +4,9 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from wb_nlp import dir_manager
 from wb_nlp.interfaces import mongodb
-from wb_nlp.types.models import ModelTypes
+from wb_nlp.types.models import ModelTypes, IndicatorTypes
 from .routers import cleaner, models, metadata, search
-from .routers.subrouters import lda, mallet, word2vec, wdi
+from .routers.subrouters import lda, mallet, word2vec, wdi, indicators
 from .common.utils import get_validated_model
 
 tags_metadata = [
@@ -70,9 +70,16 @@ app.include_router(
     # tags=["lda"],
     responses={404: {"description": "Not found"}},
 )
+app.include_router(
+    indicators.router,
+    prefix="/nlp/extra",
+    responses={404: {"description": "Not found"}},
+)
 
-app.mount("/nlp/static",
-          StaticFiles(directory=dir_manager.get_data_dir("corpus")), "static")
+app.mount("/nlp/static/corpus",
+          StaticFiles(directory=dir_manager.get_data_dir("corpus")), name="corpus_static")
+app.mount("/nlp/static/indicators",
+          StaticFiles(directory=dir_manager.get_data_dir("preprocessed", "timeseries")), name="sdg_static")
 
 
 @app.on_event("startup")
@@ -83,8 +90,17 @@ async def startup_event():
         model_name = ModelTypes(run["model_name"])
         try:
             get_validated_model(model_name, model_id)
+
+            if model_name == ModelTypes("word2vec"):
+                for indicator_code in IndicatorTypes:
+                    logging.info(
+                        f"Building {indicator_code} for model {model_id}")
+                    indicator_model = indicators.get_indicator_model(
+                        indicator_code=indicator_code, model_id=model_id)
+                    indicator_model.build_indicator_vectors()
+
         except Exception as e:
-            logging.info(e)
+            logging.error(e)
             continue
 
 

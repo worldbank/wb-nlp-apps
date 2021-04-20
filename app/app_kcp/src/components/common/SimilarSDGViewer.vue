@@ -6,34 +6,34 @@
 
     <vue-horizontal v-if="results.length > 0 && render_style === 'horizontal'">
       <div
-        class="related-section"
+        class="sdg-related-section"
         v-for="result in results"
-        :key="'wdi_' + result.id"
+        :key="'sdg_' + result.id"
       >
-        <WDICard :result="result" />
+        <SDGCard :result="result" />
       </div>
     </vue-horizontal>
 
     <div v-if="results.length > 0 && render_style === 'vertical'">
       <div
-        class="related-section"
+        class="sdg-related-section"
         v-for="result in results"
-        :key="'wdi_' + result.id"
+        :key="'sdg_' + result.id"
       >
-        <WDICard :result="result" />
+        <SDGCard :result="result" />
       </div>
     </div>
   </div>
 </template>
 <script>
 import VueHorizontal from "vue-horizontal";
-import WDICard from "./WDICard";
+import SDGCard from "./SDGCard";
 export default {
   components: {
-    WDICard,
+    SDGCard,
     VueHorizontal,
   },
-  name: "SimilarWDIViewer",
+  name: "SimilarSDGViewer",
   props: {
     render_style: {
       default: "horizontal",
@@ -46,7 +46,7 @@ export default {
     },
   },
   mounted() {
-    this.getSimilarWDI();
+    this.getSimilarSDG();
   },
   computed: {
     searchParams() {
@@ -62,19 +62,9 @@ export default {
       results: [],
       loading: false,
       indicator_name: null,
-      // viewEvent: {
-      //   type: "",
-      //   percentInView: 0,
-      //   percentTop: 0,
-      //   percentCenter: 0,
-      // },
     };
   },
   methods: {
-    // viewHandler(e) {
-    //   if (e.type === "exit") return;
-    //   Object.assign(this.viewEvent, e);
-    // },
     getIndicatorName(result) {
       if (result.url_wb) {
         var name = result.url_wb.split("/");
@@ -82,10 +72,10 @@ export default {
         return this.indicator_name;
       }
     },
-    getSimilarWDI() {
+    getSimilarSDG() {
       this.loading = true;
       this.$http
-        .get(this.$config.extra_url.wdi + "/get_similar_indicators_by_doc_id", {
+        .get(this.$config.extra_url.sdg + "/get_similar_indicators_by_doc_id", {
           params: this.searchParams,
         })
         .then((response) => {
@@ -95,31 +85,23 @@ export default {
   },
   watch: {
     doc_id: function () {
-      this.getSimilarWDI();
+      this.getSimilarSDG();
     },
   },
 };
 </script>
 <style scoped>
-.wdi-group {
-  margin-top: 20px !important;
-  margin-bottom: 75px !important;
-}
-.wdi-frame {
-  box-sizing: content-box;
-}
-
 .vue-horizontal {
   /* border: 3px solid #dbdbdb; */
   border: 0px;
   padding: 5px;
 }
-.related-section {
+.sdg-related-section {
   /* width: 40vh; */
   width: 100%;
   padding: 0px 20px;
   margin: 3px;
-  height: 500px;
+  height: 380px;
   background: #ffffff;
   /* background: #f3f3f3; */
   border: 2px solid #ebebeb;
