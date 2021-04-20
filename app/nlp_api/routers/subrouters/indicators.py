@@ -11,7 +11,7 @@ from wb_nlp.types.models import (
     ModelTypes, IndicatorTypes
 )
 from wb_nlp import dir_manager
-from wb_nlp.models import wdi_base, sdg_base
+from wb_nlp.models import wdi_base, sdg_base, microdata_base
 
 from ...common.utils import get_validated_model
 
@@ -44,6 +44,13 @@ def get_indicator_model(indicator_code, model_id):
             cleaning_config_id=model.cleaning_config_id,
             model_run_info_id=model.model_id,
         )
+    elif indicator_code == IndicatorTypes("microdata"):
+        indicator_model = microdata_base.MicrodataModel(
+            wvec_model=model,
+            model_config_id=model.model_config_id,
+            cleaning_config_id=model.cleaning_config_id,
+            model_run_info_id=model.model_id,
+        )
 
     return indicator_model
 
@@ -65,9 +72,11 @@ async def get_similar_indicators_by_doc_id(indicator_code: IndicatorTypes, doc_i
 
     if indicator_code == IndicatorTypes("wdi"):
         ret_cols = ["id", "name", "score", "url_data", "url_meta", "url_wb"]
-    else:
+    elif indicator_code == IndicatorTypes("sdg"):
         ret_cols = ["id", "name", "score", "url_data", "url_meta", "goal", "goal_title", "goal_uri", "img_uri",
                     "target", "target_title", "target_uri", "indicator", "indicator_description", "indicator_uri"]
+    elif indicator_code == IndicatorTypes("microdata"):
+        ret_cols = ["id", "name", "score"]
 
     return indicator_model.get_similar_indicators_by_doc_id(doc_id=doc_id, topn=topn, ret_cols=ret_cols, as_records=True)
 
