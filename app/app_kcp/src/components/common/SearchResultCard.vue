@@ -170,7 +170,7 @@ export default {
   computed: {
     document_cover() {
       return (
-        "/nlp/static/" +
+        "/nlp/static/corpus/" +
         this.result.corpus +
         "/COVER/" +
         this.result.id +

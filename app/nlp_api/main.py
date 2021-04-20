@@ -76,8 +76,10 @@ app.include_router(
     responses={404: {"description": "Not found"}},
 )
 
-app.mount("/nlp/static",
-          StaticFiles(directory=dir_manager.get_data_dir("corpus")), "static")
+app.mount("/nlp/static/corpus",
+          StaticFiles(directory=dir_manager.get_data_dir("corpus")), name="corpus_static")
+app.mount("/nlp/static/indicators",
+          StaticFiles(directory=dir_manager.get_data_dir("preprocessed", "timeseries")), name="sdg_static")
 
 
 @app.on_event("startup")

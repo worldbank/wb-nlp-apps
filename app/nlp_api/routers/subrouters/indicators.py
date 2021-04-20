@@ -66,7 +66,7 @@ async def get_similar_indicators_by_doc_id(indicator_code: IndicatorTypes, doc_i
     if indicator_code == IndicatorTypes("wdi"):
         ret_cols = ["id", "name", "score", "url_data", "url_meta", "url_wb"]
     else:
-        ret_cols = ["id", "name", "score", "url_data", "url_meta", "goal", "goal_title", "goal_uri",
+        ret_cols = ["id", "name", "score", "url_data", "url_meta", "goal", "goal_title", "goal_uri", "img_uri",
                     "target", "target_title", "target_uri", "indicator", "indicator_description", "indicator_uri"]
 
     return indicator_model.get_similar_indicators_by_doc_id(doc_id=doc_id, topn=topn, ret_cols=ret_cols, as_records=True)
