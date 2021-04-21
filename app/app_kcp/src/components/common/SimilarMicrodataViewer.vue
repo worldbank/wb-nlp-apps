@@ -47,7 +47,8 @@ export default {
   methods: {
     metadataLink(result) {
       return (
-        "https://microdata.worldbank.org/index.php/api/catalog/" + result.id
+        "https://microdatalib.worldbank.org/index.php/catalog/study/" +
+        result.id
       );
     },
     getIndicatorName(result) {
