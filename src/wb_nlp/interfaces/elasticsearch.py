@@ -69,10 +69,11 @@ class NLPDoc(Document):
         country_counts = country_extractor.get_country_counts(self.body)
 
         country_groups = []
-        for c in self.country:
-            g = country_extractor.country_country_group_map.get(c)
-            if g:
-                country_groups.extend(g)
+        if self.country is not None:
+            for c in self.country:
+                g = country_extractor.country_country_group_map.get(c)
+                if g:
+                    country_groups.extend(g)
 
         self.der_country_groups = country_groups
 
