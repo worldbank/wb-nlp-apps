@@ -19,6 +19,9 @@ def get_normalized_country_group_name(code):
     ]
 
 
+iso3166_3_country_info = pd.read_json(
+    get_data_dir("maps", "iso3166-3-country-info.json"))
+
 country_groups_map = pd.read_excel(
     get_data_dir("whitelists", "countries", "codelist.xlsx"),
     sheet_name="groups", header=1, index_col=0).apply(lambda col_ser: col_ser.dropna().index.tolist(), axis=0).to_dict()
@@ -61,3 +64,25 @@ def get_country_counts(txt):
     counts = dict(counts.most_common())
 
     return counts
+
+
+def get_country_count_details(counts):
+    data = []
+
+    for code, count in counts.items():
+        detail = iso3166_3_country_info.get(code)
+
+        if detail is None:
+            detail = {}
+
+        info = dict(code=code, count=count)
+        info.update(detail)
+        data.append(info)
+
+    return data
+
+
+def get_detailed_country_counts(txt):
+    counts = get_country_counts(txt)
+
+    return get_country_count_details(counts)
