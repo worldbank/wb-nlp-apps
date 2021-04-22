@@ -97,7 +97,8 @@ async def startup_event():
                         f"Building {indicator_code} for model {model_id}")
                     indicator_model = indicators.get_indicator_model(
                         indicator_code=indicator_code, model_id=model_id)
-                    indicator_model.build_indicator_vectors()
+                    indicator_model.build_indicator_vectors(
+                        is_parallel=True if indicator_code == IndicatorTypes("microdata") else False)
 
         except Exception as e:
             logging.error(e)

@@ -1,12 +1,12 @@
 from datetime import datetime
-
+import re
 from pathlib import Path
 
 # from elasticsearch import helpers
 from elasticsearch import Elasticsearch, exceptions
 from elasticsearch.helpers import scan
 
-from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, Object
+from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, Object, Nested, A
 from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl import Search
 
@@ -40,6 +40,10 @@ class NLPDoc(Document):
     country = Keyword()
     corpus = Keyword()
     date_published = Date()
+    der_countries = Object()
+    der_country_details = Nested(properties={"code": Keyword(), "count": Integer(
+    ), "name": Keyword(), "region": Keyword(), "sub-region": Keyword()})
+    der_country_groups = Keyword()
     doc_type = Keyword()
     geo_region = Keyword()
     last_update_date = Date()
@@ -61,8 +65,32 @@ class NLPDoc(Document):
     def save(self, **kwargs):
         self.tokens = len(self.body.split())
         self.views = 0
-        self.der_countries = country_extractor.get_country_counts(self.body)
+
+        country_counts = country_extractor.get_country_counts(self.body)
+
+        country_groups = []
+        for c in self.country:
+            g = country_extractor.country_country_group_map.get(c)
+            if g:
+                country_groups.extend(g)
+
+        self.der_country_groups = country_groups
+
+        self.der_countries = country_counts
+        self.der_country_details = country_extractor.get_country_count_details(
+            country_counts)
         return super(NLPDoc, self).save(**kwargs)
+
+    def get_country_counts(self):
+        s = self.search()
+
+        root = A("nested", path="der_country_details")
+        code = A("terms", field="der_country_details.code", size=1000)
+        total = A("sum", field="der_country_details.count")
+
+        s.aggs.bucket("root", root).bucket("code", code).bucket("total", total)
+
+        return s.execute().aggregations.to_dict()
 
 
 class DocTopic(Document):
@@ -101,6 +129,7 @@ class NLPDocFacetedSearch(FacetedSearch):
         # use bucket aggregations to define facets
         'author': TermsFacet(field='author', size=100),
         'country': TermsFacet(field='country', size=100),
+        'der_country_groups': TermsFacet(field='der_country_groups', size=100),
         'corpus': TermsFacet(field='corpus', size=100),
         'major_doc_type': TermsFacet(field='major_doc_type', size=100),
         'adm_region': TermsFacet(field='adm_region', size=100),
@@ -220,7 +249,7 @@ def get_metadata_by_ids(doc_ids, index=None, source=None, source_includes=None, 
         index=index)]
 
 
-def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt_only=True):
+def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt_only=True, remove_doc_whitespaces=True):
     # test_docs_metadata = mongodb.get_collection(
     #     db_name="test_nlp", collection_name="docs_metadata")
     # elasticsearch.make_nlp_docs_from_docs_metadata(test_docs_metadata.find({}))
@@ -240,6 +269,7 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt
 
     for ix, data in enumerate(docs_metadata):
         doc_path = root_path / data["path_original"]
+        # doc_path = doc_path.parent / "TXT_ORIG" / doc_path.name
         en_doc_path = doc_path.parent.parent / "EN_TXT_ORIG" / doc_path.name
 
         if ix and ix % 10000 == 0:
@@ -259,6 +289,8 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt
 
         with open(doc_path, 'rb') as open_file:
             doc = open_file.read().decode('utf-8', errors='ignore')
+            if remove_doc_whitespaces:
+                doc = re.sub(r"\s+", " ", doc)
             nlp_doc.body = doc
 
         nlp_doc.save()

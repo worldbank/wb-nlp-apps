@@ -1,6 +1,8 @@
+import os
 import logging
 from hashlib import md5
 from pathlib import Path
+from joblib import Parallel, delayed
 import pandas as pd
 from milvus import DataType
 from wb_nlp.interfaces.milvus import (
@@ -51,7 +53,7 @@ class IndicatorModel:
 
         self.indicator_df = indicator_df
 
-    def build_indicator_vectors(self):
+    def build_indicator_vectors(self, is_parallel=False):
         p_lock = Path(dir_manager.get_data_dir(
             "raw", self.model_collection_id))
         if p_lock.exists():
@@ -80,8 +82,13 @@ class IndicatorModel:
             if docs_for_processing.empty:
                 return
 
-            docs_for_processing["text"] = docs_for_processing["txt_meta"].map(
-                self.wvec_model.clean_text)
+            if is_parallel:
+                with Parallel(n_jobs=os.cpu_count() - 4) as parallel:
+                    docs_for_processing["text"] = parallel(delayed(self.wvec_model.clean_text)(
+                        text) for text in docs_for_processing["txt_meta"])
+            else:
+                docs_for_processing["text"] = docs_for_processing["txt_meta"].map(
+                    self.wvec_model.clean_text)
 
             results = self.wvec_model.process_docs(
                 docs_for_processing, normalize=True)
