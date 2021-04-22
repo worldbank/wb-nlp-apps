@@ -26,7 +26,8 @@ DOC_TOPIC_INDEX = "nlp-doc-topics"
 def get_client():
     global _ES_CLIENT
     if _ES_CLIENT is None:
-        _ES_CLIENT = Elasticsearch(hosts=[{"host": "es01", "port": 9200}])
+        _ES_CLIENT = Elasticsearch(
+            hosts=[{"host": "es01", "port": 9200}], timeout=30, max_retries=5, retry_on_timeout=True)
 
     return _ES_CLIENT
 
