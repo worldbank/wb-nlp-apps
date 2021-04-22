@@ -62,6 +62,25 @@
     </div>
 
     <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
+      <h6 v-b-toggle.der_country_groups-collapse>
+        <i class="fa fa-filter pr-2"></i> Country group
+      </h6>
+      <b-collapse id="der_country_groups-collapse">
+        <b-card class="facet-options">
+          <b-form-group v-slot="{ ariaDescribedby }">
+            <b-form-checkbox-group
+              v-model="der_country_groups"
+              :options="getFacetOptions('der_country_groups')"
+              :aria-describedby="ariaDescribedby"
+              name="der_country_groups"
+              stacked
+            ></b-form-checkbox-group>
+          </b-form-group>
+        </b-card>
+      </b-collapse>
+    </div>
+
+    <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
       <h6 v-b-toggle.major_doc_type-collapse>
         <i class="fa fa-filter pr-2"></i> Document type
       </h6>
@@ -204,17 +223,40 @@ export default {
       this.author = this.filters.author || [];
 
       this.country = this.filters.country || [];
+      this.der_country_groups = this.filters.der_country_groups || [];
+
       this.corpus = this.filters.corpus || [];
       this.major_doc_type = this.filters.major_doc_type || [];
       this.adm_region = this.filters.adm_region || [];
       this.geo_region = this.filters.geo_region || [];
       this.topics_src = this.filters.topics_src || [];
     },
+    processCountryGroupKey(facet_name, key) {
+      if (facet_name !== "der_country_groups") {
+        return key;
+      }
+
+      if (key.includes("_")) {
+        return key
+          .split("_")
+          .filter((x) => x.length > 0)
+          .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+          .join(" ");
+      } else if (key.length > 8) {
+        return key.charAt(0).toUpperCase() + key.slice(1);
+      } else {
+        return key.toUpperCase();
+      }
+    },
     getFacetOptions(facet_name) {
       return this.facets["_filter_" + facet_name][facet_name].buckets.map(
         (o) => {
           return {
-            text: o["key"] + "(" + o["doc_count"] + ")",
+            text:
+              this.processCountryGroupKey(facet_name, o["key"]) +
+              "(" +
+              o["doc_count"] +
+              ")",
             value: o["key"],
           };
         }
@@ -227,6 +269,7 @@ export default {
       max_year: null,
       author: [],
       country: [],
+      der_country_groups: [],
       corpus: [],
       major_doc_type: [],
       adm_region: [],

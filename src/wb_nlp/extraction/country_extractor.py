@@ -26,6 +26,14 @@ country_groups_map = pd.read_excel(
     get_data_dir("whitelists", "countries", "codelist.xlsx"),
     sheet_name="groups", header=1, index_col=0).apply(lambda col_ser: col_ser.dropna().index.tolist(), axis=0).to_dict()
 
+country_country_group_map = {}
+for cg, cl in country_groups_map.items():
+    for c in cl:
+        if c in country_country_group_map:
+            country_country_group_map[c].append(cg)
+        else:
+            country_country_group_map[c] = [cg]
+
 country_group_processor.add_keywords_from_dict(
     {k: get_normalized_country_group_name(k) for k in country_groups_map})
 

@@ -31,6 +31,7 @@ async def keyword_search(
     max_year: int = None,
     author: List[str] = None,
     country: List[str] = None,
+    der_country_groups: List[str] = None,
     corpus: List[str] = None,
     major_doc_type: List[str] = None,
     adm_region: List[str] = None,
@@ -43,12 +44,17 @@ async def keyword_search(
     '''
     # response = elasticsearch.text_search(
     #     query, from_result=from_result, size=size)
-    country_groups = set()
     query_tokens = country_extractor.replace_country_group_names(query).split()
-    for token in query_tokens:
-        country_groups.update(
-            country_extractor.country_groups_map.get(token, []))
-    country_groups = sorted(country_groups)
+
+    # country_groups = set()
+    # for token in query_tokens:
+    #     country_groups.update(
+    #         country_extractor.country_groups_map.get(token, []))
+    # country_groups = sorted(country_groups)
+
+    der_country_groups = der_country_groups or []
+    country_groups = [token for token in query_tokens if (
+        token in country_extractor.country_groups_map) and (token not in der_country_groups)] + der_country_groups
 
     payload = check_translate_keywords(query)
     query = payload["query"]
@@ -56,7 +62,8 @@ async def keyword_search(
 
     filters = dict(
         author=author,
-        country=(country or []) + country_groups,
+        country=(country or []),
+        der_country_groups=country_groups,
         corpus=corpus,
         major_doc_type=major_doc_type,
         adm_region=adm_region,

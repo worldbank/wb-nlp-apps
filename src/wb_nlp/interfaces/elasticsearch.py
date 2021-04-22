@@ -43,6 +43,7 @@ class NLPDoc(Document):
     der_countries = Object()
     der_country_details = Nested(properties={"code": Keyword(), "count": Integer(
     ), "name": Keyword(), "region": Keyword(), "sub-region": Keyword()})
+    der_country_groups = Keyword()
     doc_type = Keyword()
     geo_region = Keyword()
     last_update_date = Date()
@@ -66,6 +67,14 @@ class NLPDoc(Document):
         self.views = 0
 
         country_counts = country_extractor.get_country_counts(self.body)
+
+        country_groups = []
+        for c in self.country:
+            g = country_extractor.country_country_group_map.get(c)
+            if g:
+                country_groups.extend(g)
+
+        self.der_country_groups = country_groups
 
         self.der_countries = country_counts
         self.der_country_details = country_extractor.get_country_count_details(
@@ -120,6 +129,7 @@ class NLPDocFacetedSearch(FacetedSearch):
         # use bucket aggregations to define facets
         'author': TermsFacet(field='author', size=100),
         'country': TermsFacet(field='country', size=100),
+        'der_country_groups': TermsFacet(field='der_country_groups', size=100),
         'corpus': TermsFacet(field='corpus', size=100),
         'major_doc_type': TermsFacet(field='major_doc_type', size=100),
         'adm_region': TermsFacet(field='adm_region', size=100),

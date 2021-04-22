@@ -231,6 +231,9 @@ class MetadataModel(BaseModel):
     der_country_details: list = Field(
         None, description="Detailed information on extracted countries from the document."
     )
+    der_country_groups: List[str] = Field(
+        None, description="List of country groups that the country associated with the document belong to."
+    )
     der_language_detected: str = Field(
         None, description="")
     der_language_score: float = Field(

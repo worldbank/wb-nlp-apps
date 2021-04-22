@@ -478,6 +478,7 @@ export default {
       body["adm_region"] = this.selected_facets.adm_region;
       body["author"] = this.selected_facets.author;
       body["country"] = this.selected_facets.country;
+      body["der_country_groups"] = this.selected_facets.der_country_groups;
       body["corpus"] = this.selected_facets.corpus;
       body["major_doc_type"] = this.selected_facets.major_doc_type;
       body["geo_region"] = this.selected_facets.geo_region;
@@ -503,6 +504,7 @@ export default {
       this.selected_facets.adm_region = event.adm_region;
       this.selected_facets.author = event.author;
       this.selected_facets.country = event.country;
+      this.selected_facets.der_country_groups = event.der_country_groups;
       this.selected_facets.corpus = event.corpus;
       this.selected_facets.major_doc_type = event.major_doc_type;
       this.selected_facets.geo_region = event.geo_region;
