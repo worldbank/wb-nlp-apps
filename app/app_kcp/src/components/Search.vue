@@ -279,7 +279,76 @@
                   data-value="0"
                   >between {{ selected_facets.min_year }}-{{
                     selected_facets.max_year
-                  }}<i @click="resetYears" class="fa fa-close"></i
+                  }}
+                  <i @click="resetYears" class="fa fa-close"></i
+                ></span>
+
+                <span
+                  v-if="selected_facets.country.length > 0"
+                  class="badge badge-default wb-badge-close remove-filter active-facets"
+                  data-type="country"
+                  data-value="0"
+                  >Country <i @click="resetCountry" class="fa fa-close"></i
+                ></span>
+
+                <span
+                  v-if="selected_facets.der_country_groups.length > 0"
+                  class="badge badge-default wb-badge-close remove-filter active-facets"
+                  data-type="der_country_groups"
+                  data-value="0"
+                  >Country group
+                  <i @click="resetDerCountryGroups" class="fa fa-close"></i
+                ></span>
+
+                <span
+                  v-if="selected_facets.major_doc_type.length > 0"
+                  class="badge badge-default wb-badge-close remove-filter active-facets"
+                  data-type="major_doc_type"
+                  data-value="0"
+                  >Document type
+                  <i @click="resetDocType" class="fa fa-close"></i
+                ></span>
+
+                <span
+                  v-if="selected_facets.adm_region.length > 0"
+                  class="badge badge-default wb-badge-close remove-filter active-facets"
+                  data-type="adm_region"
+                  data-value="0"
+                  >Admin region
+                  <i @click="resetAdmRegion" class="fa fa-close"></i
+                ></span>
+
+                <span
+                  v-if="selected_facets.geo_region.length > 0"
+                  class="badge badge-default wb-badge-close remove-filter active-facets"
+                  data-type="geo_region"
+                  data-value="0"
+                  >Geographic region
+                  <i @click="resetGeoRegion" class="fa fa-close"></i
+                ></span>
+
+                <span
+                  v-if="selected_facets.topics_src.length > 0"
+                  class="badge badge-default wb-badge-close remove-filter active-facets"
+                  data-type="topics_src"
+                  data-value="0"
+                  >Topics <i @click="resetTopicsSrc" class="fa fa-close"></i
+                ></span>
+
+                <span
+                  v-if="selected_facets.corpus.length > 0"
+                  class="badge badge-default wb-badge-close remove-filter active-facets"
+                  data-type="corpus"
+                  data-value="0"
+                  >Corpus <i @click="resetCorpus" class="fa fa-close"></i
+                ></span>
+
+                <span
+                  v-if="selected_facets.author.length > 0"
+                  class="badge badge-default wb-badge-close remove-filter active-facets"
+                  data-type="author"
+                  data-value="0"
+                  >Author <i @click="resetAuthor" class="fa fa-close"></i
                 ></span>
 
                 <a
@@ -461,6 +530,40 @@ export default {
 
       this.defaultKeywordSearch();
     },
+
+    resetCountry() {
+      this.selected_facets.country = null;
+      this.defaultKeywordSearch();
+    },
+    resetDerCountryGroups() {
+      this.selected_facets.der_country_groups = null;
+      this.defaultKeywordSearch();
+    },
+    resetDocType() {
+      this.selected_facets.major_doc_type = null;
+      this.defaultKeywordSearch();
+    },
+    resetAdmRegion() {
+      this.selected_facets.adm_region = null;
+      this.defaultKeywordSearch();
+    },
+    resetGeoRegion() {
+      this.selected_facets.geo_region = null;
+      this.defaultKeywordSearch();
+    },
+    resetTopicsSrc() {
+      this.selected_facets.topics_src = null;
+      this.defaultKeywordSearch();
+    },
+    resetCorpus() {
+      this.selected_facets.corpus = null;
+      this.defaultKeywordSearch();
+    },
+    resetAuthor() {
+      this.selected_facets.author = null;
+      this.defaultKeywordSearch();
+    },
+
     resetFilters() {
       var selected_facets = this.selected_facets;
       Object.keys(selected_facets).forEach((k) => (selected_facets[k] = null));
@@ -817,11 +920,16 @@ export default {
 .active-filters-container .active-filters .years {
   background-color: #787878;
 }
+
+.active-filters-container .active-filters .active-facets {
+  background-color: #787878;
+}
+
 .active-filters-container .wb-badge-close {
   padding: 10px 10px;
   margin: 2px 4px 2px 0;
   position: relative;
-  padding-right: 30px;
+  padding-right: 10px;
   cursor: pointer;
   transition: opacity 0.35s;
 }
