@@ -9,7 +9,7 @@ from wb_nlp.types.models import (
     ModelTypes,
     TopicCompositionParams, PartitionTopicShareParams
 )
-from wb_nlp.interfaces import mongodb
+from wb_nlp.interfaces import mongodb, elasticsearch
 from ...common.utils import get_validated_model
 
 
@@ -184,8 +184,11 @@ def get_topics_by_doc_id(
 
         print(f"E3: {timer.elapsed}")
 
-        doc_topic_data = mongodb.get_document_topics_collection().find_one(
-            {"model_run_info_id": model_id, "id": doc_id})
+        # doc_topic_data = mongodb.get_document_topics_collection().find_one(
+        #     {"model_run_info_id": model_id, "id": doc_id})
+
+        doc_topic_data = elasticsearch.DocTopic.get(
+            id=f"{model_id}-{doc_id}").to_dict()
 
         print(f"E4: {timer.elapsed}")
 
