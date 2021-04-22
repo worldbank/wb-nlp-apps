@@ -75,6 +75,8 @@ def get_country_counts(txt):
 
 
 def get_country_count_details(counts):
+    if counts is None:
+        return None
     data = []
 
     for code, count in counts.items():
@@ -91,6 +93,4 @@ def get_country_count_details(counts):
 
 
 def get_detailed_country_counts(txt):
-    counts = get_country_counts(txt)
-
-    return get_country_count_details(counts) if counts else None
+    return get_country_count_details(get_country_counts(txt))
