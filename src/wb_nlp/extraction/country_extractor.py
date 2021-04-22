@@ -93,4 +93,4 @@ def get_country_count_details(counts):
 def get_detailed_country_counts(txt):
     counts = get_country_counts(txt)
 
-    return get_country_count_details(counts)
+    return get_country_count_details(counts) if counts else None
