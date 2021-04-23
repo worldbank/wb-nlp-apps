@@ -65,9 +65,9 @@
           </div>
           <div class="col-6 fluid">
             <MLModelSelect
-              @modelSelected="onModelSelectLDA"
-              :model_name="model_name.lda"
-              :parent_model_run_info_id="model_options.lda.model_id"
+              @modelSelected="onModelSelectTopicModel"
+              :model_name="model_name.topic_model"
+              :parent_model_run_info_id="model_options.topic_model.model_id"
               placeholder="Choose a topic model..."
             />
           </div>
@@ -235,7 +235,7 @@
                   v-for="(result, idx, key) in model_option.hits"
                   :result="result"
                   :match="model_option.match_stats[idx]"
-                  v-bind:key="'lda_' + result.id + key"
+                  v-bind:key="'topic_model_' + result.id + key"
                 />
               </div>
 
@@ -251,6 +251,17 @@
                 :next_override="next_override"
               /></div
           ></b-tab>
+
+          <b-tab title="Document analysis">
+            <div v-if="analyzed_document_data">
+              <b-spinner v-show="loading"></b-spinner>
+              <UploadedDocument
+                v-show="!loading"
+                :result="analyzed_document_data"
+                @onLoadingStatusChanged="setAnalyzedDocLoading"
+              />
+            </div>
+          </b-tab>
         </b-tabs>
 
         <hr />
@@ -267,7 +278,7 @@ import MLModelSelect from "../common/MLModelSelect";
 import SearchResultLoading from "../common/SearchResultLoading";
 import SearchResultCard from "../common/SearchResultCard";
 import Pagination from "../common/Pagination";
-
+import UploadedDocument from "../common/UploadedDocument";
 import PageFooter from "../common/PageFooter";
 
 export default {
@@ -283,11 +294,12 @@ export default {
     SearchResultLoading,
     SearchResultCard,
     Pagination,
+    UploadedDocument,
   },
   mixins: [saveState],
   mounted() {
     window.vm = this;
-    this.model_options.lda.model_id = null;
+    this.model_options.topic_model.model_id = null;
     this.model_options.word2vec.model_id = null;
   },
   data() {
@@ -300,10 +312,10 @@ export default {
       next_override: true,
       model_name: {
         word2vec: "word2vec",
-        lda: "lda",
+        topic_model: "topic_model",
       },
       model_options: {
-        lda: {
+        topic_model: {
           upload_nlp_api_url: this.$config.search_url.lda.file,
           url_nlp_api_url: this.$config.search_url.lda.url,
           model_run_info_id: "",
@@ -336,6 +348,11 @@ export default {
       errored: false,
       loading: false,
 
+      analyzed_document_data: null,
+      upload_analyze_document_url: null,
+      url_analyze_document_url: null,
+      analyze_document_model_id: null,
+
       url: "",
       uploaded_file: null,
       file_input: null,
@@ -356,7 +373,7 @@ export default {
   computed: {
     stateReady() {
       if (this.model_options[this.model_name.word2vec].model_id !== null) {
-        if (this.model_options[this.model_name.lda].model_id !== null) {
+        if (this.model_options[this.model_name.topic_model].model_id !== null) {
           if (this.url !== "" || this.uploaded_file !== null) return true;
         }
       }
@@ -371,6 +388,17 @@ export default {
     },
     model_option() {
       return this.model_options[this.selectedModel];
+    },
+    analyzeDocumentParams() {
+      const formData = new FormData();
+      formData.append("model_id", this.analyze_document_model_id);
+
+      if (this.selectedInput === "file_upload") {
+        formData.append("file", this.uploaded_file);
+      } else {
+        formData.append("url", this.url);
+      }
+      return formData;
     },
     apiParams() {
       const formData = new FormData();
@@ -389,7 +417,9 @@ export default {
       if (this.tabIndex === 0) {
         return this.model_name.word2vec;
       } else if (this.tabIndex === 1) {
-        return this.model_name.lda;
+        return this.model_name.topic_model;
+      } else if (this.tabIndex === 2) {
+        return this.model_name.topic_model;
       } else {
         return null;
       }
@@ -438,15 +468,24 @@ export default {
         result.model_run_info_id;
       console.log(result.model_run_info_id);
     },
-    onModelSelectLDA(result) {
+    onModelSelectTopicModel(result) {
       this.model_options[
-        this.model_name.lda
+        this.model_name.topic_model
       ].upload_nlp_api_url = this.$config.search_url[result.model_name].file;
       this.model_options[
-        this.model_name.lda
+        this.model_name.topic_model
       ].url_nlp_api_url = this.$config.search_url[result.model_name].url;
-      this.model_options[this.model_name.lda].model_id =
+      this.model_options[this.model_name.topic_model].model_id =
         result.model_run_info_id;
+
+      this.upload_analyze_document_url = this.$config.analyze_document_url[
+        result.model_name
+      ].analyze_file;
+      this.url_analyze_document_url = this.$config.analyze_document_url[
+        result.model_name
+      ].analyze_url;
+      this.analyze_document_model_id = result.model_run_info_id;
+
       console.log(result.model_run_info_id);
     },
     sendSearch: function (page_num = 1) {
@@ -490,6 +529,20 @@ export default {
         })
         .finally(() => (this.loading = false));
     },
+    analyzeDocument() {
+      const analyze_document_url =
+        this.selectedInput === "file_upload"
+          ? this.upload_analyze_document_url
+          : this.url_analyze_document_url;
+
+      console.log(analyze_document_url);
+
+      this.$http
+        .post(analyze_document_url, this.analyzeDocumentParams)
+        .then((response) => {
+          this.analyzed_document_data = response.data;
+        });
+    },
     fileUpload(event) {
       this.uploaded_file = event.target.files[0];
     },
@@ -497,12 +550,29 @@ export default {
       this.uploaded_file = null;
       this.file_input = null;
     },
+    setAnalyzedDocLoading(loading) {
+      console.log(loading);
+      this.loading = loading;
+    },
   },
 
   watch: {
-    selectedModel: function () {
+    // selectedModel: function () {
+    //   if (this.stateReady) {
+    //     if (this.tabIndex === 2) {
+    //       this.analyzeDocument();
+    //     } else {
+    //       this.sendSearch(this.model_option.curr_page_num);
+    //     }
+    //   }
+    // },
+    tabIndex: function () {
       if (this.stateReady) {
-        this.sendSearch(this.model_option.curr_page_num);
+        if (this.tabIndex === 2) {
+          this.analyzeDocument();
+        } else {
+          this.sendSearch(this.model_option.curr_page_num);
+        }
       }
     },
     // $data: {

@@ -2,6 +2,7 @@
 '''
 from functools import lru_cache
 import json
+from collections import Counter
 from contexttimer import Timer
 
 from fastapi import Query, UploadFile, File, Form
@@ -237,10 +238,11 @@ def analyze_document(
     country_groups = []
     if country_details is not None:
         for cd in country_details:
-            c = cd["name"]
-            g = country_extractor.country_country_group_map.get(c)
-            if g:
-                country_groups.extend(g)
+            c = cd.get("name")
+            if c:
+                g = country_extractor.country_country_group_map.get(c)
+                if g:
+                    country_groups.extend(g)
 
     model = get_validated_model(model_name, model_id)
 
@@ -265,14 +267,14 @@ def analyze_document(
         dict(
             topic_id=topic_word["topic"],
             topic_words=", ".join(
-                topic_word["words"]) if format_words else topic_word["words"],
+                [w["word"] for w in topic_word["words"]]) if format_words else topic_word["words"],
             value=topic_word["score"]) for topic_word in topic_words]
 
     return dict(
         doc_topic_words=doc_topic_words,
         country_counts=country_counts,
         country_details=country_details,
-        country_groups=country_groups,
+        country_groups=dict(Counter(country_groups).most_common()),
     )
 
 

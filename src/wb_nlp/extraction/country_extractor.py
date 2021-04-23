@@ -85,6 +85,19 @@ def get_country_count_details(counts):
         if detail is None:
             detail = {}
 
+        #   "code": "JAM",
+        #   "count": 1,
+        #   "name": "Jamaica",
+        #   "alpha-2": "JM",
+        #   "country-code": 388,
+        #   "iso_3166-2": "ISO 3166-2:JM",
+        #   "region": "Americas",
+        #   "sub-region": "Latin America and the Caribbean",
+        #   "intermediate-region": "Caribbean",
+        #   "region-code": "019",
+        #   "sub-region-code": "419",
+        #   "intermediate-region-code": "029"
+
         info = dict(code=code, count=count)
         info.update(detail)
         data.append(info)
