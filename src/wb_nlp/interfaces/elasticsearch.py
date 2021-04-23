@@ -5,6 +5,7 @@ from pathlib import Path
 # from elasticsearch import helpers
 from elasticsearch import Elasticsearch, exceptions
 from elasticsearch.helpers import scan
+from elasticsearch.exceptions import ConnectionTimeout
 
 from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, Object, Nested, A
 from elasticsearch_dsl.connections import connections
@@ -295,7 +296,10 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt
                 doc = re.sub(r"\s+", " ", doc)
             nlp_doc.body = doc
 
-        nlp_doc.save()
+        try:
+            nlp_doc.save()
+        except ConnectionTimeout:
+            nlp_doc.save()
 
 
 def faceted_search_nlp_docs():
