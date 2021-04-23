@@ -53,8 +53,11 @@ async def keyword_search(
     # country_groups = sorted(country_groups)
 
     der_country_groups = der_country_groups or []
-    country_groups = [token for token in query_tokens if (
-        token in country_extractor.country_groups_map) and (token not in der_country_groups)] + der_country_groups
+    country_groups = [
+        token for token in query_tokens if token in country_extractor.country_groups_map]
+    if country_groups:
+        # If explicit country group is found in the query, replace the current active filter with it.
+        der_country_groups = country_groups
 
     payload = check_translate_keywords(query)
     query = payload["query"]
@@ -63,7 +66,7 @@ async def keyword_search(
     filters = dict(
         author=author,
         country=(country or []),
-        der_country_groups=country_groups,
+        der_country_groups=der_country_groups,
         corpus=corpus,
         major_doc_type=major_doc_type,
         adm_region=adm_region,
