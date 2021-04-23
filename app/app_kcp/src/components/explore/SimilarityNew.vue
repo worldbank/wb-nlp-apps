@@ -37,7 +37,7 @@
           To begin, select models to use for both the topic model and word
           embedding model. Then upload or provide a url to the pdf or text file.
           Then click
-          <span style="font-weight: bold">Find similar documents</span> to start
+          <span style="font-weight: bold">Process document</span> to start
           generating results.
         </p>
         <!-- <p>
@@ -182,10 +182,10 @@
           <br />
           <b-button
             class="btn btn-primary wbg-button"
-            @click="sendSearch()"
+            @click="sendRequest()"
             :disabled="!stateReady"
             :variant="stateReady ? 'primary' : 'secondary'"
-            >Find similar documents</b-button
+            >Process document</b-button
           >
         </form>
         <br />
@@ -254,7 +254,9 @@
 
           <b-tab title="Document analysis">
             <div v-if="analyzed_document_data">
-              <b-spinner v-show="loading"></b-spinner>
+              <div class="text-center">
+                <b-spinner v-show="loading"></b-spinner>
+              </div>
               <UploadedDocument
                 v-show="!loading"
                 :result="analyzed_document_data"
@@ -530,6 +532,7 @@ export default {
         .finally(() => (this.loading = false));
     },
     analyzeDocument() {
+      this.loading = true;
       const analyze_document_url =
         this.selectedInput === "file_upload"
           ? this.upload_analyze_document_url
@@ -541,6 +544,7 @@ export default {
         .post(analyze_document_url, this.analyzeDocumentParams)
         .then((response) => {
           this.analyzed_document_data = response.data;
+          this.loading = false;
         });
     },
     fileUpload(event) {
@@ -553,6 +557,15 @@ export default {
     setAnalyzedDocLoading(loading) {
       console.log(loading);
       this.loading = loading;
+    },
+    sendRequest() {
+      if (this.stateReady) {
+        if (this.tabIndex === 2) {
+          this.analyzeDocument();
+        } else {
+          this.sendSearch(this.model_option.curr_page_num);
+        }
+      }
     },
   },
 
@@ -567,13 +580,7 @@ export default {
     //   }
     // },
     tabIndex: function () {
-      if (this.stateReady) {
-        if (this.tabIndex === 2) {
-          this.analyzeDocument();
-        } else {
-          this.sendSearch(this.model_option.curr_page_num);
-        }
-      }
+      this.sendRequest();
     },
     // $data: {
     //   handler: function (val, oldVal) {

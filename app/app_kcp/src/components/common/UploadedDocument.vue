@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div v-if="privateFilteredDocTopics">
+    <!-- <div v-if="loading" class="text-center">
+      <b-spinner></b-spinner>
+    </div> -->
+    <div v-if="privateFilteredDocTopics && !loading">
       <div class="xsl-caption field-caption">LDA topics</div>
       <div class="field-value">
         <div class="row border-bottom">
@@ -39,7 +42,7 @@
     </div>
     <br />
     <br />
-    <div v-if="privateCountryData">
+    <div v-if="privateCountryData && !loading">
       <div class="xsl-caption field-caption">Extracted countries</div>
 
       <WBMapChart
@@ -53,7 +56,7 @@
     <br />
     <br />
 
-    <div v-if="metadata">
+    <div v-if="metadata && !loading">
       <div class="xsl-caption field-caption">Extracted country details</div>
       <div style="word-wrap: break-word">
         <vue-json-pretty :data="metadata" :highlightMouseoverNode="true">
