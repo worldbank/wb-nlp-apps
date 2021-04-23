@@ -196,6 +196,12 @@ export default {
     },
     renderMapCSS() {
       this.processNormalizeCountryData();
+
+      this.$data.node.remove();
+      this.$data.node = this.getOrCreateNode();
+      document.body.appendChild(this.$data.node);
+      console.log("TESTESTEST");
+
       const baseCss = getBaseCss(this.$props);
       const dynamicMapCss = getDynamicMapCss(
         // this.$props.countryData,
@@ -204,11 +210,12 @@ export default {
         this.$props.highColor,
         this.$props.chromaScaleOn
       );
+
       this.$data.node.innerHTML = getCombinedCssString(baseCss, dynamicMapCss);
     },
   },
   mounted() {
-    document.body.appendChild(this.$data.node);
+    // document.body.appendChild(this.$data.node);
 
     this.renderMapCSS();
     window.mapVM = this;

@@ -37,6 +37,17 @@ export default {
             url: "/nlp/search/mallet/url",
         }
     },
+    analyze_document_url: {
+        lda: {
+            analyze_file: "/nlp/models/lda/analyze_file",
+            analyze_url: "/nlp/models/lda/analyze_url"
+        },
+        mallet: {
+            analyze_file: "/nlp/models/mallet/analyze_file",
+            analyze_url: "/nlp/models/mallet/analyze_url"
+        }
+
+    },
     corpus_url: "/nlp/corpus",
     extra_url: {
         wdi: "/nlp/extra/indicators/wdi",

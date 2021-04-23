@@ -5,6 +5,7 @@ from pathlib import Path
 # from elasticsearch import helpers
 from elasticsearch import Elasticsearch, exceptions
 from elasticsearch.helpers import scan
+from elasticsearch.exceptions import ConnectionTimeout
 
 from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, Object, Nested, A
 from elasticsearch_dsl.connections import connections
@@ -26,7 +27,8 @@ DOC_TOPIC_INDEX = "nlp-doc-topics"
 def get_client():
     global _ES_CLIENT
     if _ES_CLIENT is None:
-        _ES_CLIENT = Elasticsearch(hosts=[{"host": "es01", "port": 9200}])
+        _ES_CLIENT = Elasticsearch(
+            hosts=[{"host": "es01", "port": 9200}], timeout=30, max_retries=5, retry_on_timeout=True)
 
     return _ES_CLIENT
 
@@ -69,10 +71,11 @@ class NLPDoc(Document):
         country_counts = country_extractor.get_country_counts(self.body)
 
         country_groups = []
-        for c in self.country:
-            g = country_extractor.country_country_group_map.get(c)
-            if g:
-                country_groups.extend(g)
+        if self.country is not None:
+            for c in self.country:
+                g = country_extractor.country_country_group_map.get(c)
+                if g:
+                    country_groups.extend(g)
 
         self.der_country_groups = country_groups
 
@@ -293,7 +296,10 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt
                 doc = re.sub(r"\s+", " ", doc)
             nlp_doc.body = doc
 
-        nlp_doc.save()
+        try:
+            nlp_doc.save()
+        except ConnectionTimeout:
+            nlp_doc.save()
 
 
 def faceted_search_nlp_docs():

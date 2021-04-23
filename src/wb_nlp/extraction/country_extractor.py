@@ -75,6 +75,8 @@ def get_country_counts(txt):
 
 
 def get_country_count_details(counts):
+    if counts is None:
+        return None
     data = []
 
     for code, count in counts.items():
@@ -82,6 +84,19 @@ def get_country_count_details(counts):
 
         if detail is None:
             detail = {}
+
+        #   "code": "JAM",
+        #   "count": 1,
+        #   "name": "Jamaica",
+        #   "alpha-2": "JM",
+        #   "country-code": 388,
+        #   "iso_3166-2": "ISO 3166-2:JM",
+        #   "region": "Americas",
+        #   "sub-region": "Latin America and the Caribbean",
+        #   "intermediate-region": "Caribbean",
+        #   "region-code": "019",
+        #   "sub-region-code": "419",
+        #   "intermediate-region-code": "029"
 
         info = dict(code=code, count=count)
         info.update(detail)
@@ -91,6 +106,4 @@ def get_country_count_details(counts):
 
 
 def get_detailed_country_counts(txt):
-    counts = get_country_counts(txt)
-
-    return get_country_count_details(counts)
+    return get_country_count_details(get_country_counts(txt))

@@ -1,17 +1,23 @@
 '''This router contains the implementation for the cleaning API.
 '''
 from functools import lru_cache
-from contexttimer import Timer
 import json
-from fastapi import Query
+from collections import Counter
+from contexttimer import Timer
+
+from fastapi import Query, UploadFile, File, Form
+from pydantic import HttpUrl
 
 from wb_nlp.types.models import (
     ModelTypes,
     TopicCompositionParams, PartitionTopicShareParams
 )
-from wb_nlp.interfaces import mongodb
-from ...common.utils import get_validated_model
-
+from wb_nlp.extraction import country_extractor
+from wb_nlp.interfaces import mongodb, elasticsearch
+from ...common.utils import (
+    get_validated_model, read_uploaded_file,
+    read_url_file, clean_text
+)
 
 # router = APIRouter(
 #     prefix="/lda",
@@ -184,8 +190,11 @@ def get_topics_by_doc_id(
 
         print(f"E3: {timer.elapsed}")
 
-        doc_topic_data = mongodb.get_document_topics_collection().find_one(
-            {"model_run_info_id": model_id, "id": doc_id})
+        # doc_topic_data = mongodb.get_document_topics_collection().find_one(
+        #     {"model_run_info_id": model_id, "id": doc_id})
+
+        doc_topic_data = elasticsearch.DocTopic.get(
+            id=f"{model_id}-{doc_id}").to_dict()
 
         print(f"E4: {timer.elapsed}")
 
@@ -208,3 +217,117 @@ def get_topics_by_doc_id(
         print(f"E5: {timer.elapsed}")
 
         return payload
+
+
+def analyze_document(
+    model_name: ModelTypes,
+    model_id: str,
+    text: str,
+    topn_words: int = 10,
+    total_word_score: float = 1,
+    sort: bool = True,
+    clean: bool = True,
+    format_words: bool = True
+):
+    # Get country related metadata
+
+    country_counts = country_extractor.get_country_counts(text)
+    country_details = country_extractor.get_country_count_details(
+        country_counts)
+
+    country_groups = []
+    if country_details is not None:
+        for cd in country_details:
+            c = cd.get("name")
+            if c:
+                g = country_extractor.country_country_group_map.get(c)
+                if g:
+                    country_groups.extend(g)
+
+    model = get_validated_model(model_name, model_id)
+
+    if clean:
+        model_text = clean_text(model_name, model_id, text)
+        # query = model.clean_text(query)
+    else:
+        model_text = text
+
+    topic_words = model.get_doc_topic_words(
+        text=model_text,
+        topn_topics=10,
+        topn_words=topn_words,
+        total_topic_score=1,
+        total_word_score=total_word_score,
+        serialize=False)
+
+    if sort:
+        topic_words = sorted(topic_words, key=lambda x: -x["score"])
+
+    doc_topic_words = [
+        dict(
+            topic_id=topic_word["topic"],
+            topic_words=", ".join(
+                [w["word"] for w in topic_word["words"]]) if format_words else topic_word["words"],
+            value=topic_word["score"]) for topic_word in topic_words]
+
+    return dict(
+        doc_topic_words=doc_topic_words,
+        country_counts=country_counts,
+        country_details=country_details,
+        country_groups=dict(Counter(country_groups).most_common()),
+    )
+
+
+def analyze_file(
+    model_name: ModelTypes,
+    model_id: str = Form(...),
+    file: UploadFile = File(...),
+    topn_words: int = Form(10),
+    total_word_score: float = Form(1.0),
+    sort: bool = Form(True),
+    clean: bool = Form(True),
+    format_words: bool = Form(True)
+
+):
+    '''This endpoint provides the service for analyzing uploaded file. This returns extracted countries from the document and the infered topics based on the model selected.
+    '''
+    print({"filename": file.filename})
+
+    document = read_uploaded_file(file)
+
+    return analyze_document(
+        model_name=model_name,
+        model_id=model_id,
+        text=document,
+        topn_words=topn_words,
+        total_word_score=total_word_score,
+        sort=sort,
+        clean=clean,
+        format_words=format_words,)
+
+
+def analyze_url(
+    model_name: ModelTypes,
+    model_id: str = Form(...),
+    url: HttpUrl = Form(...),
+    topn_words: int = Form(10),
+    total_word_score: float = Form(1.0),
+    sort: bool = Form(True),
+    clean: bool = Form(True),
+    format_words: bool = Form(True)
+
+):
+    '''This endpoint provides the service for analyzing a document given a url. This returns extracted countries from the document and the infered topics based on the model selected.
+    '''
+
+    document = read_url_file(url)
+
+    return analyze_document(
+        model_name=model_name,
+        model_id=model_id,
+        text=document,
+        topn_words=topn_words,
+        total_word_score=total_word_score,
+        sort=sort,
+        clean=clean,
+        format_words=format_words,)
