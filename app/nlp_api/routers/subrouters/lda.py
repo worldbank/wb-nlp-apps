@@ -1,6 +1,7 @@
 '''This router contains the implementation for the cleaning API.
 '''
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Form, File, UploadFile
+from pydantic import HttpUrl
 from wb_nlp.types.models import (
     ModelTypes,
     TopicCompositionParams, PartitionTopicShareParams
@@ -146,3 +147,51 @@ async def get_topics_by_doc_id(
         sort=sort,
         format_words=format_words
     )
+
+
+@ router.post("/analyze_file")
+async def analyze_file(
+    model_id: str = Form(...),
+    file: UploadFile = File(...),
+    topn_words: int = Form(10),
+    total_word_score: float = Form(1.0),
+    sort: bool = Form(True),
+    clean: bool = Form(True),
+    format_words: bool = Form(True)
+):
+    '''This endpoint provides the service for analyzing uploaded file. This returns extracted countries from the document and the infered topics based on the model selected.
+    '''
+
+    return topic_model.analyze_file(
+        model_name=LDA_MODEL_NAME,
+        model_id=model_id,
+        file=file,
+        topn_words=topn_words,
+        total_word_score=total_word_score,
+        sort=sort,
+        clean=clean,
+        format_words=format_words,)
+
+
+@ router.post("/analyze_url")
+async def analyze_url(
+    model_id: str = Form(...),
+    url: HttpUrl = Form(...),
+    topn_words: int = Form(10),
+    total_word_score: float = Form(1.0),
+    sort: bool = Form(True),
+    clean: bool = Form(True),
+    format_words: bool = Form(True)
+):
+    '''This endpoint provides the service for analyzing a document given a url. This returns extracted countries from the document and the infered topics based on the model selected.
+    '''
+
+    return topic_model.analyze_url(
+        model_name=LDA_MODEL_NAME,
+        model_id=model_id,
+        url=url,
+        topn_words=topn_words,
+        total_word_score=total_word_score,
+        sort=sort,
+        clean=clean,
+        format_words=format_words,)
