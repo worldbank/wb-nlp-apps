@@ -73,7 +73,8 @@ class NLPDoc(Document):
         country_groups = []
         if self.country is not None:
             for c in self.country:
-                g = country_extractor.country_country_group_map.get(c)
+                code = country_extractor.get_country_code_from_name(c)
+                g = country_extractor.country_code_country_group_map.get(code)
                 if g:
                     country_groups.extend(g)
 

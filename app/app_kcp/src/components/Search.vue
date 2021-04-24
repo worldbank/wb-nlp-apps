@@ -284,7 +284,10 @@
                 ></span>
 
                 <span
-                  v-if="selected_facets.country.length > 0"
+                  v-if="
+                    selected_facets.country &&
+                    selected_facets.country.length > 0
+                  "
                   class="badge badge-default wb-badge-close remove-filter active-facets"
                   data-type="country"
                   data-value="0"
@@ -292,7 +295,10 @@
                 ></span>
 
                 <span
-                  v-if="selected_facets.der_country_groups.length > 0"
+                  v-if="
+                    selected_facets.der_country_groups &&
+                    selected_facets.der_country_groups.length > 0
+                  "
                   class="badge badge-default wb-badge-close remove-filter active-facets"
                   data-type="der_country_groups"
                   data-value="0"
@@ -301,7 +307,10 @@
                 ></span>
 
                 <span
-                  v-if="selected_facets.major_doc_type.length > 0"
+                  v-if="
+                    selected_facets.major_doc_type &&
+                    selected_facets.major_doc_type.length > 0
+                  "
                   class="badge badge-default wb-badge-close remove-filter active-facets"
                   data-type="major_doc_type"
                   data-value="0"
@@ -310,7 +319,10 @@
                 ></span>
 
                 <span
-                  v-if="selected_facets.adm_region.length > 0"
+                  v-if="
+                    selected_facets.adm_region &&
+                    selected_facets.adm_region.length > 0
+                  "
                   class="badge badge-default wb-badge-close remove-filter active-facets"
                   data-type="adm_region"
                   data-value="0"
@@ -319,7 +331,10 @@
                 ></span>
 
                 <span
-                  v-if="selected_facets.geo_region.length > 0"
+                  v-if="
+                    selected_facets.geo_region &&
+                    selected_facets.geo_region.length > 0
+                  "
                   class="badge badge-default wb-badge-close remove-filter active-facets"
                   data-type="geo_region"
                   data-value="0"
@@ -328,7 +343,10 @@
                 ></span>
 
                 <span
-                  v-if="selected_facets.topics_src.length > 0"
+                  v-if="
+                    selected_facets.topics_src &&
+                    selected_facets.topics_src.length > 0
+                  "
                   class="badge badge-default wb-badge-close remove-filter active-facets"
                   data-type="topics_src"
                   data-value="0"
@@ -336,7 +354,9 @@
                 ></span>
 
                 <span
-                  v-if="selected_facets.corpus.length > 0"
+                  v-if="
+                    selected_facets.corpus && selected_facets.corpus.length > 0
+                  "
                   class="badge badge-default wb-badge-close remove-filter active-facets"
                   data-type="corpus"
                   data-value="0"
@@ -344,7 +364,9 @@
                 ></span>
 
                 <span
-                  v-if="selected_facets.author.length > 0"
+                  v-if="
+                    selected_facets.author && selected_facets.author.length > 0
+                  "
                   class="badge badge-default wb-badge-close remove-filter active-facets"
                   data-type="author"
                   data-value="0"

@@ -24,20 +24,35 @@ iso3166_3_country_info = pd.read_json(
 
 country_groups_map = pd.read_excel(
     get_data_dir("whitelists", "countries", "codelist.xlsx"),
-    sheet_name="groups", header=1, index_col=0).apply(lambda col_ser: col_ser.dropna().index.tolist(), axis=0).to_dict()
+    sheet_name="groups_iso3c", header=1, index_col=1).drop("country.name.en", axis=1).apply(lambda col_ser: col_ser.dropna().index.dropna().tolist(), axis=0).to_dict()
 
-country_country_group_map = {}
+mapping = mappings.get_countries_mapping()
+
+
+def get_country_name_from_code(code):
+    name = None
+    detail = iso3166_3_country_info.get(code)
+    if detail:
+        name = detail.get("name")
+
+    return name
+
+
+def get_country_code_from_name(name):
+    return mapping.get(name, {}).get("code")
+
+
+country_code_country_group_map = {}
 for cg, cl in country_groups_map.items():
     for c in cl:
-        if c in country_country_group_map:
-            country_country_group_map[c].append(cg)
+        if c in country_code_country_group_map:
+            country_code_country_group_map[c].append(cg)
         else:
-            country_country_group_map[c] = [cg]
+            country_code_country_group_map[c] = [cg]
 
 country_group_processor.add_keywords_from_dict(
     {k: get_normalized_country_group_name(k) for k in country_groups_map})
 
-mapping = mappings.get_countries_mapping()
 country_map = {}
 sep = "$"
 anchor_code = f"country-code"

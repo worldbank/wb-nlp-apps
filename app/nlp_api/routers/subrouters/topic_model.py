@@ -238,9 +238,9 @@ def analyze_document(
     country_groups = []
     if country_details is not None:
         for cd in country_details:
-            c = cd.get("name")
-            if c:
-                g = country_extractor.country_country_group_map.get(c)
+            code = cd.get("code")
+            if code:
+                g = country_extractor.country_code_country_group_map.get(code)
                 if g:
                     country_groups.extend(g)
 
