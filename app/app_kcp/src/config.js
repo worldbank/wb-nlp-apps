@@ -52,7 +52,8 @@ export default {
     extra_url: {
         wdi: "/nlp/extra/indicators/wdi",
         sdg: "/nlp/extra/indicators/sdg",
-        microdata: "/nlp/extra/indicators/microdata"
+        microdata: "/nlp/extra/indicators/microdata",
+        all: "/nlp/extra/indicators/all"
     },
     pagination: {
         page_sizes: [10, 25, 50, 100],

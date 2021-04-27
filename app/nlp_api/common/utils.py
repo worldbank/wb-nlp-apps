@@ -103,7 +103,7 @@ def read_uploaded_file(file):
 @lru_cache(maxsize=128)
 def read_url_file(url):
 
-    buf = requests.get(url)
+    buf = requests.get(url, verify=False)
 
     if buf.headers["Content-Type"].startswith("text/"):
         text = buf.content.decode("utf-8", errors="ignore")
