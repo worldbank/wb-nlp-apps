@@ -133,7 +133,7 @@
                 <router-link
                   to="/explore/similarity/"
                   :class="{ active: $route.name === 'explore_similarity' }"
-                  >Similarity</router-link
+                  >Analyze document</router-link
                 >
               </li>
               <!-- <li>

@@ -78,6 +78,7 @@ export default {
             model_name: o.model_name,
           };
         });
+        this.model_run_info_id = this.model_run_infos[0].model_run_info_id;
       });
     },
   },

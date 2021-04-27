@@ -249,18 +249,21 @@ export default {
       }
     },
     getFacetOptions(facet_name) {
-      return this.facets["_filter_" + facet_name][facet_name].buckets.map(
-        (o) => {
-          return {
-            text:
-              this.processCountryGroupKey(facet_name, o["key"]) +
-              "(" +
-              o["doc_count"] +
-              ")",
-            value: o["key"],
-          };
-        }
-      );
+      // const for_sorting = ["country", "der_country_groups", "adm_region", "geo_region"]
+      var options = this.facets["_filter_" + facet_name][
+        facet_name
+      ].buckets.map((o) => {
+        return {
+          text:
+            this.processCountryGroupKey(facet_name, o["key"]) +
+            "(" +
+            o["doc_count"] +
+            ")",
+          value: o["key"],
+        };
+      });
+
+      return options.sort((a, b) => a.text.localeCompare(b.text));
     },
   },
   data() {
