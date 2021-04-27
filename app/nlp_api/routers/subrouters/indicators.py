@@ -127,14 +127,14 @@ def get_all_indicators_from_document(model_id: str, document: str, topn: int = 1
 
 
 @ router.post("/all/get_similar_indicators_from_file")
-async def get_similar_indicators_from_file(model_id: str, file: UploadFile = File(...), topn: int = 10):
+async def get_similar_indicators_from_file(model_id: str = Form(...), file: UploadFile = File(...), topn: int = 10):
     document = read_uploaded_file(file)
 
     return get_all_indicators_from_document(model_id=model_id, document=document, topn=topn)
 
 
 @ router.post("/all/get_similar_indicators_from_url")
-async def get_similar_indicators_from_url(model_id: str, url: HttpUrl = Form(...), topn: int = 10):
+async def get_similar_indicators_from_url(model_id: str = Form(...), url: HttpUrl = Form(...), topn: int = 10):
     document = read_url_file(url)
 
     return get_all_indicators_from_document(model_id=model_id, document=document, topn=topn)

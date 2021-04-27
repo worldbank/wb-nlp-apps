@@ -190,16 +190,32 @@
         </form>
         <br />
         <a name="results"></a>
-        <h3 v-if="stateReady && model_option.model_id" class="mt-4 mb-3">
-          Comparison of results
+        <h3
+          v-if="stateReady && model_option.model_id && init_click"
+          class="mt-4 mb-3"
+        >
+          Closest documents and data
         </h3>
 
         <b-tabs
-          v-if="stateReady && model_option.model_id"
+          v-if="stateReady && model_option.model_id && init_click"
           v-model="tabIndex"
           content-class="mt-3"
         >
-          <b-tab title="Embedding model" active>
+          <b-tab title="Document analysis" active>
+            <div class="text-center">
+              <b-spinner v-show="loading"></b-spinner>
+            </div>
+            <div v-if="analyzed_document_data">
+              <UploadedDocument
+                v-show="!loading"
+                :result="analyzed_document_data"
+                @onLoadingStatusChanged="setAnalyzedDocLoading"
+              />
+            </div>
+          </b-tab>
+
+          <b-tab title="Embedding model">
             <SearchResultLoading
               :loading="loading"
               :size="model_option.curr_size" />
@@ -252,14 +268,14 @@
               /></div
           ></b-tab>
 
-          <b-tab title="Document analysis">
-            <div v-if="analyzed_document_data">
-              <div class="text-center">
-                <b-spinner v-show="loading"></b-spinner>
-              </div>
-              <UploadedDocument
+          <b-tab title="Related data">
+            <div class="text-center">
+              <b-spinner v-show="loading"></b-spinner>
+            </div>
+            <div v-if="indicators_data">
+              <DocumentRelatedIndicators
                 v-show="!loading"
-                :result="analyzed_document_data"
+                :indicators_data="indicators_data"
                 @onLoadingStatusChanged="setAnalyzedDocLoading"
               />
             </div>
@@ -282,6 +298,7 @@ import SearchResultCard from "../common/SearchResultCard";
 import Pagination from "../common/Pagination";
 import UploadedDocument from "../common/UploadedDocument";
 import PageFooter from "../common/PageFooter";
+import DocumentRelatedIndicators from "../common/DocumentRelatedIndicators";
 
 export default {
   name: "SimilarityNew",
@@ -297,6 +314,7 @@ export default {
     SearchResultCard,
     Pagination,
     UploadedDocument,
+    DocumentRelatedIndicators,
   },
   mixins: [saveState],
   mounted() {
@@ -310,6 +328,7 @@ export default {
       tabIndex: 0,
       page_sizes: this.$config.pagination.page_sizes,
       page_window: this.$config.pagination.page_window,
+      init_click: false,
 
       next_override: true,
       model_name: {
@@ -354,6 +373,9 @@ export default {
       upload_analyze_document_url: null,
       url_analyze_document_url: null,
       analyze_document_model_id: null,
+
+      indicators_data: null,
+      indicators_model_id: null,
 
       url: "",
       uploaded_file: null,
@@ -402,6 +424,17 @@ export default {
       }
       return formData;
     },
+    relatedIndicatorsParams() {
+      const formData = new FormData();
+      formData.append("model_id", this.indicators_model_id);
+
+      if (this.selectedInput === "file_upload") {
+        formData.append("file", this.uploaded_file);
+      } else {
+        formData.append("url", this.url);
+      }
+      return formData;
+    },
     apiParams() {
       const formData = new FormData();
       formData.append("model_id", this.model_option.model_id);
@@ -417,11 +450,17 @@ export default {
     },
     selectedModel() {
       if (this.tabIndex === 0) {
-        return this.model_name.word2vec;
+        // Document analysis
+        return this.model_name.topic_model;
       } else if (this.tabIndex === 1) {
-        return this.model_name.topic_model;
+        // Embedding model
+        return this.model_name.word2vec;
       } else if (this.tabIndex === 2) {
+        // Topic model
         return this.model_name.topic_model;
+      } else if (this.tabIndex === 3) {
+        // Related data
+        return this.model_name.word2vec;
       } else {
         return null;
       }
@@ -468,6 +507,9 @@ export default {
       ].url_nlp_api_url = this.$config.search_url[result.model_name].url;
       this.model_options[this.model_name.word2vec].model_id =
         result.model_run_info_id;
+
+      this.indicators_model_id = result.model_run_info_id;
+
       console.log(result.model_run_info_id);
     },
     onModelSelectTopicModel(result) {
@@ -547,6 +589,23 @@ export default {
           this.loading = false;
         });
     },
+    getRelatedIndicators() {
+      this.loading = true;
+      const all_indicators_endpoint =
+        this.selectedInput === "file_upload"
+          ? "/get_similar_indicators_from_file"
+          : "/get_similar_indicators_from_url";
+
+      this.$http
+        .post(
+          this.$config.extra_url.all + all_indicators_endpoint,
+          this.relatedIndicatorsParams
+        )
+        .then((response) => {
+          this.indicators_data = response.data;
+          this.loading = false;
+        });
+    },
     fileUpload(event) {
       this.uploaded_file = event.target.files[0];
     },
@@ -559,9 +618,13 @@ export default {
       this.loading = loading;
     },
     sendRequest() {
+      this.init_click = true;
+      this.loading = true;
       if (this.stateReady) {
-        if (this.tabIndex === 2) {
+        if (this.tabIndex === 0) {
           this.analyzeDocument();
+        } else if (this.tabIndex === 3) {
+          this.getRelatedIndicators();
         } else {
           this.sendSearch(this.model_option.curr_page_num);
         }
