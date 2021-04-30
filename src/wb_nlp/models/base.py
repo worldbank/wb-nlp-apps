@@ -98,6 +98,10 @@ class BaseModel:
 
         self.create_milvus_collection()
 
+        self.doc_topic_meta_fields = [
+            "adm_region", "country", "corpus", "date_published",
+            "doc_type", "geo_region", "major_doc_type", "topics_src", "year"]
+
     def log(self, message):
 
         if self.logger:
@@ -635,6 +639,7 @@ class BaseModel:
 
         # If LDA model, dump topics in mongodb document_topics collection.
         if is_topic_model:
+
             print("FILLING TOPIC DB")
             # mongodb.get_document_topics_collection().delete_many(
             #     {"id": {"$in": doc_ids}, "model_run_info_id": self.model_run_info["model_run_info_id"]})
@@ -653,6 +658,8 @@ class BaseModel:
                 doc_ids=doc_ids,
                 vectors=vectors,
                 model_run_info_id=self.model_run_info['model_run_info_id'],
+                metadata=docs[self.doc_topic_meta_fields +
+                              ["id"]].set_index("id").T.to_dict(),
                 ignore_existing=False)
 
             # for doc_id, topic_list in zip(doc_ids, vectors):
@@ -703,6 +710,8 @@ class BaseModel:
         collection_doc_ids = list(set(get_collection_ids(collection_name)))
 
         projection = ["id", "int_id", "hex_id", "corpus"]
+        projection = [
+            i for i in projection if i not in self.doc_topic_meta_fields] + self.doc_topic_meta_fields
 
         cleaned_ids = [i.stem for i in self.cleaned_docs_dir.glob("*/*.txt")]
 

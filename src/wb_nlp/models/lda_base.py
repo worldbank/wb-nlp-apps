@@ -48,9 +48,13 @@ class LDAModel(BaseModel):
         )
 
         self.topic_composition_ranges = None
-        self.logger.info("Initializing topic composition")
-        self.get_topic_composition_ranges()
-        self.logger.info("Finished initializing topic composition")
+
+        try:
+            self.logger.info("Initializing topic composition")
+            self.get_topic_composition_ranges()
+            self.logger.info("Finished initializing topic composition")
+        except ValueError:
+            self.logger.info("Skipping initialization of topic composition")
 
     def set_model_specific_attributes(self):
         self.num_topics = self.dim

@@ -104,6 +104,16 @@ class DocTopic(Document):
     topics = Object()
     model_run_info_id = Keyword()
 
+    adm_region = Keyword()
+    country = Keyword()
+    corpus = Keyword()
+    date_published = Date()
+    doc_type = Keyword()
+    geo_region = Keyword()
+    major_doc_type = Keyword()
+    topics_src = Keyword()
+    year = Integer()
+
     class Index:
         name = DOC_TOPIC_INDEX
         settings = {
@@ -155,7 +165,10 @@ def get_indexed_corpus_size():
     return NLPDoc.search().count()
 
 
-def store_docs_topics(doc_ids, vectors, model_run_info_id, ignore_existing=True):
+def store_docs_topics(doc_ids, vectors, model_run_info_id, metadata=None, ignore_existing=True):
+    '''
+    metadata: dict {id: {field: value, ...}}
+    '''
     existing_ids = set()
 
     if ignore_existing:
@@ -177,10 +190,11 @@ def store_docs_topics(doc_ids, vectors, model_run_info_id, ignore_existing=True)
             es_id=es_id,
             doc_id=doc_id,
             topics=topics,
-            model_run_info_id=model_run_info_id)
+            model_run_info_id=model_run_info_id,
+            metadata=metadata.get(doc_id))
 
 
-def store_doc_topics(es_id, doc_id, topics, model_run_info_id):
+def store_doc_topics(es_id, doc_id, topics, model_run_info_id, metadata=None):
     _id = f"{model_run_info_id}-{doc_id}"
     assert es_id == _id
 
@@ -189,6 +203,8 @@ def store_doc_topics(es_id, doc_id, topics, model_run_info_id):
         topics=topics,
         model_run_info_id=model_run_info_id,
     )
+    if metadata is not None:
+        data.update(metadata)
 
     topic_doc = DocTopic(meta={'id': es_id}, **data)
     topic_doc.save()
