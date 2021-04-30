@@ -240,7 +240,7 @@
                 <div
                   class="filter-action-bar d-flex col-12 col-md-9 col-lg-8 justify-content-lg-end"
                 >
-                  <div class="dropdown">
+                  <!-- <div class="dropdown">
                     <button
                       class="btn btn-outline-secondary btn-sm dropdown-toggle wbg-button"
                       type="button"
@@ -272,11 +272,19 @@
                     href="#"
                     class="btn btn btn-outline-success btn-sm wbg-button ml-2"
                     ><i class="fa fa-print"></i></a
-                  ><a
+                  >
+                  <a
                     target="_blank"
                     href="#"
                     class="btn btn btn-outline-success btn-sm wbg-button ml-2"
                     ><i class="fa fa-file-excel-o"></i
+                  ></a>-->
+
+                  <a
+                    target="_blank"
+                    href="#"
+                    class="btn btn btn-outline-success btn-sm wbg-button ml-2"
+                    ><i class="fab fa-searchengin"></i
                   ></a>
                 </div>
               </div>
@@ -427,6 +435,7 @@
 
 
 <script>
+// import qs from "qs";
 import $ from "jquery";
 import saveState from "vue-save-state";
 
@@ -487,6 +496,44 @@ export default {
       if (this.selected_facets.max_year) {
         params.append("max_year", this.selected_facets.max_year);
       }
+
+      if (this.selected_facets.adm_region) {
+        this.selected_facets.adm_region.map((v) =>
+          params.append("adm_region", v)
+        );
+      }
+      if (this.selected_facets.author) {
+        this.selected_facets.author.map((v) => params.append("author", v));
+      }
+      if (this.selected_facets.country) {
+        this.selected_facets.country.map((v) => params.append("country", v));
+      }
+      if (this.selected_facets.der_country_groups) {
+        this.selected_facets.der_country_groups.map((v) =>
+          params.append("der_country_groups", v)
+        );
+      }
+
+      if (this.selected_facets.corpus) {
+        this.selected_facets.corpus.map((v) => params.append("corpus", v));
+      }
+
+      if (this.selected_facets.major_doc_type) {
+        this.selected_facets.major_doc_type.map((v) =>
+          params.append("major_doc_type", v)
+        );
+      }
+      if (this.selected_facets.geo_region) {
+        this.selected_facets.geo_region.map((v) =>
+          params.append("geo_region", v)
+        );
+      }
+      if (this.selected_facets.topics_src) {
+        this.selected_facets.topics_src.map((v) =>
+          params.append("topics_src", v)
+        );
+      }
+
       params.append("from_result", this.from_result);
       params.append("size", this.curr_size);
       return params;
@@ -757,8 +804,11 @@ export default {
       this.loading = true;
 
       this.$http
-        .post(this.keyword_search_api_url, this.keywordSearchBody(), {
+        .get(this.keyword_search_api_url, {
           params: this.searchParams,
+          // paramsSerializer: (params) => {
+          //   return qs.stringify(params);
+          // },
         })
         .then((response) => {
           this.hits = response.data.hits;
