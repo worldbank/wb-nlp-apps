@@ -153,7 +153,7 @@
                   Mehmood Asghar, Senior Data Engineer (support to web
                   development, web scraping, and database applications)
                 </li>
-                <li>Dupriez, Senior Adviser (project manager)</li>
+                <li>Olivier Dupriez, Senior Adviser (project manager)</li>
               </ul>
 
               <p>
