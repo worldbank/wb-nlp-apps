@@ -550,15 +550,24 @@ class LDAModel(BaseModel):
 
     def get_topic_share(self, topic_id: int, doc_ids: list):
         model_run_info_id = self.model_run_info["model_run_info_id"]
-        doc_topic_collection = mongodb.get_document_topics_collection()
 
-        normed_docs_topic = doc_topic_collection.find(
-            {"id": {"$in": doc_ids}, "model_run_info_id": model_run_info_id}, projection=["id", f"topics.topic_{topic_id}"])
-        normed_docs_topic = pd.DataFrame(list(normed_docs_topic))[
-            ["id", "topics"]]
-        normed_docs_topic["topics"] = normed_docs_topic["topics"].apply(
-            pd.Series)
-        topic_share = normed_docs_topic.set_index('id')["topics"].to_dict()
+        doc_topics = elasticsearch.DocTopic.mget(
+            docs=[f"{model_run_info_id}-{i}" for i in doc_ids])
+        # normed_docs_topics = pd.DataFrame([{"id": doc_topic["id"], "topics": doc_topic["topics"][f"topic_{topic_id}"]} for doc_topic in doc_topics])
+
+        topic_share = {doc_topic["id"]: doc_topic["topics"]
+                       [f"topic_{topic_id}"] for doc_topic in doc_topics if doc_topic}
+
+        # model_run_info_id = self.model_run_info["model_run_info_id"]
+        # doc_topic_collection = mongodb.get_document_topics_collection()
+
+        # normed_docs_topic = doc_topic_collection.find(
+        #     {"id": {"$in": doc_ids}, "model_run_info_id": model_run_info_id}, projection=["id", f"topics.topic_{topic_id}"])
+        # normed_docs_topic = pd.DataFrame(list(normed_docs_topic))[
+        #     ["id", "topics"]]
+        # normed_docs_topic["topics"] = normed_docs_topic["topics"].apply(
+        #     pd.Series)
+        # topic_share = normed_docs_topic.set_index('id')["topics"].to_dict()
 
         return topic_share
 

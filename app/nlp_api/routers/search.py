@@ -2,7 +2,7 @@
 '''
 from datetime import datetime
 from typing import List
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form, Query
 from pydantic import HttpUrl
 from contexttimer import Timer
 from wb_nlp.interfaces import elasticsearch
@@ -24,19 +24,19 @@ router = APIRouter(
 )
 
 
-@ router.post("/keyword")
+@ router.get("/keyword")
 async def keyword_search(
     query: str,
     min_year: int = None,
     max_year: int = None,
-    author: List[str] = None,
-    country: List[str] = None,
-    der_country_groups: List[str] = None,
-    corpus: List[str] = None,
-    major_doc_type: List[str] = None,
-    adm_region: List[str] = None,
-    geo_region: List[str] = None,
-    topics_src: List[str] = None,
+    author: List[str] = Query(None),
+    country: List[str] = Query(None),
+    der_country_groups: List[str] = Query(None),
+    corpus: List[str] = Query(None),
+    major_doc_type: List[str] = Query(None),
+    adm_region: List[str] = Query(None),
+    geo_region: List[str] = Query(None),
+    topics_src: List[str] = Query(None),
     from_result: int = 0,
     size: int = 10,
 ):

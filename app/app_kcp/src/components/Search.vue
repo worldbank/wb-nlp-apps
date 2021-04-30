@@ -240,7 +240,7 @@
                 <div
                   class="filter-action-bar d-flex col-12 col-md-9 col-lg-8 justify-content-lg-end"
                 >
-                  <div class="dropdown">
+                  <!-- <div class="dropdown">
                     <button
                       class="btn btn-outline-secondary btn-sm dropdown-toggle wbg-button"
                       type="button"
@@ -272,12 +272,41 @@
                     href="#"
                     class="btn btn btn-outline-success btn-sm wbg-button ml-2"
                     ><i class="fa fa-print"></i></a
-                  ><a
+                  >
+                  <a
                     target="_blank"
                     href="#"
                     class="btn btn btn-outline-success btn-sm wbg-button ml-2"
                     ><i class="fa fa-file-excel-o"></i
+                  ></a>-->
+
+                  <a
+                    title="Get API link"
+                    v-b-modal.modal-lg
+                    href="javascript:void(0);"
+                    class="btn btn btn-outline-success btn-sm wbg-button ml-2"
+                    ><i class="fab fa-searchengin"></i
                   ></a>
+                  <b-modal id="modal-lg" size="lg" title="API link"
+                    ><a :href="this.api_link" target="_blank"
+                      ><span
+                        style="font-family: 'Courier New', Courier, monospace"
+                        >{{ api_link }}</span
+                      ></a
+                    >
+                    <template #modal-footer>
+                      <div class="w-100">
+                        <b-button
+                          variant="primary"
+                          size="sm"
+                          class="float-right"
+                          @click="copyText"
+                        >
+                          Copy to clipboard
+                        </b-button>
+                      </div>
+                    </template>
+                  </b-modal>
                 </div>
               </div>
             </div>
@@ -395,6 +424,7 @@
                 >
               </div>
             </div>
+
             <SearchResultLoading :loading="loading" :size="curr_size" />
             <div v-if="!loading">
               <SearchResultCard
@@ -427,6 +457,7 @@
 
 
 <script>
+// import qs from "qs";
 import $ from "jquery";
 import saveState from "vue-save-state";
 
@@ -487,6 +518,44 @@ export default {
       if (this.selected_facets.max_year) {
         params.append("max_year", this.selected_facets.max_year);
       }
+
+      if (this.selected_facets.adm_region) {
+        this.selected_facets.adm_region.map((v) =>
+          params.append("adm_region", v)
+        );
+      }
+      if (this.selected_facets.author) {
+        this.selected_facets.author.map((v) => params.append("author", v));
+      }
+      if (this.selected_facets.country) {
+        this.selected_facets.country.map((v) => params.append("country", v));
+      }
+      if (this.selected_facets.der_country_groups) {
+        this.selected_facets.der_country_groups.map((v) =>
+          params.append("der_country_groups", v)
+        );
+      }
+
+      if (this.selected_facets.corpus) {
+        this.selected_facets.corpus.map((v) => params.append("corpus", v));
+      }
+
+      if (this.selected_facets.major_doc_type) {
+        this.selected_facets.major_doc_type.map((v) =>
+          params.append("major_doc_type", v)
+        );
+      }
+      if (this.selected_facets.geo_region) {
+        this.selected_facets.geo_region.map((v) =>
+          params.append("geo_region", v)
+        );
+      }
+      if (this.selected_facets.topics_src) {
+        this.selected_facets.topics_src.map((v) =>
+          params.append("topics_src", v)
+        );
+      }
+
       params.append("from_result", this.from_result);
       params.append("size", this.curr_size);
       return params;
@@ -547,6 +616,8 @@ export default {
       // adm_region: [],
       // geo_region: [],
       // topics_src: [],
+
+      api_link: "",
 
       match_stats: [],
       total: Object,
@@ -676,6 +747,9 @@ export default {
     resetFrom: function () {
       this.from_result = 0;
     },
+    copyText() {
+      navigator.clipboard.writeText(this.api_link);
+    },
     getSuggestions: function () {
       if (!this.query) {
         return;
@@ -757,8 +831,11 @@ export default {
       this.loading = true;
 
       this.$http
-        .post(this.keyword_search_api_url, this.keywordSearchBody(), {
+        .get(this.keyword_search_api_url, {
           params: this.searchParams,
+          // paramsSerializer: (params) => {
+          //   return qs.stringify(params);
+          // },
         })
         .then((response) => {
           this.hits = response.data.hits;
@@ -775,6 +852,12 @@ export default {
           if (this.total.value % this.curr_size > 0) {
             this.num_pages += 1;
           }
+
+          this.api_link =
+            location.origin +
+            this.keyword_search_api_url +
+            "?" +
+            this.searchParams.toLocaleString();
         })
         .catch((error) => {
           console.log(error);
@@ -810,6 +893,11 @@ export default {
           if (this.total.value % this.curr_size > 0) {
             this.num_pages += 1;
           }
+          this.api_link =
+            location.origin +
+            this.semantic_search_api_url +
+            "?" +
+            this.searchParams.toLocaleString();
         })
         .catch((error) => {
           console.log(error);
