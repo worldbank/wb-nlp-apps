@@ -146,7 +146,7 @@ export default {
   name: "Methods &amp; Tools",
   components: {},
   mounted() {
-    this.flowSideBar();
+    // this.flowSideBar();
   },
   computed: {},
   methods: {

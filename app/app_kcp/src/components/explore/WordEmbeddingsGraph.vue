@@ -25,12 +25,45 @@
 
     <hr />
 
-    <b-form-input
-      width="100%"
-      v-model="raw_text"
-      placeholder="Enter word(s)"
-      v-on:keyup.enter="getGraph"
-    />
+    <b-row align-v="center">
+      <div class="col-11">
+        <b-form-input
+          v-model="raw_text"
+          placeholder="Enter word(s)"
+          v-on:keyup.enter="getGraph"
+        />
+      </div>
+      <div class="col-1">
+        <a
+          v-show="api_link"
+          title="Get API link"
+          v-b-modal.modal-lg
+          href="javascript:void(0);"
+          class="btn btn btn-outline-success btn-sm wbg-button ml-2"
+          ><i class="fab fa-searchengin"></i
+        ></a>
+        <b-modal id="modal-lg" size="lg" title="API link"
+          ><a :href="api_link" target="_blank"
+            ><span style="font-family: 'Courier New', Courier, monospace">{{
+              api_link
+            }}</span></a
+          >
+          <template #modal-footer>
+            <div v-if="navigator.clipboard" class="w-100">
+              <b-button
+                variant="primary"
+                size="sm"
+                class="float-right"
+                @click="copyText"
+              >
+                Copy to clipboard
+              </b-button>
+            </div>
+          </template>
+        </b-modal>
+      </div>
+    </b-row>
+
     <b-badge
       @click="getGraph(rw.word)"
       v-for="rw in this.related_words"
@@ -39,6 +72,7 @@
       style="margin-right: 5px; cursor: pointer"
       >{{ rw.word }}
     </b-badge>
+
     <br />
     <div v-if="this.graph === null && loading">
       <b-skeleton-img></b-skeleton-img>
@@ -52,7 +86,7 @@
         class="chart"
         refs="graphChart"
         :option="option2"
-        autoresize="true"
+        :autoresize="true"
         :loading="loading"
       />
     </b-container>
@@ -103,6 +137,18 @@ export default {
     window.vm = this;
   },
   computed: {
+    searchParams() {
+      const params = new URLSearchParams();
+
+      params.append("model_id", this.$config.default_model.word2vec.model_id);
+      params.append("raw_text", this.text);
+      params.append("topn_words", 8);
+      params.append("topn_sub", 5);
+      params.append("edge_thresh", 0.8);
+      params.append("metric", "cosine_similarity");
+
+      return params;
+    },
     blurContent: function () {
       return this.loading;
     },
@@ -216,6 +262,8 @@ export default {
   },
   data() {
     return {
+      navigator: window.navigator,
+      api_link: null,
       graph: null,
       raw_text: "",
       related_words: [],
@@ -241,6 +289,9 @@ export default {
     isHighlighted: function (action) {
       this.highlighted_point = action;
     },
+    copyText() {
+      this.navigator.clipboard.writeText(this.api_link);
+    },
     getGraph: function (text = null) {
       this.loading = true;
       if (typeof text !== "string") {
@@ -248,21 +299,32 @@ export default {
       } else {
         this.raw_text = text;
       }
+      this.api_link = null;
       this.related_words = [];
-      const body = {
-        model_id: this.$config.default_model.word2vec.model_id,
-        raw_text: text,
-        topn_words: 8,
-        topn_sub: 5,
-        edge_thresh: 0.8,
-        metric: "cosine_similarity",
-      };
+      this.text = text;
+
+      // const params = new URLSearchParams();
+
+      // params.append("model_id", this.$config.default_model.word2vec.model_id);
+      // params.append("raw_text", text);
+      // params.append("topn_words", 8);
+      // params.append("topn_sub", 5);
+      // params.append("edge_thresh", 0.8);
+      // params.append("metric", "cosine_similarity");
+
+      // const body = {
+      //   model_id: this.$config.default_model.word2vec.model_id,
+      //   raw_text: text,
+      //   topn_words: 8,
+      //   topn_sub: 5,
+      //   edge_thresh: 0.8,
+      //   metric: "cosine_similarity",
+      // };
 
       this.$http
-        .post(
-          this.$config.nlp_api_url.word2vec + "/get_similar_words_graph",
-          body
-        )
+        .get(this.$config.nlp_api_url.word2vec + "/get_similar_words_graph", {
+          params: this.searchParams,
+        })
         .then((response) => {
           var graph = response.data.graph_data;
           this.related_words = response.data.similar_words;
@@ -274,6 +336,13 @@ export default {
             // node.x = node.y = null;
           });
           this.graph = graph;
+
+          this.api_link =
+            location.origin +
+            this.$config.nlp_api_url.word2vec +
+            "/get_similar_words_graph" +
+            "?" +
+            this.searchParams.toLocaleString();
         })
         .catch((error) => {
           console.log(error);

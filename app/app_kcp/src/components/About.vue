@@ -219,7 +219,7 @@ export default {
   name: "Explore",
   components: {},
   mounted() {
-    this.flowSideBar();
+    // this.flowSideBar();
   },
   computed: {},
   methods: {
