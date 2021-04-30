@@ -108,13 +108,13 @@
                         stacked
                       ></b-form-checkbox-group>
                     </b-form-group>
-                    <b-form-group label="Lending Instrument">
+                    <!-- <b-form-group label="Lending Instrument">
                       <b-form-checkbox-group
                         v-model="topic_share_selected_lending_instruments"
                         :options="lending_instruments"
                         stacked
                       ></b-form-checkbox-group>
-                    </b-form-group>
+                    </b-form-group> -->
                   </b-dropdown-form>
                   <b-dropdown-item-button disabled
                     ><span> </span
@@ -208,6 +208,7 @@ export default {
     return {
       errors: [],
       api_url: "/api",
+      nlp_api_url: null,
       model_topics: [],
       related_words: [],
       current_lda_model_topics: [],
@@ -298,8 +299,9 @@ export default {
     this.setModel();
   },
   methods: {
-    onModelSelect: function (model_run_info_id) {
-      this.model_run_info_id = model_run_info_id;
+    onModelSelect: function (result) {
+      this.model_run_info_id = result.model_run_info_id;
+      this.nlp_api_url = result.url;
       this.getModelTopics();
     },
     formatTopicText: function (topic) {
@@ -317,22 +319,22 @@ export default {
     },
     getModelTopics: function () {
       this.$http
-        .get(this.$config.nlp_api_url.lda + "/get_model_topic_words", {
+        .get(this.nlp_api_url + "/get_model_topic_words", {
           params: this.searchParams,
         })
         .then((response) => {
-          this.model_topics = response.data;
-          // this.current_lda_model_topics = response.data;
-          // this.current_lda_model_topics_options = this.lodash.map(
-          //   this.current_lda_model_topics,
-          //   (topic) => {
-          //     return {
-          //       text: this.formatTopicText(topic),
-          //       value: topic.topic_id,
-          //     };
-          //   }
-          // );
-          // this.topic_words = this.current_lda_model_topics[this.topic_id];
+          // this.model_topics = response.data;
+          this.current_lda_model_topics = response.data;
+          this.current_lda_model_topics_options = this.lodash.map(
+            this.current_lda_model_topics,
+            (topic) => {
+              return {
+                text: this.formatTopicText(topic),
+                value: topic.topic_id,
+              };
+            }
+          );
+          this.topic_words = this.current_lda_model_topics[this.topic_id];
         })
         .catch((error) => {
           console.log(error);
@@ -350,20 +352,23 @@ export default {
         // Assume that
         vm.lda_model_id = _model_id;
 
-        let options = {
-          corpus_id: this.corpus_id,
-          model_id: this.lda_model_id,
-          topn_words: 10,
-        };
-
         // let options = {
-        //   model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
+        //   corpus_id: this.corpus_id,
+        //   model_id: this.lda_model_id,
         //   topn_words: 10,
         // };
 
+        let options = {
+          // model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
+          model_id: this.model_run_info_id,
+          topn_words: 10,
+        };
+
         this.$http
-          .get(this.api_url + "/get_lda_model_topics" + "?" + $.param(options))
-          // .get(this.$config.nlp_api_url.lda + "/get_model_topic_words" + "?" + $.param(options))
+          // .get(this.api_url + "/get_lda_model_topics" + "?" + $.param(options))
+          .get(
+            this.nlp_api_url + "/get_model_topic_words" + "?" + $.param(options)
+          )
           .then((response) => {
             this.current_lda_model_topics = response.data;
             this.current_lda_model_topics_options = this.lodash.map(
@@ -391,28 +396,29 @@ export default {
       this.topic_share_searching = true;
       this.topic_share_plot_ready = false;
 
-      let options = {
-        corpus_id: this.corpus_id,
-        model_id: this.lda_model_id,
-        topic_id: this.topic_id,
-        year_start: 1960,
-        adm_regions: this.topic_share_selected_adm_regions,
-        major_doc_types: this.topic_share_selected_doc_types,
-        lending_instruments: this.topic_share_selected_lending_instruments,
-      };
-
       // let options = {
       //   corpus_id: this.corpus_id,
-      //   model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
+      //   model_id: this.lda_model_id,
       //   topic_id: this.topic_id,
       //   year_start: 1960,
       //   adm_regions: this.topic_share_selected_adm_regions,
       //   major_doc_types: this.topic_share_selected_doc_types,
+      //   lending_instruments: this.topic_share_selected_lending_instruments,
       // };
 
+      let options = {
+        corpus_id: this.corpus_id,
+        // model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
+        model_id: this.model_run_info_id,
+        topic_id: this.topic_id,
+        year_start: 1960,
+        adm_regions: this.topic_share_selected_adm_regions,
+        major_doc_types: this.topic_share_selected_doc_types,
+      };
+
       this.$http
-        .post(this.api_url + "/lda_compare_partition_topic_share", options)
-        // .post(this.$config.nlp_api_url.lda + "/get_partition_topic_share", options)
+        // .post(this.api_url + "/lda_compare_partition_topic_share", options)
+        .post(this.nlp_api_url + "/get_partition_topic_share", options)
         .then((response) => {
           let data = response.data;
 
