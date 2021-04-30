@@ -281,11 +281,32 @@
                   ></a>-->
 
                   <a
-                    target="_blank"
-                    href="#"
+                    title="Get API link"
+                    v-b-modal.modal-lg
+                    href="javascript:void(0);"
                     class="btn btn btn-outline-success btn-sm wbg-button ml-2"
                     ><i class="fab fa-searchengin"></i
                   ></a>
+                  <b-modal id="modal-lg" size="lg" title="API link"
+                    ><a :href="this.api_link" target="_blank"
+                      ><span
+                        style="font-family: 'Courier New', Courier, monospace"
+                        >{{ api_link }}</span
+                      ></a
+                    >
+                    <template #modal-footer>
+                      <div class="w-100">
+                        <b-button
+                          variant="primary"
+                          size="sm"
+                          class="float-right"
+                          @click="copyText"
+                        >
+                          Copy to clipboard
+                        </b-button>
+                      </div>
+                    </template>
+                  </b-modal>
                 </div>
               </div>
             </div>
@@ -403,6 +424,7 @@
                 >
               </div>
             </div>
+
             <SearchResultLoading :loading="loading" :size="curr_size" />
             <div v-if="!loading">
               <SearchResultCard
@@ -595,6 +617,8 @@ export default {
       // geo_region: [],
       // topics_src: [],
 
+      api_link: "",
+
       match_stats: [],
       total: Object,
       errored: false,
@@ -723,6 +747,9 @@ export default {
     resetFrom: function () {
       this.from_result = 0;
     },
+    copyText() {
+      navigator.clipboard.writeText(this.api_link);
+    },
     getSuggestions: function () {
       if (!this.query) {
         return;
@@ -825,6 +852,12 @@ export default {
           if (this.total.value % this.curr_size > 0) {
             this.num_pages += 1;
           }
+
+          this.api_link =
+            location.origin +
+            this.keyword_search_api_url +
+            "?" +
+            this.searchParams.toLocaleString();
         })
         .catch((error) => {
           console.log(error);
@@ -860,6 +893,11 @@ export default {
           if (this.total.value % this.curr_size > 0) {
             this.num_pages += 1;
           }
+          this.api_link =
+            location.origin +
+            this.semantic_search_api_url +
+            "?" +
+            this.searchParams.toLocaleString();
         })
         .catch((error) => {
           console.log(error);
