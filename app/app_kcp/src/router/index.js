@@ -192,7 +192,7 @@ const explore_routes = [
         name: "explore_similarity",
         component: Similarity,
         props: {
-            page_title: "Analyze document",
+            page_title: "Analyze your document",
             share_url: "%2fexplore%2fsimilarity%2f",
             share_text: "Similarity"
         },

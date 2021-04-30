@@ -295,7 +295,7 @@
                       ></a
                     >
                     <template #modal-footer>
-                      <div class="w-100">
+                      <div v-if="navigator.clipboard" class="w-100">
                         <b-button
                           variant="primary"
                           size="sm"
@@ -486,7 +486,7 @@ export default {
   mixins: [saveState],
   mounted() {
     window.vm = this;
-    this.flowSideBar();
+    // this.flowSideBar();
 
     this.routeChangeSearch();
   },
@@ -583,6 +583,7 @@ export default {
     return {
       // min_year: null,
       // max_year: null,
+      navigator: window.navigator,
       search_type: "keyword",
       keyword_search_api_url: this.$config.search_url.keyword,
       semantic_search_api_url: this.$config.search_url.semantic,
@@ -748,7 +749,7 @@ export default {
       this.from_result = 0;
     },
     copyText() {
-      navigator.clipboard.writeText(this.api_link);
+      this.navigator.clipboard.writeText(this.api_link);
     },
     getSuggestions: function () {
       if (!this.query) {

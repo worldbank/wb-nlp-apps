@@ -132,7 +132,7 @@
       @click.prevent
       >Related documents...</a
     >
-    <b-collapse :id="result.id">
+    <b-collapse v-model="visible" :id="result.id">
       <RelatedDocsPanel :reference_id="result.id" :submit="submit_related" />
     </b-collapse>
     <hr />
@@ -161,10 +161,17 @@ export default {
     DocumentMetadata,
     Authors,
   },
+  mounted() {
+    if (this.match.rank === 1) {
+      this.visible = true;
+      this.activateSubmit();
+    }
+  },
   data: function () {
     return {
       submit_related: false,
       rrandom_id: null,
+      visible: false,
     };
   },
   computed: {
