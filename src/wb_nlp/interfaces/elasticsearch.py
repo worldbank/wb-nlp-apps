@@ -301,7 +301,10 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt
         try:
             nlp_doc.save()
         except ConnectionTimeout:
-            nlp_doc.save()
+            try:
+                nlp_doc.save()
+            except ConnectionTimeout:
+                nlp_doc.save()
 
 
 def faceted_search_nlp_docs():
@@ -459,3 +462,6 @@ class NLPDocAggregations:
 
     def get_doc_counts_by_year_by_major_doc_type(self, filters=None):
         return self.get_doc_counts_by_year_by_field(field="major_doc_type", filters=filters)
+
+    def get_doc_counts_by_year_by_adm_region(self, filters=None):
+        return self.get_doc_counts_by_year_by_field(field="adm_region", filters=filters)
