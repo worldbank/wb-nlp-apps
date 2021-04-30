@@ -34,6 +34,7 @@ def get_client():
 
 
 class NLPDoc(Document):
+    id = Keyword()
     title = Text(analyzer='snowball', fields={'raw': Keyword()})
     body = Text(analyzer='snowball')
     abstract = Text(analyzer='snowball')
@@ -393,3 +394,62 @@ def ids_search(ids, query, from_result=0, size=10, return_body=False, ignore_cac
 
 
 # for dobj in scan(es, query={"query": {"match_all": {}}, "fields": []}, size=10000, index="nlp-documents", doc_type=elasticsearch.NLPDoc):
+
+# def timeseries_aggregations():
+#     search = NLPDoc.search()
+#     search.aggs.bucket(
+#         "docs_per_year", "terms", field="year").bucket("docs_per_doc_type", "terms",  field="major_doc_type").metric("total_tokens", "sum", field="tokens")
+
+
+class NLPDocAggregations:
+    def __init__(self, doc_class):
+        self.doc_class = doc_class
+
+    def get_doc_counts_by_year_by_major_doc_type(self, filters=None):
+        search = self.doc_class.search()
+
+        if filters:
+            for ftype, fvalue in filters.items():
+                search = search.filter(ftype, **fvalue)
+
+        search.aggs.bucket(
+            "docs_per_year",
+            "date_histogram",
+            field="date_published",
+            calendar_interval="year"
+        ).metric(
+            "year_total_tokens", "sum",
+            field="tokens"
+        ).bucket(
+            "docs_per_doc_type",
+            "terms",
+            field="major_doc_type",
+            size=999999999
+        ).metric(
+            "doc_type_total_tokens", "sum",
+            field="tokens"
+        ).bucket(
+            "ids", "terms",
+            field="id", size=999999999)
+
+        result = search.execute()
+
+        data = []
+
+        for year_bucket in result.aggregations["docs_per_year"]["buckets"]:
+            for doc_type_bucket in year_bucket["docs_per_doc_type"]["buckets"]:
+
+                data.append(
+                    dict(
+                        year=year_bucket["key_as_string"].split("T")[0],
+                        year_doc_count=year_bucket["doc_count"],
+                        year_total_tokens=year_bucket["year_total_tokens"]["value"],
+                        doc_type=doc_type_bucket["key"],
+                        doc_type_doc_count=doc_type_bucket["doc_count"],
+                        doc_type_total_tokens=doc_type_bucket["doc_type_total_tokens"]["value"],
+                        doc_ids=[i["key"]
+                                 for i in doc_type_bucket["ids"]["buckets"]]
+                    )
+                )
+
+        return data
