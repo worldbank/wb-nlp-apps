@@ -405,7 +405,7 @@ class NLPDocAggregations:
     def __init__(self, doc_class):
         self.doc_class = doc_class
 
-    def get_doc_counts_by_year_by_major_doc_type(self, filters=None):
+    def get_search_aggregation(self, field, filters=None):
         search = self.doc_class.search()
 
         if filters:
@@ -421,35 +421,41 @@ class NLPDocAggregations:
             "year_total_tokens", "sum",
             field="tokens"
         ).bucket(
-            "docs_per_doc_type",
+            f"docs_per_{field}",
             "terms",
-            field="major_doc_type",
+            field=field,
             size=999999999
         ).metric(
-            "doc_type_total_tokens", "sum",
+            f"{field}_total_tokens", "sum",
             field="tokens"
         ).bucket(
             "ids", "terms",
             field="id", size=999999999)
 
-        result = search.execute()
+        return search.execute()
 
+    def get_doc_counts_by_year_by_field(self, field, filters=None):
+        result = self.get_search_aggregation(field=field, filters=filters)
         data = []
 
         for year_bucket in result.aggregations["docs_per_year"]["buckets"]:
-            for doc_type_bucket in year_bucket["docs_per_doc_type"]["buckets"]:
+            for field_bucket in year_bucket[f"docs_per_{field}"]["buckets"]:
 
                 data.append(
-                    dict(
-                        year=year_bucket["key_as_string"].split("T")[0],
-                        year_doc_count=year_bucket["doc_count"],
-                        year_total_tokens=year_bucket["year_total_tokens"]["value"],
-                        doc_type=doc_type_bucket["key"],
-                        doc_type_doc_count=doc_type_bucket["doc_count"],
-                        doc_type_total_tokens=doc_type_bucket["doc_type_total_tokens"]["value"],
-                        doc_ids=[i["key"]
-                                 for i in doc_type_bucket["ids"]["buckets"]]
-                    )
+                    {
+                        "year": year_bucket["key_as_string"].split("T")[0],
+                        "year_doc_count": year_bucket["doc_count"],
+                        "year_total_tokens": year_bucket["year_total_tokens"]["value"],
+                        f"{field}": field_bucket["key"],
+                        f"{field}_doc_count": field_bucket["doc_count"],
+                        f"{field}_total_tokens": field_bucket[
+                            f"{field}_total_tokens"]["value"],
+                        "doc_ids": [i["key"]
+                                    for i in field_bucket["ids"]["buckets"]]
+                    }
                 )
 
         return data
+
+    def get_doc_counts_by_year_by_major_doc_type(self, filters=None):
+        return self.get_doc_counts_by_year_by_field(field="major_doc_type", filters=filters)
