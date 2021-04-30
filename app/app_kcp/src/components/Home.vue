@@ -65,6 +65,22 @@
                     title="Upload a PDF or TXT document to search"
                     accept=".txt,.doc,.docx,.pdf"
                   />
+                  <i
+                    title="Delete query"
+                    v-show="
+                      (search_text && search_text.length > 0) || file_input
+                    "
+                    @click="clearSearchInput"
+                    style="
+                      position: relative;
+                      margin-left: -50px;
+                      margin-right: 10px;
+                      padding-right: 10px;
+                      padding-left: 20px;
+                      z-index: 999;
+                    "
+                    class="fas fa-times fa-sm"
+                  />
                   <label class="file-input__label white-bg" for="file-input"
                     ><i
                       class="fas fa-file-upload fa-lg"
@@ -305,6 +321,10 @@ export default {
       this.search_text = "";
       this.search_type = "semantic";
     },
+    clearSearchInput() {
+      this.search_text_cache = "";
+      this.removeFile();
+    },
     removeFile() {
       this.uploaded_file = null;
       this.file_input = null;
@@ -335,5 +355,8 @@ export default {
 <style scoped>
 .white-bg {
   background-color: white;
+}
+.fa-times:hover {
+  color: red;
 }
 </style>
