@@ -4,7 +4,7 @@ from fastapi import APIRouter, Query, Form, File, UploadFile
 from pydantic import HttpUrl
 from wb_nlp.types.models import (
     ModelTypes,
-    TopicCompositionParams, PartitionTopicShareParams
+    TopicCompositionParams, PartitionTopicShareParams, FullTopicProfilesParams
 )
 from . import topic_model
 
@@ -121,6 +121,16 @@ async def get_partition_topic_share(
     transform_params: PartitionTopicShareParams
 ):
     return topic_model.get_partition_topic_share(
+        model_name=LDA_MODEL_NAME,
+        transform_params=transform_params
+    )
+
+
+@ router.post("/get_full_topic_profiles")
+async def get_full_topic_profiles(
+    transform_params: FullTopicProfilesParams
+):
+    return topic_model.get_full_topic_profiles(
         model_name=LDA_MODEL_NAME,
         transform_params=transform_params
     )
