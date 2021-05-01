@@ -421,8 +421,8 @@ def ids_search(ids, query, from_result=0, size=10, return_body=False, ignore_cac
 
 
 class NLPDocAggregations:
-    def __init__(self, doc_class):
-        self.doc_class = doc_class
+    def __init__(self, doc_class=None):
+        self.doc_class = doc_class or NLPDoc
 
     def get_search_aggregation(self, field, filters=None, return_ids=False):
         search = self.doc_class.search()
