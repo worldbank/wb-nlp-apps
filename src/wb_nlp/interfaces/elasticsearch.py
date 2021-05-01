@@ -428,8 +428,9 @@ class NLPDocAggregations:
         search = self.doc_class.search()
 
         if filters:
-            for ftype, fvalue in filters.items():
-                search = search.filter(ftype, **fvalue)
+            for f in filters:
+                for ftype, fvalue in f.items():
+                    search = search.filter(ftype, **fvalue)
 
         if return_ids:
             search.aggs.bucket(
@@ -514,8 +515,9 @@ class DocTopicAggregations:
         search = self.doc_class.search().filter("term", model_run_info_id=self.model_id)
 
         if filters:
-            for ftype, fvalue in filters.items():
-                search = search.filter(ftype, **fvalue)
+            for f in filters:
+                for ftype, fvalue in f.items():
+                    search = search.filter(ftype, **fvalue)
 
         if return_ids:
             search.aggs.bucket(

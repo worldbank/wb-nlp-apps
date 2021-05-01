@@ -552,20 +552,24 @@ class LDAModel(BaseModel):
 
         return {'topic_shares': payload, 'topic_words': self.get_topic_words(topic_id)}
 
-    def get_topic_profile_data_payload(self, df):
+    def get_topic_profile_data_payload(self, df, field, type="line"):
         x = sorted(df.index)
         legend = sorted(df.columns)
-        series = [dict(name=f, data=df.loc[x, f].tolist()) for f in legend]
+        series = [dict(name=f, data=df.loc[x, f].tolist(),
+                       stack=field, type=type, areaStyle={}) for f in legend]
         return dict(
             year=x,
             series=series,
             legend=legend,
         )
 
-    def get_topic_profile_by_field(self, field, topic_id):
+    def get_topic_profile_by_field(self, field, topic_id, type="line"):
         topic_agg = elasticsearch.DocTopicAggregations(model_id=self.model_id)
+
         data = pd.DataFrame(topic_agg.get_topic_profile_by_year_by_field(
-            field=field, topic=f"topic_{topic_id}"))
+            field=field,
+            topic=f"topic_{topic_id}",
+            filters=[{"term": {"corpus": "WB"}}]))
 
         year_field_topic_sum_df = data.pivot(
             index="year", columns=field, values=f"{field}_topic_sum").fillna(0)
@@ -576,9 +580,9 @@ class LDAModel(BaseModel):
             year_field_topic_sum_df / year_doc_count_df).fillna(0)
 
         topic_volume = self.get_topic_profile_data_payload(
-            year_field_topic_sum_df)
+            year_field_topic_sum_df, field=field, type=type)
         topic_share = self.get_topic_profile_data_payload(
-            normed_year_field_topic_sum_df)
+            normed_year_field_topic_sum_df, field=field, type=type)
 
         return dict(
             field=field,
@@ -587,19 +591,19 @@ class LDAModel(BaseModel):
             share=topic_share
         )
 
-    def get_full_topic_profile(self, topic_id: int):
+    def get_full_topic_profile(self, topic_id: int, type="line"):
 
         data_adm_region = self.get_topic_profile_by_field(
-            field="adm_region", topic_id=topic_id)
+            field="adm_region", topic_id=topic_id, type=type)
         data_major_doc_type = self.get_topic_profile_by_field(
-            field="major_doc_type", topic_id=topic_id)
+            field="major_doc_type", topic_id=topic_id, type=type)
 
         return dict(adm_region=data_adm_region, major_doc_type=data_major_doc_type)
 
-    def get_full_topic_profiles(self, topic_id: int, year_start: int = 1950, year_end: int = datetime.now().year, return_records=True):
+    def get_full_topic_profiles(self, topic_id: int, year_start: int = 1950, year_end: int = datetime.now().year, type="line", return_records=True):
         # docs_metadata = mongodb.get_docs_metadata_collection()
 
-        data = self.get_full_topic_profile(topic_id=topic_id)
+        data = self.get_full_topic_profile(topic_id=topic_id, type=type)
 
         data['topic_words'] = self.get_topic_words(topic_id)
 
