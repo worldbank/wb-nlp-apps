@@ -424,60 +424,167 @@ class NLPDocAggregations:
     def __init__(self, doc_class):
         self.doc_class = doc_class
 
-    def get_search_aggregation(self, field, filters=None):
+    def get_search_aggregation(self, field, filters=None, return_ids=False):
         search = self.doc_class.search()
 
         if filters:
             for ftype, fvalue in filters.items():
                 search = search.filter(ftype, **fvalue)
 
-        search.aggs.bucket(
-            "docs_per_year",
-            "date_histogram",
-            field="date_published",
-            calendar_interval="year"
-        ).metric(
-            "year_total_tokens", "sum",
-            field="tokens"
-        ).bucket(
-            f"docs_per_{field}",
-            "terms",
-            field=field,
-            size=999999999
-        ).metric(
-            f"{field}_total_tokens", "sum",
-            field="tokens"
-        ).bucket(
-            "ids", "terms",
-            field="id", size=999999999)
+        if return_ids:
+            search.aggs.bucket(
+                "docs_per_year",
+                "date_histogram",
+                field="date_published",
+                calendar_interval="year"
+            ).metric(
+                "year_total_tokens", "sum",
+                field="tokens"
+            ).bucket(
+                f"docs_per_{field}",
+                "terms",
+                field=field,
+                size=999999999
+            ).metric(
+                f"{field}_total_tokens", "sum",
+                field="tokens"
+            ).bucket(
+                "ids", "terms",
+                field="id", size=999999999)
+        else:
+
+            search.aggs.bucket(
+                "docs_per_year",
+                "date_histogram",
+                field="date_published",
+                calendar_interval="year"
+            ).metric(
+                "year_total_tokens", "sum",
+                field="tokens"
+            ).bucket(
+                f"docs_per_{field}",
+                "terms",
+                field=field,
+                size=999999999
+            ).metric(
+                f"{field}_total_tokens", "sum",
+                field="tokens"
+            )
 
         return search.execute()
 
-    def get_doc_counts_by_year_by_field(self, field, filters=None):
-        result = self.get_search_aggregation(field=field, filters=filters)
+    def get_doc_counts_by_year_by_field(self, field, filters=None, return_ids=False):
+        result = self.get_search_aggregation(
+            field=field, filters=filters, return_ids=return_ids)
         data = []
 
         for year_bucket in result.aggregations["docs_per_year"]["buckets"]:
             for field_bucket in year_bucket[f"docs_per_{field}"]["buckets"]:
+                d = {
+                    "year": year_bucket["key_as_string"].split("T")[0],
+                    "year_doc_count": year_bucket["doc_count"],
+                    "year_total_tokens": year_bucket["year_total_tokens"]["value"],
+                    f"{field}": field_bucket["key"],
+                    f"{field}_doc_count": field_bucket["doc_count"],
+                    f"{field}_total_tokens": field_bucket[
+                        f"{field}_total_tokens"]["value"],
+                }
 
-                data.append(
-                    {
-                        "year": year_bucket["key_as_string"].split("T")[0],
-                        "year_doc_count": year_bucket["doc_count"],
-                        "year_total_tokens": year_bucket["year_total_tokens"]["value"],
-                        f"{field}": field_bucket["key"],
-                        f"{field}_doc_count": field_bucket["doc_count"],
-                        f"{field}_total_tokens": field_bucket[
-                            f"{field}_total_tokens"]["value"],
-                        "doc_ids": [i["key"]
+                if return_ids:
+                    d["doc_ids"] = [i["key"]
                                     for i in field_bucket["ids"]["buckets"]]
-                    }
-                )
+
+                data.append(d)
 
         return data
 
-    def get_doc_counts_by_year_by_major_doc_type(self, filters=None):
-        return self.get_doc_counts_by_year_by_field(field="major_doc_type", filters=filters)
+    def get_doc_counts_by_year_by_major_doc_type(self, filters=None, return_ids=False):
+        return self.get_doc_counts_by_year_by_field(field="major_doc_type", filters=filters, return_ids=return_ids)
 
-    def get_doc_counts_by_year_by_adm_region(self, filters=None):
-        return self.get_doc_counts_by_year_by_field(field="adm_region", filters=filters)
+    def get_doc_counts_by_year_by_adm_region(self, filters=None, return_ids=False):
+        return self.get_doc_counts_by_year_by_field(field="adm_region", filters=filters, return_ids=return_ids)
+
+
+class DocTopicAggregations:
+    def __init__(self, doc_class):
+        self.doc_class = doc_class
+
+    def get_search_aggregation(self, field, filters=None, return_ids=False):
+        search = self.doc_class.search()
+
+        if filters:
+            for ftype, fvalue in filters.items():
+                search = search.filter(ftype, **fvalue)
+
+        if return_ids:
+            search.aggs.bucket(
+                "docs_per_year",
+                "date_histogram",
+                field="date_published",
+                calendar_interval="year"
+            ).metric(
+                "year_total_tokens", "sum",
+                field="tokens"
+            ).bucket(
+                f"docs_per_{field}",
+                "terms",
+                field=field,
+                size=999999999
+            ).metric(
+                f"{field}_total_tokens", "sum",
+                field="tokens"
+            ).bucket(
+                "ids", "terms",
+                field="id", size=999999999)
+        else:
+
+            search.aggs.bucket(
+                "docs_per_year",
+                "date_histogram",
+                field="date_published",
+                calendar_interval="year"
+            ).metric(
+                "year_total_tokens", "sum",
+                field="tokens"
+            ).bucket(
+                f"docs_per_{field}",
+                "terms",
+                field=field,
+                size=999999999
+            ).metric(
+                f"{field}_total_tokens", "sum",
+                field="tokens"
+            )
+
+        return search.execute()
+
+    def get_doc_counts_by_year_by_field(self, field, filters=None, return_ids=False):
+        result = self.get_search_aggregation(
+            field=field, filters=filters, return_ids=return_ids)
+        data = []
+
+        for year_bucket in result.aggregations["docs_per_year"]["buckets"]:
+            for field_bucket in year_bucket[f"docs_per_{field}"]["buckets"]:
+                d = {
+                    "year": year_bucket["key_as_string"].split("T")[0],
+                    "year_doc_count": year_bucket["doc_count"],
+                    "year_total_tokens": year_bucket["year_total_tokens"]["value"],
+                    f"{field}": field_bucket["key"],
+                    f"{field}_doc_count": field_bucket["doc_count"],
+                    f"{field}_total_tokens": field_bucket[
+                        f"{field}_total_tokens"]["value"],
+                }
+
+                if return_ids:
+                    d["doc_ids"] = [i["key"]
+                                    for i in field_bucket["ids"]["buckets"]]
+
+                data.append(d)
+
+        return data
+
+    def get_doc_counts_by_year_by_major_doc_type(self, filters=None, return_ids=False):
+        return self.get_doc_counts_by_year_by_field(field="major_doc_type", filters=filters, return_ids=return_ids)
+
+    def get_doc_counts_by_year_by_adm_region(self, filters=None, return_ids=False):
+        return self.get_doc_counts_by_year_by_field(field="adm_region", filters=filters, return_ids=return_ids)
