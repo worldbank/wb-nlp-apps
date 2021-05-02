@@ -25,6 +25,21 @@
         country and year (available <a href="#">here</a>), displayed in the
         following map.
       </p>
+
+      <VolumeChart
+        v-if="adm_region"
+        :data="adm_region"
+        :field="adm_region.field"
+        field_name="admin regions"
+      />
+
+      <VolumeChart
+        v-if="geo_region"
+        :data="geo_region"
+        :field="geo_region.field"
+        field_name="geographic regions"
+      />
+
       <div id="mapDiv" />
     </div>
   </div>
@@ -34,10 +49,16 @@
 // import { Plotly } from "vue-plotly";
 
 // import map_methods from "../../../js/maps";
+
+import VolumeChart from "../../common/VolumeChart";
+
 export default {
   name: "GeographicCoverage",
   props: {
     page_title: String,
+  },
+  components: {
+    VolumeChart,
   },
   data: function () {
     return {
@@ -45,12 +66,41 @@ export default {
       corpus_size: 200000,
       org_count: 14,
       total_tokens: 1029000000,
+
+      adm_region: null,
+      geo_region: null,
     };
   },
   mounted() {
     this.findTopicMap();
+    this.getFullCorpusData();
   },
   methods: {
+    getFullCorpusData: function () {
+      this.loading = true;
+
+      const params = new URLSearchParams();
+      params.append("fields", "adm_region");
+      params.append("fields", "geo_region");
+
+      this.$http
+        .get(this.$config.corpus_url + "/get_corpus_volume_by", {
+          params: params,
+        })
+        .then((response) => {
+          let data = response.data;
+
+          this.adm_region = data.adm_region;
+          this.geo_region = data.geo_region;
+
+          // this.docs_data = data.docs;
+
+          // this.tokens_data = data.tokens;
+          this.loading = false;
+        })
+
+        .finally(() => {});
+    },
     findTopicMap: function (
       csvFile = "/static/data/country_popularity.csv",
       divID = "mapDiv"

@@ -12,93 +12,24 @@
 
       <br />
 
-      <div>
-        <h4>Documents by source</h4>
-        <b-form-radio-group
-          v-model="docs_value"
-          value-field="item"
-          text-field="name"
-          :options="group_value_options"
-        />
-        <br />
-
-        <b-row>
-          <b-col>
-            <v-chart
-              class="chart"
-              ref="graphChartDocs"
-              :option="defaultOptions"
-              :autoresize="true"
-              :loading="loading"
-            />
-          </b-col>
-        </b-row>
-
-        <br />
-        <br />
-      </div>
-
-      <div>
-        <h4>Tokens by source</h4>
-        <b-form-radio-group
-          v-model="tokens_value"
-          value-field="item"
-          text-field="name"
-          :options="group_value_options"
-        />
-        <br />
-
-        <b-row>
-          <b-col>
-            <v-chart
-              class="chart"
-              ref="graphChartTokens"
-              :option="defaultOptions"
-              :autoresize="true"
-              :loading="loading"
-            />
-          </b-col>
-        </b-row>
-      </div>
+      <VolumeChart
+        v-if="corpus"
+        :data="corpus"
+        :field="corpus.field"
+        field_name="corpus"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import { use } from "echarts/core";
-import VChart from "vue-echarts";
-
-import {
-  TooltipComponent,
-  LegendComponent,
-  GridComponent,
-  DataZoomComponent,
-  DataZoomInsideComponent,
-  DataZoomSliderComponent,
-  ToolboxComponent,
-} from "echarts/components";
-import { GraphChart, LinesChart, LineChart, BarChart } from "echarts/charts";
-import { CanvasRenderer } from "echarts/renderers";
-
-use([
-  TooltipComponent,
-  LegendComponent,
-  GraphChart,
-  CanvasRenderer,
-  LinesChart,
-  LineChart,
-  BarChart,
-  GridComponent,
-  DataZoomComponent,
-  DataZoomInsideComponent,
-  DataZoomSliderComponent,
-  ToolboxComponent,
-]);
+import VolumeChart from "../../common/VolumeChart";
 
 export default {
   name: "Volume",
   components: {
-    VChart,
+    // VChart,
+    VolumeChart,
   },
   props: {
     page_title: String,
@@ -108,6 +39,7 @@ export default {
       this.items = response.data;
     });
     this.getFullCorpusVolumeData();
+    this.getFullCorpusData();
   },
   computed: {
     defaultOptions() {
@@ -188,6 +120,8 @@ export default {
       docs_data: null,
       tokens_data: null,
 
+      corpus: null,
+
       docs_value: "volume",
       tokens_value: "volume",
 
@@ -240,6 +174,37 @@ export default {
 
         .finally(() => {});
     },
+    getFullCorpusData: function () {
+      this.loading = true;
+
+      const params = new URLSearchParams();
+      params.append("fields", "corpus");
+      params.append("fields", "adm_region");
+      params.append("fields", "geo_region");
+      params.append("fields", "major_doc_type");
+      params.append("fields", "topics_src");
+
+      this.$http
+        .get(this.$config.corpus_url + "/get_corpus_volume_by", {
+          params: params,
+        })
+        .then((response) => {
+          let data = response.data;
+
+          this.corpus = data.corpus;
+          this.adm_region = data.adm_region;
+          this.geo_region = data.geo_region;
+          this.major_doc_type = data.major_doc_type;
+          this.topics_src = data.topics_src;
+
+          // this.docs_data = data.docs;
+
+          // this.tokens_data = data.tokens;
+          this.loading = false;
+        })
+
+        .finally(() => {});
+    },
     updateCharts() {
       this.$refs.graphChartDocs.setOption(
         this.updateOption(this.docs_data, this.docs_value, "Documents")
@@ -269,10 +234,3 @@ export default {
   },
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-.chart {
-  height: 450px;
-}
-</style>
