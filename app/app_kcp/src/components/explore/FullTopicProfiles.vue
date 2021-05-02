@@ -371,18 +371,24 @@ export default {
       this.topic_share_searching = true;
       this.topic_share_plot_ready = false;
 
-      let options = {
-        corpus_id: this.corpus_id,
-        // model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
-        model_id: this.model_run_info_id,
-        // model_id: "3e82ec784f125709c8bac46d7dd8a67f",
-        topic_id: this.topic_id,
-        year_start: 1960,
-        type: "line",
-      };
+      const params = new URLSearchParams();
+      params.append("model_id", this.model_run_info_id);
+      params.append("topic_id", this.topic_id);
+      params.append("year_start", 1960);
+      params.append("type", "line");
+
+      // let options = {
+      //   // corpus_id: this.corpus_id,
+      //   // model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
+      //   model_id: this.model_run_info_id,
+      //   // model_id: "3e82ec784f125709c8bac46d7dd8a67f",
+      //   topic_id: this.topic_id,
+      //   year_start: 1960,
+      //   type: "line",
+      // };
 
       this.$http
-        .post(this.nlp_api_url + "/get_full_topic_profiles", options)
+        .get(this.nlp_api_url + "/get_full_topic_profiles", { params: params })
         .then((response) => {
           let data = response.data;
 
