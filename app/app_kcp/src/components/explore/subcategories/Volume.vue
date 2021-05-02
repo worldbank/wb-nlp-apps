@@ -4,7 +4,10 @@
     <div>
       <br />
       <p>
-        Knowledge produced may be measured by the volume of documents published.
+        Knowledge produced may be measured by the volume of documents published
+        or the length of content in a document. In this page, we show some
+        summary statistics regarding the breakdown of document count and total
+        number of tokens present in the corpus by source over time.
       </p>
 
       <br />
