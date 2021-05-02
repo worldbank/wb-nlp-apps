@@ -552,10 +552,10 @@ class LDAModel(BaseModel):
 
         return {'topic_shares': payload, 'topic_words': self.get_topic_words(topic_id)}
 
-    def get_topic_profile_data_payload(self, df, field, type="line"):
+    def get_topic_profile_data_payload(self, df, field, type="line", is_share=False):
         x = sorted(df.index)
         legend = sorted(df.columns)
-        series = [dict(name=f, data=df.loc[x, f].tolist(),
+        series = [dict(name=f, data=(100 * df.loc[x, f]).round(2).tolist() if is_share else df.loc[x, f].round(2).tolist(),
                        stack=field, type=type, areaStyle={}) for f in legend]
         return dict(
             year=x,
@@ -582,7 +582,7 @@ class LDAModel(BaseModel):
         topic_volume = self.get_topic_profile_data_payload(
             year_field_topic_sum_df, field=field, type=type)
         topic_share = self.get_topic_profile_data_payload(
-            normed_year_field_topic_sum_df, field=field, type=type)
+            normed_year_field_topic_sum_df, field=field, type=type, is_share=True)
 
         return dict(
             field=field,
