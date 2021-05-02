@@ -26,13 +26,7 @@
 
       <b-row v-show="model_run_info_id !== null">
         <b-col :md="show_topic_words ? 9 : 12">
-          <b-row
-            v-if="
-              lda_model_id != '' &&
-              topic_share_active &&
-              current_lda_model_topics_options
-            "
-          >
+          <b-row v-if="current_lda_model_topics_options.length > 0">
             <b-col>
               <b-form-group>
                 <div class="model-select-wrapper">
@@ -123,16 +117,12 @@
 </template>
 
 <script>
-// import "echarts";
-
 import { use } from "echarts/core";
 import VChart from "vue-echarts";
-// import { Plotly } from "vue-plotly";
-import $ from "jquery";
+
 import MLModelSelect from "../common/MLModelSelect";
 import { ModelSelect } from "vue-search-select";
 
-// import * as echarts from 'echarts/core';
 import {
   TooltipComponent,
   LegendComponent,
@@ -163,7 +153,6 @@ use([
 export default {
   name: "TopicProfiles",
   components: {
-    // Plotly,
     MLModelSelect,
     ModelSelect,
     VChart,
@@ -174,36 +163,24 @@ export default {
   },
   data: function () {
     return {
-      api_url: "/api",
       nlp_api_url: null,
-      model_topics: [],
-      related_words: [],
       current_lda_model_topics: [],
       current_lda_model_topics_options: [],
-      raw_text: "poverty",
       loading: true,
-      model_name: "lda",
+      model_name: "topic_model",
       model_run_info_id: null,
 
-      corpus_id: "WB",
-      lda_model_id: "ALL_50",
-
-      topic_share_active: true,
       full_profile_ready: false,
+
       major_doc_type_value: "volume",
       adm_region_value: "volume",
+
       adm_region_data: null,
       major_doc_type_data: null,
 
       prev_topic_id: -1,
       topic_id: null,
-      selected_topic: 0,
-      topic_share_selected_adm_regions: [],
-      topic_share_selected_doc_types: [],
-      topic_share_selected_lending_instruments: [],
-      topic_share_plot_ready: false,
 
-      topic_shares: null,
       topic_words: null,
     };
   },
@@ -218,25 +195,15 @@ export default {
       params.append("topn_words", 10);
       return params;
     },
-    readyForSubmit: function () {
-      return (
-        this.topic_share_selected_adm_regions.length +
-          this.topic_share_selected_doc_types.length +
-          this.topic_share_selected_lending_instruments.length >
-        0
-      );
-    },
+
     topicChanged: function () {
       // return this.prev_topic_id != this.selected_topic.topic_id;
       return this.prev_topic_id != this.topic_id;
     },
-    blurContent: function () {
-      return this.topicChanged || !this.topic_share_plot_ready;
-    },
   },
   mounted() {
     window.vm = this;
-    this.setModel();
+    // this.setModel();
     this.getFullTopicProfiles();
   },
   methods: {
@@ -284,12 +251,10 @@ export default {
             saveAsImage: {},
           },
         },
-
         grid: {
           left: "3%",
           right: "4%",
           bottom: "10%",
-          // top: "10%",
           containLabel: true,
         },
         xAxis: [
@@ -353,56 +318,11 @@ export default {
         })
         .finally(() => (this.loading = false));
     },
-    setModel: function (_model_id, model_name) {
-      _model_id = "ALL_50";
-      model_name = "lda";
-      let vm = this;
-      if (model_name == "word2vec") {
-        vm.word2vec_model_id = _model_id;
-      } else if (model_name == "lda") {
-        // Assume that
-        vm.lda_model_id = _model_id;
 
-        // let options = {
-        //   corpus_id: this.corpus_id,
-        //   model_id: this.lda_model_id,
-        //   topn_words: 10,
-        // };
-
-        let options = {
-          // model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
-          model_id: this.model_run_info_id,
-          topn_words: 10,
-        };
-
-        this.$http
-          // .get(this.api_url + "/get_lda_model_topics" + "?" + $.param(options))
-          .get(
-            this.nlp_api_url + "/get_model_topic_words" + "?" + $.param(options)
-          )
-          .then((response) => {
-            this.current_lda_model_topics = response.data;
-            this.current_lda_model_topics_options = this.lodash.map(
-              this.current_lda_model_topics,
-              (topic) => {
-                return {
-                  text: this.formatTopicText(topic),
-                  value: topic.topic_id,
-                };
-              }
-            );
-            this.topic_words = this.current_lda_model_topics[this.topic_id];
-          })
-          .finally(() => (this.loading = false));
-      } else {
-        return;
-      }
-    },
     getFullTopicProfiles: function () {
       this.loading = true;
       this.full_profile_ready = false;
       this.prev_topic_id = this.topic_id;
-      this.topic_share_plot_ready = false;
 
       const params = new URLSearchParams();
       params.append("model_id", this.model_run_info_id);
