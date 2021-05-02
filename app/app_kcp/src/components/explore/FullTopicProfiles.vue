@@ -396,7 +396,6 @@ export default {
         })
         .finally(() => (this.loading = false));
     },
-
     getFullTopicProfiles: function () {
       this.loading = true;
       this.full_profile_ready = false;
