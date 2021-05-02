@@ -43,16 +43,13 @@
           </b-row>
           <br />
 
-          <div v-if="major_doc_type_data">
+          <div>
             <h4>Topic profile by document type</h4>
             <b-form-radio-group
               v-model="major_doc_type_value"
               value-field="item"
               text-field="name"
-              :options="[
-                { item: 'volume', name: 'By volume' },
-                { item: 'share', name: 'By share' },
-              ]"
+              :options="group_value_options"
             />
             <br />
 
@@ -61,13 +58,7 @@
                 <v-chart
                   class="chart"
                   ref="graphChartMajorDocType"
-                  :option="
-                    graphOptions(
-                      major_doc_type_data,
-                      major_doc_type_value,
-                      'Document type'
-                    )
-                  "
+                  :option="defaultOptions"
                   :autoresize="true"
                   :loading="loading"
                 />
@@ -78,32 +69,22 @@
             <br />
           </div>
 
-          <div v-if="adm_region_data">
+          <div>
             <h4>Topic profile by admin regions</h4>
             <b-form-radio-group
               v-model="adm_region_value"
               value-field="item"
               text-field="name"
-              :options="[
-                { item: 'volume', name: 'By volume' },
-                { item: 'share', name: 'By share' },
-              ]"
+              :options="group_value_options"
             />
             <br />
 
             <b-row>
               <b-col>
                 <v-chart
-                  v-if="adm_region_data"
                   class="chart"
                   ref="graphChartAdminRegion"
-                  :option="
-                    graphOptions(
-                      adm_region_data,
-                      adm_region_value,
-                      'Admin regions'
-                    )
-                  "
+                  :option="defaultOptions"
                   :autoresize="true"
                   :loading="loading"
                 />
@@ -167,6 +148,7 @@ export default {
       current_lda_model_topics: [],
       current_lda_model_topics_options: [],
       loading: true,
+
       model_name: "topic_model",
       model_run_info_id: null,
 
@@ -175,11 +157,16 @@ export default {
       major_doc_type_value: "volume",
       adm_region_value: "volume",
 
+      group_value_options: [
+        { item: "volume", name: "By volume" },
+        { item: "share", name: "By share" },
+      ],
+
       adm_region_data: null,
       major_doc_type_data: null,
 
       prev_topic_id: -1,
-      topic_id: null,
+      topic_id: 0,
 
       topic_words: null,
     };
@@ -195,10 +182,80 @@ export default {
     topicChanged: function () {
       return this.prev_topic_id != this.topic_id;
     },
+    defaultOptions() {
+      return {
+        title: {
+          text: "Topic profiles",
+        },
+        tooltip: {
+          trigger: "axis",
+          axisPointer: {
+            type: "cross",
+            label: {
+              backgroundColor: "#6a7985",
+            },
+          },
+        },
+        legend: {
+          data: [],
+        },
+        toolbox: {
+          feature: {
+            // dataZoom: {
+            //   yAxisIndex: "none",
+            // },
+            // restore: {},
+            saveAsImage: {},
+          },
+        },
+        grid: {
+          left: "3%",
+          right: "4%",
+          bottom: "10%",
+          containLabel: true,
+        },
+        xAxis: [
+          {
+            type: "category",
+            boundaryGap: false,
+            data: [],
+          },
+        ],
+        yAxis: [
+          {
+            type: "value",
+            axisLabel: {
+              formatter: "{value}",
+            },
+          },
+        ],
+        dataZoom: [
+          {
+            type: "inside",
+            start: 20,
+            end: 100,
+          },
+          {
+            start: 20,
+            end: 100,
+            handleIcon:
+              "M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z",
+            handleSize: "50%",
+            handleStyle: {
+              color: "#fff",
+              shadowBlur: 3,
+              shadowColor: "rgba(0, 0, 0, 0.6)",
+              shadowOffsetX: 2,
+              shadowOffsetY: 2,
+            },
+          },
+        ],
+        series: [],
+      };
+    },
   },
   mounted() {
     window.vm = this;
-    this.getFullTopicProfiles();
   },
   methods: {
     onModelSelect: function (result) {
@@ -238,10 +295,10 @@ export default {
         },
         toolbox: {
           feature: {
-            dataZoom: {
-              yAxisIndex: "none",
-            },
-            restore: {},
+            // dataZoom: {
+            //   yAxisIndex: "none",
+            // },
+            // restore: {},
             saveAsImage: {},
           },
         },
@@ -290,8 +347,34 @@ export default {
         series: data[value].series,
       };
     },
+    updateOption(data, value, label) {
+      return {
+        title: {
+          text: "Topic profiles" + "(" + label + ")",
+        },
+        legend: {
+          data: data[value].legend,
+        },
+        xAxis: [
+          {
+            type: "category",
+            boundaryGap: false,
+            data: data[value].year,
+          },
+        ],
+        yAxis: [
+          {
+            type: "value",
+            axisLabel: {
+              formatter: value === "share" ? "{value} %" : "{value}",
+            },
+          },
+        ],
+        series: data[value].series,
+      };
+    },
     getModelTopics: function () {
-      this.topic_id = null;
+      this.topic_id = 0;
       this.$http
         .get(this.nlp_api_url + "/get_model_topic_words", {
           params: this.searchParams,
@@ -308,6 +391,8 @@ export default {
             }
           );
           this.topic_words = this.current_lda_model_topics[this.topic_id];
+
+          this.getFullTopicProfiles();
         })
         .finally(() => (this.loading = false));
     },
@@ -334,6 +419,8 @@ export default {
           if ("topic_words" in data) {
             this.topic_words = data.topic_words;
           }
+          this.updateCharts();
+
           this.full_profile_ready = true;
           this.loading = false;
         })
@@ -341,10 +428,45 @@ export default {
         .finally(() => {});
     },
     plotVolumeTopicProfiles() {},
+    updateCharts() {
+      this.$refs.graphChartMajorDocType.setOption(
+        this.updateOption(
+          this.major_doc_type_data,
+          this.major_doc_type_value,
+          "Document type"
+        )
+      );
+
+      this.$refs.graphChartAdminRegion.setOption(
+        this.updateOption(
+          this.adm_region_data,
+          this.adm_region_value,
+          "Admin region"
+        )
+      );
+    },
   },
   watch: {
     topic_id() {
       this.getFullTopicProfiles();
+    },
+    adm_region_value() {
+      this.$refs.graphChartAdminRegion.setOption(
+        this.updateOption(
+          this.adm_region_data,
+          this.adm_region_value,
+          "Admin region"
+        )
+      );
+    },
+    major_doc_type_value() {
+      this.$refs.graphChartMajorDocType.setOption(
+        this.updateOption(
+          this.major_doc_type_data,
+          this.major_doc_type_value,
+          "Document type"
+        )
+      );
     },
   },
 };
