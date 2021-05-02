@@ -104,6 +104,16 @@ class DocTopic(Document):
     topics = Object()
     model_run_info_id = Keyword()
 
+    adm_region = Keyword()
+    country = Keyword()
+    corpus = Keyword()
+    date_published = Date()
+    doc_type = Keyword()
+    geo_region = Keyword()
+    major_doc_type = Keyword()
+    topics_src = Keyword()
+    year = Integer()
+
     class Index:
         name = DOC_TOPIC_INDEX
         settings = {
@@ -155,7 +165,10 @@ def get_indexed_corpus_size():
     return NLPDoc.search().count()
 
 
-def store_docs_topics(doc_ids, vectors, model_run_info_id, ignore_existing=True):
+def store_docs_topics(doc_ids, vectors, model_run_info_id, metadata=None, ignore_existing=True):
+    '''
+    metadata: dict {id: {field: value, ...}}
+    '''
     existing_ids = set()
 
     if ignore_existing:
@@ -177,10 +190,11 @@ def store_docs_topics(doc_ids, vectors, model_run_info_id, ignore_existing=True)
             es_id=es_id,
             doc_id=doc_id,
             topics=topics,
-            model_run_info_id=model_run_info_id)
+            model_run_info_id=model_run_info_id,
+            metadata=metadata.get(doc_id))
 
 
-def store_doc_topics(es_id, doc_id, topics, model_run_info_id):
+def store_doc_topics(es_id, doc_id, topics, model_run_info_id, metadata=None):
     _id = f"{model_run_info_id}-{doc_id}"
     assert es_id == _id
 
@@ -189,6 +203,8 @@ def store_doc_topics(es_id, doc_id, topics, model_run_info_id):
         topics=topics,
         model_run_info_id=model_run_info_id,
     )
+    if metadata is not None:
+        data.update(metadata)
 
     topic_doc = DocTopic(meta={'id': es_id}, **data)
     topic_doc.save()
@@ -396,6 +412,20 @@ def ids_search(ids, query, from_result=0, size=10, return_body=False, ignore_cac
     return response
 
 
+def update_doc_topic_metadata(docs_metadata):
+    fields = [
+        "adm_region", "country", "corpus", "date_published",
+        "doc_type", "geo_region", "major_doc_type", "topics_src",
+        "year"
+    ]
+
+    for doc in docs_metadata:
+        search = DocTopic.search().filter("term", id=doc["id"])
+        metadata = {k: doc.get(k) for k in fields}
+
+        for hit in search.execute():
+            hit.update(**metadata)
+
 # for dobj in scan(es, query={"query": {"match_all": {}}, "fields": []}, size=10000, index="nlp-documents", doc_type=elasticsearch.NLPDoc):
 
 # def timeseries_aggregations():
@@ -405,63 +435,173 @@ def ids_search(ids, query, from_result=0, size=10, return_body=False, ignore_cac
 
 
 class NLPDocAggregations:
-    def __init__(self, doc_class):
-        self.doc_class = doc_class
+    def __init__(self, doc_class=None):
+        self.doc_class = doc_class or NLPDoc
 
-    def get_search_aggregation(self, field, filters=None):
+    def get_search_aggregation(self, field, filters=None, return_ids=False):
         search = self.doc_class.search()
 
         if filters:
-            for ftype, fvalue in filters.items():
-                search = search.filter(ftype, **fvalue)
+            for f in filters:
+                for ftype, fvalue in f.items():
+                    search = search.filter(ftype, **fvalue)
 
-        search.aggs.bucket(
-            "docs_per_year",
-            "date_histogram",
-            field="date_published",
-            calendar_interval="year"
-        ).metric(
-            "year_total_tokens", "sum",
-            field="tokens"
-        ).bucket(
-            f"docs_per_{field}",
-            "terms",
-            field=field,
-            size=999999999
-        ).metric(
-            f"{field}_total_tokens", "sum",
-            field="tokens"
-        ).bucket(
-            "ids", "terms",
-            field="id", size=999999999)
+        if return_ids:
+            search.aggs.bucket(
+                "docs_per_year",
+                "date_histogram",
+                field="date_published",
+                calendar_interval="year"
+            ).metric(
+                "year_total_tokens", "sum",
+                field="tokens"
+            ).bucket(
+                f"docs_per_{field}",
+                "terms",
+                field=field,
+                size=999999999
+            ).metric(
+                f"{field}_total_tokens", "sum",
+                field="tokens"
+            ).bucket(
+                "ids", "terms",
+                field="id", size=999999999)
+        else:
+
+            search.aggs.bucket(
+                "docs_per_year",
+                "date_histogram",
+                field="date_published",
+                calendar_interval="year"
+            ).metric(
+                "year_total_tokens", "sum",
+                field="tokens"
+            ).bucket(
+                f"docs_per_{field}",
+                "terms",
+                field=field,
+                size=999999999
+            ).metric(
+                f"{field}_total_tokens", "sum",
+                field="tokens"
+            )
 
         return search.execute()
 
-    def get_doc_counts_by_year_by_field(self, field, filters=None):
-        result = self.get_search_aggregation(field=field, filters=filters)
+    def get_doc_counts_by_year_by_field(self, field, filters=None, return_ids=False):
+        result = self.get_search_aggregation(
+            field=field, filters=filters, return_ids=return_ids)
         data = []
 
         for year_bucket in result.aggregations["docs_per_year"]["buckets"]:
             for field_bucket in year_bucket[f"docs_per_{field}"]["buckets"]:
+                d = {
+                    "year": year_bucket["key_as_string"].split("T")[0],
+                    "year_doc_count": year_bucket["doc_count"],
+                    "year_total_tokens": year_bucket["year_total_tokens"]["value"],
+                    f"{field}": field_bucket["key"],
+                    f"{field}_doc_count": field_bucket["doc_count"],
+                    f"{field}_total_tokens": field_bucket[
+                        f"{field}_total_tokens"]["value"],
+                }
 
-                data.append(
-                    {
-                        "year": year_bucket["key_as_string"].split("T")[0],
-                        "year_doc_count": year_bucket["doc_count"],
-                        "year_total_tokens": year_bucket["year_total_tokens"]["value"],
-                        f"{field}": field_bucket["key"],
-                        f"{field}_doc_count": field_bucket["doc_count"],
-                        f"{field}_total_tokens": field_bucket[
-                            f"{field}_total_tokens"]["value"],
-                        "doc_ids": [i["key"]
+                if return_ids:
+                    d["doc_ids"] = [i["key"]
                                     for i in field_bucket["ids"]["buckets"]]
-                    }
-                )
+
+                data.append(d)
 
         return data
 
-    def get_doc_counts_by_year_by_major_doc_type(self, filters=None):
-        return self.get_doc_counts_by_year_by_field(field="major_doc_type", filters=filters)
+    def get_doc_counts_by_year_by_major_doc_type(self, filters=None, return_ids=False):
+        return self.get_doc_counts_by_year_by_field(field="major_doc_type", filters=filters, return_ids=return_ids)
 
-    def get_doc_counts_by_year_by_adm_region(self, filters=None):
-        return self.get_doc_counts_by_year_by_field(field="adm_region", filters=filters)
+    def get_doc_counts_by_year_by_adm_region(self, filters=None, return_ids=False):
+        return self.get_doc_counts_by_year_by_field(field="adm_region", filters=filters, return_ids=return_ids)
+
+
+class DocTopicAggregations:
+    def __init__(self, model_id, doc_class=None):
+        self.doc_class = doc_class or DocTopic
+        self.model_id = model_id
+
+    def get_topic_aggregation(self, field, topic, filters=None, return_ids=False):
+        search = self.doc_class.search().filter("term", model_run_info_id=self.model_id)
+
+        if filters:
+            for f in filters:
+                for ftype, fvalue in f.items():
+                    search = search.filter(ftype, **fvalue)
+
+        if return_ids:
+            search.aggs.bucket(
+                "topic_per_year",
+                "date_histogram",
+                field="date_published",
+                calendar_interval="year"
+            ).metric(
+                "year_topic_sum", "sum",
+                field=f"topics.{topic}"
+            ).bucket(
+                f"topic_per_{field}",
+                "terms",
+                field=field,
+                size=999999999
+            ).metric(
+                f"{field}_topic_sum", "sum",
+                field=f"topics.{topic}"
+            ).bucket(
+                "ids", "terms",
+                field="id", size=999999999)
+        else:
+            search.aggs.bucket(
+                "topic_per_year",
+                "date_histogram",
+                field="date_published",
+                calendar_interval="year"
+            ).metric(
+                "year_topic_sum", "sum",
+                field=f"topics.{topic}"
+            ).bucket(
+                f"topic_per_{field}",
+                "terms",
+                field=field,
+                size=999999999
+            ).metric(
+                f"{field}_topic_sum", "sum",
+                field=f"topics.{topic}"
+            )
+
+        return search.execute()
+
+    def get_topic_profile_by_year_by_field(self, field, topic, filters=None, return_ids=False):
+        result = self.get_topic_aggregation(
+            field=field, topic=topic, filters=filters, return_ids=return_ids)
+        data = []
+
+        for year_bucket in result.aggregations["topic_per_year"]["buckets"]:
+            for field_bucket in year_bucket[f"topic_per_{field}"]["buckets"]:
+                d = {
+                    "topic": topic,
+                    "year": year_bucket["key_as_string"].split("T")[0],
+                    "year_doc_count": year_bucket["doc_count"],
+                    "year_topic_sum": year_bucket["year_topic_sum"]["value"],
+                    f"{field}": field_bucket["key"],
+                    f"{field}_doc_count": field_bucket["doc_count"],
+                    f"{field}_topic_sum": field_bucket[
+                        f"{field}_topic_sum"]["value"],
+                }
+
+                if return_ids:
+                    d["doc_ids"] = [i["key"]
+                                    for i in field_bucket["ids"]["buckets"]]
+
+                data.append(d)
+
+        return data
+
+    def get_topic_profile_by_year_by_major_doc_type(self, topic, filters=None, return_ids=False):
+        return self.get_topic_profile_by_year_by_field(field="major_doc_type", topic=topic, filters=filters, return_ids=return_ids)
+
+    def get_topic_profile_by_year_by_adm_region(self, topic, filters=None, return_ids=False):
+        return self.get_topic_profile_by_year_by_field(field="adm_region", topic=topic, filters=filters, return_ids=return_ids)

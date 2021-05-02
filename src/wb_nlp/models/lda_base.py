@@ -48,9 +48,13 @@ class LDAModel(BaseModel):
         )
 
         self.topic_composition_ranges = None
-        self.logger.info("Initializing topic composition")
-        self.get_topic_composition_ranges()
-        self.logger.info("Finished initializing topic composition")
+
+        try:
+            self.logger.info("Initializing topic composition")
+            self.get_topic_composition_ranges()
+            self.logger.info("Finished initializing topic composition")
+        except ValueError:
+            self.logger.info("Skipping initialization of topic composition")
 
     def set_model_specific_attributes(self):
         self.num_topics = self.dim
@@ -475,7 +479,7 @@ class LDAModel(BaseModel):
 
         return payload
 
-    def mdb_get_topic_share(self, topic_id: int, doc_ids: list):
+    def get_topic_share(self, topic_id: int, doc_ids: list):
         model_run_info_id = self.model_run_info["model_run_info_id"]
         doc_topic_collection = mongodb.get_document_topics_collection()
 
@@ -486,88 +490,6 @@ class LDAModel(BaseModel):
         normed_docs_topic["topics"] = normed_docs_topic["topics"].apply(
             pd.Series)
         topic_share = normed_docs_topic.set_index('id')["topics"].to_dict()
-
-        return topic_share
-
-    def mdb_get_partition_topic_share(self, topic_id: int, adm_regions: list, major_doc_types: list, year_start: int = 1950, year_end: int = datetime.now().year, return_records=True):
-        # docs_metadata = mongodb.get_docs_metadata_collection()
-        docs_metadata = mongodb.get_collection(
-            db_name="test_nlp", collection_name="docs_metadata")
-
-        major_doc_types_data = {}
-        adm_regions_data = {}
-
-        for part in major_doc_types:
-            data_iterator = docs_metadata.find(
-                filter={'major_doc_type': part}, projection=['id', 'year'])
-
-            data = pd.DataFrame(list(data_iterator)).set_index('id')
-
-            topic_share = pd.Series(self.get_topic_share(
-                topic_id, data.index.tolist()))
-            data['topic_share'] = topic_share
-
-            data.year = data.year.replace('', np.nan)
-            data = data.dropna(subset=['year'])
-
-            data.year = data.year.astype(int)
-            data = data[data.year.between(year_start, year_end)]
-
-            data = data.groupby('year')['topic_share'].sum()
-
-            if return_records:
-                major_doc_types_data[part] = data.reset_index().to_dict(
-                    'records')
-            else:
-                major_doc_types_data[part] = data.to_dict()
-
-        for part in adm_regions:
-            data_iterator = docs_metadata.find(
-                filter={'adm_region': part}, projection=['id', 'year'])
-            data = pd.DataFrame(list(data_iterator)).set_index('id')
-
-            topic_share = pd.Series(self.get_topic_share(
-                topic_id, data.index.tolist()))
-            data['topic_share'] = topic_share
-
-            data.year = data.year.replace('', np.nan)
-            data = data.dropna(subset=['year'])
-
-            data.year = data.year.astype(int)
-            data = data[data.year.between(year_start, year_end)]
-            data = data.groupby('year')['topic_share'].sum()
-
-            if return_records:
-                adm_regions_data[part] = data.reset_index().to_dict('records')
-            else:
-                adm_regions_data[part] = data.to_dict()
-
-        payload = {}
-        payload.update(major_doc_types_data)
-        payload.update(adm_regions_data)
-
-        return {'topic_shares': payload, 'topic_words': self.get_topic_words(topic_id)}
-
-    def get_topic_share(self, topic_id: int, doc_ids: list):
-        model_run_info_id = self.model_run_info["model_run_info_id"]
-
-        doc_topics = elasticsearch.DocTopic.mget(
-            docs=[f"{model_run_info_id}-{i}" for i in doc_ids])
-        # normed_docs_topics = pd.DataFrame([{"id": doc_topic["id"], "topics": doc_topic["topics"][f"topic_{topic_id}"]} for doc_topic in doc_topics])
-
-        topic_share = {doc_topic["id"]: doc_topic["topics"]
-                       [f"topic_{topic_id}"] for doc_topic in doc_topics if doc_topic}
-
-        # model_run_info_id = self.model_run_info["model_run_info_id"]
-        # doc_topic_collection = mongodb.get_document_topics_collection()
-
-        # normed_docs_topic = doc_topic_collection.find(
-        #     {"id": {"$in": doc_ids}, "model_run_info_id": model_run_info_id}, projection=["id", f"topics.topic_{topic_id}"])
-        # normed_docs_topic = pd.DataFrame(list(normed_docs_topic))[
-        #     ["id", "topics"]]
-        # normed_docs_topic["topics"] = normed_docs_topic["topics"].apply(
-        #     pd.Series)
-        # topic_share = normed_docs_topic.set_index('id')["topics"].to_dict()
 
         return topic_share
 
@@ -630,6 +552,63 @@ class LDAModel(BaseModel):
 
         return {'topic_shares': payload, 'topic_words': self.get_topic_words(topic_id)}
 
+    def get_topic_profile_data_payload(self, df, field, type="line"):
+        x = sorted(df.index)
+        legend = sorted(df.columns)
+        series = [dict(name=f, data=df.loc[x, f].tolist(),
+                       stack=field, type=type, areaStyle={}) for f in legend]
+        return dict(
+            year=x,
+            series=series,
+            legend=legend,
+        )
+
+    def get_topic_profile_by_field(self, field, topic_id, type="line"):
+        topic_agg = elasticsearch.DocTopicAggregations(model_id=self.model_id)
+
+        data = pd.DataFrame(topic_agg.get_topic_profile_by_year_by_field(
+            field=field,
+            topic=f"topic_{topic_id}",
+            filters=[{"term": {"corpus": "WB"}}]))
+
+        year_field_topic_sum_df = data.pivot(
+            index="year", columns=field, values=f"{field}_topic_sum").fillna(0)
+        year_doc_count_df = data.pivot(
+            index="year", columns=field, values="year_doc_count").fillna(0)
+
+        normed_year_field_topic_sum_df = (
+            year_field_topic_sum_df / year_doc_count_df).fillna(0)
+
+        topic_volume = self.get_topic_profile_data_payload(
+            year_field_topic_sum_df, field=field, type=type)
+        topic_share = self.get_topic_profile_data_payload(
+            normed_year_field_topic_sum_df, field=field, type=type)
+
+        return dict(
+            field=field,
+            topic=f"topic_{topic_id}",
+            volume=topic_volume,
+            share=topic_share
+        )
+
+    def get_full_topic_profile(self, topic_id: int, type="line"):
+
+        data_adm_region = self.get_topic_profile_by_field(
+            field="adm_region", topic_id=topic_id, type=type)
+        data_major_doc_type = self.get_topic_profile_by_field(
+            field="major_doc_type", topic_id=topic_id, type=type)
+
+        return dict(adm_region=data_adm_region, major_doc_type=data_major_doc_type)
+
+    def get_full_topic_profiles(self, topic_id: int, year_start: int = 1950, year_end: int = datetime.now().year, type="line", return_records=True):
+        # docs_metadata = mongodb.get_docs_metadata_collection()
+
+        data = self.get_full_topic_profile(topic_id=topic_id, type=type)
+
+        data['topic_words'] = self.get_topic_words(topic_id)
+
+        return data
+
 
 if __name__ == '__main__':
     """
@@ -641,15 +620,18 @@ if __name__ == '__main__':
     from wb_nlp.models.word2vec import word2vec
 
     doc_fnames = list(Path('./data/raw/sample_data/TXT_ORIG').glob('*.txt'))
-    doc_ids = [hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15] for p in doc_fnames]
+    doc_ids = [hashlib.md5(p.name.encode('utf-8')).hexdigest()[:15]
+                           for p in doc_fnames]
     corpus = ['WB'] * len(doc_ids)
 
     doc_df = pd.DataFrame()
     doc_df['id'] = doc_ids
     doc_df['corpus'] = corpus
-    doc_df['text'] = [open(fn, 'rb').read().decode('utf-8', errors='ignore') for fn in doc_fnames]
+    doc_df['text'] = [open(fn, 'rb').read().decode(
+        'utf-8', errors='ignore') for fn in doc_fnames]
 
-    wvec_model = word2vec.Word2VecModel(corpus_id='WB', model_id='ALL_50', cleaning_config_id='cid', doc_df=doc_df, model_path='./models/', iter=10)
+    wvec_model = word2vec.Word2VecModel(
+        corpus_id='WB', model_id='ALL_50', cleaning_config_id='cid', doc_df=doc_df, model_path='./models/', iter=10)
     %time wvec_model.train_model()
 
     wvec_model.build_doc_vecs(pool_workers=3)
@@ -686,3 +668,8 @@ if __name__ == '__main__':
     print(lda_model.get_similar_words_by_doc_id(doc_id='wb_725385'))
 
     # lda_model.drop_milvus_collection()
+
+    # lda_model = lda_base.LDAModel(
+    #     model_config_id="ef0ab0459e9c28de8657f3c4f5b2cd86",
+    #     cleaning_config_id="23f78350192d924e4a8f75278aca0e1c",
+    #     model_run_info_id="3e82ec784f125709c8bac46d7dd8a67f")

@@ -8,7 +8,7 @@
             <span class="wbg-breadcrumb-separator">/</span>
             <router-link to="/methods">Methods</router-link>
             <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="/methods">Methods</router-link>
+            <router-link to="#">{{ currentPageTitle }}</router-link>
           </div>
         </div>
         <div class="col-12">
@@ -29,45 +29,99 @@
         <aside class="col-sm-3 blog-sidebar">
           <section class="sidebar-module">
             <ol class="list-unstyled">
-              <li>
+              <!-- <li>
                 <router-link to="/methods">Methods &amp; Tools</router-link>
-              </li>
+              </li> -->
+
               <li>
-                <router-link to="/methods/text-acquisition"
+                <router-link
+                  to="/methods"
+                  :class="{ active: $route.name === 'methods' }"
+                  >Methods &amp; Tools</router-link
+                >
+              </li>
+
+              <li>
+                <router-link
+                  to="/methods/text-acquisition"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'methods_text-acquisition',
+                  }"
                   >Text acquisition</router-link
                 >
               </li>
               <li>
-                <router-link to="/methods/text-preparation"
+                <router-link
+                  to="/methods/text-preparation"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'methods_text-preparation',
+                  }"
                   >Text preparation</router-link
                 >
               </li>
               <li>
-                <router-link to="/methods/lda">LDA Topic Model</router-link>
+                <router-link
+                  to="/methods/lda"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'methods_lda',
+                  }"
+                  >LDA Topic Model</router-link
+                >
               </li>
               <li>
-                <router-link to="/methods/word-embeddings"
+                <router-link
+                  to="/methods/word-embeddings"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'methods_word-embeddings',
+                  }"
                   >Word embeddings</router-link
                 >
               </li>
-              <li>
-                <router-link to="/methods/topic-classification"
+              <!-- <li>
+                <router-link
+                  to="/methods/topic-classification"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'methods_topic-classification',
+                  }"
                   >Topic classification</router-link
+                >
+              </li> -->
+              <li>
+                <router-link
+                  to="/methods/cataloguing"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'methods_cataloguing',
+                  }"
+                  >Cataloguing</router-link
                 >
               </li>
               <li>
-                <router-link to="/methods/cataloguing">Cataloguing</router-link>
-              </li>
-              <li>
-                <router-link to="/methods/search-engine"
+                <router-link
+                  to="/methods/search-engine"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'methods_search-engine',
+                  }"
                   >Search engine</router-link
                 >
               </li>
               <li>
-                <router-link to="/methods/visualizations"
+                <router-link
+                  to="/methods/visualizations"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'methods_visualizations',
+                  }"
                   >Visualizations</router-link
                 >
               </li>
+
               <li>
                 <router-link to="/methods/training-materials"
                   >Training materials</router-link
@@ -148,7 +202,18 @@ export default {
   mounted() {
     // this.flowSideBar();
   },
-  computed: {},
+  computed: {
+    currentPageTitle() {
+      var name = this.$route.name;
+
+      if (name.includes("_")) {
+        name = name.split("_")[1];
+      }
+      name = name.replace(/-/g, " ");
+
+      return name[0].toUpperCase() + name.slice(1);
+    },
+  },
   methods: {
     flowSideBar: function () {
       $(function () {

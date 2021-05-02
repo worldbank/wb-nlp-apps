@@ -10,7 +10,7 @@ from pydantic import HttpUrl
 
 from wb_nlp.types.models import (
     ModelTypes,
-    TopicCompositionParams, PartitionTopicShareParams
+    TopicCompositionParams, PartitionTopicShareParams, FullTopicProfilesParams
 )
 from wb_nlp.extraction import country_extractor
 from wb_nlp.interfaces import mongodb, elasticsearch
@@ -164,6 +164,18 @@ def get_partition_topic_share(
     transform_params.pop("model_id")
 
     return model.get_partition_topic_share(**transform_params)
+
+
+def get_full_topic_profiles(
+    model_name: str,
+    transform_params: FullTopicProfilesParams
+):
+    model = get_validated_model(model_name, transform_params.model_id)
+
+    transform_params = json.loads(transform_params.json())
+    transform_params.pop("model_id")
+
+    return model.get_full_topic_profiles(**transform_params)
 
 
 def get_topics_by_doc_id(

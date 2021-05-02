@@ -186,6 +186,20 @@ class PartitionTopicShareParams(ModelIDParams):
         True, description="A flag indicating how the returned data is structured.")
 
 
+class FullTopicProfilesParams(ModelIDParams):
+    topic_id: int = Field(
+        ..., description="Topic id of interest.")
+    year_start: int = Field(
+        1950, description="Start of the year to return data for.")
+    year_end: int = Field(
+        datetime.now().year, description="End of the year to return data for.")
+    return_records: bool = Field(
+        True, description="A flag indicating how the returned data is structured.")
+    type: str = Field(
+        "line", description="Type of chart."
+    )
+
+
 ###########################################
 # START: MODELS FOR RETURN VALUES
 ###########################################

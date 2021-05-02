@@ -39,4 +39,5 @@ def main(model_config_id: str, cleaning_config_id: str, description: str, log_le
 
 if __name__ == '__main__':
     # python -u ./scripts/models/train_lda_base_model.py --model-config-id <model_config_id> --cleaning-config-id <cleaning_config_id> --description <description> -vv |& tee ./data/logs/train_lda_base_model.py.log
+    # python -u ./scripts/models/train_lda_base_model.py --model-config-id ef0ab0459e9c28de8657f3c4f5b2cd86 --cleaning-config-id 23f78350192d924e4a8f75278aca0e1c --description lda_model -vv |& tee ./data/logs/train_lda_base_model.py.log
     main()
