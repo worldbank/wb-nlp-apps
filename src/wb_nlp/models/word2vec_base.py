@@ -36,6 +36,7 @@ class Word2VecModel(BaseModel):
         raise_empty_doc_status=True,
         log_level=logging.INFO,
     ):
+        self.word2index = None
 
         super().__init__(
             model_config_id=model_config_id,
@@ -103,6 +104,37 @@ class Word2VecModel(BaseModel):
 
         return dict(doc_vec=doc_vec, success=success)
 
+    def get_w2v_similar_words(self, word, topn=10, serialize=False, metric="cosine_similarity"):
+        if self.word2index is None:
+            self.word2index = {w: i for i, w in enumerate(self.index2word)}
+
+        buffer_topn = 2 * topn
+
+        words_scores = self.model.wv.similar_by_word(
+            word=word, topn=buffer_topn, restrict_vocab=None)
+
+        payload = []
+        rank = 1
+        for ix, (word, score) in enumerate(words_scores, 1):
+            top_sim_ix = self.word2index[word]
+            assert self.index2word[top_sim_ix] == word
+
+            if word in stopwords.noise_words:
+                continue
+
+            payload.append({"id": int(top_sim_ix), 'word': word, 'score': float(np.round(
+                score, decimals=5)), 'rank': rank})
+
+            rank += 1
+            if rank > topn:
+                break
+
+        payload = sorted(payload, key=lambda x: x['rank'])
+        if serialize:
+            payload = pd.DataFrame(payload).to_json()
+
+        return payload
+
     def get_similar_words_graph(self, document, topn=10, topn_sub=5, edge_thresh=0.5, n_clusters=5, serialize=False, metric="cosine_similarity"):
         anchor_word = document.lower()
         words = []
@@ -117,7 +149,7 @@ class Word2VecModel(BaseModel):
 
         related_words = []
         for word in words:
-            for result in self.get_similar_words(
+            for result in self.get_w2v_similar_words(
                     word, topn=topn_sub, serialize=False, metric=metric):
                 if result["word"] in words or result["word"] in related_words:
                     continue
@@ -323,3 +355,9 @@ if __name__ == '__main__':
     # print(wvec_model.get_similar_words_by_doc_id(doc_id='wb_725385'))
 
     # wvec_model.drop_milvus_collection()
+
+    # wvec_model = word2vec_base.Word2VecModel(
+    #     model_config_id="702984027cfedde344961b8b9461bfd3",
+    #     cleaning_config_id="229abf370f281efa7c9f3c4ddc20159d",
+    #     model_run_info_id="0d63e5ae71e4f78fc427ddbec2fefc73"
+    # )
