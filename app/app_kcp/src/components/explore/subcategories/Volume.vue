@@ -7,7 +7,8 @@
         Knowledge produced may be measured by the volume of documents published
         or the length of content in a document. In this page, we show some
         summary statistics regarding the breakdown of document count and total
-        number of tokens present in the corpus by source over time.
+        number of tokens present in the corpus by source over time. Furthermore,
+        we show some World Bank specific breakdowns below.
       </p>
 
       <br />
@@ -36,6 +37,15 @@
         :field="major_doc_type.field"
         field_name="document type (WB)"
       />
+      <br />
+      <br />
+      <p>
+        As documents may be tagged with multiple topics, we see that the
+        breakdown by share of topics in the WB corpus have a total of more than
+        100%. Nonetheless, comparison of share among topics will yield some
+        insights regarding the general interest or popularity over time of one
+        topic over other topics of comparison.
+      </p>
       <br />
       <br />
       <VolumeChart
