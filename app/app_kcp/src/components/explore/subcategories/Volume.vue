@@ -64,7 +64,6 @@ export default {
     this.$http.get("/static/data/corpus_details.json").then((response) => {
       this.items = response.data;
     });
-    this.getFullCorpusVolumeData();
     this.getFullCorpusData();
   },
   computed: {
@@ -143,20 +142,10 @@ export default {
   data: function () {
     return {
       loading: false,
-      docs_data: null,
-      tokens_data: null,
 
       corpus: null,
       major_doc_type: null,
       topics_src: null,
-
-      docs_value: "volume",
-      tokens_value: "volume",
-
-      group_value_options: [
-        { item: "volume", name: "By volume" },
-        { item: "share", name: "By share" },
-      ],
     };
   },
   methods: {
@@ -186,22 +175,6 @@ export default {
         series: data[value].series,
       };
     },
-    getFullCorpusVolumeData: function () {
-      this.loading = true;
-
-      this.$http
-        .get(this.$config.corpus_url + "/get_corpus_volume_by_source")
-        .then((response) => {
-          let data = response.data;
-
-          this.docs_data = data.docs;
-
-          this.tokens_data = data.tokens;
-          this.loading = false;
-        })
-
-        .finally(() => {});
-    },
     getFullCorpusData: function () {
       this.loading = true;
 
@@ -221,40 +194,12 @@ export default {
           this.major_doc_type = data.major_doc_type;
           this.topics_src = data.topics_src;
 
-          // this.docs_data = data.docs;
-
-          // this.tokens_data = data.tokens;
           this.loading = false;
         })
 
         .finally(() => {});
     },
-    updateCharts() {
-      this.$refs.graphChartDocs.setOption(
-        this.updateOption(this.docs_data, this.docs_value, "Documents")
-      );
-
-      this.$refs.graphChartTokens.setOption(
-        this.updateOption(this.tokens_data, this.tokens_value, "Tokens")
-      );
-    },
   },
-  watch: {
-    docs_value() {
-      this.$refs.graphChartDocs.setOption(
-        this.updateOption(this.docs_data, this.docs_value, "Documents")
-      );
-    },
-    tokens_value() {
-      this.$refs.graphChartTokens.setOption(
-        this.updateOption(this.tokens_data, this.tokens_value, "Tokens")
-      );
-    },
-    loading() {
-      if (this.loading === false) {
-        this.updateCharts();
-      }
-    },
-  },
+  watch: {},
 };
 </script>
