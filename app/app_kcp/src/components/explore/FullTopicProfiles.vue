@@ -185,10 +185,6 @@ export default {
     };
   },
   computed: {
-    // topic_id() {
-    //   return this.selected_topic.topic_id;
-    // },
-
     searchParams() {
       const params = new URLSearchParams();
       params.append("model_id", this.model_run_info_id);
@@ -197,13 +193,11 @@ export default {
     },
 
     topicChanged: function () {
-      // return this.prev_topic_id != this.selected_topic.topic_id;
       return this.prev_topic_id != this.topic_id;
     },
   },
   mounted() {
     window.vm = this;
-    // this.setModel();
     this.getFullTopicProfiles();
   },
   methods: {
@@ -303,7 +297,6 @@ export default {
           params: this.searchParams,
         })
         .then((response) => {
-          // this.model_topics = response.data;
           this.current_lda_model_topics = response.data;
           this.current_lda_model_topics_options = this.lodash.map(
             this.current_lda_model_topics,
