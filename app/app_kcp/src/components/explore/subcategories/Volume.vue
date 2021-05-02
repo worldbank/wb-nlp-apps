@@ -16,7 +16,33 @@
         v-if="corpus"
         :data="corpus"
         :field="corpus.field"
-        field_name="corpus"
+        field_name="source"
+      />
+      <br />
+      <br />
+
+      <p>
+        The World Bank corpus, via its API, contains standardized data on
+        document types and topics. We use these standardized metadata to further
+        breakdown the World Bank corpus to also show trends of document count
+        and token composition by document type and topics.
+      </p>
+      <br />
+      <br />
+
+      <VolumeChart
+        v-if="major_doc_type"
+        :data="major_doc_type"
+        :field="major_doc_type.field"
+        field_name="document type (WB)"
+      />
+      <br />
+      <br />
+      <VolumeChart
+        v-if="topics_src"
+        :data="topics_src"
+        :field="topics_src.field"
+        field_name="topic (WB)"
       />
     </div>
   </div>
@@ -121,6 +147,8 @@ export default {
       tokens_data: null,
 
       corpus: null,
+      major_doc_type: null,
+      topics_src: null,
 
       docs_value: "volume",
       tokens_value: "volume",
@@ -179,8 +207,6 @@ export default {
 
       const params = new URLSearchParams();
       params.append("fields", "corpus");
-      params.append("fields", "adm_region");
-      params.append("fields", "geo_region");
       params.append("fields", "major_doc_type");
       params.append("fields", "topics_src");
 
@@ -192,8 +218,6 @@ export default {
           let data = response.data;
 
           this.corpus = data.corpus;
-          this.adm_region = data.adm_region;
-          this.geo_region = data.geo_region;
           this.major_doc_type = data.major_doc_type;
           this.topics_src = data.topics_src;
 
