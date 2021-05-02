@@ -81,7 +81,7 @@
                   >Word embeddings</router-link
                 >
               </li>
-              <li>
+              <!-- <li>
                 <router-link
                   to="/methods/topic-classification"
                   class="wbg_sidebar second-level"
@@ -90,7 +90,7 @@
                   }"
                   >Topic classification</router-link
                 >
-              </li>
+              </li> -->
               <li>
                 <router-link
                   to="/methods/cataloguing"
