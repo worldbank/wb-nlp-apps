@@ -419,7 +419,10 @@ def update_doc_topic_metadata(docs_metadata):
         "year"
     ]
 
-    for doc in docs_metadata:
+    for ix, doc in enumerate(docs_metadata):
+        if ix and ix % 1000 == 0:
+            print(ix)
+
         search = DocTopic.search().filter("term", id=doc["id"])
         metadata = {k: doc.get(k) for k in fields}
 
