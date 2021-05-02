@@ -49,38 +49,73 @@
           </b-row>
           <br />
 
-          <h4>Topic profile by document type</h4>
+          <div v-if="major_doc_type_data">
+            <h4>Topic profile by document type</h4>
+            <b-form-radio-group
+              v-model="major_doc_type_value"
+              value-field="item"
+              text-field="name"
+              :options="[
+                { item: 'volume', name: 'By volume' },
+                { item: 'share', name: 'By share' },
+              ]"
+            />
+            <br />
 
-          <b-row>
-            <b-col>
-              <v-chart
-                v-if="major_doc_type_volume"
-                class="chart"
-                refs="graphChart"
-                :option="graphOptions(major_doc_type_volume, 'Document type')"
-                :autoresize="true"
-                :loading="loading"
-              />
-            </b-col>
-          </b-row>
+            <b-row>
+              <b-col>
+                <v-chart
+                  class="chart"
+                  refs="graphChart"
+                  :option="
+                    graphOptions(
+                      major_doc_type_data,
+                      major_doc_type_value,
+                      'Document type'
+                    )
+                  "
+                  :autoresize="true"
+                  :loading="loading"
+                />
+              </b-col>
+            </b-row>
 
-          <br />
-          <br />
+            <br />
+            <br />
+          </div>
 
-          <h4>Topic profile by admin regions</h4>
+          <div v-if="adm_region_data">
+            <h4>Topic profile by admin regions</h4>
+            <b-form-radio-group
+              v-model="adm_region_value"
+              value-field="item"
+              text-field="name"
+              :options="[
+                { item: 'volume', name: 'By volume' },
+                { item: 'share', name: 'By share' },
+              ]"
+            />
+            <br />
 
-          <b-row>
-            <b-col>
-              <v-chart
-                v-if="adm_region_volume"
-                class="chart"
-                refs="graphChart"
-                :option="graphOptions(adm_region_volume, 'Admin regions')"
-                :autoresize="true"
-                :loading="loading"
-              />
-            </b-col>
-          </b-row>
+            <b-row>
+              <b-col>
+                <v-chart
+                  v-if="adm_region_data"
+                  class="chart"
+                  refs="graphChart"
+                  :option="
+                    graphOptions(
+                      adm_region_data,
+                      adm_region_value,
+                      'Admin regions'
+                    )
+                  "
+                  :autoresize="true"
+                  :loading="loading"
+                />
+              </b-col>
+            </b-row>
+          </div>
         </b-col>
       </b-row>
     </b-container>
@@ -131,7 +166,6 @@ export default {
   },
   data: function () {
     return {
-      errors: [],
       api_url: "/api",
       nlp_api_url: null,
       model_topics: [],
@@ -148,6 +182,10 @@ export default {
 
       topic_share_active: true,
       full_profile_ready: false,
+      major_doc_type_value: "volume",
+      adm_region_value: "volume",
+      adm_region_data: null,
+      major_doc_type_data: null,
 
       prev_topic_id: -1,
       topic_id: null,
@@ -160,38 +198,6 @@ export default {
 
       topic_shares: null,
       topic_words: null,
-
-      // Doc types specific to WB document. Must be changed when updating the metadata.
-      adm_regions: [
-        "Africa",
-        "East Asia and Pacific",
-        "Europe and Central Asia",
-        "Latin America & Caribbean",
-        "Middle East and North Africa",
-        "Rest Of The World",
-        "South Asia",
-        "The world Region",
-      ],
-      doc_types: [
-        "Board Documents",
-        "Country Focus",
-        "Economic & Sector Work",
-        "Project Documents",
-        "Publications & Research",
-      ],
-      lending_instruments: ["Development Policy Lending"],
-
-      // Plotly data and layout
-      plot_data: [
-        {
-          x: [1, 2, 3, 4],
-          y: [10, 15, 13, 17],
-          type: "scatter",
-        },
-      ],
-      plot_layout: {
-        title: "My graph",
-      },
     };
   },
   computed: {
@@ -245,7 +251,7 @@ export default {
           .join(", ")
       );
     },
-    graphOptions(data, label) {
+    graphOptions(data, value, label) {
       return {
         title: {
           text: "Topic profiles" + "(" + label + ")",
@@ -260,7 +266,7 @@ export default {
           },
         },
         legend: {
-          data: data.legend,
+          data: data[value].legend,
         },
         toolbox: {
           feature: {
@@ -277,18 +283,18 @@ export default {
           {
             type: "category",
             boundaryGap: false,
-            data: data.year,
+            data: data[value].year,
           },
         ],
         yAxis: [
           {
             type: "value",
             axisLabel: {
-              formatter: "{value} %",
+              formatter: value === "share" ? "{value} %" : "{value}",
             },
           },
         ],
-        series: data.series,
+        series: data[value].series,
       };
     },
     getModelTopics: function () {
@@ -310,10 +316,6 @@ export default {
             }
           );
           this.topic_words = this.current_lda_model_topics[this.topic_id];
-        })
-        .catch((error) => {
-          console.log(error);
-          this.errored = true;
         })
         .finally(() => (this.loading = false));
     },
@@ -357,10 +359,6 @@ export default {
             );
             this.topic_words = this.current_lda_model_topics[this.topic_id];
           })
-          .catch((error) => {
-            console.log(error);
-            this.errored = true;
-          })
           .finally(() => (this.loading = false));
       } else {
         return;
@@ -380,7 +378,7 @@ export default {
         // model_id: "3e82ec784f125709c8bac46d7dd8a67f",
         topic_id: this.topic_id,
         year_start: 1960,
-        type: "bar",
+        type: "line",
       };
 
       this.$http
@@ -388,24 +386,16 @@ export default {
         .then((response) => {
           let data = response.data;
 
-          this.adm_region_volume = data.adm_region.volume;
-          this.adm_region_share = data.adm_region.share;
-
-          this.major_doc_type_volume = data.major_doc_type.volume;
-          this.major_doc_type_share = data.major_doc_type.share;
+          this.adm_region_data = data.adm_region;
+          this.major_doc_type_data = data.major_doc_type;
 
           if ("topic_words" in data) {
             this.topic_words = data.topic_words;
           }
-          console.log(data);
           this.full_profile_ready = true;
           this.loading = false;
         })
-        .catch((error) => {
-          console.log(error);
-          this.errors.push(error);
-          this.errored = true;
-        })
+
         .finally(() => {
           this.topic_share_searching = false;
           this.plotStack(this.topic_shares);
