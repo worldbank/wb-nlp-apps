@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from wb_nlp import dir_manager
 from wb_nlp.interfaces import mongodb
 from wb_nlp.types.models import ModelTypes, IndicatorTypes
-from .routers import cleaner, models, metadata, search
+from .routers import cleaner, models, corpus, search
 from .routers.subrouters import lda, mallet, word2vec, wdi, indicators
 from .common.utils import get_validated_model
 
@@ -42,7 +42,7 @@ app = FastAPI(
     redoc_url="/redoc",  # Set to `None` to disable
 )
 
-app.include_router(metadata.router, prefix="/nlp")
+app.include_router(corpus.router, prefix="/nlp")
 app.include_router(cleaner.router, prefix="/nlp")
 app.include_router(models.router, prefix="/nlp")
 app.include_router(search.router, prefix="/nlp")
