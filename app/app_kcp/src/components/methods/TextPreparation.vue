@@ -81,21 +81,22 @@
         unimportant words in our final cleaned dataset.
       </p>
       <h5>Phrase detection</h5>
-      <p>Phrase detection</p>
+
+      <p>
+        Our text-processing pipeline consists of a phrase detection component
+        that attempts to capture automatically phrases and compound words
+        present in the corpus.
+      </p>
       <h5>Spell checking and vocabulary</h5>
-      <p>Spell check</p>
-      <h5>Acronym extraction</h5>
-      <p>Acronyms</p>
-      <h5>Named Entity Extraction</h5>
-      <p>NER</p>
+      <p>
+        Processing of the documents in the corpus feature spell checking and
+        correction.
+      </p>
+
       <h5>Extraction of country counts</h5>
       <p>Country counts (include CSV file)</p>
       <h5>Language detection</h5>
       <p>Tokenization</p>
-      <p>
-        Simple interactive application showing before and after text cleaning of
-        input text.
-      </p>
     </div>
   </div>
 </template>
