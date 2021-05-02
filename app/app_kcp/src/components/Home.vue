@@ -139,7 +139,7 @@
             Explore our corpus of {{ corpus_size.toLocaleString() }} documents
           </h3>
           <div class="small text-center">
-            Last updated on Wednesday, January 6, 2021
+            Last updated on Wednesday, April 31, 2021
           </div>
           <p class="mt-4 text-center">
             The Document Explorer puts Natural Language Processing (NLP) at the
@@ -176,8 +176,8 @@
             </div>
             <h3><router-link to="/explore">Explore</router-link></h3>
             <p>
-              Explore the corpus: topic composition, trends, geographic
-              coverage, word embeddings, etc.
+              Explore the corpus: geographic coverage, trends, topics,
+              embeddings, etc.
             </p>
           </div>
         </div>
@@ -227,7 +227,7 @@
           </div>
         </div>
       </div>
-      <div class="row mb-5">
+      <!-- <div class="row mb-5">
         <div class="col-12">
           <h2 class="text-center mb-4">Highlights</h2>
         </div>
@@ -283,7 +283,7 @@
         <div class="col-12 text-center mt-4">
           <a href="/#">View more highlights</a>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

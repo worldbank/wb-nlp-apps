@@ -126,13 +126,23 @@ async def get_partition_topic_share(
     )
 
 
-@ router.post("/get_full_topic_profiles")
+@ router.get("/get_full_topic_profiles")
 async def get_full_topic_profiles(
-    transform_params: FullTopicProfilesParams
+    model_id: str = DEFAULT_QUERY_FIELDS["model_id"],
+    topic_id: int = DEFAULT_QUERY_FIELDS["topic_id"],
+    year_start: int = DEFAULT_QUERY_FIELDS["year_start"],
+    year_end: int = DEFAULT_QUERY_FIELDS["year_end"],
+    return_records: bool = DEFAULT_QUERY_FIELDS["return_records"],
+    type: str = DEFAULT_QUERY_FIELDS["type"],
 ):
     return topic_model.get_full_topic_profiles(
         model_name=LDA_MODEL_NAME,
-        transform_params=transform_params
+        model_id=model_id,
+        topic_id=topic_id,
+        year_start=year_start,
+        year_end=year_end,
+        return_records=return_records,
+        type=type,
     )
 
 

@@ -4,28 +4,9 @@
     <div>
       <br />
       <p>
-        Listed in the table below are details on the sources of the documents
-        and metadata used in this project. We selected sections of each
-        organization's website where relevant documents and metadata are found.
-        A series of scrapers were implemented to capture available metadata as
-        well as download the corresponding documents.
+        Knowledge produced may be measured by the volume of documents published.
       </p>
 
-      <p>
-        In selecting the sources, we limit our selection to content that can be
-        classified as publications, project documents, and research papers. We
-        excluded documents pertaining to procurement plans, administrative
-        tribunals, budgets, etc. However, we cannot guarantee that we have
-        exhaustively filtered out documents of these types. Furthermore,
-        documents that may be useful are likewise possible to be omitted. Since
-        these documents are scraped, the dataset only covers content that are
-        publicly available.
-      </p>
-      <p>
-        The availability of the metadata is dependent on the source
-        organization's published content. We tried to extract and curate as much
-        of the metadata found on each source's page.
-      </p>
       <br />
       <h3>List of data sources</h3>
       <div class="table-container">

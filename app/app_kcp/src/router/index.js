@@ -24,6 +24,7 @@ import Similarity from '../components/explore/SimilarityNew.vue'
 
 // EXPLORE SUBCATEGORIES components
 import Sources from '../components/explore/subcategories/Sources.vue'
+import Volume from '../components/explore/subcategories/Volume.vue'
 import GeographicCoverage from '../components/explore/subcategories/GeographicCoverage.vue'
 import Metadata from '../components/explore/subcategories/Metadata.vue'
 import TopicBrowser from '../components/explore/subcategories/TopicBrowser.vue'
@@ -81,10 +82,16 @@ const main_routes = [
 const explore_subcategories_routes = [
     // CORPUS
     {
-        path: "sources-and-volume",
-        name: "explore_sources-and-volume",
+        path: "sources",
+        name: "explore_sources",
         component: Sources,
-        props: { page_title: "Sources and volume" },
+        props: { page_title: "Sources" },
+    },
+    {
+        path: "volume",
+        name: "explore_volume",
+        component: Volume,
+        props: { page_title: "Volume" },
     },
     {
         path: "geographic-coverage",

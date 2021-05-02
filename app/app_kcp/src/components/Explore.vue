@@ -46,12 +46,22 @@
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/sources-and-volume/"
+                  to="/explore/subcategories/sources/"
                   class="wbg_sidebar second-level"
                   :class="{
-                    active: $route.name === 'explore_sources-and-volume',
+                    active: $route.name === 'explore_sources',
                   }"
-                  >Sources and volume</router-link
+                  >Sources</router-link
+                >
+              </li>
+              <li>
+                <router-link
+                  to="/explore/subcategories/volume/"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'explore_volume',
+                  }"
+                  >Volume</router-link
                 >
               </li>
               <li>

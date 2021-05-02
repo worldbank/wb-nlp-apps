@@ -2,6 +2,7 @@
 '''
 from functools import lru_cache
 import json
+from datetime import datetime
 from collections import Counter
 from contexttimer import Timer
 
@@ -41,6 +42,17 @@ DEFAULT_QUERY_FIELDS = dict(
         10, description="The number of topics that will be returned."),
     total_topic_score=Query(
         None, description="This will return the topics representing the text with at least `total_topic_score` of cumulative score (order from largest value.)"),
+
+    year_start=Query(
+        1950, description="Start of the year to return data for."),
+    year_end=Query(
+        datetime.now().year, description="End of the year to return data for."),
+    return_records=Query(
+        True, description="A flag indicating how the returned data is structured."),
+    type=Query(
+        "line", description="Type of chart."
+    )
+
 )
 
 
@@ -168,14 +180,22 @@ def get_partition_topic_share(
 
 def get_full_topic_profiles(
     model_name: str,
-    transform_params: FullTopicProfilesParams
+    model_id: str,
+    topic_id: int,
+    year_start: int,
+    year_end: int,
+    return_records: bool,
+    type: str
 ):
-    model = get_validated_model(model_name, transform_params.model_id)
+    model = get_validated_model(model_name, model_id)
 
-    transform_params = json.loads(transform_params.json())
-    transform_params.pop("model_id")
-
-    return model.get_full_topic_profiles(**transform_params)
+    return model.get_full_topic_profiles(
+        topic_id=topic_id,
+        year_start=year_start,
+        year_end=year_end,
+        return_records=return_records,
+        type=type,
+    )
 
 
 def get_topics_by_doc_id(

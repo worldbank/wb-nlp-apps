@@ -26,13 +26,7 @@
 
       <b-row v-show="model_run_info_id !== null">
         <b-col :md="show_topic_words ? 9 : 12">
-          <b-row
-            v-if="
-              lda_model_id != '' &&
-              topic_share_active &&
-              current_lda_model_topics_options
-            "
-          >
+          <b-row v-if="current_lda_model_topics_options.length > 0">
             <b-col>
               <b-form-group>
                 <div class="model-select-wrapper">
@@ -66,7 +60,7 @@
               <b-col>
                 <v-chart
                   class="chart"
-                  refs="graphChart"
+                  ref="graphChartMajorDocType"
                   :option="
                     graphOptions(
                       major_doc_type_data,
@@ -102,7 +96,7 @@
                 <v-chart
                   v-if="adm_region_data"
                   class="chart"
-                  refs="graphChart"
+                  ref="graphChartAdminRegion"
                   :option="
                     graphOptions(
                       adm_region_data,
@@ -123,20 +117,20 @@
 </template>
 
 <script>
-// import "echarts";
-
 import { use } from "echarts/core";
 import VChart from "vue-echarts";
-// import { Plotly } from "vue-plotly";
-import $ from "jquery";
+
 import MLModelSelect from "../common/MLModelSelect";
 import { ModelSelect } from "vue-search-select";
 
-// import * as echarts from 'echarts/core';
 import {
   TooltipComponent,
   LegendComponent,
   GridComponent,
+  DataZoomComponent,
+  DataZoomInsideComponent,
+  DataZoomSliderComponent,
+  ToolboxComponent,
 } from "echarts/components";
 import { GraphChart, LinesChart, LineChart, BarChart } from "echarts/charts";
 import { CanvasRenderer } from "echarts/renderers";
@@ -150,12 +144,15 @@ use([
   LineChart,
   BarChart,
   GridComponent,
+  DataZoomComponent,
+  DataZoomInsideComponent,
+  DataZoomSliderComponent,
+  ToolboxComponent,
 ]);
 
 export default {
   name: "TopicProfiles",
   components: {
-    // Plotly,
     MLModelSelect,
     ModelSelect,
     VChart,
@@ -166,70 +163,41 @@ export default {
   },
   data: function () {
     return {
-      api_url: "/api",
       nlp_api_url: null,
-      model_topics: [],
-      related_words: [],
       current_lda_model_topics: [],
       current_lda_model_topics_options: [],
-      raw_text: "poverty",
       loading: true,
-      model_name: "lda",
+      model_name: "topic_model",
       model_run_info_id: null,
 
-      corpus_id: "WB",
-      lda_model_id: "ALL_50",
-
-      topic_share_active: true,
       full_profile_ready: false,
+
       major_doc_type_value: "volume",
       adm_region_value: "volume",
+
       adm_region_data: null,
       major_doc_type_data: null,
 
       prev_topic_id: -1,
       topic_id: null,
-      selected_topic: 0,
-      topic_share_selected_adm_regions: [],
-      topic_share_selected_doc_types: [],
-      topic_share_selected_lending_instruments: [],
-      topic_share_plot_ready: false,
-      topic_share_searching: false,
 
-      topic_shares: null,
       topic_words: null,
     };
   },
   computed: {
-    // topic_id() {
-    //   return this.selected_topic.topic_id;
-    // },
-
     searchParams() {
       const params = new URLSearchParams();
       params.append("model_id", this.model_run_info_id);
       params.append("topn_words", 10);
       return params;
     },
-    readyForSubmit: function () {
-      return (
-        this.topic_share_selected_adm_regions.length +
-          this.topic_share_selected_doc_types.length +
-          this.topic_share_selected_lending_instruments.length >
-        0
-      );
-    },
+
     topicChanged: function () {
-      // return this.prev_topic_id != this.selected_topic.topic_id;
       return this.prev_topic_id != this.topic_id;
-    },
-    blurContent: function () {
-      return this.topicChanged || !this.topic_share_plot_ready;
     },
   },
   mounted() {
     window.vm = this;
-    this.setModel();
     this.getFullTopicProfiles();
   },
   methods: {
@@ -270,13 +238,17 @@ export default {
         },
         toolbox: {
           feature: {
+            dataZoom: {
+              yAxisIndex: "none",
+            },
+            restore: {},
             saveAsImage: {},
           },
         },
         grid: {
           left: "3%",
           right: "4%",
-          bottom: "3%",
+          bottom: "10%",
           containLabel: true,
         },
         xAxis: [
@@ -294,6 +266,27 @@ export default {
             },
           },
         ],
+        dataZoom: [
+          {
+            type: "inside",
+            start: 50,
+            end: 100,
+          },
+          {
+            start: 50,
+            end: 100,
+            handleIcon:
+              "M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z",
+            handleSize: "50%",
+            handleStyle: {
+              color: "#fff",
+              shadowBlur: 3,
+              shadowColor: "rgba(0, 0, 0, 0.6)",
+              shadowOffsetX: 2,
+              shadowOffsetY: 2,
+            },
+          },
+        ],
         series: data[value].series,
       };
     },
@@ -304,7 +297,6 @@ export default {
           params: this.searchParams,
         })
         .then((response) => {
-          // this.model_topics = response.data;
           this.current_lda_model_topics = response.data;
           this.current_lda_model_topics_options = this.lodash.map(
             this.current_lda_model_topics,
@@ -319,70 +311,20 @@ export default {
         })
         .finally(() => (this.loading = false));
     },
-    setModel: function (_model_id, model_name) {
-      _model_id = "ALL_50";
-      model_name = "lda";
-      let vm = this;
-      if (model_name == "word2vec") {
-        vm.word2vec_model_id = _model_id;
-      } else if (model_name == "lda") {
-        // Assume that
-        vm.lda_model_id = _model_id;
 
-        // let options = {
-        //   corpus_id: this.corpus_id,
-        //   model_id: this.lda_model_id,
-        //   topn_words: 10,
-        // };
-
-        let options = {
-          // model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
-          model_id: this.model_run_info_id,
-          topn_words: 10,
-        };
-
-        this.$http
-          // .get(this.api_url + "/get_lda_model_topics" + "?" + $.param(options))
-          .get(
-            this.nlp_api_url + "/get_model_topic_words" + "?" + $.param(options)
-          )
-          .then((response) => {
-            this.current_lda_model_topics = response.data;
-            this.current_lda_model_topics_options = this.lodash.map(
-              this.current_lda_model_topics,
-              (topic) => {
-                return {
-                  text: this.formatTopicText(topic),
-                  value: topic.topic_id,
-                };
-              }
-            );
-            this.topic_words = this.current_lda_model_topics[this.topic_id];
-          })
-          .finally(() => (this.loading = false));
-      } else {
-        return;
-      }
-    },
     getFullTopicProfiles: function () {
       this.loading = true;
       this.full_profile_ready = false;
       this.prev_topic_id = this.topic_id;
-      this.topic_share_searching = true;
-      this.topic_share_plot_ready = false;
 
-      let options = {
-        corpus_id: this.corpus_id,
-        // model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
-        model_id: this.model_run_info_id,
-        // model_id: "3e82ec784f125709c8bac46d7dd8a67f",
-        topic_id: this.topic_id,
-        year_start: 1960,
-        type: "line",
-      };
+      const params = new URLSearchParams();
+      params.append("model_id", this.model_run_info_id);
+      params.append("topic_id", this.topic_id);
+      params.append("year_start", 1960);
+      params.append("type", "line");
 
       this.$http
-        .post(this.nlp_api_url + "/get_full_topic_profiles", options)
+        .get(this.nlp_api_url + "/get_full_topic_profiles", { params: params })
         .then((response) => {
           let data = response.data;
 
@@ -396,10 +338,7 @@ export default {
           this.loading = false;
         })
 
-        .finally(() => {
-          this.topic_share_searching = false;
-          this.plotStack(this.topic_shares);
-        });
+        .finally(() => {});
     },
     plotVolumeTopicProfiles() {},
   },
@@ -440,7 +379,7 @@ export default {
 }
 
 .chart {
-  height: 400px;
+  height: 450px;
 }
 
 .model-select-wrapper {
