@@ -14,16 +14,13 @@
 
     <hr />
 
-    <v-chart
-      v-if="full_profile_ready"
-      class="chart"
-      refs="graphChart"
-      :option="graphOptions"
-      :autoresize="true"
-    />
-
     <b-container fluid>
-      <MLModelSelect @modelSelected="onModelSelect" :model_name="model_name" />
+      <h5>Select model</h5>
+      <MLModelSelect
+        @modelSelected="onModelSelect"
+        :model_name="model_name"
+        placeholder="Select model"
+      />
 
       <br />
 
@@ -36,160 +33,55 @@
               current_lda_model_topics_options
             "
           >
-            <b-col cols="10">
+            <b-col>
               <b-form-group>
-                <!-- <v-select
-                  class="topic-chooser"
-                  id="topic_id"
-                  placeholder="Select topic"
-                  v-model="selected_topic"
-                  label="text"
-                  :options="current_lda_model_topics_options"
-                >
-                  <template #selected-option="{ text }">
-                    <div style="width: 100%">
-                      <span id="topic-selected">
-                        {{ text }}
-                      </span>
-                    </div>
-                  </template></v-select
-                > -->
-                <!--
-                <b-form-select
-                  id="topic_id"
-                  v-model="topic_id"
-                  :options="current_lda_model_topics_options"
-                >
-                  <template #first>
-                    <b-form-select-option value="" disabled
-                      >-- Please select a topic --</b-form-select-option
-                    >
-                  </template></b-form-select
-                > -->
-
-                <!-- <b-form-input
-                  v-model="topic_id"
-                  list="my-list-id"
-                ></b-form-input>
-                <datalist id="my-list-id" style="width: 100%">
-                  <option>Select topic...</option>
-                  <option
-                    v-for="cto in current_lda_model_topics_options"
-                    :key="cto.topic_id"
+                <div class="model-select-wrapper">
+                  <model-select
+                    :options="current_lda_model_topics_options"
+                    v-model="topic_id"
+                    placeholder="Select topic"
+                    class="wbg-model-select"
                   >
-                    {{ cto.text }}
-                  </option>
-                </datalist> -->
-
-                <model-select
-                  :options="current_lda_model_topics_options"
-                  v-model="topic_id"
-                  placeholder="Select topic"
-                >
-                </model-select>
+                  </model-select>
+                </div>
               </b-form-group>
             </b-col>
-
-            <b-col cols="2">
-              <div>
-                <b-dropdown
-                  split
-                  v-on:click="readyForSubmit ? findTopicShare() : null"
-                  :split-variant="
-                    readyForSubmit ? 'success' : 'outline-primary'
-                  "
-                  variant="primary"
-                  :text="readyForSubmit ? 'Plot' : 'Select'"
-                >
-                  <b-dropdown-form class="checkbox">
-                    <b-form-group label="Admin Region">
-                      <b-form-checkbox-group
-                        v-model="topic_share_selected_adm_regions"
-                        :options="adm_regions"
-                        stacked
-                      ></b-form-checkbox-group>
-                    </b-form-group>
-                    <b-form-group label="Document Type">
-                      <b-form-checkbox-group
-                        v-model="topic_share_selected_doc_types"
-                        :options="doc_types"
-                        stacked
-                      ></b-form-checkbox-group>
-                    </b-form-group>
-                    <!-- <b-form-group label="Lending Instrument">
-                      <b-form-checkbox-group
-                        v-model="topic_share_selected_lending_instruments"
-                        :options="lending_instruments"
-                        stacked
-                      ></b-form-checkbox-group>
-                    </b-form-group> -->
-                  </b-dropdown-form>
-                  <b-dropdown-item-button disabled
-                    ><span> </span
-                  ></b-dropdown-item-button>
-                </b-dropdown>
-              </div>
-            </b-col>
           </b-row>
+          <br />
+
+          <h4>Topic profile by document type</h4>
+
           <b-row>
             <b-col>
-              <div v-show="!topic_shares && !topic_share_plot_ready">
-                Start exploring topic shares by selecting the topic of interest
-                and select the data partitions to compare.
-              </div>
+              <v-chart
+                v-if="major_doc_type_volume"
+                class="chart"
+                refs="graphChart"
+                :option="graphOptions(major_doc_type_volume, 'Document type')"
+                :autoresize="true"
+                :loading="loading"
+              />
+            </b-col>
+          </b-row>
 
-              <div :class="blurContent ? 'blur' : ''">
-                <Plotly
-                  v-show="topic_share_plot_ready"
-                  :data="plot_data"
-                  :layout="plot_layout"
-                  :display-mode-bar="false"
-                ></Plotly>
-              </div>
-              <div
-                v-show="
-                  (!topic_share_plot_ready && topic_shares) ||
-                  topic_share_searching
-                "
-              >
-                <b-skeleton-img></b-skeleton-img>
-              </div>
+          <br />
+          <br />
+
+          <h4>Topic profile by admin regions</h4>
+
+          <b-row>
+            <b-col>
+              <v-chart
+                v-if="adm_region_volume"
+                class="chart"
+                refs="graphChart"
+                :option="graphOptions(adm_region_volume, 'Admin regions')"
+                :autoresize="true"
+                :loading="loading"
+              />
             </b-col>
           </b-row>
         </b-col>
-        <b-col
-          :md="show_topic_words ? 3 : 0"
-          v-show="show_topic_words"
-          class="border-left"
-        >
-          <h4>Topic words</h4>
-
-          <div
-            v-show="
-              (!topic_share_plot_ready && topic_shares) || topic_share_searching
-            "
-          >
-            <b-skeleton-table
-              animation="wave"
-              :rows="10"
-              :columns="1"
-              :table-props="{ bordered: true, striped: true }"
-            ></b-skeleton-table>
-          </div>
-          <div
-            v-show="topic_share_plot_ready"
-            :class="blurContent ? 'blur' : ''"
-          >
-            <b-list-group flush>
-              <b-list-group-item
-                v-for="topic_word in topic_words"
-                :key="'topic_word-' + topic_word.word"
-              >
-                {{ topic_word.word }}
-              </b-list-group-item>
-            </b-list-group>
-          </div></b-col
-        >
       </b-row>
     </b-container>
   </div>
@@ -200,7 +92,7 @@
 
 import { use } from "echarts/core";
 import VChart from "vue-echarts";
-import { Plotly } from "vue-plotly";
+// import { Plotly } from "vue-plotly";
 import $ from "jquery";
 import MLModelSelect from "../common/MLModelSelect";
 import { ModelSelect } from "vue-search-select";
@@ -211,7 +103,7 @@ import {
   LegendComponent,
   GridComponent,
 } from "echarts/components";
-import { GraphChart, LinesChart, LineChart } from "echarts/charts";
+import { GraphChart, LinesChart, LineChart, BarChart } from "echarts/charts";
 import { CanvasRenderer } from "echarts/renderers";
 
 use([
@@ -221,13 +113,14 @@ use([
   CanvasRenderer,
   LinesChart,
   LineChart,
+  BarChart,
   GridComponent,
 ]);
 
 export default {
   name: "TopicProfiles",
   components: {
-    Plotly,
+    // Plotly,
     MLModelSelect,
     ModelSelect,
     VChart,
@@ -257,7 +150,7 @@ export default {
       full_profile_ready: false,
 
       prev_topic_id: -1,
-      topic_id: 0,
+      topic_id: null,
       selected_topic: 0,
       topic_share_selected_adm_regions: [],
       topic_share_selected_doc_types: [],
@@ -305,92 +198,7 @@ export default {
     // topic_id() {
     //   return this.selected_topic.topic_id;
     // },
-    graphOptions() {
-      return {
-        title: {
-          text: "堆叠区域图",
-        },
-        tooltip: {
-          trigger: "axis",
-          axisPointer: {
-            type: "cross",
-            label: {
-              backgroundColor: "#6a7985",
-            },
-          },
-        },
-        legend: {
-          data: this.adm_region_volume.legend,
-        },
-        toolbox: {
-          feature: {
-            saveAsImage: {},
-          },
-        },
-        grid: {
-          left: "3%",
-          right: "4%",
-          bottom: "3%",
-          containLabel: true,
-        },
-        xAxis: [
-          {
-            type: "category",
-            boundaryGap: false,
-            data: this.adm_region_volume.year,
-          },
-        ],
-        yAxis: [
-          {
-            type: "value",
-          },
-        ],
-        series: this.adm_region_volume.series,
-        // [
-        //   {
-        //     name: "邮件营销",
-        //     type: "line",
-        //     stack: "normalized",
-        //     areaStyle: {},
-        //     data: [120, 132, 101, 134, 90, 230, 210],
-        //   },
-        //   {
-        //     name: "联盟广告",
-        //     type: "line",
-        //     stack: "normalized",
-        //     areaStyle: {},
-        //     data: [220, 182, 191, 234, 290, 330, 310],
-        //   },
-        //   {
-        //     name: "视频广告",
-        //     type: "line",
-        //     stack: "normalized",
-        //     areaStyle: {},
-        //     data: [150, 232, 201, 154, 190, 330, 410],
-        //   },
-        //   {
-        //     name: "直接访问",
-        //     type: "line",
-        //     stack: "normalized",
-        //     areaStyle: {},
-        //     data: [320, 332, 301, 334, 390, 330, 320],
-        //   },
-        //   {
-        //     name: "搜索引擎",
-        //     type: "line",
-        //     stack: "normalized",
-        //     label: {
-        //       normal: {
-        //         show: true,
-        //         position: "top",
-        //       },
-        //     },
-        //     areaStyle: {},
-        //     data: [820, 932, 901, 934, 1290, 1330, 1320],
-        //   },
-        // ],
-      };
-    },
+
     searchParams() {
       const params = new URLSearchParams();
       params.append("model_id", this.model_run_info_id);
@@ -437,7 +245,54 @@ export default {
           .join(", ")
       );
     },
+    graphOptions(data, label) {
+      return {
+        title: {
+          text: "Topic profiles" + "(" + label + ")",
+        },
+        tooltip: {
+          trigger: "axis",
+          axisPointer: {
+            type: "cross",
+            label: {
+              backgroundColor: "#6a7985",
+            },
+          },
+        },
+        legend: {
+          data: data.legend,
+        },
+        toolbox: {
+          feature: {
+            saveAsImage: {},
+          },
+        },
+        grid: {
+          left: "3%",
+          right: "4%",
+          bottom: "3%",
+          containLabel: true,
+        },
+        xAxis: [
+          {
+            type: "category",
+            boundaryGap: false,
+            data: data.year,
+          },
+        ],
+        yAxis: [
+          {
+            type: "value",
+            axisLabel: {
+              formatter: "{value} %",
+            },
+          },
+        ],
+        series: data.series,
+      };
+    },
     getModelTopics: function () {
+      this.topic_id = null;
       this.$http
         .get(this.nlp_api_url + "/get_model_topic_words", {
           params: this.searchParams,
@@ -511,83 +366,25 @@ export default {
         return;
       }
     },
-    findTopicShare: function () {
-      this.prev_topic_id = this.topic_id;
-      this.topic_share_searching = true;
-      this.topic_share_plot_ready = false;
-
-      // let options = {
-      //   corpus_id: this.corpus_id,
-      //   model_id: this.lda_model_id,
-      //   topic_id: this.topic_id,
-      //   year_start: 1960,
-      //   adm_regions: this.topic_share_selected_adm_regions,
-      //   major_doc_types: this.topic_share_selected_doc_types,
-      //   lending_instruments: this.topic_share_selected_lending_instruments,
-      // };
-
-      let options = {
-        corpus_id: this.corpus_id,
-        // model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
-        model_id: this.model_run_info_id,
-        topic_id: this.topic_id,
-        year_start: 1960,
-        adm_regions: this.topic_share_selected_adm_regions,
-        major_doc_types: this.topic_share_selected_doc_types,
-      };
-
-      this.$http
-        // .post(this.api_url + "/lda_compare_partition_topic_share", options)
-        .post(this.nlp_api_url + "/get_partition_topic_share", options)
-        .then((response) => {
-          let data = response.data;
-
-          if ("topic_shares" in data) {
-            this.topic_shares = data.topic_shares;
-          }
-          if ("topic_words" in data) {
-            this.topic_words = data.topic_words;
-          }
-          console.log(data);
-        })
-        .catch((error) => {
-          console.log(error);
-          this.errors.push(error);
-          this.errored = true;
-        })
-        .finally(() => {
-          this.topic_share_searching = false;
-          this.plotStack(this.topic_shares);
-        });
-    },
     getFullTopicProfiles: function () {
+      this.loading = true;
       this.full_profile_ready = false;
       this.prev_topic_id = this.topic_id;
       this.topic_share_searching = true;
       this.topic_share_plot_ready = false;
 
-      // let options = {
-      //   corpus_id: this.corpus_id,
-      //   model_id: this.lda_model_id,
-      //   topic_id: this.topic_id,
-      //   year_start: 1960,
-      //   adm_regions: this.topic_share_selected_adm_regions,
-      //   major_doc_types: this.topic_share_selected_doc_types,
-      //   lending_instruments: this.topic_share_selected_lending_instruments,
-      // };
-
       let options = {
         corpus_id: this.corpus_id,
         // model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
-        // model_id: this.model_run_info_id,
-        model_id: "3e82ec784f125709c8bac46d7dd8a67f",
+        model_id: this.model_run_info_id,
+        // model_id: "3e82ec784f125709c8bac46d7dd8a67f",
         topic_id: this.topic_id,
         year_start: 1960,
+        type: "bar",
       };
 
       this.$http
-        // .post(this.api_url + "/lda_compare_partition_topic_share", options)
-        .post("/nlp/models/lda" + "/get_full_topic_profiles", options)
+        .post(this.nlp_api_url + "/get_full_topic_profiles", options)
         .then((response) => {
           let data = response.data;
 
@@ -602,6 +399,7 @@ export default {
           }
           console.log(data);
           this.full_profile_ready = true;
+          this.loading = false;
         })
         .catch((error) => {
           console.log(error);
@@ -614,83 +412,10 @@ export default {
         });
     },
     plotVolumeTopicProfiles() {},
-    plotStack: function (topic_shares) {
-      this.topic_share_plot_ready = false;
-
-      let keys = Object.keys(topic_shares);
-      let traces = [];
-
-      let ph = 250.0;
-      let ps = 50.0;
-
-      let height = ph * keys.length + ps * (keys.length - 1);
-      let div_dt = ps / height;
-      let panel_dt = ph / height;
-
-      let layout = {
-        title: "Topic share per document group",
-        xaxis: { domain: [0, 1], title: "Year" },
-        height: height,
-        autosize: true,
-      };
-
-      let ix = 1;
-      let yd_start = 0;
-      let yd_end = yd_start + panel_dt;
-      let max_y = 0;
-      let part_name = "";
-      let y, y_max, tr;
-
-      for (part_name in topic_shares) {
-        y = topic_shares[part_name].map(function (x) {
-          return x.topic_share;
-        });
-        y_max = Math.max.apply(null, y);
-
-        if (y_max > max_y) {
-          max_y = y_max;
-        }
-
-        tr = {
-          x: topic_shares[part_name].map(function (x) {
-            return x.year;
-          }),
-          y: y,
-          name: part_name,
-          type: "bar",
-        };
-        if (ix > 1) {
-          tr.xaxis = "x";
-          tr.yaxis = "y" + ix;
-        }
-
-        traces.push(tr);
-        ix += 1;
-      }
-
-      for (ix = 1; ix <= keys.length; ix++) {
-        if (ix > 1) {
-          layout["yaxis" + ix] = {
-            domain: [yd_start, yd_end],
-            range: [0, max_y],
-          };
-        } else {
-          layout.yaxis = { domain: [yd_start, yd_end], range: [0, max_y] };
-        }
-
-        yd_start = yd_end + div_dt;
-        yd_end = yd_start + panel_dt;
-      }
-
-      layout.legend = { orientation: "h", x: 0, y: 1 };
-
-      console.log(traces);
-      console.log(layout);
-
-      this.plot_data = traces;
-      this.plot_layout = layout;
-      this.topic_share_plot_ready = true;
-      this.prev_topic_id = this.topic_id;
+  },
+  watch: {
+    topic_id() {
+      this.getFullTopicProfiles();
     },
   },
 };
@@ -725,6 +450,23 @@ export default {
 }
 
 .chart {
-  height: 600px;
+  height: 400px;
+}
+
+.model-select-wrapper {
+  margin: 5px;
+}
+.wbg-model-select {
+  border-color: var(--action-color) !important;
+  color: var(--action-color) !important;
+  border-radius: var(--border-radius-sm) !important;
+  /* padding: 0.375rem 0.75rem !important; */
+  font-weight: 400 !important;
+  font-size: 1rem !important;
+}
+
+/* .wbg-model-select .text.default { */
+div.default.text {
+  color: var(--action-color-hover) !important;
 }
 </style>

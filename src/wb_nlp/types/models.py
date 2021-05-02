@@ -195,6 +195,9 @@ class FullTopicProfilesParams(ModelIDParams):
         datetime.now().year, description="End of the year to return data for.")
     return_records: bool = Field(
         True, description="A flag indicating how the returned data is structured.")
+    type: str = Field(
+        "line", description="Type of chart."
+    )
 
 
 ###########################################

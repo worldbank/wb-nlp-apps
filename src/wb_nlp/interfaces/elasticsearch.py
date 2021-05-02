@@ -412,6 +412,20 @@ def ids_search(ids, query, from_result=0, size=10, return_body=False, ignore_cac
     return response
 
 
+def update_doc_topic_metadata(docs_metadata):
+    fields = [
+        "adm_region", "country", "corpus", "date_published",
+        "doc_type", "geo_region", "major_doc_type", "topics_src",
+        "year"
+    ]
+
+    for doc in docs_metadata:
+        search = DocTopic.search().filter("term", id=doc["id"])
+        metadata = {k: doc.get(k) for k in fields}
+
+        for hit in search.execute():
+            hit.update(**metadata)
+
 # for dobj in scan(es, query={"query": {"match_all": {}}, "fields": []}, size=10000, index="nlp-documents", doc_type=elasticsearch.NLPDoc):
 
 # def timeseries_aggregations():
