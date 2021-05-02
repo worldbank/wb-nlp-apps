@@ -66,7 +66,7 @@
               <b-col>
                 <v-chart
                   class="chart"
-                  refs="graphChart"
+                  ref="graphChartMajorDocType"
                   :option="
                     graphOptions(
                       major_doc_type_data,
@@ -102,7 +102,7 @@
                 <v-chart
                   v-if="adm_region_data"
                   class="chart"
-                  refs="graphChart"
+                  ref="graphChartAdminRegion"
                   :option="
                     graphOptions(
                       adm_region_data,
@@ -202,7 +202,6 @@ export default {
       topic_share_selected_doc_types: [],
       topic_share_selected_lending_instruments: [],
       topic_share_plot_ready: false,
-      topic_share_searching: false,
 
       topic_shares: null,
       topic_words: null,
@@ -289,8 +288,8 @@ export default {
         grid: {
           left: "3%",
           right: "4%",
-          bottom: "15%",
-          top: "10%",
+          bottom: "10%",
+          // top: "10%",
           containLabel: true,
         },
         xAxis: [
@@ -403,7 +402,6 @@ export default {
       this.loading = true;
       this.full_profile_ready = false;
       this.prev_topic_id = this.topic_id;
-      this.topic_share_searching = true;
       this.topic_share_plot_ready = false;
 
       const params = new URLSearchParams();
@@ -411,16 +409,6 @@ export default {
       params.append("topic_id", this.topic_id);
       params.append("year_start", 1960);
       params.append("type", "line");
-
-      // let options = {
-      //   // corpus_id: this.corpus_id,
-      //   // model_id: "6694f3a38bc16dee91be5ccf4a64b6d8",
-      //   model_id: this.model_run_info_id,
-      //   // model_id: "3e82ec784f125709c8bac46d7dd8a67f",
-      //   topic_id: this.topic_id,
-      //   year_start: 1960,
-      //   type: "line",
-      // };
 
       this.$http
         .get(this.nlp_api_url + "/get_full_topic_profiles", { params: params })
@@ -437,10 +425,7 @@ export default {
           this.loading = false;
         })
 
-        .finally(() => {
-          this.topic_share_searching = false;
-          this.plotStack(this.topic_shares);
-        });
+        .finally(() => {});
     },
     plotVolumeTopicProfiles() {},
   },
