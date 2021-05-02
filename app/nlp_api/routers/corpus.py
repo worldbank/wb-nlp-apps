@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Optional, List
 from functools import lru_cache
 import pandas as pd
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Query
 
 from wb_nlp.interfaces import mongodb, elasticsearch
 from wb_nlp.types import metadata
@@ -240,3 +240,28 @@ def get_corpus_volume_by_source():
     """
 
     return get_agg_data_by_field(field="corpus")
+
+
+@router.get("/get_corpus_volume_by")
+def get_corpus_volume_by(fields: List[metadata.CategoricalFields] = Query(...)):
+    """
+    This endpoint generates an aggregated data of the volume of documents and tokens present in the corpus grouped by source and year.
+    """
+    payload = {}
+
+    for k in fields:
+        payload[k] = get_agg_data_by_field(field=k.value)
+
+    return payload
+
+
+# @router.get("/get_corpus_volumes")
+# def get_corpus_volumes():
+#     """
+#     This endpoint generates an aggregated data of the volume of documents and tokens present in the corpus grouped by source and year.
+#     """
+#     payload = {}
+#     for k in metadata.CategoricalFields:
+#         payload[k] = get_agg_data_by_field(field=k.value)
+
+#     return payload

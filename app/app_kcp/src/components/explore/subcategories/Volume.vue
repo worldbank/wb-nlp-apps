@@ -7,98 +7,65 @@
         Knowledge produced may be measured by the volume of documents published
         or the length of content in a document. In this page, we show some
         summary statistics regarding the breakdown of document count and total
-        number of tokens present in the corpus by source over time.
+        number of tokens present in the corpus by source over time. Furthermore,
+        we show some World Bank specific breakdowns below.
       </p>
 
       <br />
 
-      <div>
-        <h4>Documents by source</h4>
-        <b-form-radio-group
-          v-model="docs_value"
-          value-field="item"
-          text-field="name"
-          :options="group_value_options"
-        />
-        <br />
+      <VolumeChart
+        v-if="corpus"
+        :data="corpus"
+        :field="corpus.field"
+        field_name="source"
+      />
+      <br />
+      <br />
 
-        <b-row>
-          <b-col>
-            <v-chart
-              class="chart"
-              ref="graphChartDocs"
-              :option="defaultOptions"
-              :autoresize="true"
-              :loading="loading"
-            />
-          </b-col>
-        </b-row>
+      <p>
+        The World Bank corpus, via its API, contains standardized data on
+        document types and topics. We use these standardized metadata to further
+        breakdown the World Bank corpus to also show trends of document count
+        and token composition by document type and topics.
+      </p>
+      <br />
+      <br />
 
-        <br />
-        <br />
-      </div>
-
-      <div>
-        <h4>Tokens by source</h4>
-        <b-form-radio-group
-          v-model="tokens_value"
-          value-field="item"
-          text-field="name"
-          :options="group_value_options"
-        />
-        <br />
-
-        <b-row>
-          <b-col>
-            <v-chart
-              class="chart"
-              ref="graphChartTokens"
-              :option="defaultOptions"
-              :autoresize="true"
-              :loading="loading"
-            />
-          </b-col>
-        </b-row>
-      </div>
+      <VolumeChart
+        v-if="major_doc_type"
+        :data="major_doc_type"
+        :field="major_doc_type.field"
+        field_name="document type (WB)"
+      />
+      <br />
+      <br />
+      <p>
+        As documents may be tagged with multiple topics, we see that the
+        breakdown by share of topics in the WB corpus have a total of more than
+        100%. Nonetheless, comparison of share among topics will yield some
+        insights regarding the general interest or popularity over time of one
+        topic over other topics of comparison.
+      </p>
+      <br />
+      <br />
+      <VolumeChart
+        v-if="topics_src"
+        :data="topics_src"
+        :field="topics_src.field"
+        field_name="topic (WB)"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import { use } from "echarts/core";
-import VChart from "vue-echarts";
-
-import {
-  TooltipComponent,
-  LegendComponent,
-  GridComponent,
-  DataZoomComponent,
-  DataZoomInsideComponent,
-  DataZoomSliderComponent,
-  ToolboxComponent,
-} from "echarts/components";
-import { GraphChart, LinesChart, LineChart, BarChart } from "echarts/charts";
-import { CanvasRenderer } from "echarts/renderers";
-
-use([
-  TooltipComponent,
-  LegendComponent,
-  GraphChart,
-  CanvasRenderer,
-  LinesChart,
-  LineChart,
-  BarChart,
-  GridComponent,
-  DataZoomComponent,
-  DataZoomInsideComponent,
-  DataZoomSliderComponent,
-  ToolboxComponent,
-]);
+import VolumeChart from "../../common/VolumeChart";
 
 export default {
   name: "Volume",
   components: {
-    VChart,
+    // VChart,
+    VolumeChart,
   },
   props: {
     page_title: String,
@@ -107,7 +74,7 @@ export default {
     this.$http.get("/static/data/corpus_details.json").then((response) => {
       this.items = response.data;
     });
-    this.getFullCorpusVolumeData();
+    this.getFullCorpusData();
   },
   computed: {
     defaultOptions() {
@@ -185,16 +152,10 @@ export default {
   data: function () {
     return {
       loading: false,
-      docs_data: null,
-      tokens_data: null,
 
-      docs_value: "volume",
-      tokens_value: "volume",
-
-      group_value_options: [
-        { item: "volume", name: "By volume" },
-        { item: "share", name: "By share" },
-      ],
+      corpus: null,
+      major_doc_type: null,
+      topics_src: null,
     };
   },
   methods: {
@@ -224,55 +185,31 @@ export default {
         series: data[value].series,
       };
     },
-    getFullCorpusVolumeData: function () {
+    getFullCorpusData: function () {
       this.loading = true;
 
+      const params = new URLSearchParams();
+      params.append("fields", "corpus");
+      params.append("fields", "major_doc_type");
+      params.append("fields", "topics_src");
+
       this.$http
-        .get(this.$config.corpus_url + "/get_corpus_volume_by_source")
+        .get(this.$config.corpus_url + "/get_corpus_volume_by", {
+          params: params,
+        })
         .then((response) => {
           let data = response.data;
 
-          this.docs_data = data.docs;
+          this.corpus = data.corpus;
+          this.major_doc_type = data.major_doc_type;
+          this.topics_src = data.topics_src;
 
-          this.tokens_data = data.tokens;
           this.loading = false;
         })
 
         .finally(() => {});
     },
-    updateCharts() {
-      this.$refs.graphChartDocs.setOption(
-        this.updateOption(this.docs_data, this.docs_value, "Documents")
-      );
-
-      this.$refs.graphChartTokens.setOption(
-        this.updateOption(this.tokens_data, this.tokens_value, "Tokens")
-      );
-    },
   },
-  watch: {
-    docs_value() {
-      this.$refs.graphChartDocs.setOption(
-        this.updateOption(this.docs_data, this.docs_value, "Documents")
-      );
-    },
-    tokens_value() {
-      this.$refs.graphChartTokens.setOption(
-        this.updateOption(this.tokens_data, this.tokens_value, "Tokens")
-      );
-    },
-    loading() {
-      if (this.loading === false) {
-        this.updateCharts();
-      }
-    },
-  },
+  watch: {},
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-.chart {
-  height: 450px;
-}
-</style>

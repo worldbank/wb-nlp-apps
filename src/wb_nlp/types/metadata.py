@@ -180,6 +180,16 @@ class SortOn(BaseModel):
     order: SortOrder = SortOrder.desc
 
 
+class CategoricalFields(enum.Enum):
+    adm_region = "adm_region"
+    corpus = "corpus"
+    country = "country"
+    doc_type = "doc_type"
+    geo_region = "geo_region"
+    major_doc_type = "major_doc_type"
+    topics_src = "topics_src"
+
+
 class CountryCounts(BaseModel):
     country_code: str
     count: int
