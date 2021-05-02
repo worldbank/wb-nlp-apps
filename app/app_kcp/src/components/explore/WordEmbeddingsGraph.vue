@@ -67,7 +67,7 @@
     <b-badge
       @click="getGraph(rw.word)"
       v-for="rw in this.related_words"
-      :key="rw"
+      :key="rw.word + rw.id"
       variant="success"
       style="margin-right: 5px; cursor: pointer"
       >{{ rw.word }}
@@ -137,18 +137,6 @@ export default {
     window.vm = this;
   },
   computed: {
-    searchParams() {
-      const params = new URLSearchParams();
-
-      params.append("model_id", this.$config.default_model.word2vec.model_id);
-      params.append("raw_text", this.text);
-      params.append("topn_words", 8);
-      params.append("topn_sub", 5);
-      params.append("edge_thresh", 0.8);
-      params.append("metric", "cosine_similarity");
-
-      return params;
-    },
     blurContent: function () {
       return this.loading;
     },
@@ -282,6 +270,18 @@ export default {
   //   this.getRelatedWords();
   // },
   methods: {
+    searchParams() {
+      const params = new URLSearchParams();
+
+      params.append("model_id", this.$config.default_model.word2vec.model_id);
+      params.append("raw_text", this.text);
+      params.append("topn_words", 8);
+      params.append("topn_sub", 5);
+      params.append("edge_thresh", 0.8);
+      params.append("metric", "cosine_similarity");
+
+      return params;
+    },
     searchNode: function (event) {
       this.clicked_point = event;
       this.getGraph(this.clicked_point.data.name);
@@ -323,7 +323,7 @@ export default {
 
       this.$http
         .get(this.$config.nlp_api_url.word2vec + "/get_similar_words_graph", {
-          params: this.searchParams,
+          params: this.searchParams(),
         })
         .then((response) => {
           var graph = response.data.graph_data;
@@ -342,7 +342,7 @@ export default {
             this.$config.nlp_api_url.word2vec +
             "/get_similar_words_graph" +
             "?" +
-            this.searchParams.toLocaleString();
+            this.searchParams().toLocaleString();
         })
         .catch((error) => {
           console.log(error);
