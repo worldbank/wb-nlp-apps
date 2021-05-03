@@ -126,6 +126,7 @@
       </div>
     </div>
     <a
+      v-show="show_related"
       v-b-toggle
       :href="'#' + result.id"
       v-on:click="activateSubmit()"
@@ -133,7 +134,17 @@
       >Related documents...</a
     >
     <b-collapse v-model="visible" :id="result.id">
-      <RelatedDocsPanel :reference_id="result.id" :submit="submit_related" />
+      <RelatedDocsPanel
+        :reference_id="result.id"
+        :submit="submit_related"
+        @errorStatus="
+          (error) => {
+            if (error === true) {
+              show_related = false;
+            }
+          }
+        "
+      />
     </b-collapse>
     <hr />
   </div>
@@ -172,6 +183,7 @@ export default {
       submit_related: false,
       rrandom_id: null,
       visible: false,
+      show_related: true,
     };
   },
   computed: {

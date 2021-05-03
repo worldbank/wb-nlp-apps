@@ -1,6 +1,6 @@
 <template>
   <div>
-    <vue-horizontal v-show="results.length === 0">
+    <vue-horizontal v-if="!errored && results === null">
       <div
         class="related-section"
         :style="'height: ' + panel_section_height + 'px;'"
@@ -14,7 +14,10 @@
         </div>
       </div>
     </vue-horizontal>
-    <vue-horizontal v-show="results.length > 0">
+    <div v-if="errored || (results && results.length === 0)">
+      Related documents not found
+    </div>
+    <vue-horizontal v-if="results && results.length > 0">
       <div
         class="related-section"
         :style="'height: ' + panel_section_height + 'px;'"
@@ -137,7 +140,7 @@ export default {
   },
   data() {
     return {
-      results: [],
+      results: null,
       loading: false,
       errored: false,
     };
@@ -151,7 +154,7 @@ export default {
     },
     sendSemanticSearch: function () {
       this.loading = true;
-      this.results = [];
+      this.results = null;
       const body = this.similarityBody;
       console.log(this.similar_docs_by_id_url);
 
@@ -175,6 +178,14 @@ export default {
     },
     reference_id: function () {
       this.sendSemanticSearch();
+    },
+    errored: function () {
+      this.$emit("errorStatus", this.errored);
+    },
+    results: function () {
+      if (this.results && this.results.length === 0) {
+        this.$emit("errorStatus", true);
+      }
     },
   },
 };

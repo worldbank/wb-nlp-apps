@@ -117,19 +117,39 @@
             >
               <div>
                 <br />
-                <h4>Related documents from topic model</h4>
+                <h4>
+                  {{ lda_show_related ? "R" : "No r" }}elated documents from
+                  topic model
+                </h4>
                 <RelatedDocsPanel
                   :section_height="150"
                   :reference_id="metadata.id"
                   :submit="submit_related"
+                  @errorStatus="
+                    (error) => {
+                      if (error === true) {
+                        lda_show_related = false;
+                      }
+                    }
+                  "
                 />
                 <br /><br />
-                <h4>Related documents from word embedding model</h4>
+                <h4>
+                  {{ word2vec_show_related ? "R" : "No r" }}elated documents
+                  from word embedding model
+                </h4>
                 <RelatedDocsPanel
                   :section_height="150"
                   :reference_id="metadata.id"
                   model_name="word2vec"
                   :submit="submit_related"
+                  @errorStatus="
+                    (error) => {
+                      if (error === true) {
+                        word2vec_show_related = false;
+                      }
+                    }
+                  "
                 /></div
             ></b-tab>
             <b-tab
@@ -259,6 +279,8 @@ export default {
       submit_related: false,
       tabIndex: 0,
       loading: false,
+      lda_show_related: true,
+      word2vec_show_related: true,
     };
   },
   methods: {
