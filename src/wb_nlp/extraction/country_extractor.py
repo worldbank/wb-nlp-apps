@@ -93,6 +93,7 @@ def get_country_count_details(counts):
     if counts is None:
         return None
     data = []
+    total = sum(counts.values())
 
     for code, count in counts.items():
         detail = iso3166_3_country_info.get(code)
@@ -113,7 +114,7 @@ def get_country_count_details(counts):
         #   "sub-region-code": "419",
         #   "intermediate-region-code": "029"
 
-        info = dict(code=code, count=count)
+        info = dict(code=code, count=count, percent=count / total)
         info.update(detail)
         data.append(info)
 

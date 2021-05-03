@@ -26,12 +26,54 @@
         following map.
       </p>
 
+      <h4>Extracted countries timeseries</h4>
+      <b-form-radio-group
+        v-model="map_type"
+        value-field="item"
+        text-field="name"
+        :options="group_value_options"
+      />
+      <br />
+
+      <div v-show="map_type === 'volume'">
+        <AnimatedMapChartWB
+          v-if="timeseriesCountryDataVolume"
+          :timeseriesCountryData="timeseriesCountryDataVolume"
+          :pause_loop="map_type !== 'volume'"
+          ref="countryVolumeMap"
+          key="volume-c"
+          highColor="#0000ff"
+          lowColor="#efefff"
+          countryStrokeColor="#909090"
+          defaultCountryFillColor="#fff"
+        />
+        <br />
+        <br />
+      </div>
+      <div v-show="map_type === 'share'">
+        <AnimatedMapChartWB
+          v-if="timeseriesCountryDataShare"
+          :timeseriesCountryData="timeseriesCountryDataShare"
+          :pause_loop="map_type !== 'share'"
+          ref="countryShareMap"
+          key="share-c"
+          highColor="#0000ff"
+          lowColor="#efefff"
+          countryStrokeColor="#909090"
+          defaultCountryFillColor="#fff"
+        />
+        <br />
+        <br />
+      </div>
+
       <VolumeChart
         v-if="adm_region"
         :data="adm_region"
         :field="adm_region.field"
         field_name="admin regions"
       />
+      <br />
+      <br />
 
       <VolumeChart
         v-if="geo_region"
@@ -39,17 +81,16 @@
         :field="geo_region.field"
         field_name="geographic regions"
       />
+      <br />
+      <br />
 
-      <div id="mapDiv" />
+      <!-- <div id="mapDiv" /> -->
     </div>
   </div>
 </template>
 
 <script>
-// import { Plotly } from "vue-plotly";
-
-// import map_methods from "../../../js/maps";
-
+import AnimatedMapChartWB from "../../common/AnimatedMapChartWB";
 import VolumeChart from "../../common/VolumeChart";
 
 export default {
@@ -59,9 +100,20 @@ export default {
   },
   components: {
     VolumeChart,
+    AnimatedMapChartWB,
   },
   data: function () {
     return {
+      map_type: "volume",
+
+      group_value_options: [
+        { item: "volume", name: "By volume" },
+        { item: "share", name: "By share" },
+      ],
+
+      country_stats_loading: false,
+      loading: false,
+
       date_now: new Date().toDateString(),
       corpus_size: 200000,
       org_count: 14,
@@ -69,11 +121,22 @@ export default {
 
       adm_region: null,
       geo_region: null,
+
+      countries_volume: null,
+      countries_share: null,
+
+      iso3map: null,
+      privateCountryData: null,
+      timeseriesCountryDataVolume: null,
+      timeseriesCountryDataShare: null,
     };
   },
   mounted() {
-    this.findTopicMap();
+    window.gvm = this;
+    this.getISOInfo();
+    // this.findTopicMap();
     this.getFullCorpusData();
+    this.getExtractedCountriesStats();
   },
   methods: {
     getFullCorpusData: function () {
@@ -93,13 +156,62 @@ export default {
           this.adm_region = data.adm_region;
           this.geo_region = data.geo_region;
 
-          // this.docs_data = data.docs;
-
-          // this.tokens_data = data.tokens;
           this.loading = false;
         })
 
         .finally(() => {});
+    },
+    getExtractedCountriesStats: function () {
+      this.country_stats_loading = true;
+      this.$http
+        .get(this.$config.corpus_url + "/get_extracted_countries_stats")
+        .then((response) => {
+          let data = response.data;
+
+          this.countries_volume = data.volume;
+          this.countries_share = data.share;
+
+          this.country_stats_loading = false;
+        })
+
+        .finally(() => {});
+    },
+    countryData() {
+      this.timeseriesCountryDataVolume = null;
+      if (this.iso3map === null) {
+        this.getISOInfo();
+      } else {
+        this.setCountryData();
+      }
+
+      return this.timeseriesCountryDataVolume;
+    },
+    setCountryData(timeseries, target) {
+      // timeseries = this.countries_volume.year
+      // target = this.timeseriesCountryDataVolume
+
+      for (const [year, series] of Object.entries(timeseries)) {
+        var dataSeries = {};
+
+        for (const [code, value] of Object.entries(series)) {
+          if (this.iso3map[code] !== undefined) {
+            dataSeries[this.iso3map[code]["alpha-2"]] = value;
+          }
+        }
+
+        target[year] = dataSeries;
+      }
+    },
+    getISOInfo() {
+      this.$http
+        .get("/static/data/iso3166-3-country-info.json")
+        .then((response) => {
+          this.iso3map = response.data;
+
+          // if (this.timeseriesCountryDataVolume === null) {
+          //   this.setCountryData();
+          // }
+        });
     },
     findTopicMap: function (
       csvFile = "/static/data/country_popularity.csv",
@@ -322,6 +434,50 @@ export default {
 
       // this.makeResponsive();
     },
+  },
+  watch: {
+    countries_volume() {
+      if (this.countries_volume !== null) {
+        // this.countryData();
+        this.timeseriesCountryDataVolume = {};
+
+        this.setCountryData(
+          this.countries_volume.year,
+          this.timeseriesCountryDataVolume
+        );
+      }
+    },
+    countries_share() {
+      if (this.countries_share !== null) {
+        // this.countryData();
+        this.timeseriesCountryDataShare = {};
+
+        this.setCountryData(
+          this.countries_share.year,
+          this.timeseriesCountryDataShare
+        );
+      }
+    },
+    iso3map() {
+      if (this.iso3map !== null) {
+        this.getExtractedCountriesStats();
+      }
+    },
+    // country_stats_loading() {
+    //   if (this.country_stats_loading === false) {
+    //     this.timeseriesCountryDataVolume = {};
+    //     this.timeseriesCountryDataShare = {};
+
+    //     this.setCountryData(
+    //       this.countries_volume,
+    //       this.timeseriesCountryDataVolume
+    //     );
+    //     this.setCountryData(
+    //       this.countries_share,
+    //       this.timeseriesCountryDataShare
+    //     );
+    //   }
+    // },
   },
 };
 </script>

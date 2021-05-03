@@ -255,6 +255,20 @@ def get_corpus_volume_by(fields: List[metadata.CategoricalFields] = Query(...)):
     return payload
 
 
+@router.get("/get_extracted_countries_stats")
+def get_extracted_countries_stats():
+    """
+    This endpoint generates an aggregated data of the volume of documents and tokens present in the corpus grouped by source and year.
+    """
+    share = elasticsearch.NLPDoc().get_country_share_by_year()
+    volume = elasticsearch.NLPDoc().get_country_counts_by_year()
+
+    return dict(
+        share=share,
+        volume=volume,
+    )
+
+
 # @router.get("/get_corpus_volumes")
 # def get_corpus_volumes():
 #     """
