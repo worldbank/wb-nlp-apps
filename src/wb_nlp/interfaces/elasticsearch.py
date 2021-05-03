@@ -97,6 +97,38 @@ class NLPDoc(Document):
 
         return s.execute().aggregations.to_dict()
 
+    def get_country_counts_by_year(self):
+        search = self.search()
+
+        year = A("date_histogram",
+                 field="date_published",
+                 calendar_interval="year")
+
+        root = A("nested", path="der_country_details")
+        code = A("terms", field="der_country_details.code", size=1000)
+        total = A("sum", field="der_country_details.count")
+
+        search.aggs.bucket("year", year).bucket("root", root).bucket(
+            "code", code).bucket("total", total)
+
+        return search.execute().aggregations.to_dict()
+
+    def get_country_share_by_year(self):
+        search = self.search()
+
+        year = A("date_histogram",
+                 field="date_published",
+                 calendar_interval="year")
+
+        root = A("nested", path="der_country_details")
+        code = A("terms", field="der_country_details.code", size=1000)
+        total = A("sum", field="der_country_details.percent")
+
+        search.aggs.bucket("year", year).bucket("root", root).bucket(
+            "code", code).bucket("total", total)
+
+        return search.execute().aggregations.to_dict()
+
 
 class DocTopic(Document):
     # _id=f"{self.model_run_info['model_run_info_id']}-{doc_id}",

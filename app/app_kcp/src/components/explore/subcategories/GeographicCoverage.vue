@@ -32,6 +32,8 @@
         :field="adm_region.field"
         field_name="admin regions"
       />
+      <br />
+      <br />
 
       <VolumeChart
         v-if="geo_region"
@@ -46,10 +48,6 @@
 </template>
 
 <script>
-// import { Plotly } from "vue-plotly";
-
-// import map_methods from "../../../js/maps";
-
 import VolumeChart from "../../common/VolumeChart";
 
 export default {
@@ -93,9 +91,6 @@ export default {
           this.adm_region = data.adm_region;
           this.geo_region = data.geo_region;
 
-          // this.docs_data = data.docs;
-
-          // this.tokens_data = data.tokens;
           this.loading = false;
         })
 
