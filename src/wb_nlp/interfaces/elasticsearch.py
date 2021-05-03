@@ -86,6 +86,33 @@ class NLPDoc(Document):
             country_counts)
         return super(NLPDoc, self).save(**kwargs)
 
+    def structure_stats_by_year_data(self, data):
+        year_buckets = data["year"]["buckets"]
+        records = []
+        by_year = {}
+
+        for year_bucket in year_buckets:
+            year_data = []
+            year = year_bucket["key_as_string"].split("T")[0]
+            year_doc_count = year_bucket["doc_count"]
+            year_unique_countries = year_bucket["root"]["doc_count"]
+
+            for d in year_bucket["root"]["code"]["buckets"]:
+                t = d.pop("total")
+                d.update(t)
+                d["year"] = year
+                d["year_doc_count"] = year_doc_count
+                d["year_unique_countries"] = year_unique_countries
+
+                year_data.append(d)
+
+            by_year[year] = {v["key"]: v["value"] for v in year_data}
+            records.extend(year_data)
+
+        return dict(
+            records=records,
+            year=by_year)
+
     def get_country_counts(self):
         s = self.search()
 
@@ -111,7 +138,7 @@ class NLPDoc(Document):
         search.aggs.bucket("year", year).bucket("root", root).bucket(
             "code", code).bucket("total", total)
 
-        return search.execute().aggregations.to_dict()
+        return self.structure_stats_by_year_data(search.execute().aggregations.to_dict())
 
     def get_country_share_by_year(self):
         search = self.search()
@@ -127,7 +154,7 @@ class NLPDoc(Document):
         search.aggs.bucket("year", year).bucket("root", root).bucket(
             "code", code).bucket("total", total)
 
-        return search.execute().aggregations.to_dict()
+        return self.structure_stats_by_year_data(search.execute().aggregations.to_dict())
 
 
 class DocTopic(Document):
