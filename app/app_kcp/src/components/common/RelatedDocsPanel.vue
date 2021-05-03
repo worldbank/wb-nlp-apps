@@ -65,14 +65,20 @@
                 </a> -->
               </span>
               <div class="study-country">
-                {{ result.metadata.country[0] }}, {{ result.metadata.year }}
+                <span v-if="result.metadata.country"
+                  >{{ result.metadata.country[0] }}, </span
+                ><span v-if="result.metadata.year">{{
+                  result.metadata.year
+                }}</span>
               </div>
               <div class="survey-stats">
-                <span
+                <span v-if="result.metadata.date_published"
                   >Created on:
                   {{ getDate(result.metadata.date_published) }} </span
                 ><br />
-                <span>Views: {{ result.metadata.views }}</span>
+                <span v-if="result.metadata.views"
+                  >Views: {{ result.metadata.views }}</span
+                >
               </div>
             </div>
           </div>
