@@ -224,6 +224,7 @@ export default {
       this.paused = !this.paused;
     },
     setResetEvent() {
+      this.stopped = false;
       this.paused = false;
       this.clearQueue();
       this.startAnimation();
@@ -362,7 +363,7 @@ export default {
               vm.countryData = vm.timeseriesCountryData[years[ix]];
               vm.current_year = years[ix];
               i = i - 1;
-              if (i === 0) {
+              if (vm.current_year === years[years.length - 1]) {
                 vm.stopped = true;
               }
             }
