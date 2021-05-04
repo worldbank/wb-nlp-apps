@@ -1,6 +1,11 @@
 <template>
   <div v-if="flags && data">
-    <v-button @click="startRace()">Reset</v-button>
+    <b-button
+      @click="startRace()"
+      :variant="stopped ? 'primary' : 'outline-secondary'"
+      :disabled="!stopped"
+      >Reset</b-button
+    >
     <v-chart class="chart" :option="option" ref="myChart" :autoresize="true" />
   </div>
 </template>
@@ -180,7 +185,8 @@ export default {
       data: null,
       flags: null,
       years: null,
-      startIndex: 10,
+      startIndex: 70,
+      stopped: true,
     };
   },
 
@@ -202,9 +208,14 @@ export default {
       this.dynamicOption.series[0].data = source;
       this.dynamicOption.graphic.elements[0].style.text = year;
       this.$refs.myChart.setOption(this.dynamicOption);
+
+      if (year === this.years[this.years.length - 1]) {
+        this.stopped = true;
+      }
     },
     startRace() {
       let vm = this;
+      vm.stopped = false;
       var i = 0;
 
       for (i = vm.startIndex; i < vm.years.length - 1; ++i) {
