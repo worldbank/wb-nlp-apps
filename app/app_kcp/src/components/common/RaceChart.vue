@@ -1,5 +1,6 @@
 <template>
   <div v-if="flags && data">
+    <v-button @click="startRace()">Reset</v-button>
     <v-chart class="chart" :option="option" ref="myChart" :autoresize="true" />
   </div>
 </template>
@@ -19,6 +20,7 @@ import {
   DataZoomInsideComponent,
   DataZoomSliderComponent,
   ToolboxComponent,
+  GraphicComponent,
 } from "echarts/components";
 import { GraphChart, LinesChart, LineChart, BarChart } from "echarts/charts";
 import { CanvasRenderer } from "echarts/renderers";
@@ -36,6 +38,7 @@ use([
   DataZoomInsideComponent,
   DataZoomSliderComponent,
   ToolboxComponent,
+  GraphicComponent,
 ]);
 
 export default {
@@ -137,7 +140,7 @@ export default {
               right: 160,
               bottom: 60,
               style: {
-                text: vm.startYear,
+                text: vm.years[vm.startIndex],
                 font: "bolder 80px monospace",
                 fill: "rgba(100, 100, 100, 0.25)",
               },
@@ -151,92 +154,6 @@ export default {
   data() {
     return {
       dynamicOption: null,
-      //   option: {
-      //     grid: {
-      //       top: 10,
-      //       bottom: 30,
-      //       left: 150,
-      //       right: 80,
-      //     },
-      //     xAxis: {
-      //       max: "dataMax",
-      //       label: {
-      //         formatter: function (n) {
-      //           return Math.round(n);
-      //         },
-      //       },
-      //     },
-      //     dataset: {
-      //       source: this.data.slice(1).filter(function (d) {
-      //         return d[4] === this.startYear;
-      //       }),
-      //     },
-      //     yAxis: {
-      //       type: "category",
-      //       inverse: true,
-      //       max: 10,
-      //       axisLabel: {
-      //         show: true,
-      //         textStyle: {
-      //           fontSize: 14,
-      //         },
-      //         formatter: function (value) {
-      //           return value + "{flag|" + this.getFlag(value) + "}";
-      //         },
-      //         rich: {
-      //           flag: {
-      //             fontSize: 25,
-      //             padding: 5,
-      //           },
-      //         },
-      //       },
-      //       animationDuration: 300,
-      //       animationDurationUpdate: 300,
-      //     },
-      //     series: [
-      //       {
-      //         realtimeSort: true,
-      //         seriesLayoutBy: "column",
-      //         type: "bar",
-      //         itemStyle: {
-      //           color: function (param) {
-      //             return this.countryColors[param.value[3]] || "#5470c6";
-      //           },
-      //         },
-      //         encode: {
-      //           x: this.dimension,
-      //           y: 3,
-      //         },
-      //         label: {
-      //           show: true,
-      //           precision: 1,
-      //           position: "right",
-      //           valueAnimation: true,
-      //           fontFamily: "monospace",
-      //         },
-      //       },
-      //     ],
-      //     // Disable init animation.
-      //     animationDuration: 0,
-      //     animationDurationUpdate: this.updateFrequency,
-      //     animationEasing: "linear",
-      //     animationEasingUpdate: "linear",
-      //     graphic: {
-      //       elements: [
-      //         {
-      //           type: "text",
-      //           right: 160,
-      //           bottom: 60,
-      //           style: {
-      //             text: this.startYear,
-      //             font: "bolder 80px monospace",
-      //             fill: "rgba(100, 100, 100, 0.25)",
-      //           },
-      //           z: 100,
-      //         },
-      //       ],
-      //     },
-      //   },
       updateFrequency: 1000,
       dimension: 0,
       countryColors: {
