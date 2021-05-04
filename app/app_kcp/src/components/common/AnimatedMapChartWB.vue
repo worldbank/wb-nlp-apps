@@ -291,6 +291,7 @@ export default {
     },
     clearQueue() {
       this.queue.forEach((panel) => clearTimeout(panel));
+      this.queue = [];
     },
   },
   mounted() {
@@ -299,9 +300,12 @@ export default {
 
     // this.renderMapCSS();
     window.mapVM = this;
+    this.$emit("mounted", true);
   },
   destroyed() {
     this.break_loop = true;
+    this.clearQueue();
+    this.$emit("destroyed", true);
   },
 };
 </script>
