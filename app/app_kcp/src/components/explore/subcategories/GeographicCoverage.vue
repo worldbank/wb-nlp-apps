@@ -68,9 +68,10 @@
 
       <div v-if="countries_volume">
         <p class="lead">
-          We also show a race chart of the total country mentions in documents.
-          This animated chart provides a glimpse on how countries' popularity,
-          as measured by total frequency of mentions, change over time.
+          We also show a race chart of the cumulative country mentions in
+          documents. This animated chart provides a glimpse on how countries'
+          popularity, as measured by the total frequency of mentions, evolve
+          over time.
         </p>
         <RaceChart :iso3map="iso3map" :input_data="countries_volume.records" />
         <br />
