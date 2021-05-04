@@ -86,7 +86,7 @@ class NLPDoc(Document):
             country_counts)
         return super(NLPDoc, self).save(**kwargs)
 
-    def structure_stats_by_year_data(self, data):
+    def structure_stats_by_year_data(self, data, round_size=None):
         year_buckets = data["year"]["buckets"]
         country_total = {}
         records = []
@@ -105,6 +105,9 @@ class NLPDoc(Document):
                 d["year"] = year
                 d["year_doc_count"] = year_doc_count
                 d["year_unique_countries"] = year_unique_countries
+
+                if round_size is not None:
+                    d["value"] = round(d["value"], round_size)
 
                 country_total[d["key"]] = country_total.get(
                     d["key"], 0) + d["value"]
@@ -160,7 +163,7 @@ class NLPDoc(Document):
         search.aggs.bucket("year", year).bucket("root", root).bucket(
             "code", code).bucket("total", total)
 
-        return self.structure_stats_by_year_data(search.execute().aggregations.to_dict())
+        return self.structure_stats_by_year_data(search.execute().aggregations.to_dict(), round_size=4)
 
 
 class DocTopic(Document):

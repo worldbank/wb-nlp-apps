@@ -146,7 +146,7 @@ export default {
       countries_volume: null,
       countries_share: null,
 
-      iso3map: null,
+      iso3map: {},
       privateCountryData: null,
       timeseriesCountryDataVolume: null,
       timeseriesCountryDataShare: null,
@@ -157,7 +157,8 @@ export default {
     this.getISOInfo();
     // this.findTopicMap();
     this.getFullCorpusData();
-    this.getExtractedCountriesStats();
+
+    // this.getExtractedCountriesStats();
   },
   methods: {
     getFullCorpusData: function () {
@@ -183,6 +184,11 @@ export default {
         .finally(() => {});
     },
     getExtractedCountriesStats: function () {
+      if (!this.iso3map) {
+        return;
+      }
+      this.countries_volume = {};
+      this.countries_share = {};
       this.country_stats_loading = true;
       this.$http
         .get(this.$config.corpus_url + "/get_extracted_countries_stats")
@@ -480,7 +486,7 @@ export default {
       }
     },
     iso3map() {
-      if (this.iso3map !== null) {
+      if (Object.keys(this.iso3map).length > 0) {
         this.getExtractedCountriesStats();
       }
     },
