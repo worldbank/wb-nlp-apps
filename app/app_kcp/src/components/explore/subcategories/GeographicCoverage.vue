@@ -72,7 +72,6 @@
           This animated chart provides a glimpse on how countries' popularity,
           as measured by total frequency of mentions, change over time.
         </p>
-        <br />
         <RaceChart :iso3map="iso3map" :input_data="countries_volume.records" />
         <br />
         <br />

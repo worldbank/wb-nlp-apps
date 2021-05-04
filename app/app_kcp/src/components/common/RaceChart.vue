@@ -1,11 +1,15 @@
 <template>
   <div v-if="flags && data">
-    <b-button
-      @click="startRace()"
-      :variant="stopped ? 'primary' : 'outline-secondary'"
-      :disabled="!stopped"
-      >Reset</b-button
-    >
+    <div style="overflow: hidden; margin-right: 50px">
+      <b-button
+        style="float: right"
+        @click="startRace()"
+        :variant="stopped ? 'primary' : 'outline-secondary'"
+        :disabled="!stopped"
+        >Reset</b-button
+      >
+    </div>
+    <br />
     <v-chart class="chart" :option="option" ref="myChart" :autoresize="true" />
   </div>
 </template>
