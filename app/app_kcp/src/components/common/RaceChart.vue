@@ -3,10 +3,18 @@
     <div style="overflow: hidden; margin-right: 50px">
       <b-button
         style="float: right"
-        @click="startRace()"
-        :variant="stopped ? 'primary' : 'outline-secondary'"
-        :disabled="!stopped"
+        @click="startRace('reset')"
+        :variant="resetButtonVariant"
+        :disabled="disableReset"
         >Reset</b-button
+      >
+
+      <b-button
+        style="float: right; margin: 0 10px 0 10px"
+        @click="setPauseEvent()"
+        :variant="pauseButtonVariant"
+        :disabled="disablePause"
+        >{{ paused ? "Resume" : "Pause" }}</b-button
       >
     </div>
     <br />
@@ -80,8 +88,45 @@ export default {
         this.loadInputData();
       }
     },
+    // paused() {
+    //   console.log("Pause changed...");
+    //   if (this.paused) {
+    //     this.clearQueue();
+    //   } else {
+    //     this.startIndex = this.years.indexOf(this.current_year);
+    //     this.startRace();
+    //   }
+    // },
   },
   computed: {
+    disableReset() {
+      return !this.stopped && !this.paused;
+    },
+    disablePause() {
+      return this.current_year === this.years[this.years.length - 1];
+    },
+    resetButtonVariant() {
+      var variant = "outline-secondary";
+
+      if (this.stopped || this.paused) {
+        variant = "primary";
+      }
+      return variant;
+    },
+    pauseButtonVariant() {
+      var variant = "primary";
+
+      if (this.paused) {
+        variant = "success";
+      }
+      if (this.current_year === this.years[this.years.length - 1]) {
+        variant = "outline-secondary";
+      }
+      return variant;
+    },
+    startYear() {
+      return this.years[this.startIndex];
+    },
     isReady() {
       return this.data_loaded && this.flags;
     },
@@ -171,7 +216,7 @@ export default {
               right: 160,
               bottom: 60,
               style: {
-                text: vm.years[vm.startIndex],
+                text: vm.years[vm.startIndex].split("-")[0],
                 font: "bolder 80px monospace",
                 fill: "rgba(100, 100, 100, 0.25)",
               },
@@ -214,10 +259,29 @@ export default {
       startIndex: 0,
       stopped: true,
       data_loaded: false,
+
+      paused: false,
+      current_year: null,
+
+      queue: [],
     };
   },
 
   methods: {
+    setPauseEvent() {
+      this.paused = !this.paused;
+
+      if (this.paused) {
+        this.clearQueue();
+      } else {
+        const p = this.years.indexOf(this.current_year);
+        if (p) {
+          this.startIndex = p;
+        }
+
+        this.startRace("pause");
+      }
+    },
     getFlag(countryName) {
       const detail = this.iso3map[countryName];
       if (!countryName || !detail) {
@@ -238,22 +302,34 @@ export default {
       });
       this.dynamicOption.series[0].data = source;
       this.dynamicOption.graphic.elements[0].style.text = year.split("-")[0];
-      //   this.$refs.myChart.setOption(this.dynamicOption);
+
+      this.$refs.myChart.setOption(this.dynamicOption);
+
+      this.current_year = year;
+      //   console.log(this.current_year);
 
       if (year === this.years[this.years.length - 1]) {
         this.stopped = true;
       }
     },
-    startRace() {
+    startRace(from = "start") {
+      if (from === "reset") {
+        this.startIndex = 0;
+      }
       let vm = this;
       vm.stopped = false;
+      vm.paused = false;
       var i = 0;
+      vm.clearQueue();
+      //   vm.startIndex = vm.years.indexOf(vm.current_year);
 
       for (i = vm.startIndex; i < vm.years.length - 1; ++i) {
         (function (i) {
-          setTimeout(function () {
-            vm.updateYear(vm.years[i + 1]);
-          }, (i - vm.startIndex) * vm.updateFrequency);
+          vm.queue.push(
+            setTimeout(function () {
+              vm.updateYear(vm.years[i + 1]);
+            }, (i - vm.startIndex) * vm.updateFrequency)
+          );
         })(i);
       }
     },
@@ -348,6 +424,14 @@ export default {
         this.flags = response.data;
       });
     },
+    clearQueue() {
+      this.queue.forEach((panel) => clearTimeout(panel));
+
+      this.queue = [];
+    },
+  },
+  destroyed() {
+    this.clearQueue();
   },
 };
 </script>

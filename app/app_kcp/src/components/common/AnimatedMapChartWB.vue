@@ -1,24 +1,50 @@
 <template>
-  <div
-    class="vue-world-map"
-    @mouseover="should_pause = true"
-    @mouseleave="should_pause = false"
-  >
-    {{ current_year }}
-    <WBMap
-      @hoverCountry="onHoverCountry"
-      @hoverLeaveCountry="onHoverLeaveCountry"
-    />
+  <div>
+    <b-row align-v="center">
+      <b-col>
+        <p class="lead" style="font-size: 3rem">
+          {{ titleHeader }}
+        </p></b-col
+      ><b-col>
+        <div style="overflow: hidden; margin-right: 50px">
+          <b-button
+            style="float: right"
+            @click="setResetEvent()"
+            :variant="resetButtonVariant"
+            :disabled="disableReset"
+            >Reset</b-button
+          >
+
+          <b-button
+            style="float: right; margin: 0 10px 0 10px"
+            @click="setPauseEvent()"
+            :variant="pauseButtonVariant"
+            :disabled="disablePause"
+            >{{ paused ? "Resume" : "Pause" }}</b-button
+          >
+        </div></b-col
+      >
+    </b-row>
     <div
-      v-if="legend.name"
-      class="vue-map-legend"
-      :style="'left:' + position.left + 'px; top: ' + position.top + 'px'"
+      class="vue-world-map"
+      @mouseover="should_pause = true"
+      @mouseleave="should_pause = false"
     >
-      <div class="vue-map-legend-header">
-        <span>{{ legend.name }}</span>
-      </div>
-      <div class="vue-map-legend-content">
-        <span>{{ getDisplayValue(legend.code) }}</span>
+      <WBMap
+        @hoverCountry="onHoverCountry"
+        @hoverLeaveCountry="onHoverLeaveCountry"
+      />
+      <div
+        v-if="legend.name"
+        class="vue-map-legend"
+        :style="'left:' + position.left + 'px; top: ' + position.top + 'px'"
+      >
+        <div class="vue-map-legend-header">
+          <span>{{ legend.name }}</span>
+        </div>
+        <div class="vue-map-legend-content">
+          <span>{{ getDisplayValue(legend.code) }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -49,12 +75,54 @@ export default {
       this.renderMapCSS();
     },
     timeseriesCountryData() {
+      this.clearQueue();
       this.startAnimation();
     },
     loaded() {
       if (this.loaded) {
         this.$emit("ready", this.loaded);
       }
+    },
+  },
+  computed: {
+    disableReset() {
+      return !this.stopped && !this.paused;
+    },
+    disablePause() {
+      return false;
+      // return this.current_year === this.years[this.years.length - 1];
+    },
+    resetButtonVariant() {
+      var variant = "outline-secondary";
+
+      if (this.stopped || this.paused) {
+        variant = "primary";
+      }
+      return variant;
+    },
+    pauseButtonVariant() {
+      var variant = "primary";
+
+      if (this.paused) {
+        variant = "success";
+      }
+      // if (this.current_year === this.years[this.years.length - 1]) {
+      //   variant = "outline-secondary";
+      // }
+      return variant;
+    },
+    pauseAnimation() {
+      return (
+        (this.pause_loop || this.should_pause || this.paused) &&
+        !this.break_loop
+      );
+    },
+    titleHeader() {
+      var title = "Resetting...";
+      if (!this.break_loop) {
+        title = this.current_year && this.current_year.split("-")[0];
+      }
+      return title;
     },
   },
   props: {
@@ -142,11 +210,26 @@ export default {
       chromaScale: chroma.scale([this.$props.lowColor, this.$props.highColor]),
       should_pause: false,
       loaded: false,
+
+      stopped: false,
+      paused: false,
+      break_loop: false,
+
+      queue: [],
     };
   },
   methods: {
+    setPauseEvent() {
+      this.paused = !this.paused;
+    },
+    setResetEvent() {
+      this.paused = false;
+      this.clearQueue();
+      this.startAnimation();
+      this.break_loop = false;
+    },
     processNormalizeCountryData() {
-      if (this.countryData === null) {
+      if (this.countryData === null || this.countryData === undefined) {
         return;
       } else if (Object.keys(this.countryData).length === 0) {
         return;
@@ -238,7 +321,7 @@ export default {
       this.$data.node.remove();
       this.$data.node = this.getOrCreateNode();
       document.body.appendChild(this.$data.node);
-      console.log("TESTESTEST");
+      // console.log("TESTESTEST");
 
       const baseCss = getBaseCss(this.$props);
       const dynamicMapCss = getDynamicMapCss(
@@ -254,36 +337,45 @@ export default {
     startAnimation() {
       const years = Object.keys(this.timeseriesCountryData).sort();
       let vm = this;
-      console.log(years);
+      // console.log(years);
       const num_years = years.length;
 
       (function myLoop(i) {
-        setTimeout(function () {
-          const pause_now = vm.pause_loop || vm.should_pause;
-          if (pause_now) {
-            console.log("Looping");
-            // (function pauseBuffer(pause) {
-            //   setTimeout(() => {
-            //     console.log("Buffer...");
+        vm.queue.push(
+          setTimeout(function () {
+            if (vm.pauseAnimation) {
+              console.log("Looping");
+              // (function pauseBuffer(pause) {
+              //   setTimeout(() => {
+              //     console.log("Buffer...");
+              //     if (pause) pauseBuffer(vm.pause_loop || vm.should_pause);
+              //     return;
+              //   }, 1000);
+              // })(vm.pause_loop || vm.should_pause);
+            } else if (vm.break_loop) {
+              // console.log("Loop terminated");
+              return;
+            } else {
+              var ix = num_years - i;
 
-            //     if (pause) pauseBuffer(vm.pause_loop || vm.should_pause);
-
-            //     return;
-            //   }, 1000);
-            // })(vm.pause_loop || vm.should_pause);
-          } else if (vm.break_loop) {
-            console.log("Loop terminated");
-            return;
-          } else {
-            var ix = num_years - i;
-            console.log("hello " + ix); //  your code here
-            vm.countryData = vm.timeseriesCountryData[years[ix]];
-            vm.current_year = years[ix];
-            i = i - 1;
-          }
-          if (i) myLoop(i); //  decrement i and call myLoop again if i > 0
-        }, 1000);
+              vm.countryData = vm.timeseriesCountryData[years[ix]];
+              vm.current_year = years[ix];
+              i = i - 1;
+              if (i === 0) {
+                vm.stopped;
+              }
+            }
+            const setTimeoutID = vm.queue.shift();
+            clearTimeout(setTimeoutID);
+            if (i) myLoop(i); //  decrement i and call myLoop again if i > 0
+          }, 1000)
+        );
       })(num_years);
+    },
+    clearQueue() {
+      this.break_loop = true;
+      this.queue.forEach((panel) => clearTimeout(panel));
+      this.queue = [];
     },
   },
   mounted() {
@@ -292,9 +384,11 @@ export default {
 
     // this.renderMapCSS();
     window.mapVM = this;
+    this.$emit("mounted", true);
   },
   destroyed() {
-    this.break_loop = true;
+    this.clearQueue();
+    this.$emit("destroyed", true);
   },
 };
 </script>

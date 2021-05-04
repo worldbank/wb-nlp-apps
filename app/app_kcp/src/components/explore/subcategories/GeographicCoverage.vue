@@ -27,59 +27,96 @@
       </p>
 
       <h4>Extracted countries timeseries</h4>
-      <b-form-radio-group
-        v-model="map_type"
-        value-field="item"
-        text-field="name"
-        :options="group_value_options"
-      />
+      <br />
+      <b-row>
+        <b-col cols="12"
+          ><p>Filter data by document type for map and race chart</p></b-col
+        >
+        <b-col cols="4">
+          <b-form-select
+            v-model="doc_type_filter"
+            :options="doc_type_options"
+            size="sm"
+          ></b-form-select>
+        </b-col>
+      </b-row>
+      <br />
+      <b-row>
+        <b-col cols="8" offset="0">
+          <p>Toggle map view</p>
+          <b-form-radio-group
+            v-model="map_type"
+            value-field="item"
+            text-field="name"
+            :options="group_value_options"
+        /></b-col>
+      </b-row>
       <br />
 
-      <b-skeleton-img v-if="!map_ready" height="350px"></b-skeleton-img>
+      <b-skeleton-img
+        v-if="
+          country_stats_loading ||
+          $refs.countryVolumeMap === $refs.countryShareMap
+        "
+        height="350px"
+      ></b-skeleton-img>
+      <div v-if="!country_stats_loading">
+        <div v-show="$refs.countryVolumeMap !== $refs.countryShareMap">
+          <div v-show="map_type === 'volume' && map_ready">
+            <AnimatedMapChartWB
+              v-if="timeseriesCountryDataVolume"
+              :timeseriesCountryData="timeseriesCountryDataVolume"
+              :pause_loop="map_type !== 'volume'"
+              ref="countryVolumeMap"
+              key="volume-c"
+              highColor="#0000ff"
+              lowColor="#efefff"
+              countryStrokeColor="#909090"
+              defaultCountryFillColor="#fff"
+              @ready="(ready) => (map_ready = ready)"
+              @mounted="$refs.countryVolumeMap.startAnimation()"
+            />
+            <br />
+            <br />
+          </div>
+          <div v-show="map_type === 'share' && map_ready">
+            <AnimatedMapChartWB
+              v-if="timeseriesCountryDataShare"
+              :timeseriesCountryData="timeseriesCountryDataShare"
+              :pause_loop="map_type !== 'share'"
+              ref="countryShareMap"
+              key="share-c"
+              highColor="#0000ff"
+              lowColor="#efefff"
+              countryStrokeColor="#909090"
+              defaultCountryFillColor="#fff"
+              @ready="(ready) => (map_ready = ready)"
+              @mounted="$refs.countryShareMap.startAnimation()"
+            />
+            <br />
+            <br />
+          </div>
+        </div>
+      </div>
 
-      <div v-show="map_type === 'volume' && map_ready">
-        <AnimatedMapChartWB
-          v-if="timeseriesCountryDataVolume"
-          :timeseriesCountryData="timeseriesCountryDataVolume"
-          :pause_loop="map_type !== 'volume'"
-          ref="countryVolumeMap"
-          key="volume-c"
-          highColor="#0000ff"
-          lowColor="#efefff"
-          countryStrokeColor="#909090"
-          defaultCountryFillColor="#fff"
-          @ready="(ready) => (map_ready = ready)"
-        />
-        <br />
-        <br />
-      </div>
-      <div v-show="map_type === 'share' && map_ready">
-        <AnimatedMapChartWB
-          v-if="timeseriesCountryDataShare"
-          :timeseriesCountryData="timeseriesCountryDataShare"
-          :pause_loop="map_type !== 'share'"
-          ref="countryShareMap"
-          key="share-c"
-          highColor="#0000ff"
-          lowColor="#efefff"
-          countryStrokeColor="#909090"
-          defaultCountryFillColor="#fff"
-        />
-        <br />
-        <br />
-      </div>
+      <p v-if="countries_volume" class="lead">
+        We also show a race chart of the cumulative country mentions in
+        documents. This animated chart provides a glimpse on how countries'
+        popularity, as measured by the total frequency of mentions, evolve over
+        time.
+      </p>
+      <b-skeleton-img
+        v-if="
+          !race_ready || $refs.raceChart === undefined || country_stats_loading
+        "
+        height="500px"
+      ></b-skeleton-img>
 
       <div v-if="countries_volume">
-        <p class="lead">
-          We also show a race chart of the cumulative country mentions in
-          documents. This animated chart provides a glimpse on how countries'
-          popularity, as measured by the total frequency of mentions, evolve
-          over time.
-        </p>
-        <b-skeleton-img v-if="!race_ready" height="500px"></b-skeleton-img>
-
         <RaceChart
+          v-if="!country_stats_loading"
           :iso3map="iso3map"
+          ref="raceChart"
           :input_data="countries_volume.records"
           @ready="(ready) => (race_ready = ready)"
         />
@@ -137,11 +174,25 @@ export default {
       map_type: "volume",
       race_ready: false,
       map_ready: false,
+      data_cache: {},
 
       group_value_options: [
         { item: "volume", name: "By volume" },
         { item: "share", name: "By share" },
       ],
+
+      doc_type_options: [
+        { value: "", text: "Full corpus" },
+        { value: "Board Documents", text: "Board Documents" },
+        { value: "Economic and Sector Work", text: "Economic and Sector Work" },
+        { value: "Project Documents", text: "Project Documents" },
+        { value: "Publications", text: "Publications" },
+        {
+          value: "Publications and Research",
+          text: "Publications and Research",
+        },
+      ],
+      doc_type_filter: "",
 
       country_stats_loading: false,
       loading: false,
@@ -198,16 +249,41 @@ export default {
       if (!this.iso3map) {
         return;
       }
+
       this.countries_volume = {};
       this.countries_share = {};
       this.country_stats_loading = true;
+
+      const searchParams = new URLSearchParams();
+      searchParams.append("major_doc_type", this.doc_type_filter);
+      const data_key = searchParams.toLocaleString();
+      console.log(data_key);
+
+      if (this.data_cache[data_key]) {
+        let data = this.data_cache[data_key];
+
+        this.countries_volume = data.volume;
+        this.countries_share = data.share;
+
+        this.country_stats_loading = false;
+
+        return;
+      }
+
       this.$http
-        .get(this.$config.corpus_url + "/get_extracted_countries_stats")
+        .get(this.$config.corpus_url + "/get_extracted_countries_stats", {
+          params: searchParams,
+        })
         .then((response) => {
           let data = response.data;
 
           this.countries_volume = data.volume;
           this.countries_share = data.share;
+
+          this.data_cache[data_key] = {
+            volume: data.volume,
+            share: data.share,
+          };
 
           this.country_stats_loading = false;
         })
@@ -227,6 +303,10 @@ export default {
     setCountryData(timeseries, target) {
       // timeseries = this.countries_volume.year
       // target = this.timeseriesCountryDataVolume
+
+      if (timeseries === null || timeseries === undefined) {
+        return;
+      }
 
       for (const [year, series] of Object.entries(timeseries)) {
         var dataSeries = {};
@@ -474,6 +554,9 @@ export default {
     },
   },
   watch: {
+    doc_type_filter() {
+      this.getExtractedCountriesStats();
+    },
     countries_volume() {
       if (this.countries_volume !== null) {
         // this.countryData();
@@ -501,6 +584,61 @@ export default {
         this.getExtractedCountriesStats();
       }
     },
+
+    country_stats_loading() {
+      if (!this.country_stats_loading) {
+        console.log("Data updated!!!");
+
+        if (this.$refs.countryVolumeMap) {
+          this.$refs.countryVolumeMap.clearQueue();
+
+          this.$refs.countryVolumeMap.timeseriesCountryData = this.timeseriesCountryDataVolume;
+        }
+
+        if (this.$refs.countryShareMap) {
+          this.$refs.countryShareMap.clearQueue();
+
+          this.$refs.countryShareMap.timeseriesCountryData = this.timeseriesCountryDataShare;
+        }
+        // this.$refs.countryVolumeMap.startAnimation();
+        // this.$refs.countryShareMap.startAnimation();
+      }
+    },
+
+    // <div v-if="!country_stats_loading">
+    //   <div v-show="map_type === 'volume'">
+    //     <AnimatedMapChartWB
+    //       v-if="timeseriesCountryDataVolume"
+    //       :timeseriesCountryData="timeseriesCountryDataVolume"
+    //       :pause_loop="map_type !== 'volume'"
+    //       ref="countryVolumeMap"
+    //       key="volume-c"
+    //       highColor="#0000ff"
+    //       lowColor="#efefff"
+    //       countryStrokeColor="#909090"
+    //       defaultCountryFillColor="#fff"
+    //       @ready="(ready) => (map_ready = ready)"
+    //     />
+    //     <br />
+    //     <br />
+    //   </div>
+    //   <div v-show="map_type === 'share'">
+    //     <AnimatedMapChartWB
+    //       v-if="timeseriesCountryDataShare"
+    //       :timeseriesCountryData="timeseriesCountryDataShare"
+    //       :pause_loop="map_type !== 'share'"
+    //       ref="countryShareMap"
+    //       key="share-c"
+    //       highColor="#0000ff"
+    //       lowColor="#efefff"
+    //       countryStrokeColor="#909090"
+    //       defaultCountryFillColor="#fff"
+    //     />
+    //     <br />
+    //     <br />
+    //   </div>
+    // </div>
+
     // country_stats_loading() {
     //   if (this.country_stats_loading === false) {
     //     this.timeseriesCountryDataVolume = {};

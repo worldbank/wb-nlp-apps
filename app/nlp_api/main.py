@@ -89,7 +89,7 @@ async def startup_event():
         model_id = run["model_run_info_id"]
         model_name = ModelTypes(run["model_name"])
         try:
-            get_validated_model(model_name, model_id)
+            model = get_validated_model(model_name, model_id)
 
             if model_name == ModelTypes("word2vec"):
                 for indicator_code in IndicatorTypes:
@@ -99,6 +99,8 @@ async def startup_event():
                         indicator_code=indicator_code, model_id=model_id)
                     indicator_model.build_indicator_vectors(
                         is_parallel=True if indicator_code == IndicatorTypes("microdata") else False)
+
+                model.get_similar_words_graph("data")
 
         except Exception as e:
             logging.error(e)
