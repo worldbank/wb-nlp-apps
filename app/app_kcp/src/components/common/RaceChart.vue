@@ -53,12 +53,29 @@ export default {
     window.rvm = this;
     this.fetchData();
     // this.plotRace();
+    if (this.input_data.length > 0) {
+      this.loadInputData();
+    }
+  },
+  props: {
+    input_data: {
+      type: Array,
+      default: function () {
+        return [];
+      },
+    },
+    iso3map: Object,
   },
   watch: {
     isReady() {
       if (this.isReady) {
         this.dynamicOption = this.option;
         this.startRace();
+      }
+    },
+    input_data() {
+      if (this.input_data.length > 0) {
+        this.loadInputData();
       }
     },
   },
@@ -98,7 +115,12 @@ export default {
               fontSize: 14,
             },
             formatter: function (value) {
-              return value + "{flag|" + vm.getFlag(value) + "}";
+              return (
+                vm.getCountryCodeDetails(value).name +
+                "{flag|" +
+                vm.getFlag(value) +
+                "}"
+              );
             },
             rich: {
               flag: {
@@ -122,7 +144,7 @@ export default {
             },
             encode: {
               x: vm.dimension,
-              y: 3,
+              y: 5,
             },
             label: {
               show: true,
@@ -185,19 +207,23 @@ export default {
       data: null,
       flags: null,
       years: null,
-      startIndex: 70,
+      startIndex: 0,
       stopped: true,
     };
   },
 
   methods: {
     getFlag(countryName) {
-      if (!countryName) {
+      const detail = this.iso3map[countryName];
+      if (!countryName || !detail) {
+        console.log(countryName);
         return "";
       }
+
+      const alpha_2 = detail["alpha-2"];
       return (
         this.flags.find(function (item) {
-          return item.name === countryName;
+          return item.code === alpha_2;
         }) || {}
       ).emoji;
     },
@@ -206,7 +232,7 @@ export default {
         return d[4] === year;
       });
       this.dynamicOption.series[0].data = source;
-      this.dynamicOption.graphic.elements[0].style.text = year;
+      this.dynamicOption.graphic.elements[0].style.text = year.split("-")[0];
       this.$refs.myChart.setOption(this.dynamicOption);
 
       if (year === this.years[this.years.length - 1]) {
@@ -226,6 +252,31 @@ export default {
         })(i);
       }
     },
+    getCountryCodeDetails(code) {
+      return this.iso3map[code] || {};
+    },
+    loadInputData() {
+      this.data = this.input_data.map((record) => [
+        record.value,
+        record.doc_count,
+        record.year_doc_count,
+        this.getCountryCodeDetails(record.key).name,
+
+        record.year,
+        record.key,
+      ]);
+
+      this.years = [];
+
+      for (var i = 0; i < this.data.length; ++i) {
+        if (
+          this.years.length === 0 ||
+          this.years[this.years.length - 1] !== this.data[i][4]
+        ) {
+          this.years.push(this.data[i][4]);
+        }
+      }
+    },
     fetchData() {
       this.$http
         .get("https://cdn.jsdelivr.net/npm/emoji-flags@1.3.0/data.json")
@@ -233,21 +284,22 @@ export default {
           this.flags = response.data;
         });
 
-      this.$http
-        .get("/static/data/life-expectancy-table.json")
-        .then((response) => {
-          this.years = [];
-          this.data = response.data;
+      //   this.$http
+      //     .get("/static/data/life-expectancy-table.json")
+      //     .then((response) => {
+      //       this.years = [];
+      //       this.data = response.data;
 
-          for (var i = 0; i < this.data.length; ++i) {
-            if (
-              this.years.length === 0 ||
-              this.years[this.years.length - 1] !== this.data[i][4]
-            ) {
-              this.years.push(this.data[i][4]);
-            }
-          }
-        });
+      //       for (var i = 0; i < this.data.length; ++i) {
+      //         if (
+      //           this.years.length === 0 ||
+      //           this.years[this.years.length - 1] !== this.data[i][4]
+      //         ) {
+      //           this.years.push(this.data[i][4]);
+      //         }
+      //       }
+
+      //     });
     },
     plotRace() {
       var updateFrequency = 1000;
@@ -379,7 +431,7 @@ export default {
                 right: 160,
                 bottom: 60,
                 style: {
-                  text: startYear,
+                  text: startYear.split("-")[0],
                   font: "bolder 80px monospace",
                   fill: "rgba(100, 100, 100, 0.25)",
                 },

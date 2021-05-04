@@ -26,6 +26,10 @@
         following map.
       </p>
 
+      <div v-if="countries_volume">
+        <RaceChart :iso3map="iso3map" :input_data="countries_volume.records" />
+      </div>
+
       <h4>Extracted countries timeseries</h4>
       <b-form-radio-group
         v-model="map_type"
@@ -92,6 +96,7 @@
 <script>
 import AnimatedMapChartWB from "../../common/AnimatedMapChartWB";
 import VolumeChart from "../../common/VolumeChart";
+import RaceChart from "../../common/RaceChart";
 
 export default {
   name: "GeographicCoverage",
@@ -101,6 +106,7 @@ export default {
   components: {
     VolumeChart,
     AnimatedMapChartWB,
+    RaceChart,
   },
   data: function () {
     return {
