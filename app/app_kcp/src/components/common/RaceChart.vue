@@ -82,7 +82,7 @@ export default {
   },
   computed: {
     isReady() {
-      return this.data && this.data.length > 0 && this.flags;
+      return this.data_loaded && this.flags;
     },
     option() {
       let vm = this;
@@ -109,7 +109,7 @@ export default {
         yAxis: {
           type: "category",
           inverse: true,
-          max: 10,
+          max: 15,
           axisLabel: {
             show: true,
             textStyle: {
@@ -182,7 +182,7 @@ export default {
   data() {
     return {
       dynamicOption: null,
-      updateFrequency: 1000,
+      updateFrequency: 2000,
       dimension: 0,
       countryColors: {
         Australia: "#00008b",
@@ -210,6 +210,7 @@ export default {
       years: null,
       startIndex: 0,
       stopped: true,
+      data_loaded: false,
     };
   },
 
@@ -257,10 +258,13 @@ export default {
       return this.iso3map[code] || {};
     },
     loadInputData() {
+      var start_year = "1960-01-01";
+      this.data_loaded = false;
       this.years = this.input_data
         .map((record) => record.year)
         .filter((x, i, a) => a.indexOf(x) === i)
-        .sort();
+        .sort()
+        .filter((v) => v >= start_year);
       this.country_codes = this.input_data
         .map((record) => record.key)
         .filter((x, i, a) => a.indexOf(x) === i)
@@ -304,6 +308,7 @@ export default {
       }
 
       this.data = this.data.filter((record) => record[1]);
+      this.data_loaded = true;
 
       //   this.data = this.input_data
       //     .map((record) => [
@@ -346,6 +351,6 @@ export default {
 
 <style>
 .chart {
-  height: 420px;
+  height: 550px;
 }
 </style>
