@@ -107,7 +107,7 @@
                   v-for="word in suggestions"
                   :key="'suggest_' + word"
                   class="suggestion"
-                  >{{ word }}
+                  ><u>{{ word.replace(/_/g, " ") }}</u>
                 </span>
                 <br />
                 <br />
@@ -1001,6 +1001,11 @@ export default {
 
 <style scoped>
 @import "../../node_modules/bootstrap-vue/dist/bootstrap-vue.css";
+
+u {
+  border-bottom: 1px dotted;
+  text-decoration: none;
+}
 
 .content-row {
   min-height: 50vh;
