@@ -142,11 +142,13 @@ export default {
       chromaScale: chroma.scale([this.$props.lowColor, this.$props.highColor]),
       should_pause: false,
       loaded: false,
+
+      queue: [],
     };
   },
   methods: {
     processNormalizeCountryData() {
-      if (this.countryData === null) {
+      if (this.countryData === null || this.countryData === undefined) {
         return;
       } else if (Object.keys(this.countryData).length === 0) {
         return;
@@ -258,32 +260,37 @@ export default {
       const num_years = years.length;
 
       (function myLoop(i) {
-        setTimeout(function () {
-          const pause_now = vm.pause_loop || vm.should_pause;
-          if (pause_now) {
-            console.log("Looping");
-            // (function pauseBuffer(pause) {
-            //   setTimeout(() => {
-            //     console.log("Buffer...");
+        vm.queue.push(
+          setTimeout(function () {
+            const pause_now = vm.pause_loop || vm.should_pause;
+            if (pause_now) {
+              console.log("Looping");
+              // (function pauseBuffer(pause) {
+              //   setTimeout(() => {
+              //     console.log("Buffer...");
 
-            //     if (pause) pauseBuffer(vm.pause_loop || vm.should_pause);
+              //     if (pause) pauseBuffer(vm.pause_loop || vm.should_pause);
 
-            //     return;
-            //   }, 1000);
-            // })(vm.pause_loop || vm.should_pause);
-          } else if (vm.break_loop) {
-            console.log("Loop terminated");
-            return;
-          } else {
-            var ix = num_years - i;
-            console.log("hello " + ix); //  your code here
-            vm.countryData = vm.timeseriesCountryData[years[ix]];
-            vm.current_year = years[ix];
-            i = i - 1;
-          }
-          if (i) myLoop(i); //  decrement i and call myLoop again if i > 0
-        }, 1000);
+              //     return;
+              //   }, 1000);
+              // })(vm.pause_loop || vm.should_pause);
+            } else if (vm.break_loop) {
+              console.log("Loop terminated");
+              return;
+            } else {
+              var ix = num_years - i;
+              console.log("hello " + ix); //  your code here
+              vm.countryData = vm.timeseriesCountryData[years[ix]];
+              vm.current_year = years[ix];
+              i = i - 1;
+            }
+            if (i) myLoop(i); //  decrement i and call myLoop again if i > 0
+          }, 1000)
+        );
       })(num_years);
+    },
+    clearQueue() {
+      this.queue.forEach((panel) => clearTimeout(panel));
     },
   },
   mounted() {
