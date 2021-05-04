@@ -16,8 +16,6 @@
 
 
 <script>
-import $ from "jquery";
-
 import { use } from "echarts/core";
 import VChart from "vue-echarts";
 
