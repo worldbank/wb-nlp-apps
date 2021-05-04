@@ -130,8 +130,8 @@ export default {
               },
             },
           },
-          animationDuration: 300,
-          animationDurationUpdate: 500,
+          animationDuration: 600,
+          animationDurationUpdate: 600,
         },
         series: [
           {
