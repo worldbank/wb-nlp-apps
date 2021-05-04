@@ -133,8 +133,13 @@ class NLPDoc(Document):
 
         return s.execute().aggregations.to_dict()
 
-    def get_country_counts_by_year(self):
+    def get_country_counts_by_year(self, filters=None):
         search = self.search()
+
+        if filters:
+            for f in filters:
+                for ftype, fvalue in f.items():
+                    search = search.filter(ftype, **fvalue)
 
         year = A("date_histogram",
                  field="date_published",
@@ -149,8 +154,13 @@ class NLPDoc(Document):
 
         return self.structure_stats_by_year_data(search.execute().aggregations.to_dict())
 
-    def get_country_share_by_year(self):
+    def get_country_share_by_year(self, filters=None):
         search = self.search()
+
+        if filters:
+            for f in filters:
+                for ftype, fvalue in f.items():
+                    search = search.filter(ftype, **fvalue)
 
         year = A("date_histogram",
                  field="date_published",

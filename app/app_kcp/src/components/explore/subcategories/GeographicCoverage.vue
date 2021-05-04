@@ -27,13 +27,33 @@
       </p>
 
       <h4>Extracted countries timeseries</h4>
-      <b-form-radio-group
-        v-model="map_type"
-        value-field="item"
-        text-field="name"
-        :options="group_value_options"
-      />
       <br />
+      <b-row>
+        <b-col cols="12"
+          ><p>Filter data by document type for map and race chart</p></b-col
+        >
+        <b-col cols="4">
+          <b-form-select
+            v-model="doc_type_filter"
+            :options="doc_type_options"
+            size="sm"
+          ></b-form-select>
+        </b-col>
+      </b-row>
+      <br />
+      <b-row>
+        <b-col cols="8" offset="0">
+          Toggle map view <br />
+          <b-form-radio-group
+            v-model="map_type"
+            value-field="item"
+            text-field="name"
+            :options="group_value_options"
+        /></b-col>
+      </b-row>
+      <br />
+
+      {{ country_stats_loading }} {{ map_ready }}
 
       <b-skeleton-img v-if="!map_ready" height="350px"></b-skeleton-img>
 
@@ -137,11 +157,25 @@ export default {
       map_type: "volume",
       race_ready: false,
       map_ready: false,
+      data_cache: {},
 
       group_value_options: [
         { item: "volume", name: "By volume" },
         { item: "share", name: "By share" },
       ],
+
+      doc_type_options: [
+        { value: "", text: "Full corpus" },
+        { value: "Board Documents", text: "Board Documents" },
+        { value: "Economic and Sector Work", text: "Economic and Sector Work" },
+        { value: "Project Documents", text: "Project Documents" },
+        { value: "Publications", text: "Publications" },
+        {
+          value: "Publications and Research",
+          text: "Publications and Research",
+        },
+      ],
+      doc_type_filter: "",
 
       country_stats_loading: false,
       loading: false,
@@ -198,11 +232,30 @@ export default {
       if (!this.iso3map) {
         return;
       }
+
       this.countries_volume = {};
       this.countries_share = {};
       this.country_stats_loading = true;
+
+      const searchParams = new URLSearchParams();
+      searchParams.append("major_doc_type", this.doc_type_filter);
+      const data_key = searchParams.toLocaleString();
+
+      if (this.data_cache[data_key]) {
+        let data = this.data_cache[data_key];
+
+        this.countries_volume = data.volume;
+        this.countries_share = data.share;
+
+        this.country_stats_loading = false;
+
+        return;
+      }
+
       this.$http
-        .get(this.$config.corpus_url + "/get_extracted_countries_stats")
+        .get(this.$config.corpus_url + "/get_extracted_countries_stats", {
+          params: searchParams,
+        })
         .then((response) => {
           let data = response.data;
 
@@ -227,6 +280,10 @@ export default {
     setCountryData(timeseries, target) {
       // timeseries = this.countries_volume.year
       // target = this.timeseriesCountryDataVolume
+
+      if (timeseries === null || timeseries === undefined) {
+        return;
+      }
 
       for (const [year, series] of Object.entries(timeseries)) {
         var dataSeries = {};
@@ -474,6 +531,9 @@ export default {
     },
   },
   watch: {
+    doc_type_filter() {
+      this.getExtractedCountriesStats();
+    },
     countries_volume() {
       if (this.countries_volume !== null) {
         // this.countryData();
