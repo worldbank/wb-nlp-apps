@@ -43,7 +43,7 @@
       <br />
       <b-row>
         <b-col cols="8" offset="0">
-          Toggle map view <br />
+          <p>Toggle map view</p>
           <b-form-radio-group
             v-model="map_type"
             value-field="item"

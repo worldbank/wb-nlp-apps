@@ -1,24 +1,50 @@
 <template>
-  <div
-    class="vue-world-map"
-    @mouseover="should_pause = true"
-    @mouseleave="should_pause = false"
-  >
-    {{ current_year }}
-    <WBMap
-      @hoverCountry="onHoverCountry"
-      @hoverLeaveCountry="onHoverLeaveCountry"
-    />
+  <div>
+    <b-row align-v="center">
+      <b-col>
+        <p class="lead" style="font-size: 3rem">
+          {{ titleHeader }}
+        </p></b-col
+      ><b-col>
+        <div style="overflow: hidden; margin-right: 50px">
+          <b-button
+            style="float: right"
+            @click="setResetEvent()"
+            :variant="resetButtonVariant"
+            :disabled="disableReset"
+            >Reset</b-button
+          >
+
+          <b-button
+            style="float: right; margin: 0 10px 0 10px"
+            @click="setPauseEvent()"
+            :variant="pauseButtonVariant"
+            :disabled="disablePause"
+            >{{ paused ? "Resume" : "Pause" }}</b-button
+          >
+        </div></b-col
+      >
+    </b-row>
     <div
-      v-if="legend.name"
-      class="vue-map-legend"
-      :style="'left:' + position.left + 'px; top: ' + position.top + 'px'"
+      class="vue-world-map"
+      @mouseover="should_pause = true"
+      @mouseleave="should_pause = false"
     >
-      <div class="vue-map-legend-header">
-        <span>{{ legend.name }}</span>
-      </div>
-      <div class="vue-map-legend-content">
-        <span>{{ getDisplayValue(legend.code) }}</span>
+      <WBMap
+        @hoverCountry="onHoverCountry"
+        @hoverLeaveCountry="onHoverLeaveCountry"
+      />
+      <div
+        v-if="legend.name"
+        class="vue-map-legend"
+        :style="'left:' + position.left + 'px; top: ' + position.top + 'px'"
+      >
+        <div class="vue-map-legend-header">
+          <span>{{ legend.name }}</span>
+        </div>
+        <div class="vue-map-legend-content">
+          <span>{{ getDisplayValue(legend.code) }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -56,6 +82,47 @@ export default {
       if (this.loaded) {
         this.$emit("ready", this.loaded);
       }
+    },
+  },
+  computed: {
+    disableReset() {
+      return !this.stopped && !this.paused;
+    },
+    disablePause() {
+      return false;
+      // return this.current_year === this.years[this.years.length - 1];
+    },
+    resetButtonVariant() {
+      var variant = "outline-secondary";
+
+      if (this.stopped || this.paused) {
+        variant = "primary";
+      }
+      return variant;
+    },
+    pauseButtonVariant() {
+      var variant = "primary";
+
+      if (this.paused) {
+        variant = "success";
+      }
+      // if (this.current_year === this.years[this.years.length - 1]) {
+      //   variant = "outline-secondary";
+      // }
+      return variant;
+    },
+    pauseAnimation() {
+      return (
+        (this.pause_loop || this.should_pause || this.paused) &&
+        !this.break_loop
+      );
+    },
+    titleHeader() {
+      var title = "Resetting...";
+      if (!this.break_loop) {
+        title = this.current_year && this.current_year.split("-")[0];
+      }
+      return title;
     },
   },
   props: {
@@ -144,10 +211,23 @@ export default {
       should_pause: false,
       loaded: false,
 
+      stopped: false,
+      paused: false,
+      break_loop: false,
+
       queue: [],
     };
   },
   methods: {
+    setPauseEvent() {
+      this.paused = !this.paused;
+    },
+    setResetEvent() {
+      this.paused = false;
+      this.clearQueue();
+      this.startAnimation();
+      this.break_loop = false;
+    },
     processNormalizeCountryData() {
       if (this.countryData === null || this.countryData === undefined) {
         return;
@@ -263,9 +343,8 @@ export default {
       (function myLoop(i) {
         vm.queue.push(
           setTimeout(function () {
-            const pause_now = vm.pause_loop || vm.should_pause;
-            if (pause_now) {
-              // console.log("Looping");
+            if (vm.pauseAnimation) {
+              console.log("Looping");
               // (function pauseBuffer(pause) {
               //   setTimeout(() => {
               //     console.log("Buffer...");
@@ -282,13 +361,19 @@ export default {
               vm.countryData = vm.timeseriesCountryData[years[ix]];
               vm.current_year = years[ix];
               i = i - 1;
+              if (i === 0) {
+                vm.stopped;
+              }
             }
+            const setTimeoutID = vm.queue.shift();
+            clearTimeout(setTimeoutID);
             if (i) myLoop(i); //  decrement i and call myLoop again if i > 0
           }, 1000)
         );
       })(num_years);
     },
     clearQueue() {
+      this.break_loop = true;
       this.queue.forEach((panel) => clearTimeout(panel));
       this.queue = [];
     },
@@ -302,7 +387,6 @@ export default {
     this.$emit("mounted", true);
   },
   destroyed() {
-    this.break_loop = true;
     this.clearQueue();
     this.$emit("destroyed", true);
   },
