@@ -88,7 +88,9 @@ class NLPDoc(Document):
 
     def structure_stats_by_year_data(self, data):
         year_buckets = data["year"]["buckets"]
+        country_total = {}
         records = []
+
         by_year = {}
 
         for year_bucket in year_buckets:
@@ -103,6 +105,10 @@ class NLPDoc(Document):
                 d["year"] = year
                 d["year_doc_count"] = year_doc_count
                 d["year_unique_countries"] = year_unique_countries
+
+                country_total[d["key"]] = country_total.get(
+                    d["key"], 0) + d["value"]
+                d["cumulative_value"] = country_total[d["key"]]
 
                 year_data.append(d)
 

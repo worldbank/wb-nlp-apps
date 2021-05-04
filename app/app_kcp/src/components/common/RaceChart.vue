@@ -82,7 +82,7 @@ export default {
   },
   computed: {
     isReady() {
-      return this.data && this.flags;
+      return this.data && this.data.length > 0 && this.flags;
     },
     option() {
       let vm = this;
@@ -102,8 +102,8 @@ export default {
           },
         },
         dataset: {
-          source: vm.data.slice(1).filter(function (d) {
-            return d[4] === vm.startYear;
+          source: vm.data.filter(function (d) {
+            return d[2] === vm.startYear;
           }),
         },
         yAxis: {
@@ -131,7 +131,7 @@ export default {
             },
           },
           animationDuration: 300,
-          animationDurationUpdate: 300,
+          animationDurationUpdate: 500,
         },
         series: [
           {
@@ -145,7 +145,7 @@ export default {
             },
             encode: {
               x: vm.dimension,
-              y: 5,
+              y: 3,
             },
             label: {
               show: true,
@@ -229,8 +229,8 @@ export default {
       ).emoji;
     },
     updateYear(year) {
-      var source = this.data.slice(1).filter(function (d) {
-        return d[4] === year;
+      var source = this.data.filter(function (d) {
+        return d[2] === year;
       });
       this.dynamicOption.series[0].data = source;
       this.dynamicOption.graphic.elements[0].style.text = year.split("-")[0];
@@ -257,28 +257,83 @@ export default {
       return this.iso3map[code] || {};
     },
     loadInputData() {
-      this.data = this.input_data
-        .map((record) => [
-          record.value,
-          record.doc_count,
-          record.year_doc_count,
-          this.getCountryCodeDetails(record.key).name,
+      this.years = this.input_data
+        .map((record) => record.year)
+        .filter((x, i, a) => a.indexOf(x) === i)
+        .sort();
+      this.country_codes = this.input_data
+        .map((record) => record.key)
+        .filter((x, i, a) => a.indexOf(x) === i)
+        .sort();
 
-          record.year,
-          record.key,
-        ])
-        .filter((record) => record[3]);
+      //   var data = [];
+      this.data = [];
 
-      this.years = [];
+      var countryLastValue = {};
+      var year = null;
+      var sub = null;
+      var code = null;
+      var now = null;
+      var val = null;
 
-      for (var i = 0; i < this.data.length; ++i) {
-        if (
-          this.years.length === 0 ||
-          this.years[this.years.length - 1] !== this.data[i][4]
-        ) {
-          this.years.push(this.data[i][4]);
+      console.log("Start loop");
+
+      for (var i = 0; i < this.years.length; i++) {
+        year = this.years[i];
+        sub = this.input_data.filter((record) => record.year === year);
+
+        for (var j = 0; j < this.country_codes.length; j++) {
+          code = this.country_codes[j];
+          now = sub.filter((record) => record.key == code);
+
+          if (now.length == 0) {
+            val = countryLastValue[code] || 0;
+          } else {
+            countryLastValue[code] = now[0].cumulative_value;
+            val = countryLastValue[code];
+          }
+
+          this.data.push([
+            val,
+            this.getCountryCodeDetails(code).name,
+            year,
+            code,
+          ]);
+          //   console.log(this.data[this.data.length - 1]);
         }
       }
+
+      this.data = this.data.filter((record) => record[1]);
+
+      //   this.data = this.input_data
+      //     .map((record) => [
+      //       //   record.value,
+      //       record.cumulative_value,
+      //       record.doc_count,
+      //       record.year_doc_count,
+      //       this.getCountryCodeDetails(record.key).name,
+
+      //       record.year,
+      //       record.key,
+      //     ])
+      //     .filter((record) => record[3]);
+
+      //   this.keys = []
+
+      //   for (var i = 0; i < this.data.length; ++i) {
+      //     if (
+      //       this.years.length === 0 ||
+      //       this.years[this.years.length - 1] !== this.data[i][4]
+      //     ) {
+      //       this.years.push(this.data[i][4]);
+      //     }
+      //     if (
+      //       this.years.length === 0 ||
+      //       this.years[this.years.length - 1] !== this.data[i][4]
+      //     ) {
+      //       this.years.push(this.data[i][4]);
+      //     }
+      //     }
     },
     fetchData() {
       this.$http.get("/static/data/emoji-flags.json").then((response) => {
