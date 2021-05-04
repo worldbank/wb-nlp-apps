@@ -49,6 +49,7 @@ export default {
       this.renderMapCSS();
     },
     timeseriesCountryData() {
+      this.clearQueue();
       this.startAnimation();
     },
     loaded() {
@@ -240,7 +241,7 @@ export default {
       this.$data.node.remove();
       this.$data.node = this.getOrCreateNode();
       document.body.appendChild(this.$data.node);
-      console.log("TESTESTEST");
+      // console.log("TESTESTEST");
 
       const baseCss = getBaseCss(this.$props);
       const dynamicMapCss = getDynamicMapCss(
@@ -256,7 +257,7 @@ export default {
     startAnimation() {
       const years = Object.keys(this.timeseriesCountryData).sort();
       let vm = this;
-      console.log(years);
+      // console.log(years);
       const num_years = years.length;
 
       (function myLoop(i) {
@@ -264,22 +265,20 @@ export default {
           setTimeout(function () {
             const pause_now = vm.pause_loop || vm.should_pause;
             if (pause_now) {
-              console.log("Looping");
+              // console.log("Looping");
               // (function pauseBuffer(pause) {
               //   setTimeout(() => {
               //     console.log("Buffer...");
-
               //     if (pause) pauseBuffer(vm.pause_loop || vm.should_pause);
-
               //     return;
               //   }, 1000);
               // })(vm.pause_loop || vm.should_pause);
             } else if (vm.break_loop) {
-              console.log("Loop terminated");
+              // console.log("Loop terminated");
               return;
             } else {
               var ix = num_years - i;
-              console.log("hello " + ix); //  your code here
+
               vm.countryData = vm.timeseriesCountryData[years[ix]];
               vm.current_year = years[ix];
               i = i - 1;

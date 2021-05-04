@@ -306,7 +306,7 @@ export default {
       this.$refs.myChart.setOption(this.dynamicOption);
 
       this.current_year = year;
-      console.log(this.current_year);
+      //   console.log(this.current_year);
 
       if (year === this.years[this.years.length - 1]) {
         this.stopped = true;

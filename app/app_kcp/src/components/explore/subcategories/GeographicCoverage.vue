@@ -53,43 +53,49 @@
       </b-row>
       <br />
 
-      {{ country_stats_loading }} {{ map_ready }}
-
-      <b-skeleton-img v-if="!map_ready" height="350px"></b-skeleton-img>
+      <b-skeleton-img
+        v-if="
+          country_stats_loading ||
+          $refs.countryVolumeMap === $refs.countryShareMap
+        "
+        height="350px"
+      ></b-skeleton-img>
       <div v-if="!country_stats_loading">
-        <div v-show="map_type === 'volume' && map_ready">
-          <AnimatedMapChartWB
-            v-if="timeseriesCountryDataVolume"
-            :timeseriesCountryData="timeseriesCountryDataVolume"
-            :pause_loop="map_type !== 'volume'"
-            ref="countryVolumeMap"
-            key="volume-c"
-            highColor="#0000ff"
-            lowColor="#efefff"
-            countryStrokeColor="#909090"
-            defaultCountryFillColor="#fff"
-            @ready="(ready) => (map_ready = ready)"
-            @mounted="$refs.countryVolumeMap.startAnimation()"
-          />
-          <br />
-          <br />
-        </div>
-        <div v-show="map_type === 'share' && map_ready">
-          <AnimatedMapChartWB
-            v-if="timeseriesCountryDataShare"
-            :timeseriesCountryData="timeseriesCountryDataShare"
-            :pause_loop="map_type !== 'share'"
-            ref="countryShareMap"
-            key="share-c"
-            highColor="#0000ff"
-            lowColor="#efefff"
-            countryStrokeColor="#909090"
-            defaultCountryFillColor="#fff"
-            @ready="(ready) => (map_ready = ready)"
-            @mounted="$refs.countryShareMap.startAnimation()"
-          />
-          <br />
-          <br />
+        <div v-show="$refs.countryVolumeMap !== $refs.countryShareMap">
+          <div v-show="map_type === 'volume' && map_ready">
+            <AnimatedMapChartWB
+              v-if="timeseriesCountryDataVolume"
+              :timeseriesCountryData="timeseriesCountryDataVolume"
+              :pause_loop="map_type !== 'volume'"
+              ref="countryVolumeMap"
+              key="volume-c"
+              highColor="#0000ff"
+              lowColor="#efefff"
+              countryStrokeColor="#909090"
+              defaultCountryFillColor="#fff"
+              @ready="(ready) => (map_ready = ready)"
+              @mounted="$refs.countryVolumeMap.startAnimation()"
+            />
+            <br />
+            <br />
+          </div>
+          <div v-show="map_type === 'share' && map_ready">
+            <AnimatedMapChartWB
+              v-if="timeseriesCountryDataShare"
+              :timeseriesCountryData="timeseriesCountryDataShare"
+              :pause_loop="map_type !== 'share'"
+              ref="countryShareMap"
+              key="share-c"
+              highColor="#0000ff"
+              lowColor="#efefff"
+              countryStrokeColor="#909090"
+              defaultCountryFillColor="#fff"
+              @ready="(ready) => (map_ready = ready)"
+              @mounted="$refs.countryShareMap.startAnimation()"
+            />
+            <br />
+            <br />
+          </div>
         </div>
       </div>
 
@@ -251,6 +257,7 @@ export default {
       const searchParams = new URLSearchParams();
       searchParams.append("major_doc_type", this.doc_type_filter);
       const data_key = searchParams.toLocaleString();
+      console.log(data_key);
 
       if (this.data_cache[data_key]) {
         let data = this.data_cache[data_key];
@@ -272,6 +279,11 @@ export default {
 
           this.countries_volume = data.volume;
           this.countries_share = data.share;
+
+          this.data_cache[data_key] = {
+            volume: data.volume,
+            share: data.share,
+          };
 
           this.country_stats_loading = false;
         })
@@ -575,8 +587,19 @@ export default {
 
     country_stats_loading() {
       if (!this.country_stats_loading) {
-        this.$refs.countryVolumeMap.timeseriesCountryData = this.timeseriesCountryDataVolume;
-        this.$refs.countryShareMap.timeseriesCountryData = this.timeseriesCountryDataShare;
+        console.log("Data updated!!!");
+
+        if (this.$refs.countryVolumeMap) {
+          this.$refs.countryVolumeMap.clearQueue();
+
+          this.$refs.countryVolumeMap.timeseriesCountryData = this.timeseriesCountryDataVolume;
+        }
+
+        if (this.$refs.countryShareMap) {
+          this.$refs.countryShareMap.clearQueue();
+
+          this.$refs.countryShareMap.timeseriesCountryData = this.timeseriesCountryDataShare;
+        }
         // this.$refs.countryVolumeMap.startAnimation();
         // this.$refs.countryShareMap.startAnimation();
       }
