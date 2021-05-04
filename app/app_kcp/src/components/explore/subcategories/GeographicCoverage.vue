@@ -26,10 +26,6 @@
         following map.
       </p>
 
-      <div v-if="countries_volume">
-        <RaceChart :iso3map="iso3map" :input_data="countries_volume.records" />
-      </div>
-
       <h4>Extracted countries timeseries</h4>
       <b-form-radio-group
         v-model="map_type"
@@ -70,6 +66,25 @@
         <br />
       </div>
 
+      <div v-if="countries_volume">
+        <p class="lead">
+          We also show a race chart of the total country mentions in documents.
+          This animated chart provides a glimpse on how countries' popularity,
+          as measured by total frequency of mentions, change over time.
+        </p>
+        <br />
+        <RaceChart :iso3map="iso3map" :input_data="countries_volume.records" />
+        <br />
+        <br />
+      </div>
+
+      <p class="lead">
+        The World Bank corpus contains metadata on the administrative and
+        geographic regions that is relevant to documents. The charts below use
+        these metadata to show insights on the relative popularity of regions
+        over time within the World Bank corpus.
+      </p>
+      <br />
       <VolumeChart
         v-if="adm_region"
         :data="adm_region"

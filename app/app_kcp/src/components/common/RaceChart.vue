@@ -256,15 +256,17 @@ export default {
       return this.iso3map[code] || {};
     },
     loadInputData() {
-      this.data = this.input_data.map((record) => [
-        record.value,
-        record.doc_count,
-        record.year_doc_count,
-        this.getCountryCodeDetails(record.key).name,
+      this.data = this.input_data
+        .map((record) => [
+          record.value,
+          record.doc_count,
+          record.year_doc_count,
+          this.getCountryCodeDetails(record.key).name,
 
-        record.year,
-        record.key,
-      ]);
+          record.year,
+          record.key,
+        ])
+        .filter((record) => record[3]);
 
       this.years = [];
 
@@ -278,11 +280,9 @@ export default {
       }
     },
     fetchData() {
-      this.$http
-        .get("https://cdn.jsdelivr.net/npm/emoji-flags@1.3.0/data.json")
-        .then((response) => {
-          this.flags = response.data;
-        });
+      this.$http.get("/static/data/emoji-flags.json").then((response) => {
+        this.flags = response.data;
+      });
 
       //   this.$http
       //     .get("/static/data/life-expectancy-table.json")
@@ -328,7 +328,7 @@ export default {
       };
 
       $.when(
-        $.getJSON("https://cdn.jsdelivr.net/npm/emoji-flags@1.3.0/data.json"),
+        $.getJSON("/static/data/emoji-flags.json"),
         $.getJSON("/static/data/life-expectancy-table.json")
       ).done(function (res0, res1) {
         var flags = res0[0];
