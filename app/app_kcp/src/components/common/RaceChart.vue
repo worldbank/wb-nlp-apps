@@ -130,8 +130,8 @@ export default {
               },
             },
           },
-          animationDuration: 300,
-          animationDurationUpdate: 500,
+          animationDuration: 600,
+          animationDurationUpdate: 600,
         },
         series: [
           {
@@ -140,7 +140,9 @@ export default {
             type: "bar",
             itemStyle: {
               color: function (param) {
-                return vm.countryColors[param.value[3]] || "#5470c6";
+                return (
+                  vm.countryColors[param.value[3]] || "hsl(204.1, 58.7%, 59.2%)"
+                );
               },
             },
             encode: {
