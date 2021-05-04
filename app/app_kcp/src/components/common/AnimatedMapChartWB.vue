@@ -89,8 +89,7 @@ export default {
       return !this.stopped && !this.paused;
     },
     disablePause() {
-      return false;
-      // return this.current_year === this.years[this.years.length - 1];
+      return this.stopped;
     },
     resetButtonVariant() {
       var variant = "outline-secondary";
@@ -106,9 +105,9 @@ export default {
       if (this.paused) {
         variant = "success";
       }
-      // if (this.current_year === this.years[this.years.length - 1]) {
-      //   variant = "outline-secondary";
-      // }
+      if (this.stopped) {
+        variant = "outline-secondary";
+      }
       return variant;
     },
     pauseAnimation() {
@@ -120,7 +119,9 @@ export default {
     titleHeader() {
       var title = "Resetting...";
       if (!this.break_loop) {
-        title = this.current_year && this.current_year.split("-")[0];
+        title = this.current_year
+          ? this.current_year.split("-")[0]
+          : "Loading...";
       }
       return title;
     },
@@ -223,6 +224,7 @@ export default {
       this.paused = !this.paused;
     },
     setResetEvent() {
+      this.stopped = false;
       this.paused = false;
       this.clearQueue();
       this.startAnimation();
@@ -361,8 +363,8 @@ export default {
               vm.countryData = vm.timeseriesCountryData[years[ix]];
               vm.current_year = years[ix];
               i = i - 1;
-              if (i === 0) {
-                vm.stopped;
+              if (vm.current_year === years[years.length - 1]) {
+                vm.stopped = true;
               }
             }
             const setTimeoutID = vm.queue.shift();
