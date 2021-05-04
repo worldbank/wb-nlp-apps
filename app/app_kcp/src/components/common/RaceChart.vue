@@ -72,6 +72,7 @@ export default {
       if (this.isReady) {
         this.dynamicOption = this.option;
         this.startRace();
+        this.$emit("ready", this.isReady);
       }
     },
     input_data() {

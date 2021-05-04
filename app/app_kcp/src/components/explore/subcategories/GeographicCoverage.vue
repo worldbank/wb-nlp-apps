@@ -35,6 +35,11 @@
       />
       <br />
 
+      <b-skeleton-img
+        v-if="!timeseriesCountryDataVolume"
+        height="300px"
+      ></b-skeleton-img>
+
       <div v-show="map_type === 'volume'">
         <AnimatedMapChartWB
           v-if="timeseriesCountryDataVolume"
@@ -73,7 +78,13 @@
           popularity, as measured by the total frequency of mentions, evolve
           over time.
         </p>
-        <RaceChart :iso3map="iso3map" :input_data="countries_volume.records" />
+        <b-skeleton-img v-if="!race_ready" height="300px"></b-skeleton-img>
+
+        <RaceChart
+          :iso3map="iso3map"
+          :input_data="countries_volume.records"
+          @ready="(ready) => (race_ready = ready)"
+        />
         <br />
         <br />
       </div>
@@ -126,6 +137,7 @@ export default {
   data: function () {
     return {
       map_type: "volume",
+      race_ready: false,
 
       group_value_options: [
         { item: "volume", name: "By volume" },
