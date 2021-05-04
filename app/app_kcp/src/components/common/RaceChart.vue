@@ -237,7 +237,7 @@ export default {
       });
       this.dynamicOption.series[0].data = source;
       this.dynamicOption.graphic.elements[0].style.text = year.split("-")[0];
-      this.$refs.myChart.setOption(this.dynamicOption);
+      //   this.$refs.myChart.setOption(this.dynamicOption);
 
       if (year === this.years[this.years.length - 1]) {
         this.stopped = true;
