@@ -51,6 +51,11 @@ export default {
     timeseriesCountryData() {
       this.startAnimation();
     },
+    loaded() {
+      if (this.loaded) {
+        this.$emit("ready", this.loaded);
+      }
+    },
   },
   props: {
     pause_loop: {
@@ -136,6 +141,7 @@ export default {
       node: this.getOrCreateNode(),
       chromaScale: chroma.scale([this.$props.lowColor, this.$props.highColor]),
       should_pause: false,
+      loaded: false,
     };
   },
   methods: {
@@ -174,6 +180,10 @@ export default {
       this.processedCountryData = JSON.parse(
         JSON.stringify(processedCountryData)
       );
+
+      if (!this.loaded) {
+        this.loaded = true;
+      }
     },
     getDisplayValue(code) {
       if (!this.processedCountryData) {

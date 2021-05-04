@@ -35,7 +35,9 @@
       />
       <br />
 
-      <div v-show="map_type === 'volume'">
+      <b-skeleton-img v-if="!map_ready" height="350px"></b-skeleton-img>
+
+      <div v-show="map_type === 'volume' && map_ready">
         <AnimatedMapChartWB
           v-if="timeseriesCountryDataVolume"
           :timeseriesCountryData="timeseriesCountryDataVolume"
@@ -46,11 +48,12 @@
           lowColor="#efefff"
           countryStrokeColor="#909090"
           defaultCountryFillColor="#fff"
+          @ready="(ready) => (map_ready = ready)"
         />
         <br />
         <br />
       </div>
-      <div v-show="map_type === 'share'">
+      <div v-show="map_type === 'share' && map_ready">
         <AnimatedMapChartWB
           v-if="timeseriesCountryDataShare"
           :timeseriesCountryData="timeseriesCountryDataShare"
@@ -73,7 +76,13 @@
           popularity, as measured by the total frequency of mentions, evolve
           over time.
         </p>
-        <RaceChart :iso3map="iso3map" :input_data="countries_volume.records" />
+        <b-skeleton-img v-if="!race_ready" height="500px"></b-skeleton-img>
+
+        <RaceChart
+          :iso3map="iso3map"
+          :input_data="countries_volume.records"
+          @ready="(ready) => (race_ready = ready)"
+        />
         <br />
         <br />
       </div>
@@ -126,6 +135,8 @@ export default {
   data: function () {
     return {
       map_type: "volume",
+      race_ready: false,
+      map_ready: false,
 
       group_value_options: [
         { item: "volume", name: "By volume" },
