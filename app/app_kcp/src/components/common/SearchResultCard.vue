@@ -1,7 +1,8 @@
 <template>
   <div>
     <div class="document-row" data-url="#">
-      <div class="row">
+      <SearchResultLoading v-if="loading" :loading="loading" :size="1" />
+      <div class="row" v-show="!loading">
         <div class="col-3 col-lg-3">
           <img
             :src="document_cover"
@@ -126,7 +127,7 @@
       </div>
     </div>
     <a
-      v-show="show_related"
+      v-if="show_related"
       v-b-toggle
       :href="'#' + result.id"
       v-on:click="activateSubmit()"
@@ -137,6 +138,7 @@
       <RelatedDocsPanel
         :reference_id="result.id"
         :submit="submit_related"
+        :first_entry="match && match.rank === 1"
         @errorStatus="
           (error) => {
             if (error === true) {
@@ -154,6 +156,8 @@
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import DocumentTopic from "./DocumentTopic";
 import DocumentMetadata from "./DocumentMetadata";
+import SearchResultLoading from "./SearchResultLoading";
+
 import Authors from "./Authors";
 import ReadMore from "vue-read-more";
 import Vue from "vue";
@@ -165,17 +169,21 @@ export default {
     result: Object,
     match: Object,
     highlights: Object,
+    loading: { type: Boolean, default: false },
   },
   components: {
     RelatedDocsPanel,
     DocumentTopic,
     DocumentMetadata,
     Authors,
+    SearchResultLoading,
   },
   mounted() {
-    if (this.match.rank === 1) {
+    if (this.match && this.match.rank === 1) {
       this.visible = true;
       this.activateSubmit();
+    } else {
+      this.visible = false;
     }
   },
   data: function () {
@@ -217,6 +225,15 @@ export default {
       if (this.submit_related === false) {
         this.submit_related = true;
       }
+    },
+  },
+  watch: {
+    result() {
+      this.visible = false;
+      if (this.match) {
+        this.visible = this.match.rank === 1;
+      }
+      this.submit_related = false;
     },
   },
 };
