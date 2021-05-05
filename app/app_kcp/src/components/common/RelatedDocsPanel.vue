@@ -94,10 +94,11 @@ import VueHorizontal from "vue-horizontal";
 export default {
   components: { VueHorizontal },
   props: {
-    reference_id: String,
+    reference_id: { type: String, default: "" },
     submit: Boolean,
     model_name: String,
     section_height: Number,
+    first_entry: Boolean,
   },
   mounted() {},
   computed: {
@@ -149,6 +150,8 @@ export default {
       results: null,
       loading: false,
       errored: false,
+      id_changed: false,
+      first_load: true,
     };
   },
   methods: {
@@ -180,10 +183,20 @@ export default {
   },
   watch: {
     submit: function () {
-      this.sendSemanticSearch();
+      if (this.submit && (this.first_load || this.id_changed)) {
+        this.sendSemanticSearch();
+        this.id_changed = false;
+        this.first_load = false;
+      }
     },
     reference_id: function () {
-      this.sendSemanticSearch();
+      this.id_changed = true;
+      // this.sendSemanticSearch();
+    },
+    first_entry() {
+      if (this.first_entry) {
+        this.sendSemanticSearch();
+      }
     },
     errored: function () {
       this.$emit("errorStatus", this.errored);

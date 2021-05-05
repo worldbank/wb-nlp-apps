@@ -425,15 +425,29 @@
               </div>
             </div>
 
-            <SearchResultLoading :loading="loading" :size="curr_size" />
-            <div v-if="!loading">
-              <SearchResultCard
+            <SearchResultLoading
+              :loading="loading && results_handler.length === 0"
+              :size="curr_size"
+            />
+            <div v-if="results_handler.length > 0">
+              <div v-for="idx in Array(curr_size).keys()" :key="'div-' + idx">
+                <SearchResultCard
+                  v-if="results_handler[idx]"
+                  :result="results_handler[idx]"
+                  :match="match_stats[idx]"
+                  :highlights="highlights[idx]"
+                  v-bind:key="'src' + idx"
+                  :loading="loading"
+                />
+              </div>
+
+              <!-- <SearchResultCard
                 v-for="(result, idx, key) in hits"
                 :result="result"
                 :match="match_stats[idx]"
                 :highlights="highlights[idx]"
                 v-bind:key="result.id + key"
-              />
+              /> -->
             </div>
             <Pagination
               @pageNumReceived="sendSearch"
@@ -603,6 +617,8 @@ export default {
       num_pages: 0,
       next_override: false,
 
+      results_handler: [],
+
       query: "",
       from_result: 0,
       hits: [],
@@ -627,9 +643,18 @@ export default {
       uploaded_file: null,
       file_input: null,
       query_cache: "",
+
+      search_cache: {},
+      from_cache: false,
+      prevent_default: false,
     };
   },
   methods: {
+    getNextSearchParams(from) {
+      const sp = this.searchParams;
+      sp.set("from_result", from);
+      return sp;
+    },
     resetYears() {
       // this.max_year = null;
       // this.min_year = null;
@@ -786,6 +811,7 @@ export default {
       this.sendSearch();
     },
     sendSearch: function (page_num = 1) {
+      this.prevent_default = false;
       this.curr_page_num = page_num;
       var from = (page_num - 1) * this.curr_size;
 
@@ -818,7 +844,14 @@ export default {
         },
       });
     },
-    sendKeywordSearch: function (from = 0, ignore_empty_query = false) {
+    sendKeywordSearch: function (
+      from = 0,
+      ignore_empty_query = false,
+      for_cache = false
+    ) {
+      if (from === 0 && this.prevent_default) {
+        return;
+      }
       if (!this.query) {
         if (!ignore_empty_query) {
           return;
@@ -828,23 +861,27 @@ export default {
         return;
       }
       this.query = this.query.replaceAll("_", " ");
-      this.from_result = from;
-      this.loading = true;
 
-      this.$http
-        .get(this.keyword_search_api_url, {
-          params: this.searchParams,
-          // paramsSerializer: (params) => {
-          //   return qs.stringify(params);
-          // },
-        })
-        .then((response) => {
-          this.hits = response.data.hits;
-          this.highlights = response.data.highlights;
-          this.facets = response.data.facets;
-          this.selected_facets = response.data.filters;
-          this.match_stats = response.data.result;
-          this.total = response.data.total;
+      console.log("From " + from);
+
+      var searchParams = null;
+      if (!for_cache) {
+        this.from_result = from;
+        this.loading = true;
+        searchParams = this.searchParams;
+        const cached = this.search_cache[searchParams.toLocaleString()];
+        console.log(cached);
+
+        if (cached) {
+          this.prevent_default = true;
+          this.from_cache = true;
+          this.hits = cached.hits;
+          this.highlights = cached.highlights;
+          this.facets = cached.facets;
+          this.selected_facets = cached.filters;
+          this.match_stats = cached.result;
+          this.total = cached.total;
+
           this.next = this.curr_page_num + 1;
           // this.next = response.data.next;
           this.start = this.from_result + 1;
@@ -854,11 +891,112 @@ export default {
             this.num_pages += 1;
           }
 
+          const is_first = this.results_handler.length === 0;
+
+          for (var i = 0; i < this.curr_size; i++) {
+            // console.log(i);
+            if (is_first) {
+              this.results_handler.push(this.hits[i]);
+            } else {
+              this.results_handler[i] = this.hits[i];
+            }
+          }
+
           this.api_link =
             location.origin +
             this.keyword_search_api_url +
             "?" +
-            this.searchParams.toLocaleString();
+            searchParams.toLocaleString();
+
+          this.loading = false;
+          this.sendKeywordSearch(
+            (this.next - 1) * this.curr_size,
+            ignore_empty_query,
+            true
+          );
+
+          return;
+        }
+        this.from_cache = false;
+      } else {
+        searchParams = this.getNextSearchParams(from);
+        const cached = this.search_cache[searchParams.toLocaleString()];
+
+        if (cached) {
+          return;
+        }
+      }
+
+      this.$http
+        .get(this.keyword_search_api_url, {
+          params: searchParams,
+          // paramsSerializer: (params) => {
+          //   return qs.stringify(params);
+          // },
+        })
+        .then((response) => {
+          if (!for_cache) {
+            this.hits = response.data.hits;
+            this.highlights = response.data.highlights;
+            this.facets = response.data.facets;
+            this.selected_facets = response.data.filters;
+            this.match_stats = response.data.result;
+            this.total = response.data.total;
+
+            this.search_cache[searchParams.toLocaleString()] = {
+              key: searchParams.toLocaleString(),
+              hits: response.data.hits,
+              highlights: response.data.highlights,
+              facets: response.data.facets,
+              filters: response.data.filters,
+              result: response.data.result,
+              total: response.data.total,
+            };
+
+            this.next = this.curr_page_num + 1;
+            // this.next = response.data.next;
+            this.start = this.from_result + 1;
+            this.end = this.from_result + this.hits.length;
+            this.num_pages = Math.floor(this.total.value / this.curr_size);
+            if (this.total.value % this.curr_size > 0) {
+              this.num_pages += 1;
+            }
+
+            const is_first = this.results_handler.length === 0;
+
+            for (var i = 0; i < this.curr_size; i++) {
+              console.log(i);
+              if (is_first) {
+                this.results_handler.push(this.hits[i]);
+              } else {
+                this.results_handler[i] = this.hits[i];
+              }
+            }
+
+            this.api_link =
+              location.origin +
+              this.keyword_search_api_url +
+              "?" +
+              searchParams.toLocaleString();
+
+            this.loading = false;
+
+            this.sendKeywordSearch(
+              (this.next - 1) * this.curr_size,
+              ignore_empty_query,
+              true
+            );
+          } else {
+            this.search_cache[searchParams.toLocaleString()] = {
+              key: searchParams.toLocaleString(),
+              hits: response.data.hits,
+              highlights: response.data.highlights,
+              facets: response.data.facets,
+              filters: response.data.filters,
+              result: response.data.result,
+              total: response.data.total,
+            };
+          }
         })
         .catch((error) => {
           console.log(error);
@@ -894,6 +1032,17 @@ export default {
           if (this.total.value % this.curr_size > 0) {
             this.num_pages += 1;
           }
+
+          const is_first = this.results_handler.length === 0;
+
+          for (var i = 0; i < self.curr_size; i++) {
+            if (is_first) {
+              this.results_handler.push(this.hits[i]);
+            } else {
+              this.results_handler[i] = this.hits[i];
+            }
+          }
+
           this.api_link =
             location.origin +
             this.semantic_search_api_url +
@@ -923,6 +1072,16 @@ export default {
           this.num_pages = Math.floor(this.total.value / this.curr_size);
           if (this.total.value % this.curr_size > 0) {
             this.num_pages += 1;
+          }
+
+          const is_first = this.results_handler.length === 0;
+
+          for (var i = 0; i < self.curr_size; i++) {
+            if (is_first) {
+              this.results_handler.push(this.hits[i]);
+            } else {
+              this.results_handler[i] = this.hits[i];
+            }
           }
         })
         .catch((error) => {
@@ -960,7 +1119,7 @@ export default {
       });
     },
     routeChangeSearch() {
-      if (!this.loading) {
+      if (!this.loading && !this.prevent_default) {
         if (this.$route.query.search_type !== undefined) {
           this.search_type = this.$route.query.search_type;
 
@@ -983,7 +1142,7 @@ export default {
       }
     },
     defaultKeywordSearch() {
-      if (!this.loading) {
+      if (!this.loading && !this.prevent_default) {
         this.sendKeywordSearch(0, true);
       }
     },
@@ -997,6 +1156,9 @@ export default {
     },
   },
 };
+
+// allowDefaultSearch
+//
 </script>
 
 <style scoped>
