@@ -25,6 +25,7 @@
         </div></b-col
       >
     </b-row>
+    <h5>{{ partition_type }}</h5>
     <div
       class="vue-world-map"
       @mouseover="should_pause = true"
@@ -123,10 +124,15 @@ export default {
           ? this.current_year.split("-")[0]
           : "Loading...";
       }
+
       return title;
     },
   },
   props: {
+    partition_type: {
+      type: String,
+      default: "",
+    },
     pause_loop: {
       type: Boolean,
       default: false,
@@ -337,6 +343,7 @@ export default {
       this.$data.node.innerHTML = getCombinedCssString(baseCss, dynamicMapCss);
     },
     startAnimation() {
+      this.break_loop = false;
       const years = Object.keys(this.timeseriesCountryData).sort();
       let vm = this;
       // console.log(years);

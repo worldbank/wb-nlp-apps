@@ -36,6 +36,7 @@ import {
   DataZoomSliderComponent,
   ToolboxComponent,
   GraphicComponent,
+  TitleComponent,
 } from "echarts/components";
 import { GraphChart, LinesChart, LineChart, BarChart } from "echarts/charts";
 import { CanvasRenderer } from "echarts/renderers";
@@ -54,6 +55,7 @@ use([
   DataZoomSliderComponent,
   ToolboxComponent,
   GraphicComponent,
+  TitleComponent,
 ]);
 
 export default {
@@ -67,6 +69,7 @@ export default {
     }
   },
   props: {
+    title: String,
     input_data: {
       type: Array,
       default: function () {
@@ -133,8 +136,11 @@ export default {
     option() {
       let vm = this;
       return {
+        title: {
+          text: vm.title,
+        },
         grid: {
-          top: 10,
+          top: 40,
           bottom: 30,
           left: 150,
           right: 80,
@@ -197,7 +203,7 @@ export default {
             },
             label: {
               show: true,
-              precision: 1,
+              precision: 0,
               position: "right",
               valueAnimation: true,
               fontFamily: "monospace",
