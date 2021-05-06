@@ -184,9 +184,9 @@ export default {
     },
     defaultOptions() {
       return {
-        title: {
-          text: "Topic profiles",
-        },
+        // title: {
+        //   text: "Topic profiles",
+        // },
         tooltip: {
           trigger: "axis",
           axisPointer: {
@@ -277,10 +277,11 @@ export default {
       );
     },
     graphOptions(data, value, label) {
+      console.log(label);
       return {
-        title: {
-          text: "Topic profiles" + "(" + label + ")",
-        },
+        // title: {
+        //   text: "Topic profiles" + "(" + label + ")",
+        // },
         tooltip: {
           trigger: "axis",
           axisPointer: {
@@ -348,10 +349,11 @@ export default {
       };
     },
     updateOption(data, value, label) {
+      console.log(label);
       return {
-        title: {
-          text: "Topic profiles" + "(" + label + ")",
-        },
+        // title: {
+        //   text: "Topic profiles" + "(" + label + ")",
+        // },
         legend: {
           data: data[value].legend,
         },
