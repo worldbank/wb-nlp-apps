@@ -88,6 +88,10 @@ export default {
     VChart,
   },
   props: {
+    grid_top: {
+      type: Number,
+      default: null,
+    },
     field: String,
     field_name: String,
     data: {
@@ -105,7 +109,7 @@ export default {
   },
   computed: {
     defaultOptions() {
-      return {
+      var opts = {
         // title: {
         //   text: this.field_name + " volume",
         // },
@@ -174,6 +178,11 @@ export default {
         ],
         series: [],
       };
+
+      if (this.grid_top) {
+        opts.grid.top = this.grid_top;
+      }
+      return opts;
     },
   },
   data: function () {

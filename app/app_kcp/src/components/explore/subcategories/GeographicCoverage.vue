@@ -145,6 +145,7 @@
 
       <VolumeChart
         v-if="geo_region"
+        :grid_top="120"
         :data="geo_region"
         :field="geo_region.field"
         field_name="geographic regions"
