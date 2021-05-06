@@ -193,6 +193,7 @@ export default {
   },
   methods: {
     updateOption(data, value, label) {
+      console.log(label);
       return {
         // title: {
         //   text: "Data" + "(" + label + ")",
