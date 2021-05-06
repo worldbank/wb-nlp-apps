@@ -106,9 +106,9 @@ export default {
   computed: {
     defaultOptions() {
       return {
-        title: {
-          text: this.field_name + " volume",
-        },
+        // title: {
+        //   text: this.field_name + " volume",
+        // },
         tooltip: {
           trigger: "axis",
           axisPointer: {
@@ -193,10 +193,11 @@ export default {
   },
   methods: {
     updateOption(data, value, label) {
+      console.log(label);
       return {
-        title: {
-          text: "Data" + "(" + label + ")",
-        },
+        // title: {
+        //   text: "Data" + "(" + label + ")",
+        // },
         legend: {
           data: data[value].legend,
         },
