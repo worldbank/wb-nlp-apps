@@ -65,6 +65,7 @@
           <div v-show="map_type === 'volume' && map_ready">
             <AnimatedMapChartWB
               v-if="timeseriesCountryDataVolume"
+              :partition_type="doc_type_filter"
               :timeseriesCountryData="timeseriesCountryDataVolume"
               :pause_loop="map_type !== 'volume'"
               ref="countryVolumeMap"
@@ -82,6 +83,7 @@
           <div v-show="map_type === 'share' && map_ready">
             <AnimatedMapChartWB
               v-if="timeseriesCountryDataShare"
+              :partition_type="doc_type_filter"
               :timeseriesCountryData="timeseriesCountryDataShare"
               :pause_loop="map_type !== 'share'"
               ref="countryShareMap"
@@ -115,6 +117,7 @@
       <div v-if="countries_volume">
         <RaceChart
           v-if="!country_stats_loading"
+          :title="doc_type_filter"
           :iso3map="iso3map"
           ref="raceChart"
           :input_data="countries_volume.records"
@@ -182,17 +185,20 @@ export default {
       ],
 
       doc_type_options: [
-        { value: "", text: "Full corpus" },
-        { value: "Board Documents", text: "Board Documents" },
-        { value: "Economic and Sector Work", text: "Economic and Sector Work" },
-        { value: "Project Documents", text: "Project Documents" },
-        { value: "Publications", text: "Publications" },
+        { value: "Full corpus", text: "Full corpus" },
+        { value: "WB - Board Documents", text: "WB - Board Documents" },
         {
-          value: "Publications and Research",
-          text: "Publications and Research",
+          value: "WB - Economic and Sector Work",
+          text: "WB - Economic and Sector Work",
+        },
+        { value: "WB - Project Documents", text: "WB - Project Documents" },
+        { value: "WB - Publications", text: "WB - Publications" },
+        {
+          value: "WB - Publications and Research",
+          text: "WB - Publications and Research",
         },
       ],
-      doc_type_filter: "",
+      doc_type_filter: "Full corpus",
 
       country_stats_loading: false,
       loading: false,
@@ -255,7 +261,12 @@ export default {
       this.country_stats_loading = true;
 
       const searchParams = new URLSearchParams();
-      searchParams.append("major_doc_type", this.doc_type_filter);
+      searchParams.append(
+        "major_doc_type",
+        this.doc_type_filter === "Full corpus"
+          ? ""
+          : this.doc_type_filter.replace(/WB - /g, "")
+      );
       const data_key = searchParams.toLocaleString();
       console.log(data_key);
 
