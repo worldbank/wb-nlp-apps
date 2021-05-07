@@ -1141,6 +1141,169 @@ export default {
         }
       }
     },
+    getCachedOrFetchData: function (
+      from = 0,
+      ignore_empty_query = false,
+      for_cache = false
+    ) {
+      // :from is in the unit of actual result count
+
+      var searchParams = null;
+      const is_keyword_search = this.search_type === "keyword";
+      const search_cache_key =
+        this.search_type + "::" + this.searchParams.toLocaleString();
+      const api_url = is_keyword_search
+        ? this.keyword_search_api_url
+        : this.semantic_search_api_url;
+
+      if (!for_cache) {
+        this.from_result = from;
+        this.loading = true;
+
+        searchParams = this.searchParams;
+        const cached = this.search_cache[search_cache_key];
+        console.log(cached);
+
+        if (cached) {
+          this.prevent_default = true;
+          this.from_cache = true;
+
+          this.hits = cached.hits;
+          this.match_stats = cached.result;
+          this.total = cached.total;
+
+          if (is_keyword_search) {
+            this.highlights = cached.highlights;
+            this.facets = cached.facets;
+            this.selected_facets = cached.filters;
+          }
+
+          this.next = this.curr_page_num + 1;
+          this.start = this.from_result + 1;
+          this.end = this.from_result + this.hits.length;
+          this.num_pages = Math.floor(this.total.value / this.curr_size);
+          if (this.total.value % this.curr_size > 0) {
+            this.num_pages += 1;
+          }
+
+          const is_first = this.results_handler.length === 0;
+
+          for (var i = 0; i < this.curr_size; i++) {
+            if (is_first) {
+              this.results_handler.push(this.hits[i]);
+            } else {
+              this.results_handler[i] = this.hits[i];
+            }
+          }
+
+          this.api_link =
+            location.origin + api_url + "?" + searchParams.toLocaleString();
+
+          this.loading = false;
+
+          this.getCachedOrFetchData(
+            (this.next - 1) * this.curr_size,
+            ignore_empty_query,
+            true
+          );
+
+          return;
+        }
+        this.from_cache = false;
+      } else {
+        searchParams = this.getNextSearchParams(from);
+        const cached = this.search_cache[search_cache_key];
+
+        if (cached) {
+          return;
+        }
+      }
+
+      this.$http
+        .get(api_url, {
+          params: searchParams,
+        })
+        .then((response) => {
+          if (!for_cache) {
+            this.hits = response.data.hits;
+            this.match_stats = response.data.result;
+            this.total = response.data.total;
+
+            if (is_keyword_search) {
+              this.highlights = response.data.highlights;
+              this.facets = response.data.facets;
+              this.selected_facets = response.data.filters;
+            }
+
+            this.search_cache[search_cache_key] = {
+              key: search_cache_key,
+              hits: response.data.hits,
+              result: response.data.result,
+              total: response.data.total,
+            };
+
+            if (is_keyword_search) {
+              this.search_cache[search_cache_key].highlights =
+                response.data.highlights;
+              this.search_cache[search_cache_key].facets = response.data.facets;
+              this.search_cache[search_cache_key].filters =
+                response.data.filters;
+            }
+
+            this.next = this.curr_page_num + 1;
+            this.start = this.from_result + 1;
+            this.end = this.from_result + this.hits.length;
+
+            this.num_pages = Math.floor(this.total.value / this.curr_size);
+            if (this.total.value % this.curr_size > 0) {
+              this.num_pages += 1;
+            }
+
+            const is_first = this.results_handler.length === 0;
+
+            for (var i = 0; i < this.curr_size; i++) {
+              console.log(i);
+              if (is_first) {
+                this.results_handler.push(this.hits[i]);
+              } else {
+                this.results_handler[i] = this.hits[i];
+              }
+            }
+
+            this.api_link =
+              location.origin + api_url + "?" + searchParams.toLocaleString();
+
+            this.loading = false;
+
+            this.getCachedOrFetchData(
+              (this.next - 1) * this.curr_size,
+              ignore_empty_query,
+              true
+            );
+          } else {
+            this.search_cache[search_cache_key] = {
+              key: search_cache_key,
+              hits: response.data.hits,
+              result: response.data.result,
+              total: response.data.total,
+            };
+
+            if (is_keyword_search) {
+              this.search_cache[search_cache_key].highlights =
+                response.data.highlights;
+              this.search_cache[search_cache_key].facets = response.data.facets;
+              this.search_cache[search_cache_key].filters =
+                response.data.filters;
+            }
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          this.errored = true;
+          this.loading = false;
+        })
+        .finally(() => (this.loading = false));
+    },
     defaultKeywordSearch() {
       if (!this.loading && !this.prevent_default) {
         this.sendKeywordSearch(0, true);
