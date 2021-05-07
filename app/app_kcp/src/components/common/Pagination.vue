@@ -7,7 +7,7 @@
         <div id="items-per-page" class="items-per-page light switch-page-size">
           <small
             >Results per page:
-            <a href="#result">
+            <a href="#results">
               <span
                 class="wbg-pagination-btn"
                 :class="size === curr_size ? 'active' : ''"

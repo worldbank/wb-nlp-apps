@@ -166,7 +166,7 @@
           </div>
           <hr />
         </div>
-        <a name="results"></a>
+        <a id="results"></a>
         <aside class="col-sm-3" id="blog-sidebar-static">
           <!-- <div>
             <div
@@ -814,6 +814,12 @@ export default {
       this.query = word;
       this.sendSearch();
     },
+    updateRoute() {
+      return (
+        this.$route.query.search_text !== this.query ||
+        this.$route.query.search_type !== this.search_type
+      );
+    },
     sendSearch: function (page_num = 1) {
       this.prevent_route_change_search = true;
       this.prevent_default = false;
@@ -840,14 +846,16 @@ export default {
         return;
       }
 
-      this.$router.replace({
-        name: "search",
-        query: {
-          search_text: this.query,
-          search_type: this.search_type,
-          page: this.curr_page_num,
-        },
-      });
+      if (this.updateRoute()) {
+        this.$router.replace({
+          name: "search",
+          query: {
+            search_text: this.query,
+            search_type: this.search_type,
+            // page: this.curr_page_num,
+          },
+        });
+      }
     },
     sendKeywordSearch: function (
       from = 0,
@@ -1158,6 +1166,7 @@ export default {
     },
     $route() {
       this.routeChangeSearch();
+      window.location.hash = "#results";
     },
   },
 };
