@@ -63,22 +63,22 @@
               </li>
               <li>
                 <router-link
-                  to="/methods/lda"
-                  class="wbg_sidebar second-level"
-                  :class="{
-                    active: $route.name === 'methods_lda',
-                  }"
-                  >LDA Topic Model</router-link
-                >
-              </li>
-              <li>
-                <router-link
                   to="/methods/word-embeddings"
                   class="wbg_sidebar second-level"
                   :class="{
                     active: $route.name === 'methods_word-embeddings',
                   }"
                   >Word embeddings</router-link
+                >
+              </li>
+              <li>
+                <router-link
+                  to="/methods/lda"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'methods_lda',
+                  }"
+                  >LDA Topic Model</router-link
                 >
               </li>
               <!-- <li>
