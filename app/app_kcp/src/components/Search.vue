@@ -1035,7 +1035,8 @@ export default {
 
           const is_first = this.results_handler.length === 0;
 
-          for (var i = 0; i < self.curr_size; i++) {
+          for (var i = 0; i < this.curr_size; i++) {
+            console.log(i);
             if (is_first) {
               this.results_handler.push(this.hits[i]);
             } else {
@@ -1076,7 +1077,7 @@ export default {
 
           const is_first = this.results_handler.length === 0;
 
-          for (var i = 0; i < self.curr_size; i++) {
+          for (var i = 0; i < this.curr_size; i++) {
             if (is_first) {
               this.results_handler.push(this.hits[i]);
             } else {
