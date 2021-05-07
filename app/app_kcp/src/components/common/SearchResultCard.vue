@@ -127,27 +127,29 @@
       </div>
     </div>
     <a
-      v-if="show_related"
+      v-if="show_related && !loading"
       v-b-toggle
       :href="'#' + result.id"
       v-on:click="activateSubmit()"
       @click.prevent
       >Related documents...</a
     >
-    <b-collapse v-model="visible" :id="result.id">
-      <RelatedDocsPanel
-        :reference_id="result.id"
-        :submit="submit_related"
-        :first_entry="match && match.rank === 1"
-        @errorStatus="
-          (error) => {
-            if (error === true) {
-              show_related = false;
+    <div v-show="!loading">
+      <b-collapse v-model="visible" :id="result.id">
+        <RelatedDocsPanel
+          :reference_id="result.id"
+          :submit="submit_related"
+          :first_entry="match && match.rank === 1"
+          @errorStatus="
+            (error) => {
+              if (error === true) {
+                show_related = false;
+              }
             }
-          }
-        "
-      />
-    </b-collapse>
+          "
+        />
+      </b-collapse>
+    </div>
     <hr />
   </div>
 </template>

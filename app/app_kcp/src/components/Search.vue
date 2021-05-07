@@ -644,6 +644,10 @@ export default {
       file_input: null,
       query_cache: "",
 
+      cache_count: this.$config.pagination.page_window,
+
+      prevent_route_change_search: false,
+
       search_cache: {},
       from_cache: false,
       prevent_default: false,
@@ -651,7 +655,7 @@ export default {
   },
   methods: {
     getNextSearchParams(from) {
-      const sp = this.searchParams;
+      const sp = new URLSearchParams(this.searchParams.entries());
       sp.set("from_result", from);
       return sp;
     },
@@ -811,6 +815,7 @@ export default {
       this.sendSearch();
     },
     sendSearch: function (page_num = 1) {
+      this.prevent_route_change_search = true;
       this.prevent_default = false;
       this.curr_page_num = page_num;
       var from = (page_num - 1) * this.curr_size;
@@ -846,12 +851,12 @@ export default {
     },
     sendKeywordSearch: function (
       from = 0,
-      ignore_empty_query = false,
-      for_cache = false
+      ignore_empty_query = false
+      // for_cache = false
     ) {
-      if (from === 0 && this.prevent_default) {
-        return;
-      }
+      // if (from === 0 && this.prevent_default) {
+      //   return;
+      // }
       if (!this.query) {
         if (!ignore_empty_query) {
           return;
@@ -862,148 +867,7 @@ export default {
       }
       this.query = this.query.replaceAll("_", " ");
 
-      console.log("From " + from);
-
-      var searchParams = null;
-      if (!for_cache) {
-        this.from_result = from;
-        this.loading = true;
-        searchParams = this.searchParams;
-        const cached = this.search_cache[searchParams.toLocaleString()];
-        console.log(cached);
-
-        if (cached) {
-          this.prevent_default = true;
-          this.from_cache = true;
-          this.hits = cached.hits;
-          this.highlights = cached.highlights;
-          this.facets = cached.facets;
-          this.selected_facets = cached.filters;
-          this.match_stats = cached.result;
-          this.total = cached.total;
-
-          this.next = this.curr_page_num + 1;
-          // this.next = response.data.next;
-          this.start = this.from_result + 1;
-          this.end = this.from_result + this.hits.length;
-          this.num_pages = Math.floor(this.total.value / this.curr_size);
-          if (this.total.value % this.curr_size > 0) {
-            this.num_pages += 1;
-          }
-
-          const is_first = this.results_handler.length === 0;
-
-          for (var i = 0; i < this.curr_size; i++) {
-            // console.log(i);
-            if (is_first) {
-              this.results_handler.push(this.hits[i]);
-            } else {
-              this.results_handler[i] = this.hits[i];
-            }
-          }
-
-          this.api_link =
-            location.origin +
-            this.keyword_search_api_url +
-            "?" +
-            searchParams.toLocaleString();
-
-          this.loading = false;
-          this.sendKeywordSearch(
-            (this.next - 1) * this.curr_size,
-            ignore_empty_query,
-            true
-          );
-
-          return;
-        }
-        this.from_cache = false;
-      } else {
-        searchParams = this.getNextSearchParams(from);
-        const cached = this.search_cache[searchParams.toLocaleString()];
-
-        if (cached) {
-          return;
-        }
-      }
-
-      this.$http
-        .get(this.keyword_search_api_url, {
-          params: searchParams,
-          // paramsSerializer: (params) => {
-          //   return qs.stringify(params);
-          // },
-        })
-        .then((response) => {
-          if (!for_cache) {
-            this.hits = response.data.hits;
-            this.highlights = response.data.highlights;
-            this.facets = response.data.facets;
-            this.selected_facets = response.data.filters;
-            this.match_stats = response.data.result;
-            this.total = response.data.total;
-
-            this.search_cache[searchParams.toLocaleString()] = {
-              key: searchParams.toLocaleString(),
-              hits: response.data.hits,
-              highlights: response.data.highlights,
-              facets: response.data.facets,
-              filters: response.data.filters,
-              result: response.data.result,
-              total: response.data.total,
-            };
-
-            this.next = this.curr_page_num + 1;
-            // this.next = response.data.next;
-            this.start = this.from_result + 1;
-            this.end = this.from_result + this.hits.length;
-            this.num_pages = Math.floor(this.total.value / this.curr_size);
-            if (this.total.value % this.curr_size > 0) {
-              this.num_pages += 1;
-            }
-
-            const is_first = this.results_handler.length === 0;
-
-            for (var i = 0; i < this.curr_size; i++) {
-              console.log(i);
-              if (is_first) {
-                this.results_handler.push(this.hits[i]);
-              } else {
-                this.results_handler[i] = this.hits[i];
-              }
-            }
-
-            this.api_link =
-              location.origin +
-              this.keyword_search_api_url +
-              "?" +
-              searchParams.toLocaleString();
-
-            this.loading = false;
-
-            this.sendKeywordSearch(
-              (this.next - 1) * this.curr_size,
-              ignore_empty_query,
-              true
-            );
-          } else {
-            this.search_cache[searchParams.toLocaleString()] = {
-              key: searchParams.toLocaleString(),
-              hits: response.data.hits,
-              highlights: response.data.highlights,
-              facets: response.data.facets,
-              filters: response.data.filters,
-              result: response.data.result,
-              total: response.data.total,
-            };
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          this.errored = true;
-          this.loading = false;
-        })
-        .finally(() => (this.loading = false));
+      this.getCachedOrFetchData(from, false, false);
     },
     sendSemanticSearch: function (from = 0) {
       this.facets = null;
@@ -1014,47 +878,8 @@ export default {
       // if (from > this.total.value) {
       //   return;
       // }
-      this.from_result = from;
-      this.loading = true;
 
-      this.$http
-        .get(this.semantic_search_api_url, {
-          params: this.searchParams,
-        })
-        .then((response) => {
-          this.hits = response.data.hits;
-          this.match_stats = response.data.result;
-          this.total = response.data.total;
-          this.next = this.curr_page_num + 1;
-          this.start = this.from_result + 1;
-          this.end = this.from_result + this.hits.length;
-          this.num_pages = Math.floor(this.total.value / this.curr_size);
-          if (this.total.value % this.curr_size > 0) {
-            this.num_pages += 1;
-          }
-
-          const is_first = this.results_handler.length === 0;
-
-          for (var i = 0; i < self.curr_size; i++) {
-            if (is_first) {
-              this.results_handler.push(this.hits[i]);
-            } else {
-              this.results_handler[i] = this.hits[i];
-            }
-          }
-
-          this.api_link =
-            location.origin +
-            this.semantic_search_api_url +
-            "?" +
-            this.searchParams.toLocaleString();
-        })
-        .catch((error) => {
-          console.log(error);
-          this.errored = true;
-          this.loading = false;
-        })
-        .finally(() => (this.loading = false));
+      this.getCachedOrFetchData(from, false, false);
     },
     sendFileSearch: function (from = 0) {
       this.from_result = from;
@@ -1076,7 +901,7 @@ export default {
 
           const is_first = this.results_handler.length === 0;
 
-          for (var i = 0; i < self.curr_size; i++) {
+          for (var i = 0; i < this.curr_size; i++) {
             if (is_first) {
               this.results_handler.push(this.hits[i]);
             } else {
@@ -1119,6 +944,9 @@ export default {
       });
     },
     routeChangeSearch() {
+      if (this.prevent_route_change_search) {
+        return;
+      }
       if (!this.loading && !this.prevent_default) {
         if (this.$route.query.search_type !== undefined) {
           this.search_type = this.$route.query.search_type;
@@ -1139,6 +967,183 @@ export default {
         } else {
           this.defaultKeywordSearch();
         }
+      }
+    },
+    getCachedOrFetchData: function (
+      from = 0,
+      ignore_empty_query = false,
+      for_cache = false
+    ) {
+      // :from is in the unit of actual result count
+
+      var search_cache_key = null;
+
+      let searchParams = null;
+      let params = null;
+      const is_keyword_search = this.search_type === "keyword";
+
+      const api_url = is_keyword_search
+        ? this.keyword_search_api_url
+        : this.semantic_search_api_url;
+
+      if (!for_cache) {
+        this.from_result = from;
+        this.loading = true;
+
+        searchParams = this.searchParams;
+        params = { params: searchParams };
+
+        search_cache_key =
+          this.search_type + "::" + searchParams.toLocaleString();
+        const cached = this.search_cache[search_cache_key];
+        console.log(cached);
+
+        if (cached) {
+          this.prevent_default = true;
+          this.from_cache = true;
+
+          this.hits = cached.hits;
+          this.match_stats = cached.result;
+          this.total = cached.total;
+
+          if (is_keyword_search) {
+            this.highlights = cached.highlights;
+            this.facets = cached.facets;
+            this.selected_facets = cached.filters;
+          }
+
+          this.next = this.curr_page_num + 1;
+          this.start = this.from_result + 1;
+          this.end = this.from_result + this.hits.length;
+          this.num_pages = Math.floor(this.total.value / this.curr_size);
+          if (this.total.value % this.curr_size > 0) {
+            this.num_pages += 1;
+          }
+
+          const is_first = this.results_handler.length === 0;
+
+          for (var i = 0; i < this.curr_size; i++) {
+            if (is_first) {
+              this.results_handler.push(this.hits[i]);
+            } else {
+              this.results_handler[i] = this.hits[i];
+            }
+          }
+
+          this.api_link =
+            location.origin + api_url + "?" + searchParams.toLocaleString();
+
+          this.loading = false;
+
+          this.fetchForCache(this.next, ignore_empty_query, this.cache_count);
+
+          return;
+        }
+        this.from_cache = false;
+      } else {
+        searchParams = this.getNextSearchParams(from);
+        params = { params: searchParams };
+
+        search_cache_key =
+          this.search_type + "::" + searchParams.toLocaleString();
+        const cached = this.search_cache[search_cache_key];
+
+        if (cached) {
+          return;
+        }
+      }
+
+      this.$http
+        .get(api_url, params)
+        .then((response) => {
+          if (!for_cache) {
+            this.hits = response.data.hits;
+            this.match_stats = response.data.result;
+            this.total = response.data.total;
+
+            if (is_keyword_search) {
+              this.highlights = response.data.highlights;
+              this.facets = response.data.facets;
+              this.selected_facets = response.data.filters;
+            }
+
+            this.search_cache[search_cache_key] = {
+              key: search_cache_key,
+              hits: response.data.hits,
+              result: response.data.result,
+              total: response.data.total,
+            };
+
+            if (is_keyword_search) {
+              this.search_cache[search_cache_key].highlights =
+                response.data.highlights;
+              this.search_cache[search_cache_key].facets = response.data.facets;
+              this.search_cache[search_cache_key].filters =
+                response.data.filters;
+            }
+
+            this.next = this.curr_page_num + 1;
+            this.start = this.from_result + 1;
+            this.end = this.from_result + this.hits.length;
+
+            this.num_pages = Math.floor(this.total.value / this.curr_size);
+            if (this.total.value % this.curr_size > 0) {
+              this.num_pages += 1;
+            }
+
+            const is_first = this.results_handler.length === 0;
+
+            for (var i = 0; i < this.curr_size; i++) {
+              if (is_first) {
+                this.results_handler.push(this.hits[i]);
+              } else {
+                this.results_handler[i] = this.hits[i];
+              }
+            }
+
+            this.api_link =
+              location.origin + api_url + "?" + searchParams.toLocaleString();
+
+            this.loading = false;
+
+            this.fetchForCache(this.next, ignore_empty_query, this.cache_count);
+
+            // this.getCachedOrFetchData(
+            //   (this.next - 1) * this.curr_size,
+            //   ignore_empty_query,
+            //   true
+            // );
+          } else {
+            this.search_cache[search_cache_key] = {
+              key: search_cache_key,
+              hits: response.data.hits,
+              result: response.data.result,
+              total: response.data.total,
+            };
+
+            if (is_keyword_search) {
+              this.search_cache[search_cache_key].highlights =
+                response.data.highlights;
+              this.search_cache[search_cache_key].facets = response.data.facets;
+              this.search_cache[search_cache_key].filters =
+                response.data.filters;
+            }
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          this.errored = true;
+          this.loading = false;
+        })
+        .finally(() => (this.loading = false));
+    },
+    fetchForCache(next, ignore_empty_query, cache_count = 1) {
+      for (var i = next; i < next + cache_count; i++) {
+        this.getCachedOrFetchData(
+          (i - 1) * this.curr_size,
+          ignore_empty_query,
+          true
+        );
       }
     },
     defaultKeywordSearch() {
