@@ -101,6 +101,7 @@
         </div>
       </div>
 
+      <a id="gc-race-chart"></a>
       <p v-if="countries_volume" class="lead">
         We also show a race chart of the cumulative country mentions in
         documents. This animated chart provides a glimpse on how countries'
@@ -226,6 +227,7 @@ export default {
     this.getISOInfo();
     // this.findTopicMap();
     this.getFullCorpusData();
+    setTimeout(() => (location.href = this.$route.hash), 1);
 
     // this.getExtractedCountriesStats();
   },
