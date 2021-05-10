@@ -43,12 +43,6 @@
         </li>
         <li>
           Implementation of
-          <router-link to="/methods/lda">topic models</router-link>. Latent
-          Dirichlet Allocation (LDA) models were implemented (using Gensim and
-          Mallet).
-        </li>
-        <li>
-          Implementation of
           <router-link to="/methods/word-embeddings"
             >word embedding models</router-link
           >
@@ -57,8 +51,10 @@
           models to word2vec models which only require word tokenization.
         </li>
         <li>
-          <router-link to="/methods/cataloguing">Cataloguing</router-link> we
-          catalogued the documents metadata in a MongoDB database.
+          Implementation of
+          <router-link to="/methods/lda">topic models</router-link>. Latent
+          Dirichlet Allocation (LDA) models were implemented (using Gensim and
+          Mallet).
         </li>
         <li>
           <router-link to="/methods/search-engine">Search engine</router-link>
@@ -70,6 +66,10 @@
           We adapted the dfrBrowser application by A. Goldstone to display the
           output of our LDA topic model and used the eCharts library for other
           visualizations.
+        </li>
+        <li>
+          <router-link to="/methods/cataloguing">Cataloguing</router-link> we
+          catalogued the documents metadata in a MongoDB database.
         </li>
       </ul>
 
