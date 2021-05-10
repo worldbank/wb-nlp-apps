@@ -80,7 +80,8 @@
         stop words list is then used in our cleaning pipeline to remove the
         unimportant words in our final cleaned dataset.
       </p>
-      <h5>Phrase detection</h5>
+      (WIP)
+      <!-- <h5>Phrase detection</h5>
 
       <p>
         Our text-processing pipeline consists of a phrase detection component
@@ -96,7 +97,7 @@
       <h5>Extraction of country counts</h5>
       <p>Country counts (include CSV file)</p>
       <h5>Language detection</h5>
-      <p>Tokenization</p>
+      <p>Tokenization</p> -->
     </div>
   </div>
 </template>
