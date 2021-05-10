@@ -93,16 +93,6 @@
               </li> -->
               <li>
                 <router-link
-                  to="/methods/cataloguing"
-                  class="wbg_sidebar second-level"
-                  :class="{
-                    active: $route.name === 'methods_cataloguing',
-                  }"
-                  >Cataloguing</router-link
-                >
-              </li>
-              <li>
-                <router-link
                   to="/methods/search-engine"
                   class="wbg_sidebar second-level"
                   :class="{
@@ -119,6 +109,16 @@
                     active: $route.name === 'methods_visualizations',
                   }"
                   >Visualizations</router-link
+                >
+              </li>
+              <li>
+                <router-link
+                  to="/methods/cataloguing"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'methods_cataloguing',
+                  }"
+                  >Cataloguing</router-link
                 >
               </li>
 
