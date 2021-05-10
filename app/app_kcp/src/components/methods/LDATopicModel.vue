@@ -3,13 +3,30 @@
     <h1>{{ page_title }}</h1>
     <div>
       <p>
-        Topic models are a class of unsupervised machine learning models that
-        attempt to learn topics from a collection of documents. One of the most
-        popular topic modeling algorithms is the Latent Dirichlet Allocation
-        (LDA). The LDA uses only the words and their frequency in documents as
-        input. Different optimization strategies may be used to train the model
-        depending on the variant of the LDA. The models used in this work employ
-        Gibs sampling (Mallet) and variational bayes algorithm (Gensim).
+        One of the challenges that hinders the wide adoption of text data in
+        analytics is the common unavailability of structured metadata that could
+        help describe the text, e.g., extracted texts from PDF documents only
+        come with the raw text. Metadata like title, tags or topics, abstract,
+        date published, etc. are not available “out-of-the-box.”
+      </p>
+      <p>
+        In most cases, NLP could be applied to unstructured text data to build
+        structured knowledge. Some questions of interest when analyzing text
+        data, especially a large corpus, are—what topics and themes are
+        contained in the corpus? How do these topics vary and evolve over time?
+        How “important” is one topic over the other? Topic models are a powerful
+        tool to build structure and help answer these questions.
+      </p>
+
+      <p>
+        <b>Topic models</b> are a class of unsupervised machine learning models
+        that attempt to learn topics from a collection of documents. One of the
+        most popular topic modeling algorithms is the
+        <b>Latent Dirichlet Allocation</b> (LDA). The LDA uses only the words
+        and their frequency in documents as input. Different optimization
+        strategies may be used to train the model depending on the variant of
+        the LDA. The models used in this work employ Gibbs sampling (Mallet) and
+        variational bayes algorithm (Gensim).
       </p>
       <p>
         We used the implementation of the LDA from Gensim and Mallet. Our
@@ -31,7 +48,6 @@
         common and less informative adverbs were added into our stop words list
         such as typically, usually, likely, etc.
       </p>
-      <p>(WIP)</p>
       <p>
         Despite the cleaning, some topics learned by the models were still found
         to be non-informative or irrelevant. This is one of the pitfalls of
@@ -40,6 +56,7 @@
         relevant. To address this, we analyzed the topics learned by the models
         and tagged which ones are to be excluded.
       </p>
+      <p>(WIP)</p>
     </div>
   </div>
 </template>
