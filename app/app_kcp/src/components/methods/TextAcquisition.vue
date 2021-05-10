@@ -3,28 +3,42 @@
     <h1>{{ page_title }}</h1>
     <div>
       <p>
-        The collection of documents covered by our corpus come from different
-        multilateral development banks, UN organizations, and other
-        international organizations working on development and economic issues.
+        Generation knowledge on development and economic issues come from
+        various sources. The collection of documents (and metadata when
+        available) covered by our corpus come from multilateral development
+        banks such as the ADB, AfDB, IDB, and The World Bank; various UN
+        organizations, and other international organizations working on
+        development and economic issues.
       </p>
-
       <p>
         After shortlisting the organizations of interest, we assessed each
-        source for the availability of a public repository of documents. We take
-        only the organizations that have publicly accessible sources that can be
+        source for the availability of a public repository of documents. We only
+        take the organizations that have publicly accessible sources that can be
         automatically scraped using web scraping or through API access.
       </p>
       <p>
         Sample pages from each document repository were analyzed for the
-        availability of metadata and downloadable pdf or text files. A scraper
+        availability of metadata and downloadable PDF or text files. A scraper
         for each organization was then developed using
         <a href="https://scrapy.org/" target="_blank">Scrapy</a> to automate the
         acquisition of metadata from the source page as well as to download the
-        pdf or text files.
+        PDF or text files. For APIs we implemented customized end-point access
+        functions using the
+        <a href="https://docs.python-requests.org/en/master/" target="_blank"
+          >requests library</a
+        >
+        in Python.
       </p>
       <p>
         The scraped metadata and pdf/text files were then stored as our raw
-        corpus.
+        corpus. The metadata scraped using Scrapy are in the form of JSON lines
+        while the
+        <a href="https://search.worldbank.org/api/v2/wds" target="_blank"
+          >World Bank’s Documents and Reports API</a
+        >
+        produces json data with well-defined schema. We stored the metadata in
+        MongoDB and Elasticsearch. The PDFs are stored as well for processing
+        and the extracted texts from these were used as input to our NLP models.
       </p>
     </div>
   </div>

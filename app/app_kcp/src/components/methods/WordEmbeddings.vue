@@ -25,7 +25,7 @@
         <code class="no-break">the = 2</code> is placed in the fourth position.
       </p>
       <p>
-        The bag-of-words representation, even though quite simple, serve as a
+        The bag-of-words representation, even though quite simple, serves as a
         foundation in formulating other sophisticated strategies of turning text
         into numeric values, one of the most common is
         <a href="https://en.wikipedia.org/wiki/Tf%E2%80%93idf" _target="blank"
@@ -99,7 +99,38 @@
         between 100 to 300 for models trained with a large corpus. There is a
         trade-off in memory, however, when a higher dimension is used.
       </p>
-      (WIP)
+
+      <p>
+        The volume of data and the downstream use case that the resulting
+        embeddings will be applied to are two things that could help inform the
+        dimension of the embeddings.
+      </p>
+      <p>
+        A larger volume of data to train the embedding model with could allow
+        for vectors with larger dimensions. In general, models with large vector
+        dimensions have higher information capacity. However, if the training
+        data is not sufficient, the model may become too sensitive to noise in
+        the data than the signal itself. This could result to suboptimal
+        embeddings e.g., non-informative semantic relationships within words.
+      </p>
+      <p>
+        Downstream use-cases that require high performance in terms of real-time
+        speed may be better off with models having smaller embedding dimensions.
+        A constraint with memory resources may also be a considerable reason as
+        to why limiting the dimension of vectors is essential. However, limiting
+        the size of the embeddings may limit the information capacity of the
+        model. Interestingly, some of these issues are being addressed with
+        innovations in algorithmic engineering. Example, for the related vector
+        retrieval use-case, a non-scalable method of doing this is to store the
+        embeddings in memory and compute the cosine similarity of a vector
+        against all available vectors. This operation is expensive and will
+        suffer as the dimension of the embeddings get large, thereby a small
+        embedding dimension is desired. Recently, some tools have been developed
+        to improve the speed of such operation—vector indices. Vector indices
+        could store vectors of arbitrary size and provide algorithms that
+        compute approximate neighborhoods and only perform expensive
+        computations on these identified neighbors.
+      </p>
     </div>
   </div>
 </template>

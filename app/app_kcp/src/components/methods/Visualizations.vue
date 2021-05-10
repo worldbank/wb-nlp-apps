@@ -31,7 +31,7 @@
             target="_blank"
             >Graph chart</a
           >
-          – The graph chart allows user to directly
+          – The graph chart allows users to directly
           <router-link to="/explore/word-embeddings/"
             >interact with word embeddings</router-link
           >
@@ -45,8 +45,10 @@
             >vue-map-chart</a
           >
           – The map charts are used across different pages, mostly in document
-          metadata page. It is also used in the Analyze document to visualize
-          which countries are popular in the user’s uploaded document.
+          metadata page. It is also used in the
+          <router-link to="/explore/similarity/">Analyze document</router-link>
+          page to visualize which countries are popular in the user’s uploaded
+          document.
         </li>
         <li>
           <a
@@ -54,8 +56,8 @@
             target="_blank"
             >Bar race chart</a
           >
-          – The bar race chart is a recent invention of how timeseries is
-          visualized. We have implemented a bar race chart of
+          – The bar race chart is a recent invention for visualizing multiple
+          timeseries. We have implemented a bar race chart of
           <router-link
             to="/explore/subcategories/geographic-coverage/#gc-race-chart"
             >most popular countries over time</router-link
@@ -72,9 +74,9 @@
           compare different partitions of the data.
         </li>
         <li>
-          Topic distribution bar charts (CSS) – This chart is used to visualize
-          the proportion of topics present in the document as estimated by the
-          LDA model.
+          Topic distribution bar charts (implemented using CSS) – This chart is
+          used to visualize the proportion of topics present in the document as
+          estimated by the LDA model.
         </li>
       </ul>
       <p>
