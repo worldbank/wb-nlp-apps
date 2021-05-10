@@ -72,7 +72,7 @@
           compare different partitions of the data.
         </li>
         <li>
-          Topic distribution bar charts (css) – This chart is used to visualize
+          Topic distribution bar charts (CSS) – This chart is used to visualize
           the proportion of topics present in the document as estimated by the
           LDA model.
         </li>
