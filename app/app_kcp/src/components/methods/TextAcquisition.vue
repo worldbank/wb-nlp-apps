@@ -3,7 +3,7 @@
     <h1>{{ page_title }}</h1>
     <div>
       <p>
-        Generation knowledge on development and economic issues come from
+        Generation of knowledge on development and economic issues come from
         various sources. The collection of documents (and metadata when
         available) covered by our corpus come from multilateral development
         banks such as the ADB, AfDB, IDB, and The World Bank; various UN
