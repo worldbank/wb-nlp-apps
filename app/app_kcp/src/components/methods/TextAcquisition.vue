@@ -4,17 +4,22 @@
     <div>
       <p>
         Generation of knowledge on development and economic issues come from
-        various sources. The collection of documents (and metadata when
-        available) covered by our corpus come from multilateral development
-        banks such as the ADB, AfDB, IDB, and The World Bank; various UN
-        organizations, and other international organizations working on
-        development and economic issues.
+        <router-link to="/explore/subcategories/sources/"
+          >various sources</router-link
+        >. The collection of documents (and metadata when available) covered by
+        our corpus come from multilateral development banks such as the ADB,
+        AfDB, IDB, and The World Bank; various UN organizations, and other
+        international organizations working on development and economic issues.
       </p>
       <p>
         After shortlisting the organizations of interest, we assessed each
         source for the availability of a public repository of documents. We only
         take the organizations that have publicly accessible sources that can be
-        automatically scraped using web scraping or through API access.
+        automatically scraped using web scraping or through API access. Note
+        that care in reducing the impact of our scraping activity was ensured by
+        making sure that the scrapers follow the site’s
+        <code>robots.txt</code> and by limiting the rate of requests made to
+        each site.
       </p>
       <p>
         Sample pages from each document repository were analyzed for the
