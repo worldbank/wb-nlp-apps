@@ -52,6 +52,7 @@ dependencies:
     - heapdict==1.0.1
     - httptools==0.1.1
     - idna==2.10
+    - inflect==5.3.0
     - iniconfig==1.1.1
     - joblib==1.0.0
     - langdetect==1.0.7

@@ -13,7 +13,7 @@ from elasticsearch_dsl import Search
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet, DateHistogramFacet
 from elasticsearch_dsl.query import MultiMatch, Match, Term
-from wb_nlp.extraction import country_extractor
+from wb_nlp.extraction import country_extractor, jdc_tags_extractor
 from wb_nlp.dir_manager import get_path_from_root
 
 connections.create_connection(hosts=['es01'])
@@ -47,6 +47,7 @@ class NLPDoc(Document):
     der_country_details = Nested(properties={"code": Keyword(), "count": Integer(
     ), "name": Keyword(), "region": Keyword(), "sub-region": Keyword()})
     der_country_groups = Keyword()
+    der_jdc_tags = Nested(properties={"tag": Keyword(), "count": Integer()})
     doc_type = Keyword()
     geo_region = Keyword()
     last_update_date = Date()
@@ -69,6 +70,10 @@ class NLPDoc(Document):
         self.tokens = len(self.body.split())
         self.views = 0
 
+        # Extract JDC specific tags
+        self.der_jdc_tags = jdc_tags_extractor.get_jdc_tag_counts(self.body)
+
+        # Extract country mentions data
         country_counts = country_extractor.get_country_counts(self.body)
 
         country_groups = []
@@ -349,9 +354,16 @@ def get_metadata_by_ids(doc_ids, index=None, source=None, source_includes=None, 
 
 
 def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt_only=True, remove_doc_whitespaces=True):
+    # from wb_nlp.interfaces import elasticsearch, mongodb
+    # docs_metadata_coll = mongodb.get_collection(
+    #     db_name="test_nlp", collection_name="docs_metadata")
+    # docs_metadata = list(docs_metadata_coll.find({}))
+    # elasticsearch.make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt_only=True, remove_doc_whitespaces=True)
+    # elasticsearch.make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=False, en_txt_only=True, remove_doc_whitespaces=True)
+
     # test_docs_metadata = mongodb.get_collection(
     #     db_name="test_nlp", collection_name="docs_metadata")
-    # elasticsearch.make_nlp_docs_from_docs_metadata(test_docs_metadata.find({}))
+
     existing_ids = set()
 
     if ignore_existing:
