@@ -227,7 +227,10 @@ export default {
     this.getISOInfo();
     // this.findTopicMap();
     this.getFullCorpusData();
-    setTimeout(() => (location.href = this.$route.hash), 1);
+
+    if (this.$route.hash) {
+      setTimeout(() => (location.href = this.$route.hash), 1);
+    }
 
     // this.getExtractedCountriesStats();
   },
