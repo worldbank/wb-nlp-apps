@@ -14,7 +14,12 @@
         <div class="form-group">
           <p class="mt-3 mb-2">from</p>
 
-          <select name="from" id="from" v-model="min_year" class="form-control">
+          <select
+            name="from"
+            id="from"
+            v-model="search_filters.min_year"
+            class="form-control"
+          >
             <option
               v-for="year_offset in 131"
               :key="'from-' + (2022 - year_offset)"
@@ -29,7 +34,12 @@
         <div class="form-group">
           <p class="mt-3 mb-2">to</p>
 
-          <select name="to" id="to" v-model="max_year" class="form-control">
+          <select
+            name="to"
+            id="to"
+            v-model="search_filters.max_year"
+            class="form-control"
+          >
             <option
               v-for="year_offset in 132"
               :key="'to-' + (2022 - year_offset)"
@@ -50,7 +60,7 @@
         <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
-              v-model="country"
+              v-model="search_filters.country"
               :options="getFacetOptions('country')"
               :aria-describedby="ariaDescribedby"
               name="country"
@@ -69,10 +79,29 @@
         <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
-              v-model="der_country_groups"
+              v-model="search_filters.der_country_groups"
               :options="getFacetOptions('der_country_groups')"
               :aria-describedby="ariaDescribedby"
               name="der_country_groups"
+              stacked
+            ></b-form-checkbox-group>
+          </b-form-group>
+        </b-card>
+      </b-collapse>
+    </div>
+
+    <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
+      <h6 v-b-toggle.der_jdc_tags-collapse>
+        <i class="fa fa-filter pr-2"></i> JDC tags
+      </h6>
+      <b-collapse id="der_jdc_tags-collapse">
+        <b-card class="facet-options">
+          <b-form-group v-slot="{ ariaDescribedby }">
+            <b-form-checkbox-group
+              v-model="search_filters.der_jdc_tags"
+              :options="getFacetOptions('der_jdc_tags')"
+              :aria-describedby="ariaDescribedby"
+              name="der_jdc_tags"
               stacked
             ></b-form-checkbox-group>
           </b-form-group>
@@ -88,7 +117,7 @@
         <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
-              v-model="major_doc_type"
+              v-model="search_filters.major_doc_type"
               :options="getFacetOptions('major_doc_type')"
               :aria-describedby="ariaDescribedby"
               name="major_doc_type"
@@ -107,7 +136,7 @@
         <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
-              v-model="adm_region"
+              v-model="search_filters.adm_region"
               :options="getFacetOptions('adm_region')"
               :aria-describedby="ariaDescribedby"
               name="adm_region"
@@ -126,7 +155,7 @@
         <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
-              v-model="geo_region"
+              v-model="search_filters.geo_region"
               :options="getFacetOptions('geo_region')"
               :aria-describedby="ariaDescribedby"
               name="geo_region"
@@ -145,7 +174,7 @@
         <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
-              v-model="topics_src"
+              v-model="search_filters.topics_src"
               :options="getFacetOptions('topics_src')"
               :aria-describedby="ariaDescribedby"
               name="topics_src"
@@ -164,7 +193,7 @@
         <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
-              v-model="corpus"
+              v-model="search_filters.corpus"
               :options="getFacetOptions('corpus')"
               :aria-describedby="ariaDescribedby"
               name="corpus"
@@ -183,7 +212,7 @@
         <b-card class="facet-options">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
-              v-model="author"
+              v-model="search_filters.author"
               :options="getFacetOptions('author')"
               :aria-describedby="ariaDescribedby"
               name="author"
@@ -217,19 +246,72 @@ export default {
     window.sf = this;
   },
   methods: {
+    checkAssignArray(currentArray, newArray) {
+      if (!newArray) {
+        currentArray = [];
+      }
+      if (
+        JSON.stringify(currentArray.sort()) === JSON.stringify(newArray.sort())
+      ) {
+        return;
+      }
+
+      currentArray = newArray;
+      console.log("checkAssignArray::" + currentArray);
+    },
     setSelectedFilters() {
-      this.min_year = this.filters.min_year;
-      this.max_year = this.filters.max_year;
-      this.author = this.filters.author || [];
+      this.search_filters = this.filters;
 
-      this.country = this.filters.country || [];
-      this.der_country_groups = this.filters.der_country_groups || [];
+      // if (this.search_filters.min_year !== this.filters.min_year) {
+      //   this.search_filters.min_year = this.filters.min_year;
+      // }
+      // if (this.search_filters.max_year !== this.filters.max_year) {
+      //   this.search_filters.max_year = this.filters.max_year;
+      // }
 
-      this.corpus = this.filters.corpus || [];
-      this.major_doc_type = this.filters.major_doc_type || [];
-      this.adm_region = this.filters.adm_region || [];
-      this.geo_region = this.filters.geo_region || [];
-      this.topics_src = this.filters.topics_src || [];
+      // this.checkAssignArray(this.search_filters.author, this.filters.author);
+      // this.checkAssignArray(this.search_filters.country, this.filters.country);
+      // this.checkAssignArray(
+      //   this.search_filters.der_country_groups,
+      //   this.filters.der_country_groups
+      // );
+      // this.checkAssignArray(
+      //   this.search_filters.der_jdc_tags,
+      //   this.filters.der_jdc_tags
+      // );
+      // this.checkAssignArray(this.search_filters.corpus, this.filters.corpus);
+      // this.checkAssignArray(
+      //   this.search_filters.major_doc_type,
+      //   this.filters.major_doc_type
+      // );
+      // this.checkAssignArray(
+      //   this.search_filters.adm_region,
+      //   this.filters.adm_region
+      // );
+      // this.checkAssignArray(
+      //   this.search_filters.geo_region,
+      //   this.filters.geo_region
+      // );
+      // this.checkAssignArray(
+      //   this.search_filters.topics_src,
+      //   this.filters.topics_src
+      // );
+
+      // // this.search_filters.min_year = this.filters.min_year;
+      // // this.search_filters.max_year = this.filters.max_year;
+      // // this.search_filters.author = this.filters.author || [];
+
+      // // this.search_filters.country = this.filters.country || [];
+      // // this.search_filters.der_country_groups =
+      // //   this.filters.der_country_groups || [];
+      // // this.search_filters.der_jdc_tags = this.filters.der_jdc_tags || [];
+
+      // // this.search_filters.corpus = this.filters.corpus || [];
+      // // this.search_filters.major_doc_type = this.filters.major_doc_type || [];
+      // // this.search_filters.adm_region = this.filters.adm_region || [];
+      // // this.search_filters.geo_region = this.filters.geo_region || [];
+      // // this.search_filters.topics_src = this.filters.topics_src || [];
+      console.log("setSelectedFilters");
     },
     processCountryGroupKey(facet_name, key) {
       if (facet_name !== "der_country_groups") {
@@ -248,6 +330,31 @@ export default {
         return key.toUpperCase();
       }
     },
+    processJDCTagsKey(facet_name, key) {
+      if (facet_name !== "der_jdc_tags") {
+        return key;
+      }
+
+      if (key.includes("_")) {
+        return key
+          .split("_")
+          .filter((x) => x.length > 0)
+          .join(" ");
+      } else if (key === "unhcr") {
+        return "UNHCR";
+      } else {
+        return key;
+      }
+    },
+    processFacetKey(facet_name, key) {
+      if (facet_name === "der_jdc_tags") {
+        return this.processJDCTagsKey(facet_name, key);
+      } else if (facet_name === "der_country_groups") {
+        return this.processCountryGroupKey(facet_name, key);
+      } else {
+        return key;
+      }
+    },
     getFacetOptions(facet_name) {
       // const for_sorting = ["country", "der_country_groups", "adm_region", "geo_region"]
       var options = this.facets["_filter_" + facet_name][
@@ -255,8 +362,8 @@ export default {
       ].buckets.map((o) => {
         return {
           text:
-            this.processCountryGroupKey(facet_name, o["key"]) +
-            "(" +
+            this.processFacetKey(facet_name, o["key"]) +
+            " (" +
             o["doc_count"] +
             ")",
           value: o["key"],
@@ -268,32 +375,79 @@ export default {
   },
   data() {
     return {
-      min_year: null,
-      max_year: null,
-      author: [],
-      country: [],
-      der_country_groups: [],
-      corpus: [],
-      major_doc_type: [],
-      adm_region: [],
-      geo_region: [],
-      topics_src: [],
+      search_filters: {
+        min_year: null,
+        max_year: null,
+        author: [],
+        country: [],
+        der_country_groups: [],
+        der_jdc_tags: [],
+        corpus: [],
+        major_doc_type: [],
+        adm_region: [],
+        geo_region: [],
+        topics_src: [],
+      },
+      update_from_search: false,
     };
   },
   watch: {
-    $data: {
+    search_filters: {
       deep: true,
-
       handler() {
-        this.$emit("filterChanged", this.$data);
+        if (this.update_from_search) {
+          return;
+        }
+        // if (this.filters.prevent_update) {
+        //   return;
+        // }
+
+        // if (newValue.update_from_search !== oldValue.update_from_search) {
+        //   if (!newValue.update_from_search) {
+        //     return;
+        //   }
+        // }
+
+        console.log("sendingFilterChanged from search_filters...");
+        this.$emit("filterChanged", this.search_filters);
       },
     },
+    // $data: {
+    //   deep: true,
+
+    //   handler(newValue, oldValue) {
+    //     if (this.update_from_search) {
+    //       return;
+    //     }
+
+    //     if (newValue.update_from_filters !== oldValue.update_from_filters) {
+    //       if (!newValue.update_from_filters) {
+    //         return;
+    //       } else {
+    //         this.update_from_search = false
+    //       }
+    //     }
+    //     if (this.update_from_filters) {
+    //       return;
+    //     }
+    //     console.log("sendingFilterChanged...");
+    //     this.$emit("filterChanged", this.$data);
+    //   },
+    // },
     filters: {
       deep: true,
       handler() {
+        this.update_from_search = true;
         this.setSelectedFilters();
+        this.update_from_search = false;
       },
     },
+    // facets: {
+    //   deep: true,
+    //   handler() {
+    //     this.update_from_search = true
+    //   }
+    // }
   },
 };
 </script>
