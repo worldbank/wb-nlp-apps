@@ -47,7 +47,8 @@ class NLPDoc(Document):
     der_country_details = Nested(properties={"code": Keyword(), "count": Integer(
     ), "name": Keyword(), "region": Keyword(), "sub-region": Keyword()})
     der_country_groups = Keyword()
-    der_jdc_tags = Nested(properties={"tag": Keyword(), "count": Integer()})
+    der_jdc_data = Nested(properties={"tag": Keyword(), "count": Integer()})
+    der_jdc_tags = Keyword()
     doc_type = Keyword()
     geo_region = Keyword()
     last_update_date = Date()
@@ -71,7 +72,8 @@ class NLPDoc(Document):
         self.views = 0
 
         # Extract JDC specific tags
-        self.der_jdc_tags = jdc_tags_extractor.get_jdc_tag_counts(self.body)
+        self.der_jdc_data = jdc_tags_extractor.get_jdc_tag_counts(self.body)
+        self.der_jdc_tags = [i["tag"] for i in self.der_jdc_data]
 
         # Extract country mentions data
         country_counts = country_extractor.get_country_counts(self.body)
@@ -228,6 +230,7 @@ class NLPDocFacetedSearch(FacetedSearch):
         'author': TermsFacet(field='author', size=100),
         'country': TermsFacet(field='country', size=100),
         'der_country_groups': TermsFacet(field='der_country_groups', size=100),
+        'der_jdc_tags': TermsFacet(field='der_jdc_tags', size=100),
         'corpus': TermsFacet(field='corpus', size=100),
         'major_doc_type': TermsFacet(field='major_doc_type', size=100),
         'adm_region': TermsFacet(field='adm_region', size=100),

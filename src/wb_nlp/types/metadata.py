@@ -244,8 +244,11 @@ class MetadataModel(BaseModel):
     der_country_groups: List[str] = Field(
         None, description="List of country groups that the country associated with the document belong to."
     )
-    der_jdc_tags: List[dict] = Field(
+    der_jdc_data: List[dict] = Field(
         None, description="List of objects corresponding to tags related to JDC and their respective frequency of occurence in the document."
+    )
+    der_jdc_tags: List[str] = Field(
+        None, description="List of tags found in `der_jdc_data`."
     )
     der_language_detected: str = Field(
         None, description="")
