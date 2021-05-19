@@ -65,15 +65,15 @@ async def keyword_search(
     translated = payload["translated"]
 
     filters = dict(
-        author=author,
-        country=(country or []),
-        der_country_groups=der_country_groups,
-        der_jdc_tags=der_jdc_tags,
-        corpus=corpus,
-        major_doc_type=major_doc_type,
-        adm_region=adm_region,
-        geo_region=geo_region,
-        topics_src=topics_src,
+        author=author or [],
+        country=country or [],
+        der_country_groups=der_country_groups or [],
+        der_jdc_tags=der_jdc_tags or [],
+        corpus=corpus or [],
+        major_doc_type=major_doc_type or [],
+        adm_region=adm_region or [],
+        geo_region=geo_region or [],
+        topics_src=topics_src or [],
     )
 
     if min_year:
