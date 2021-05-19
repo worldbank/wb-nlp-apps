@@ -168,56 +168,6 @@
         </div>
         <a id="results"></a>
         <aside class="col-sm-3" id="blog-sidebar-static">
-          <!-- <div>
-            <div
-              id="filter-by-access"
-              class="sidebar-filter wb-ihsn-sidebar-filter filter-by-year filter-box"
-            >
-              <h6 class="togglable">
-                <i class="fa fa-search pr-2"></i>Filter by Year {{ min_year }} -
-                {{ max_year }}
-              </h6>
-              <div class="sidebar-filter-entries">
-                <input type="hidden" />
-                <p class="mt-3 mb-2">Show studies conducted between</p>
-                <div class="form-group">
-                  <select
-                    name="from"
-                    id="from"
-                    v-model="min_year"
-                    class="form-control"
-                  >
-                    <option
-                      v-for="year_offset in 131"
-                      :key="'from-' + (2022 - year_offset)"
-                      :value="2022 - year_offset"
-                    >
-                      {{ 2022 - year_offset }}
-                    </option>
-                    <option value="1890" selected>1890</option>
-                  </select>
-                </div>
-                <p class="mt-3 mb-2">and</p>
-                <div class="form-group">
-                  <select
-                    name="to"
-                    id="to"
-                    v-model="max_year"
-                    class="form-control"
-                  >
-                    <option
-                      v-for="year_offset in 132"
-                      :key="'to-' + (2022 - year_offset)"
-                      :value="2022 - year_offset"
-                    >
-                      {{ 2022 - year_offset }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div> -->
-
           <SearchFilter
             v-if="facets"
             :filters="selected_facets"
@@ -762,72 +712,11 @@ export default {
 
       return body;
     },
-    checkAssignArray(currentArray, newArray) {
-      if (
-        currentArray &&
-        JSON.stringify(currentArray.sort()) === JSON.stringify(newArray.sort())
-      ) {
-        return;
-      }
-      currentArray = newArray;
-    },
     setFilters(event) {
-      // this.max_year = event.max_year;
-      // this.min_year = event.min_year;
-      // console.log(event);
-      // this.selected_facets.prevent_update = true;
-
       this.selected_facets = event;
-
-      // if (this.selected_facets.min_year !== event.min_year) {
-      //   this.selected_facets.min_year = event.min_year;
-      // }
-
-      // if (this.selected_facets.max_year !== event.max_year) {
-      //   this.selected_facets.max_year = event.max_year;
-      // }
-
-      // this.checkAssignArray(this.selected_facets.adm_region, event.adm_region);
-      // this.checkAssignArray(this.selected_facets.author, event.author);
-
-      // this.checkAssignArray(this.selected_facets.country, event.country);
-      // this.checkAssignArray(
-      //   this.selected_facets.der_country_groups,
-      //   event.der_country_groups
-      // );
-      // this.checkAssignArray(
-      //   this.selected_facets.der_jdc_tags,
-      //   event.der_jdc_tags
-      // );
-      // this.checkAssignArray(this.selected_facets.corpus, event.corpus);
-      // this.checkAssignArray(
-      //   this.selected_facets.major_doc_type,
-      //   event.major_doc_type
-      // );
-      // this.checkAssignArray(this.selected_facets.geo_region, event.geo_region);
-      // this.checkAssignArray(this.selected_facets.topics_src, event.topics_src);
-
-      // // this.adm_region = event.adm_region;
-      // // this.author = event.author;
-      // // this.country = event.country;
-      // // this.corpus = event.corpus;
-      // // this.major_doc_type = event.major_doc_type;
-      // // this.geo_region = event.geo_region;
-      // // this.topics_src = event.topics_src;
-
-      // // this.selected_facets.adm_region = event.adm_region;
-      // // this.selected_facets.author = event.author;
-      // // this.selected_facets.country = event.country;
-      // // this.selected_facets.der_country_groups = event.der_country_groups;
-      // // this.selected_facets.der_jdc_tags = event.der_jdc_tags;
-      // // this.selected_facets.corpus = event.corpus;
-      // // this.selected_facets.major_doc_type = event.major_doc_type;
-      // // this.selected_facets.geo_region = event.geo_region;
-      // // this.selected_facets.topics_src = event.topics_src;
 
       this.prevent_default = false;
       this.defaultKeywordSearch();
-      // this.selected_facets.prevent_update = false;
     },
     fileUpload(event) {
       this.uploaded_file = event.target.files[0];
@@ -1241,12 +1130,6 @@ export default {
     search_type: function () {
       this.sendSearch();
     },
-    // selected_facets: {
-    //   deep: true,
-    //   handler() {
-    //     this.sendSearch();
-    //   },
-    // },
     $route() {
       this.routeChangeSearch();
       window.location.hash = "#results";

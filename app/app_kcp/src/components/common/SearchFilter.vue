@@ -246,71 +246,9 @@ export default {
     window.sf = this;
   },
   methods: {
-    checkAssignArray(currentArray, newArray) {
-      if (!newArray) {
-        currentArray = [];
-      }
-      if (
-        JSON.stringify(currentArray.sort()) === JSON.stringify(newArray.sort())
-      ) {
-        return;
-      }
-
-      currentArray = newArray;
-      console.log("checkAssignArray::" + currentArray);
-    },
     setSelectedFilters() {
       this.search_filters = this.filters;
 
-      // if (this.search_filters.min_year !== this.filters.min_year) {
-      //   this.search_filters.min_year = this.filters.min_year;
-      // }
-      // if (this.search_filters.max_year !== this.filters.max_year) {
-      //   this.search_filters.max_year = this.filters.max_year;
-      // }
-
-      // this.checkAssignArray(this.search_filters.author, this.filters.author);
-      // this.checkAssignArray(this.search_filters.country, this.filters.country);
-      // this.checkAssignArray(
-      //   this.search_filters.der_country_groups,
-      //   this.filters.der_country_groups
-      // );
-      // this.checkAssignArray(
-      //   this.search_filters.der_jdc_tags,
-      //   this.filters.der_jdc_tags
-      // );
-      // this.checkAssignArray(this.search_filters.corpus, this.filters.corpus);
-      // this.checkAssignArray(
-      //   this.search_filters.major_doc_type,
-      //   this.filters.major_doc_type
-      // );
-      // this.checkAssignArray(
-      //   this.search_filters.adm_region,
-      //   this.filters.adm_region
-      // );
-      // this.checkAssignArray(
-      //   this.search_filters.geo_region,
-      //   this.filters.geo_region
-      // );
-      // this.checkAssignArray(
-      //   this.search_filters.topics_src,
-      //   this.filters.topics_src
-      // );
-
-      // // this.search_filters.min_year = this.filters.min_year;
-      // // this.search_filters.max_year = this.filters.max_year;
-      // // this.search_filters.author = this.filters.author || [];
-
-      // // this.search_filters.country = this.filters.country || [];
-      // // this.search_filters.der_country_groups =
-      // //   this.filters.der_country_groups || [];
-      // // this.search_filters.der_jdc_tags = this.filters.der_jdc_tags || [];
-
-      // // this.search_filters.corpus = this.filters.corpus || [];
-      // // this.search_filters.major_doc_type = this.filters.major_doc_type || [];
-      // // this.search_filters.adm_region = this.filters.adm_region || [];
-      // // this.search_filters.geo_region = this.filters.geo_region || [];
-      // // this.search_filters.topics_src = this.filters.topics_src || [];
       console.log("setSelectedFilters");
     },
     processCountryGroupKey(facet_name, key) {
@@ -398,42 +336,10 @@ export default {
         if (this.update_from_search) {
           return;
         }
-        // if (this.filters.prevent_update) {
-        //   return;
-        // }
-
-        // if (newValue.update_from_search !== oldValue.update_from_search) {
-        //   if (!newValue.update_from_search) {
-        //     return;
-        //   }
-        // }
-
         console.log("sendingFilterChanged from search_filters...");
         this.$emit("filterChanged", this.search_filters);
       },
     },
-    // $data: {
-    //   deep: true,
-
-    //   handler(newValue, oldValue) {
-    //     if (this.update_from_search) {
-    //       return;
-    //     }
-
-    //     if (newValue.update_from_filters !== oldValue.update_from_filters) {
-    //       if (!newValue.update_from_filters) {
-    //         return;
-    //       } else {
-    //         this.update_from_search = false
-    //       }
-    //     }
-    //     if (this.update_from_filters) {
-    //       return;
-    //     }
-    //     console.log("sendingFilterChanged...");
-    //     this.$emit("filterChanged", this.$data);
-    //   },
-    // },
     filters: {
       deep: true,
       handler() {
@@ -442,12 +348,6 @@ export default {
         this.update_from_search = false;
       },
     },
-    // facets: {
-    //   deep: true,
-    //   handler() {
-    //     this.update_from_search = true
-    //   }
-    // }
   },
 };
 </script>
