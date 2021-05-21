@@ -215,6 +215,8 @@ try:
     DocTopic.init()
 except exceptions.ConnectionError:
     pass
+except exceptions.RequestError:
+    print("Warning: RequestError. A re-index may be required.")
 
 
 class NLPDocFacetedSearch(FacetedSearch):
