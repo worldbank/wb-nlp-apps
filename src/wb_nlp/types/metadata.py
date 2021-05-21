@@ -273,6 +273,10 @@ class MetadataModel(BaseModel):
     journal: str = Field(
         None, description="")
 
+    keywords: List[str] = Field(
+        None, description="Keywords extracted from source API or page."
+    )
+
     # language_detected -> der_language_detected
     # language_score -> der_language_score
 
