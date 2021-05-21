@@ -168,56 +168,6 @@
         </div>
         <a id="results"></a>
         <aside class="col-sm-3" id="blog-sidebar-static">
-          <!-- <div>
-            <div
-              id="filter-by-access"
-              class="sidebar-filter wb-ihsn-sidebar-filter filter-by-year filter-box"
-            >
-              <h6 class="togglable">
-                <i class="fa fa-search pr-2"></i>Filter by Year {{ min_year }} -
-                {{ max_year }}
-              </h6>
-              <div class="sidebar-filter-entries">
-                <input type="hidden" />
-                <p class="mt-3 mb-2">Show studies conducted between</p>
-                <div class="form-group">
-                  <select
-                    name="from"
-                    id="from"
-                    v-model="min_year"
-                    class="form-control"
-                  >
-                    <option
-                      v-for="year_offset in 131"
-                      :key="'from-' + (2022 - year_offset)"
-                      :value="2022 - year_offset"
-                    >
-                      {{ 2022 - year_offset }}
-                    </option>
-                    <option value="1890" selected>1890</option>
-                  </select>
-                </div>
-                <p class="mt-3 mb-2">and</p>
-                <div class="form-group">
-                  <select
-                    name="to"
-                    id="to"
-                    v-model="max_year"
-                    class="form-control"
-                  >
-                    <option
-                      v-for="year_offset in 132"
-                      :key="'to-' + (2022 - year_offset)"
-                      :value="2022 - year_offset"
-                    >
-                      {{ 2022 - year_offset }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div> -->
-
           <SearchFilter
             v-if="facets"
             :filters="selected_facets"
@@ -347,6 +297,17 @@
                   data-value="0"
                   >Country group
                   <i @click="resetDerCountryGroups" class="fa fa-close"></i
+                ></span>
+
+                <span
+                  v-if="
+                    selected_facets.der_jdc_tags &&
+                    selected_facets.der_jdc_tags.length > 0
+                  "
+                  class="badge badge-default wb-badge-close remove-filter active-facets"
+                  data-type="der_jdc_tags"
+                  data-value="0"
+                  >JDC tags <i @click="resetDerJDCTags" class="fa fa-close"></i
                 ></span>
 
                 <span
@@ -549,6 +510,11 @@ export default {
           params.append("der_country_groups", v)
         );
       }
+      if (this.selected_facets.der_jdc_tags) {
+        this.selected_facets.der_jdc_tags.map((v) =>
+          params.append("der_jdc_tags", v)
+        );
+      }
 
       if (this.selected_facets.corpus) {
         this.selected_facets.corpus.map((v) => params.append("corpus", v));
@@ -665,47 +631,67 @@ export default {
       this.selected_facets.min_year = null;
       this.selected_facets.max_year = null;
 
+      this.prevent_default = false;
       this.defaultKeywordSearch();
     },
 
     resetCountry() {
-      this.selected_facets.country = null;
+      this.selected_facets.country = [];
+      this.prevent_default = false;
       this.defaultKeywordSearch();
     },
     resetDerCountryGroups() {
-      this.selected_facets.der_country_groups = null;
+      this.selected_facets.der_country_groups = [];
+      this.prevent_default = false;
+      this.defaultKeywordSearch();
+    },
+    resetDerJDCTags() {
+      this.selected_facets.der_jdc_tags = [];
+      this.prevent_default = false;
       this.defaultKeywordSearch();
     },
     resetDocType() {
-      this.selected_facets.major_doc_type = null;
+      this.selected_facets.major_doc_type = [];
+      this.prevent_default = false;
       this.defaultKeywordSearch();
     },
     resetAdmRegion() {
-      this.selected_facets.adm_region = null;
+      this.selected_facets.adm_region = [];
+      this.prevent_default = false;
       this.defaultKeywordSearch();
     },
     resetGeoRegion() {
-      this.selected_facets.geo_region = null;
+      this.selected_facets.geo_region = [];
+      this.prevent_default = false;
       this.defaultKeywordSearch();
     },
     resetTopicsSrc() {
-      this.selected_facets.topics_src = null;
+      this.selected_facets.topics_src = [];
+      this.prevent_default = false;
       this.defaultKeywordSearch();
     },
     resetCorpus() {
-      this.selected_facets.corpus = null;
+      this.selected_facets.corpus = [];
+      this.prevent_default = false;
       this.defaultKeywordSearch();
     },
     resetAuthor() {
-      this.selected_facets.author = null;
+      this.selected_facets.author = [];
+      this.prevent_default = false;
       this.defaultKeywordSearch();
     },
 
     resetFilters() {
-      var selected_facets = this.selected_facets;
-      Object.keys(selected_facets).forEach((k) => (selected_facets[k] = null));
+      var selected_facets = JSON.parse(JSON.stringify(this.selected_facets));
+      Object.keys(selected_facets).forEach(
+        (k) =>
+          (selected_facets[k] =
+            k === "min_year" || k === "max_year" ? null : [])
+      );
       // this.resetYears();
+      console.log(selected_facets);
       this.selected_facets = selected_facets;
+      this.prevent_default = false;
       this.defaultKeywordSearch();
     },
     isSelectedFacetsEmpty() {
@@ -719,6 +705,7 @@ export default {
       body["author"] = this.selected_facets.author;
       body["country"] = this.selected_facets.country;
       body["der_country_groups"] = this.selected_facets.der_country_groups;
+      body["der_jdc_tags"] = this.selected_facets.der_jdc_tags;
       body["corpus"] = this.selected_facets.corpus;
       body["major_doc_type"] = this.selected_facets.major_doc_type;
       body["geo_region"] = this.selected_facets.geo_region;
@@ -727,29 +714,9 @@ export default {
       return body;
     },
     setFilters(event) {
-      // this.max_year = event.max_year;
-      // this.min_year = event.min_year;
+      this.selected_facets = event;
 
-      this.selected_facets.min_year = event.min_year;
-      this.selected_facets.max_year = event.max_year;
-
-      // this.adm_region = event.adm_region;
-      // this.author = event.author;
-      // this.country = event.country;
-      // this.corpus = event.corpus;
-      // this.major_doc_type = event.major_doc_type;
-      // this.geo_region = event.geo_region;
-      // this.topics_src = event.topics_src;
-
-      this.selected_facets.adm_region = event.adm_region;
-      this.selected_facets.author = event.author;
-      this.selected_facets.country = event.country;
-      this.selected_facets.der_country_groups = event.der_country_groups;
-      this.selected_facets.corpus = event.corpus;
-      this.selected_facets.major_doc_type = event.major_doc_type;
-      this.selected_facets.geo_region = event.geo_region;
-      this.selected_facets.topics_src = event.topics_src;
-
+      this.prevent_default = false;
       this.defaultKeywordSearch();
     },
     fileUpload(event) {
@@ -1041,7 +1008,9 @@ export default {
           this.api_link =
             location.origin + api_url + "?" + searchParams.toLocaleString();
 
-          this.loading = false;
+          let vm = this;
+          setTimeout(() => {vm.loading = false}, 10)
+          // this.loading = false;
 
           this.fetchForCache(this.next, ignore_empty_query, this.cache_count);
 

@@ -142,6 +142,6 @@ def main(cleaning_config_id: Path, input_dir: Path, source_dir_name: str, log_le
 
 
 if __name__ == '__main__':
-    # python -u ./scripts/cleaning/clean_corpus.py --cleaning-config-id 23f78350192d924e4a8f75278aca0e1c --input-dir data/corpus --source-dir-name EN_TXT_ORIG -vv |& tee ./logs/clean_corpus.py.log
+    # python -u ./scripts/cleaning/clean_corpus.py --cleaning-config-id 23f78350192d924e4a8f75278aca0e1c --input-dir data/corpus --source-dir-name EN_TXT_ORIG --recursive -vv |& tee ./logs/clean_corpus.py.log
     # python -u ./scripts/cleaning/clean_corpus.py --cleaning-config-id 229abf370f281efa7c9f3c4ddc20159d --input-dir data/corpus --source-dir-name EN_TXT_ORIG --recursive -vv |& tee ./logs/clean_corpus.py.log
     main()

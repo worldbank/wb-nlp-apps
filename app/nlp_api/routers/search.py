@@ -32,6 +32,7 @@ async def keyword_search(
     author: List[str] = Query(None),
     country: List[str] = Query(None),
     der_country_groups: List[str] = Query(None),
+    der_jdc_tags: List[str] = Query(None),
     corpus: List[str] = Query(None),
     major_doc_type: List[str] = Query(None),
     adm_region: List[str] = Query(None),
@@ -64,14 +65,15 @@ async def keyword_search(
     translated = payload["translated"]
 
     filters = dict(
-        author=author,
-        country=(country or []),
-        der_country_groups=der_country_groups,
-        corpus=corpus,
-        major_doc_type=major_doc_type,
-        adm_region=adm_region,
-        geo_region=geo_region,
-        topics_src=topics_src,
+        author=author or [],
+        country=country or [],
+        der_country_groups=der_country_groups or [],
+        der_jdc_tags=der_jdc_tags or [],
+        corpus=corpus or [],
+        major_doc_type=major_doc_type or [],
+        adm_region=adm_region or [],
+        geo_region=geo_region or [],
+        topics_src=topics_src or [],
     )
 
     if min_year:

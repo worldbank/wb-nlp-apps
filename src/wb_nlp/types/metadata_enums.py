@@ -21,7 +21,8 @@ def get_wb_curated_list(list_id):
     b = BeautifulSoup(r.content, 'html.parser')
 
     item_list = b.find('select', id=list_id).find_all('option')
-    g = {re.sub(r'[^a-z]+', '_', o.text.lower()).strip('_'): o.text for o in item_list}
+    g = {re.sub(r'[^a-z]+', '_', o.text.lower()).strip('_')
+                : o.text for o in item_list}
 
     for k, v in g.items():
         print(f'{k} = "{v}"')
@@ -598,7 +599,7 @@ class WBMajorDocTypes(WBEnum):
     # economic_sector_work = "Economic & Sector Work"
     # economic_amp_sector_work = "Economic &amp; Sector Work"
     project_documents = "Project Documents"
-    publications = "Publications"
+    # publications = "Publications"
     publications_and_research = "Publications and Research"
     # publications_research = "Publications & Research"
     # publications_amp_research = "Publications &amp; Research"
@@ -607,10 +608,50 @@ class WBMajorDocTypes(WBEnum):
     def clean(cls, value):
 
         mappings = {
+            "Publication": "Publications and Research",
+            "Publications": "Publications and Research",
             "Publications & Research": "Publications and Research",
             "Publications &amp; Research": "Publications and Research",
             "Economic & Sector Work": "Economic and Sector Work",
             "Economic &amp; Sector Work": "Economic and Sector Work",
+            None: "",
+        }
+
+        value = mappings.get(value, value)
+
+        return value
+
+
+class MajorDocTypes(WBEnum):
+    '''
+    Curated list of major document types.
+    Document types are adapted from various sources as needed.
+    '''
+    EMPTY = ""
+
+    # From ADB
+    evaluation_document = "Evaluation Document"
+
+    # From WB docs API curated list
+    board_documents = "Board Documents"
+    country_focus = "Country Focus"
+    economic_and_sector_work = "Economic and Sector Work"
+    project_documents = "Project Documents"
+    publications_and_research = "Publications and Research"
+
+    @ classmethod
+    def clean(cls, value):
+
+        mappings = {
+            "Publication": "Publications and Research",
+            "Publications": "Publications and Research",
+            "Publications & Research": "Publications and Research",
+            "Publications &amp; Research": "Publications and Research",
+
+            "Economic & Sector Work": "Economic and Sector Work",
+            "Economic &amp; Sector Work": "Economic and Sector Work",
+
+            "Project Document": "Project Documents",
             None: "",
         }
 
