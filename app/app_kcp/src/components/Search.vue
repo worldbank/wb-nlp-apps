@@ -689,6 +689,7 @@ export default {
             k === "min_year" || k === "max_year" ? null : [])
       );
       // this.resetYears();
+      console.log(selected_facets);
       this.selected_facets = selected_facets;
       this.prevent_default = false;
       this.defaultKeywordSearch();
@@ -1007,7 +1008,9 @@ export default {
           this.api_link =
             location.origin + api_url + "?" + searchParams.toLocaleString();
 
-          this.loading = false;
+          let vm = this;
+          setTimeout(() => {vm.loading = false}, 10)
+          // this.loading = false;
 
           this.fetchForCache(this.next, ignore_empty_query, this.cache_count);
 

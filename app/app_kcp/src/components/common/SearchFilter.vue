@@ -327,6 +327,7 @@ export default {
         topics_src: [],
       },
       update_from_search: false,
+      event_queued: false,
     };
   },
   watch: {
@@ -337,7 +338,18 @@ export default {
           return;
         }
         console.log("sendingFilterChanged from search_filters...");
-        this.$emit("filterChanged", this.search_filters);
+
+        let vm = this;
+        vm.$emit("filterChanged", vm.search_filters);
+
+        // if (!this.event_queued) {
+        //   setTimeout(() => {
+        //     vm.$emit("filterChanged", vm.search_filters);
+        //     vm.event_queued = false;
+        //   }, 50);
+
+        //   this.event_queued = true;
+        // }
       },
     },
     filters: {
@@ -345,7 +357,9 @@ export default {
       handler() {
         this.update_from_search = true;
         this.setSelectedFilters();
-        this.update_from_search = false;
+        setTimeout(() => {
+          this.update_from_search = false;
+        }, 10);
       },
     },
   },
