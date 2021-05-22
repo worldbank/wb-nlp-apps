@@ -56,13 +56,13 @@
               Corpus: {{ result.corpus
               }}<span v-if="match && match.rank">, Rank: {{ match.rank }}</span
               ><span v-if="match && match.score"
-                >, Score: {{ match.score.toFixed(4) }}</span
+                >, Score: {{ truncate(match.score, 4) }}</span
               ><span v-if="match && match.topic"
                 ><span
                   v-for="topic_id_score in Object.entries(match.topic)"
                   :key="topic_id_score"
                   >, {{ topic_id_score[0].replace("_", " ") }}:
-                  {{ topic_id_score[1].toFixed(4) * 100 }}%</span
+                  {{ truncate(topic_id_score[1], 4) }}%</span
                 ></span
               >
             </div>
@@ -211,6 +211,9 @@ export default {
     },
   },
   methods: {
+    truncate(value, size) {
+      return (value.toFixed(size) * 100 + "").slice(0, size + 1);
+    },
     random_id() {
       if (this.rrandom_id === null) {
         this.rrandom_id = Math.random();

@@ -120,6 +120,13 @@
                 v-on:touchend="getHitsCount"
               />
             </div>
+            <span class="topic-words">
+              {{
+                rows.filter((o) => {
+                  return o.topic_id === selected;
+                })[0].topic_words
+              }}
+            </span>
           </div>
         </div>
         <hr />
@@ -403,6 +410,12 @@ select {
   max-height: 300px !important;
   overflow-y: scroll !important;
 }
+
+.topic-words {
+  font-size: 12px;
+  color: rgb(119, 115, 115);
+}
+
 /*
 table tbody th {
   position: relative;

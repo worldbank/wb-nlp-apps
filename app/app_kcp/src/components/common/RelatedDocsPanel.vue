@@ -15,7 +15,7 @@
       </div>
     </vue-horizontal>
     <div v-if="errored || (results && results.length === 0)">
-      Related documents not found
+      No related documents found
     </div>
     <vue-horizontal v-if="results && results.length > 0">
       <div
