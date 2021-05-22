@@ -6,7 +6,7 @@
       <br />
       <br />
       <div class="row">
-        <div class="col-3">
+        <div class="col-sm-12 col-md-3">
           <img
             width="100%"
             :src="document_cover"
@@ -15,7 +15,7 @@
             alt="document thumbnail"
           />
         </div>
-        <div class="col-9">
+        <div class="col-sm-12 col-md-9">
           <h3 class="title">
             {{ metadata.title }}
           </h3>
