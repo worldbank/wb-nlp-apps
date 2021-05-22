@@ -2,16 +2,20 @@
   <div>
     <div v-if="metadata" class="container">
       <br />
+      <router-link to="/search/">Return to search</router-link>
+      <br />
+      <br />
       <div class="row">
-        <div class="col-3 col-lg-3">
+        <div class="col-3">
           <img
+            width="100%"
             :src="document_cover"
             onerror="if (this.src != '/static/files/doc_thumb.png') this.src = '/static/files/doc_thumb.png';"
             title="document thumbnail"
             alt="document thumbnail"
           />
         </div>
-        <div class="col-9 col-lg-9">
+        <div class="col-9">
           <h3 class="title">
             {{ metadata.title }}
           </h3>
@@ -105,7 +109,12 @@
                   ref="iframe"
                   width="100%"
                   height="600px"
-                  :src="metadata.url_pdf"
+                  :src="
+                    metadata.url_pdf.replace(
+                      'documents.worldbank.org',
+                      'documents1.worldbank.org'
+                    )
+                  "
                 /></div
             ></b-tab>
             <b-tab
