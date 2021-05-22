@@ -108,12 +108,12 @@
                 <iframe
                   ref="iframe"
                   width="100%"
-                  height="600px"
+                  height="800px"
+                  type="application/pdf"
                   :src="
-                    metadata.url_pdf.replace(
-                      'documents.worldbank.org',
-                      'documents1.worldbank.org'
-                    )
+                    'https://docs.google.com/gview?url=' +
+                    metadata.url_pdf +
+                    '&embedded=true'
                   "
                 /></div
             ></b-tab>
