@@ -32,6 +32,11 @@ services:
       - ${REMOTE_PATH}/app/app_kcp:/app
       - ${REMOTE_PATH}/app/app_kcp/site.conf:/etc/nginx/conf.d/site.conf
 
+  app_jdc:
+    volumes:
+      - ${REMOTE_PATH}/app/app_jdc:/app
+      - ${REMOTE_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
+
   api:
     volumes:
       - ${REMOTE_PATH}/app/api:/workspace/app/api

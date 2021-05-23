@@ -33,6 +33,11 @@ services:
       - ${STAGING_PATH}/app/app_kcp:/app
       # - ${STAGING_PATH}/app/app_kcp/site.conf:/etc/nginx/conf.d/site.conf
 
+  app_jdc:
+    volumes:
+      - ${STAGING_PATH}/app/app_jdc:/app
+      # - ${STAGING_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
+
   api:
     volumes:
       - ${STAGING_PATH}/models:/workspace/models

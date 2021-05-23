@@ -96,6 +96,24 @@ services:
       - api
       - nlp_api
 
+  app_jdc:
+    build:
+      context: ./app/app_jdc
+    restart: always
+    ports:
+      - "8089:80"
+    env_file:
+      - .env
+    volumes:
+      - ${LOCAL_PATH}/app/app_jdc:/app
+      # - ${LOCAL_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - api
+      - nlp_api
+    depends_on:
+      - api
+      - nlp_api
+
   dfr:
     build:
       context: ./app/dfr
