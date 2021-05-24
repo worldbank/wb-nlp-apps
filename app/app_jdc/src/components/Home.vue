@@ -1,7 +1,7 @@
 <template>
   <div>
     <header class="blog-header wbg-header">
-      <div class="container">
+      <div class="container container-margin">
         <div class="row justify-content-center">
           <div class="col-12 col-md-8">
             <h1 class="blog-title text-center" dir="auto">Document Explorer</h1>
@@ -29,7 +29,7 @@
               <input
                 v-model="search_text"
                 type="text"
-                class="form-control wbg-search-text pl-4"
+                class="form-control wbg-search-text pl-4 input-height-auto"
                 :placeholder="uploaded_file ? '' : 'Enter your keywords...'"
                 aria-label="Field for search"
                 aria-describedby="basic-addon2"
@@ -132,7 +132,7 @@
         </div>
       </div>
     </header>
-    <div class="container">
+    <div class="container home-container">
       <div class="row justify-content-center mb-5">
         <div class="col-12 col-md-10">
           <h3 class="text-center">
@@ -358,5 +358,20 @@ export default {
 }
 .fa-times:hover {
   color: red;
+}
+.container-margin {
+  margin-top: 15px;
+}
+
+.wbg-header {
+  margin: 0px;
+}
+
+.home-container {
+  padding-top: 30px !important;
+}
+
+.input-height-auto {
+  height: auto;
 }
 </style>
