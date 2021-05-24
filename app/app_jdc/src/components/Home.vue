@@ -1,147 +1,16 @@
 <template>
   <div>
-    <header class="blog-header wbg-header">
-      <div class="container container-margin">
-        <div class="row justify-content-center">
-          <div class="col-12 col-md-8">
-            <h1 class="blog-title text-center" dir="auto">Document Explorer</h1>
-          </div>
-          <div class="col-12 col-md-8">
-            <div class="input-group mb-3 mt-3" style="display: flex">
-              <!-- <input
-                v-model="search_text"
-                type="text"
-                class="form-control wbg-search-text pl-4"
-                placeholder="Enter your keywords..."
-                aria-label="Field for search"
-                aria-describedby="basic-addon2"
-                v-on:keyup.enter="sendToSearch()"
-              />
-              <div class="input-group-append">
-                <button
-                  @click="sendToSearch"
-                  class="btn btn-primary wbg-search-button pr-4 pl-4"
-                  type="button"
-                >
-                  Search
-                </button>
-              </div> -->
-              <input
-                v-model="search_text"
-                type="text"
-                class="form-control wbg-search-text pl-4 input-height-auto"
-                :placeholder="uploaded_file ? '' : 'Enter your keywords...'"
-                aria-label="Field for search"
-                aria-describedby="basic-addon2"
-                v-on:keyup.enter="sendToSearch()"
-              />
-              <div v-if="hasUploadedFile" class="wbg-uploaded-file">
-                <div class="truncated-title">
-                  {{ this.uploaded_file.name }}
-                </div>
-                <i
-                  class="fas fa-times fa-sm ml-2"
-                  @click="removeFile"
-                  aria-hidden="true"
-                ></i>
-              </div>
-              <div
-                id="submit_file"
-                data-toggle="tooltip"
-                data-placement="bottom"
-                title="Upload a PDF or TXT document to search"
-              >
-                <div class="file-input">
-                  <input
-                    @change="fileUpload"
-                    type="file"
-                    name="file-input"
-                    :value="file_input"
-                    :disabled="hasUploadedFile"
-                    id="file-input"
-                    class="file-input__input"
-                    data-toggle="tooltip"
-                    data-placement="bottom"
-                    title="Upload a PDF or TXT document to search"
-                    accept=".txt,.doc,.docx,.pdf"
-                  />
-                  <i
-                    title="Delete query"
-                    v-show="
-                      (search_text && search_text.length > 0) || file_input
-                    "
-                    @click="clearSearchInput"
-                    style="
-                      position: relative;
-                      margin-left: -50px;
-                      margin-right: 10px;
-                      padding-right: 10px;
-                      padding-left: 20px;
-                      z-index: 999;
-                    "
-                    class="fas fa-times fa-sm"
-                  />
-                  <label class="file-input__label white-bg" for="file-input"
-                    ><i
-                      class="fas fa-file-upload fa-lg"
-                      :style="hasUploadedFile ? 'color: gray' : ''"
-                    ></i
-                  ></label>
-                </div>
-              </div>
-              <div class="input-group-append">
-                <button
-                  @click="sendToSearch()"
-                  class="btn btn-primary wbg-search-button pr-4 pl-4"
-                  type="button"
-                >
-                  Search
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 col-md-8 text-center">
-            <div class="form-check form-check-inline">
-              <input
-                v-model="search_type"
-                class="form-check-input"
-                type="radio"
-                name="inlineRadioOptions"
-                id="inlineRadio1"
-                value="keyword"
-                checked=""
-              />
-              <label class="form-check-label" for="inlineRadio1"
-                >Keyword search</label
-              >
-            </div>
-            <div class="form-check form-check-inline">
-              <input
-                v-model="search_type"
-                class="form-check-input"
-                type="radio"
-                name="inlineRadioOptions"
-                id="inlineRadio2"
-                value="semantic"
-              />
-              <label class="form-check-label" for="inlineRadio2"
-                >Semantic search</label
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
+    <Banner />
     <div class="container home-container">
       <div class="row justify-content-center mb-5">
-        <div class="col-12 col-md-10">
-          <h3 class="text-center">
+        <div class="col-12 col-md-12">
+          <h3 class="text-justify">
             Explore our corpus of {{ corpus_size.toLocaleString() }} documents
           </h3>
-          <div class="small text-center">
+          <p class="small text-justify">
             Last updated on Wednesday, April 31, 2021
-          </div>
-          <p class="mt-4 text-center">
+          </p>
+          <p class="mt-4 text-justify">
             The Document Explorer puts Natural Language Processing (NLP) at the
             service of knowledge discovery. We compiled and maintain a
             <a href="/#">corpus of research</a>, project and other documents
@@ -157,95 +26,15 @@
           </p>
         </div>
       </div>
-      <div class="row mb-2">
-        <div class="col-12 col-md-6">
-          <div class="wbg-homepage-block jdc-homepage-block">
-            <div class="wbg-homepage-block__fa">
-              <i class="fas fa-search fa-lg" aria-hidden="true"></i>
-            </div>
-            <h3><router-link to="/search">Search</router-link></h3>
-            <p>
-              Find documents by applying keyword and semantic search and filters
-            </p>
-          </div>
-        </div>
-        <div class="col-12 col-md-6">
-          <div class="wbg-homepage-block jdc-homepage-block">
-            <div class="wbg-homepage-block__fa">
-              <i class="fas fa-book-open fa-lg" aria-hidden="true"></i>
-            </div>
-            <h3><router-link to="/explore">Explore</router-link></h3>
-            <p>
-              Explore the corpus: geographic coverage, trends, topics,
-              embeddings, etc.
-            </p>
-          </div>
-        </div>
-      </div>
-      <!-- <div class="row mb-5">
-        <div class="col-12">
-          <h2 class="text-center mb-4">Highlights</h2>
-        </div>
-        <div class="col-12 col-md-4 mb-3 mb-md-1">
-          <div class="wbg-homepage-highlight">
-            <img
-              src="/static/files/photo-1532094349884-543bc11b234d"
-              height="220"
-              alt=""
-            />
-            <div>
-              <h4><a href="/#">JDC Quarterly Digest</a></h4>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-md-4 mb-3 mb-md-1">
-          <div class="wbg-homepage-highlight">
-            <img
-              src="/static/files/photo-1605962589069-bccdb6e391fe"
-              height="220"
-              alt=""
-            />
-            <div>
-              <h4>
-                <a href="/#"
-                  >A Primer: The concsequences of COVID-19 on forced
-                  displacement</a
-                >
-              </h4>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-md-4 mb-3 mb-md-1">
-          <div class="wbg-homepage-highlight">
-            <img
-              src="/static/files/photo-1533645782036-997947a9d529"
-              height="220"
-              alt=""
-            />
-            <div>
-              <h4>
-                <a href="/#"
-                  >Understanding the socioeconomic conditions of refugees in
-                  Kenya</a
-                >
-              </h4>
-              <p>Lorem ipsum dolor sit amet, consectetur.</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 text-center mt-4">
-          <a href="/#">View more highlights</a>
-        </div>
-      </div> -->
     </div>
   </div>
 </template>
 
 <script>
+import Banner from "./Banner";
 export default {
   name: "Home",
+  components: { Banner },
   data: function () {
     return {
       search_text: "",
@@ -253,7 +42,7 @@ export default {
       uploaded_file: null,
       file_input: null,
       search_text_cache: "",
-      corpus_size: null,
+      corpus_size: "",
     };
   },
   mounted() {

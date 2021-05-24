@@ -1,29 +1,6 @@
 <template>
   <div class="container-wrapper">
-    <!-- <header class="blog-header wbg-internal-header">
-      <div class="container">
-        <div class="col-12 mb-2">
-          <div id="breadcrumbs">
-            <router-link to="/">Home</router-link>
-            <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="/explore">Explore</router-link>
-            <span class="wbg-breadcrumb-separator">/</span>
-            <router-link to="#">{{ currentPageTitle }}</router-link>
-          </div>
-        </div>
-        <div class="col-12">
-          <i class="fas fa-search fa-2x" aria-hidden="true"></i>
-          <h1>{{ currentPageTitle }}</h1>
-          <p v-show="currentPageTitle === 'Explore'">
-            Describes the sources and coverage of our corpus, provides
-            interactive visualizations of topic composition (extracted from LDA
-            models), and allows you to filter documents by their topic
-            composition. Also provides access to word embedding models,
-            similarity measures, and others.
-          </p>
-        </div>
-      </div>
-    </header> -->
+    <Banner />
     <div class="container flowing">
       <b-button
         v-if="toggleButtonShow"
@@ -212,9 +189,11 @@
 <script>
 import $ from "jquery";
 
+import Banner from "./Banner";
+
 export default {
   name: "Explore",
-  components: {},
+  components: { Banner },
   mounted() {
     // this.flowSideBar();
   },
