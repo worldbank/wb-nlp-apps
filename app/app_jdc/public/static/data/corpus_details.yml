@@ -1,0 +1,115 @@
+corpus_details:
+  adb:
+    name: ASIAN DEVELOPMENT BANK
+    corpus_id: "ADB"
+    url: "https://www.adb.org/publications"
+    selection: "All types of documents except for the Official Records are of interest. This includes: Books; Reports; Papers and briefs; Serials; Conference Proceedings; Guides; Policies, Strategies, and Plans; Brochures and Flyers; Country Planning Documents; Country Sector and Thematic Assessments; Economic and Political Updates; Project Documents; Evaluation Documents."
+  afdb:
+    name: AFRICAN DEVELOPMENT BANK
+    corpus_id: AFDB
+    url: https://www.afdb.org/en/documents/
+    selection: "Documents of the following type are of interest: Environmental and Social Assessments; Evaluation Reports; Knowledge; Policy Documents; Strategy Documents; Projects Operations; Publications"
+  eclac:
+    name: UNITED NATIONS ECONOMIC COMMISSION FOR LATIN AMERICA AND THE CARIBBEAN
+    corpus_id: ECLAC
+    url: https://www.cepal.org/en/publications/list/language/en
+    selection: "All types of Documents are of interest, including: Regular Publications, Reviews, and Bulletins; Project Documents, Studies, and Research Papers; ECLAC Series; Books and Monographs; Flagships; Conferences and Meetings Documents; Position Papers of the Sessions of the Commission"
+  epdc:
+    name: EDUCATION POLICY AND DATA CENTER
+    corpus_id: EPDC
+    url: https://www.epdc.org/taxonomy/term/156.html
+    selection: "Documents of the following type are of interest: Research Papers"
+  escap:
+    name: UNITED NATIONS ECONOMIC AND SOCIAL COMMISSION FOR ASIA AND THE PACIFIC
+    corpus_id: ESCAP
+    url: https://www.unescap.org/publications
+    selection: "All types of documents are of interest, including: Journal; Flagship; Working Paper; Book; Report; Review report"
+  fame:
+    name: FISHERIES, AQUACULTURE AND MARINE ECOSYSTEMS
+    corpus_id: FAME
+    url: https://fame.spc.int/en/publications/digital-library
+    selection: "Documents of the following type are of interest: Book; Brochure/leaflet; Bulletin/newsletter (full issue); Conference/Journal Paper; Conference proceedings; Manual; Policy Brief; Report; Thesis"
+  fao:
+    name: FOOD AND AGRICULTURE ORGANIZATION
+    corpus_id: FAO
+    url: http://www.fao.org/publications/flagships/en/
+    selection: "All flagship reports are of interest including: SOFA, SOFIA, SOFO, SOFI, SOFA, and SOCO."
+  idb:
+    name: INTERAMERICAN DEVELOPMENT BANK
+    corpus_id: IDB
+    url: https://publications.iadb.org/en/publications?
+    selection: "Documents of the following type are of interest: Technical Notes; Discussion Papers; Working Papers; Catalogs and Brochures; Magazines, Journals, & Newsletters; Monographs; Books; Annual Reports; Policy Briefs; Learning Materials; Co-publications."
+  iiep:
+    name: INTERNATIONAL INSTITUTE FOR EDUCATIONAL PLANNING
+    corpus_id: IIEP
+    url: http://www.iiep.unesco.org/en/publications
+    selection: "Documents that fall under the following themes are of interest: Economics of Education; Educational Planning; Equality of Education for Targeted Groups; Levels, Content, and Modalities in Education; Management and Administration of Education Systems; Skills, Employment, and Social Development."
+  ilo:
+    name: INTERNATIONAL LABOR ORGANIZATION
+    corpus_id: ILO
+    url: https://www.ilo.org/Search5/search.do?sitelang=en&locale=en_EN&consumercode=ILOHQ_STELLENT_PUBLIC&searchWhat=Search+ilo.org&searchLanguage=en
+    selection: "All major publications in the English language are included."
+  oecd:
+    name: OECD
+    corpus_id: OECD
+    url: https://www.oecd-ilibrary.org/papers#search-paper
+    selection: "Documents of interest include: Working Papers and Periodicals"
+  uneca:
+    name: UNITED NATIONS ECONOMIC COMMISSION FOR AFRICA
+    corpus_id: UNECA
+    url: https://www.uneca.org/publication-list
+    selection: "All documents of the following type are of interest: Policy Reports; Policy Briefs; Flagship Reports; Other Reports"
+  unece:
+    name: UNITED NATIONS ECONOMIC COMMISSION FOR EUROPE
+    corpus_id: UNECE
+    url: https://www.unece.org/publications/oes/welcome.html
+    selection: "All documents of “type” Publications returned by the POST request to http://www.unece.org/index.php are included."
+  unescwa:
+    name: UNITED NATIONS ECONOMIC COMMISSION FOR WESTERN ASIA
+    corpus_id: UNESCWA
+    url: https://www.unescwa.org/publications/publications-list
+    selection: "Documents of the following types are of interest: Reports and Studies; Data and Statistics; Training and Guidelines; Information Material; Working Papers; Brief Papers"
+  unhcr:
+    name: UNITED NATIONS HIGH COMMISSION FOR REFUGEES
+    corpus_id: UNHCR
+    url: https://www.unhcr.org/search
+    selection: "All Documents that fall under the following categories are of interest: Reports; Publications; Statistics; Asylum Trends."
+  unido:
+    name: UNITED NATIONS INDUSTRIAL DEVELOPMENT ORGANIZATION
+    corpus_id: UNIDO
+    url: https://www.unido.org/resources/publications/publications-type
+    selection: "All documents that fall under the following category are of interest: Working Papers."
+  unodc:
+    name: UNITED NATIONS OFFICE OF DRUGS AND CRIME
+    corpus_id: UNODC
+    url: https://www.unodc.org/unodc/en/publications.html?ref=menutop
+    selection: "All documents of the following types are of interest: World Drug Report; Crime and Drug Survey; Bulletin on Narcotics; Magazines; Annual Report; All Publications (by date)."
+  unpd:
+    name: UNITED NATIONS POPULATION DIVISION
+    corpus_id: UNPD
+    url: http://www.un.org/en/development/desa/population/publications/index.shtml
+    selection: "Documents of the following type are of interest: Publications; Manuals; Expert Paper Series; Technical Paper Series;"
+  wb:
+   name: WORLD BANK
+   corpus_id: WB
+   url: "https://search.worldbank.org/api/v2/wds"
+   selection: "All types of documents ranging from Publications and Research, Project Documents, etc."
+  wfp:
+    name: WORLD FOOD PROGRAM
+    corpus_id: WFP
+    url: https://www.wfp.org/publications?text=
+    selection: "Documents of the following type are of interest: Brochures and Factsheets; Strategies and Policies; Annual reports; Country reports; Reports; Project reports; Analyses assessments and case studies; Books and papers; Evaluations; Impact Evaluations; Humanitarian Emergency Response Evaluations; Country Portfolio and Country Strategic Plan Evaluations; Operation and Activity Evaluations; Policy Evaluations; Strategic Evaluations; Syntheses Evaluations; Thematic and Transfer Modality Evaluations; Bulletins and Newsletter."
+  who:
+    name: WORLD HEALTH ORGANIZATION
+    corpus_id: WHO
+    url: http://www.who.int/publications/en/
+    selection: "The following document type is of interest: Bulletin of the World Health Organization (full list of all volumes available at: https://www.ncbi.nlm.nih.gov/pmc/journals/522/)"
+
+# import yaml
+# import json
+# with open("./app/app_jdc/public/static/data/corpus_details.yml") as fl:
+#     data = yaml.load(fl)
+#     records = list(data["corpus_details"].values())
+
+#     with open("./app/app_jdc/public/static/data/corpus_details.json", "w") as fl:
+#         json.dump(records, fl)
