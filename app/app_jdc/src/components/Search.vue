@@ -1,5 +1,6 @@
 <template>
   <div class="container-wrapper">
+    <Banner />
     <!-- <header class="blog-header wbg-internal-header">
       <div class="container">
         <div class="col-12 mb-2">
@@ -448,6 +449,7 @@
 // import qs from "qs";
 import $ from "jquery";
 import saveState from "vue-save-state";
+import Banner from "./Banner";
 
 import SearchResultCard from "./common/SearchResultCard";
 import SearchResultLoading from "./common/SearchResultLoading";
@@ -465,6 +467,7 @@ export default {
     share_text: String,
   },
   components: {
+    Banner,
     SearchResultCard,
     SearchResultLoading,
     Pagination,
