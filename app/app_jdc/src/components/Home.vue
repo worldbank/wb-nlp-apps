@@ -158,8 +158,8 @@
         </div>
       </div>
       <div class="row mb-2">
-        <div class="col-12 col-md-4">
-          <div class="wbg-homepage-block">
+        <div class="col-12 col-md-6">
+          <div class="wbg-homepage-block jdc-homepage-block">
             <div class="wbg-homepage-block__fa">
               <i class="fas fa-search fa-lg" aria-hidden="true"></i>
             </div>
@@ -169,8 +169,8 @@
             </p>
           </div>
         </div>
-        <div class="col-12 col-md-4">
-          <div class="wbg-homepage-block">
+        <div class="col-12 col-md-6">
+          <div class="wbg-homepage-block jdc-homepage-block">
             <div class="wbg-homepage-block__fa">
               <i class="fas fa-book-open fa-lg" aria-hidden="true"></i>
             </div>
@@ -179,51 +179,6 @@
               Explore the corpus: geographic coverage, trends, topics,
               embeddings, etc.
             </p>
-          </div>
-        </div>
-        <!-- <div class="col-12 col-md-4">
-          <div class="wbg-homepage-block">
-            <div class="wbg-homepage-block__fa">
-              <i class="fas fa-chart-bar fa-lg" aria-hidden="true"></i>
-            </div>
-            <h3><a href="/#">Analyze</a></h3>
-            <p>Do an analysis in the Corpus of research</p>
-          </div>
-        </div> -->
-        <div class="col-12 col-md-4">
-          <div class="wbg-homepage-block">
-            <div class="wbg-homepage-block__fa">
-              <i class="fas fa-map-marker-alt fa-lg" aria-hidden="true"></i>
-            </div>
-            <h3>
-              <router-link to="/methods">Methods &amp; Tools</router-link>
-            </h3>
-            <p>
-              Learn about the tools, techniques, and models that we used in this
-              application
-            </p>
-          </div>
-        </div>
-        <div class="col-12 col-md-6">
-          <div class="wbg-homepage-block">
-            <div class="wbg-homepage-block__fa">
-              <i class="fas fa-link fa-lg" aria-hidden="true"></i>
-            </div>
-            <h3><router-link to="/content-api">API</router-link></h3>
-            <p>Learn about, and access, our API services</p>
-          </div>
-        </div>
-        <div class="col-12 col-md-6">
-          <div class="wbg-homepage-block">
-            <div class="wbg-homepage-block__fa">
-              <i class="fab fa-github fa-lg" aria-hidden="true"></i>
-            </div>
-            <h3>
-              <a href="https://github.com/avsolatorio/wb_nlp" target="_blank"
-                >Github</a
-              >
-            </h3>
-            <p>Review the code at our Github repo</p>
           </div>
         </div>
       </div>
@@ -373,5 +328,9 @@ export default {
 
 .input-height-auto {
   height: auto;
+}
+
+.jdc-homepage-block {
+  margin-top: 50px !important;
 }
 </style>
