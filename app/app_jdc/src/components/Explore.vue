@@ -155,13 +155,13 @@
                   >Word embeddings</router-link
                 >
               </li>
-              <li>
+              <!-- <li>
                 <router-link
                   to="/explore/similarity/"
                   :class="{ active: $route.name === 'explore_similarity' }"
                   >Analyze document</router-link
                 >
-              </li>
+              </li> -->
               <!-- <li>
                 <router-link
                   to="/explore/knowledge-page-service/"
