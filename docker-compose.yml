@@ -101,7 +101,7 @@ services:
       context: ./app/app_jdc
     restart: always
     ports:
-      - "8089:80"
+      - "8097:80"
     env_file:
       - .env
     volumes:

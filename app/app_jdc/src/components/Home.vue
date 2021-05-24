@@ -1,7 +1,7 @@
 <template>
   <div>
     <header class="blog-header wbg-header">
-      <div class="container">
+      <div class="container container-margin">
         <div class="row justify-content-center">
           <div class="col-12 col-md-8">
             <h1 class="blog-title text-center" dir="auto">Document Explorer</h1>
@@ -29,7 +29,7 @@
               <input
                 v-model="search_text"
                 type="text"
-                class="form-control wbg-search-text pl-4"
+                class="form-control wbg-search-text pl-4 input-height-auto"
                 :placeholder="uploaded_file ? '' : 'Enter your keywords...'"
                 aria-label="Field for search"
                 aria-describedby="basic-addon2"
@@ -132,7 +132,7 @@
         </div>
       </div>
     </header>
-    <div class="container">
+    <div class="container home-container">
       <div class="row justify-content-center mb-5">
         <div class="col-12 col-md-10">
           <h3 class="text-center">
@@ -158,8 +158,8 @@
         </div>
       </div>
       <div class="row mb-2">
-        <div class="col-12 col-md-4">
-          <div class="wbg-homepage-block">
+        <div class="col-12 col-md-6">
+          <div class="wbg-homepage-block jdc-homepage-block">
             <div class="wbg-homepage-block__fa">
               <i class="fas fa-search fa-lg" aria-hidden="true"></i>
             </div>
@@ -169,8 +169,8 @@
             </p>
           </div>
         </div>
-        <div class="col-12 col-md-4">
-          <div class="wbg-homepage-block">
+        <div class="col-12 col-md-6">
+          <div class="wbg-homepage-block jdc-homepage-block">
             <div class="wbg-homepage-block__fa">
               <i class="fas fa-book-open fa-lg" aria-hidden="true"></i>
             </div>
@@ -179,51 +179,6 @@
               Explore the corpus: geographic coverage, trends, topics,
               embeddings, etc.
             </p>
-          </div>
-        </div>
-        <!-- <div class="col-12 col-md-4">
-          <div class="wbg-homepage-block">
-            <div class="wbg-homepage-block__fa">
-              <i class="fas fa-chart-bar fa-lg" aria-hidden="true"></i>
-            </div>
-            <h3><a href="/#">Analyze</a></h3>
-            <p>Do an analysis in the Corpus of research</p>
-          </div>
-        </div> -->
-        <div class="col-12 col-md-4">
-          <div class="wbg-homepage-block">
-            <div class="wbg-homepage-block__fa">
-              <i class="fas fa-map-marker-alt fa-lg" aria-hidden="true"></i>
-            </div>
-            <h3>
-              <router-link to="/methods">Methods &amp; Tools</router-link>
-            </h3>
-            <p>
-              Learn about the tools, techniques, and models that we used in this
-              application
-            </p>
-          </div>
-        </div>
-        <div class="col-12 col-md-6">
-          <div class="wbg-homepage-block">
-            <div class="wbg-homepage-block__fa">
-              <i class="fas fa-link fa-lg" aria-hidden="true"></i>
-            </div>
-            <h3><router-link to="/content-api">API</router-link></h3>
-            <p>Learn about, and access, our API services</p>
-          </div>
-        </div>
-        <div class="col-12 col-md-6">
-          <div class="wbg-homepage-block">
-            <div class="wbg-homepage-block__fa">
-              <i class="fab fa-github fa-lg" aria-hidden="true"></i>
-            </div>
-            <h3>
-              <a href="https://github.com/avsolatorio/wb_nlp" target="_blank"
-                >Github</a
-              >
-            </h3>
-            <p>Review the code at our Github repo</p>
           </div>
         </div>
       </div>
@@ -358,5 +313,24 @@ export default {
 }
 .fa-times:hover {
   color: red;
+}
+.container-margin {
+  margin-top: 15px;
+}
+
+.wbg-header {
+  margin: 0px;
+}
+
+.home-container {
+  padding-top: 30px !important;
+}
+
+.input-height-auto {
+  height: auto;
+}
+
+.jdc-homepage-block {
+  margin-top: 50px !important;
 }
 </style>
