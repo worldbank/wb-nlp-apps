@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <header class="blog-header wbg-internal-header">
+  <div class="container-wrapper">
+    <!-- <header class="blog-header wbg-internal-header">
       <div class="container">
         <div class="col-12 mb-2">
           <div id="breadcrumbs">
@@ -15,9 +15,9 @@
           <p></p>
         </div>
       </div>
-    </header>
+    </header> -->
 
-    <div class="container">
+    <div class="container flowing">
       <div class="row">
         <div class="col-12 col-md-12 mb-2">
           <div class="row justify-content-center">
@@ -29,7 +29,7 @@
                 <input
                   v-model="query"
                   type="text"
-                  class="form-control wbg-search-text pl-4"
+                  class="form-control wbg-search-text pl-4 input-height-auto"
                   :placeholder="uploaded_file ? '' : 'Enter your keywords...'"
                   aria-label="Field for search"
                   aria-describedby="basic-addon2"
@@ -168,6 +168,19 @@
         </div>
         <a id="results"></a>
         <aside class="col-sm-3" id="blog-sidebar-static">
+          <div class="mt-3">
+            <b-nav tabs fill align="center">
+              <b-nav-item active>Search</b-nav-item>
+              <b-nav-item>
+                <router-link to="/"
+                  ><i class="fa fa-home fa-no-margin"></i></router-link
+              ></b-nav-item>
+              <b-nav-item
+                ><router-link to="/explore">Explore</router-link></b-nav-item
+              >
+            </b-nav>
+          </div>
+
           <SearchFilter
             v-if="facets"
             :filters="selected_facets"
@@ -1009,7 +1022,9 @@ export default {
             location.origin + api_url + "?" + searchParams.toLocaleString();
 
           let vm = this;
-          setTimeout(() => {vm.loading = false}, 10)
+          setTimeout(() => {
+            vm.loading = false;
+          }, 10);
           // this.loading = false;
 
           this.fetchForCache(this.next, ignore_empty_query, this.cache_count);
@@ -1155,11 +1170,11 @@ u {
 .content-row {
   min-height: 50vh;
 }
-@media (min-width: 1200px) {
+/* @media (min-width: 1200px) {
   .flowing {
     max-width: 1200px;
   }
-}
+} */
 
 .wbg-internal-header {
   padding-top: 1rem;
@@ -1231,5 +1246,32 @@ u {
 }
 .fa-times:hover {
   color: red;
+}
+
+/* .tab-link-format {
+  margin: 8px;
+  background-color: transparent !important;
+  padding-top: 5px !important;
+  border: 0px !important;
+} */
+
+.nav-link {
+  margin-top: 0px !important;
+  margin: 10px;
+  background-color: transparent !important;
+  border: 0px !important;
+  padding: 0px;
+}
+
+.container-wrapper {
+  margin-top: 20px;
+}
+
+.fa-no-margin {
+  margin: 0px;
+}
+
+.input-height-auto {
+  height: auto;
 }
 </style>

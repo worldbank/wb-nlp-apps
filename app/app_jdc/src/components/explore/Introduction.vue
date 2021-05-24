@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- <h1>{{ page_title }}</h1> -->
+    <h1>{{ page_title }}</h1>
     <div>
       <p>
         The <span style="font-weight: bold">Explore</span> pages showcase a

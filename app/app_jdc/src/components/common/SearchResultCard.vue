@@ -86,6 +86,7 @@
               :id="'modal-scoped-meta-' + random_id() + '-' + result.id"
               :title="result.title"
               size="lg"
+              dialog-class="bounded-modal"
             >
               <DocumentMetadata :metadata="result" />
             </b-modal>
@@ -104,6 +105,7 @@
               :id="'modal-scoped-' + random_id() + '-' + result.id"
               :title="result.title"
               size="lg"
+              dialog-class="bounded-modal"
             >
               <DocumentTopic :doc_id="result.id" />
             </b-modal>
@@ -256,5 +258,13 @@ export default {
 }
 .highlight p {
   margin-bottom: 0.1rem;
+}
+
+/* .modal-dialog {
+  margin-top: 120px;
+} */
+
+.bounded-modal {
+  margin-top: 125px;
 }
 </style>

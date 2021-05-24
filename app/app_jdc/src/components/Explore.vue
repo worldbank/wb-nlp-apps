@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <header class="blog-header wbg-internal-header">
+  <div class="container-wrapper">
+    <!-- <header class="blog-header wbg-internal-header">
       <div class="container">
         <div class="col-12 mb-2">
           <div id="breadcrumbs">
@@ -23,7 +23,7 @@
           </p>
         </div>
       </div>
-    </header>
+    </header> -->
     <div class="container flowing">
       <b-button
         v-if="toggleButtonShow"
@@ -35,6 +35,22 @@
       >
       <div class="row">
         <aside id="blog-sidebar" class="col-sm-3" v-show="!aria_expanded">
+          <div class="mt-3">
+            <b-nav tabs fill align="center">
+              <b-nav-item
+                ><router-link to="/search">Search</router-link></b-nav-item
+              >
+              <b-nav-item
+                ><router-link to="/"
+                  ><i class="fa fa-home fa-no-margin"></i></router-link
+              ></b-nav-item>
+              <b-nav-item active>
+                <!-- <router-link to="/explore">Explore</router-link> -->
+                <span @click="routeToSelf()">Explore</span>
+              </b-nav-item>
+            </b-nav>
+          </div>
+
           <section class="sidebar-module">
             <ol class="list-unstyled">
               <li>
@@ -230,6 +246,11 @@ export default {
     };
   },
   methods: {
+    routeToSelf() {
+      this.$router.replace({
+        name: "explore",
+      });
+    },
     flowSideBar: function () {
       $(function () {
         var $sidebar = $(".blog-sidebar"),
@@ -266,11 +287,11 @@ export default {
 .content-row {
   min-height: 50vh;
 }
-@media (min-width: 1200px) {
+/* @media (min-width: 1200px) {
   .flowing {
     max-width: 1200px;
   }
-}
+} */
 
 .blog-header {
   margin-bottom: 2rem;
@@ -280,5 +301,21 @@ export default {
   margin-top: -20px;
   margin-left: 75vw;
   position: absolute;
+}
+
+.nav-link {
+  margin-top: 0px !important;
+  margin: 10px;
+  background-color: transparent !important;
+  border: 0px !important;
+  padding: 0px;
+}
+
+.container-wrapper {
+  margin-top: 2rem;
+}
+
+.fa-no-margin {
+  margin: 0px;
 }
 </style>
