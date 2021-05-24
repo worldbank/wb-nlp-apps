@@ -135,6 +135,7 @@ export default {
   mounted() {
     // this.getGraph();
     window.vm = this;
+    this.getGraph("refugee");
   },
   computed: {
     blurContent: function () {
