@@ -12,22 +12,6 @@
       >
       <div class="row">
         <aside id="blog-sidebar" class="col-sm-3" v-show="!aria_expanded">
-          <div class="mt-3">
-            <b-nav tabs fill align="center">
-              <b-nav-item
-                ><router-link to="/search">Search</router-link></b-nav-item
-              >
-              <b-nav-item
-                ><router-link to="/"
-                  ><i class="fa fa-home fa-no-margin"></i></router-link
-              ></b-nav-item>
-              <b-nav-item active>
-                <!-- <router-link to="/explore">Explore</router-link> -->
-                <span @click="routeToSelf()">Explore</span>
-              </b-nav-item>
-            </b-nav>
-          </div>
-
           <section class="sidebar-module">
             <ol class="list-unstyled">
               <li>
@@ -69,27 +53,11 @@
               </li>
               <li>
                 <router-link
-                  to="/explore/subcategories/metadata/"
-                  class="wbg_sidebar second-level"
-                  :class="{ active: $route.name === 'explore_metadata' }"
-                  >Metadata</router-link
-                >
-              </li>
-              <li>
-                <router-link
                   to="/explore/topic-composition/"
                   :class="{
                     active: $route.name === 'explore_topic-composition',
                   }"
                   >Topic composition</router-link
-                >
-              </li>
-              <li>
-                <router-link
-                  to="/explore/subcategories/topic-browser/"
-                  class="wbg_sidebar second-level"
-                  :class="{ active: $route.name === 'explore_topic-browser' }"
-                  >Topic browser</router-link
                 >
               </li>
               <li>
@@ -225,11 +193,6 @@ export default {
     };
   },
   methods: {
-    routeToSelf() {
-      this.$router.replace({
-        name: "explore",
-      });
-    },
     flowSideBar: function () {
       $(function () {
         var $sidebar = $(".blog-sidebar"),

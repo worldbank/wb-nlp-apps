@@ -169,19 +169,6 @@
         </div>
         <a id="results"></a>
         <aside class="col-sm-3" id="blog-sidebar-static">
-          <div class="mt-3">
-            <b-nav tabs fill align="center">
-              <b-nav-item active>Search</b-nav-item>
-              <b-nav-item>
-                <router-link to="/"
-                  ><i class="fa fa-home fa-no-margin"></i></router-link
-              ></b-nav-item>
-              <b-nav-item
-                ><router-link to="/explore">Explore</router-link></b-nav-item
-              >
-            </b-nav>
-          </div>
-
           <SearchFilter
             v-if="facets"
             :filters="selected_facets"

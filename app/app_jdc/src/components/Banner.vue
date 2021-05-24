@@ -38,7 +38,7 @@
               <b-nav-item
                 @click="routeTo('explore')"
                 :class="{
-                  active: $route.name === 'explore',
+                  active: $route.name.startsWith('explore'),
                 }"
                 >Explore</b-nav-item
               >
@@ -68,7 +68,7 @@ export default {
   padding: 0px;
   margin: 0px;
   border: 0px;
-  height: 100px;
+  height: 120px;
 }
 
 .banner-container {
