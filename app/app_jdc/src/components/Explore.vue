@@ -311,9 +311,9 @@ export default {
   padding: 0px;
 }
 
-.container-wrapper {
+/* .container-wrapper {
   margin-top: 2rem;
-}
+} */
 
 .fa-no-margin {
   margin: 0px;

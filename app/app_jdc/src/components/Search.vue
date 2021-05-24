@@ -1263,9 +1263,9 @@ u {
   padding: 0px;
 }
 
-.container-wrapper {
+/* .container-wrapper {
   margin-top: 20px;
-}
+} */
 
 .fa-no-margin {
   margin: 0px;
