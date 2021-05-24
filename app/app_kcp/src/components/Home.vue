@@ -298,7 +298,7 @@ export default {
       uploaded_file: null,
       file_input: null,
       search_text_cache: "",
-      corpus_size: null,
+      corpus_size: "",
     };
   },
   mounted() {
