@@ -21,9 +21,27 @@
             class="banner-navbar"
           >
             <b-navbar-nav>
-              <b-nav-item @click="routeTo('home')">About</b-nav-item>
-              <b-nav-item @click="routeTo('search')">Search</b-nav-item>
-              <b-nav-item @click="routeTo('explore')">Explore</b-nav-item>
+              <b-nav-item
+                @click="routeTo('home')"
+                :class="{
+                  active: $route.name === 'home',
+                }"
+                >About</b-nav-item
+              >
+              <b-nav-item
+                @click="routeTo('search')"
+                :class="{
+                  active: $route.name === 'search',
+                }"
+                >Search</b-nav-item
+              >
+              <b-nav-item
+                @click="routeTo('explore')"
+                :class="{
+                  active: $route.name === 'explore',
+                }"
+                >Explore</b-nav-item
+              >
             </b-navbar-nav>
           </b-navbar>
         </div>
