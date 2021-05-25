@@ -123,6 +123,12 @@ const explore_subcategories_routes = [
             share_text: "Filtering%20by%20topic%20share"
         }
     },
+    {
+        path: "topic-profiles",
+        name: "explore_topic-profiles",
+        component: TopicProfiles,
+        props: { page_title: "Topic Profiles", show_topic_words: false },
+    },
 
     // KNOWLEDGE PAGE SERVICE
     {
@@ -163,12 +169,6 @@ const explore_routes = [
         name: "explore_topic-composition",
         component: TopicComposition,
         props: { page_title: "Topic Composition" },
-    },
-    {
-        path: "topic-profiles",
-        name: "explore_topic-profiles",
-        component: TopicProfiles,
-        props: { page_title: "Topic Profiles", show_topic_words: false },
     },
     {
         path: "topic-taxonomy",
