@@ -2,29 +2,24 @@
   <div>
     <h1>{{ page_title }}</h1>
     <div>
-      <br />
-      <p>
+      <p class="mt-4 text-justify">
         Our focus on development issues and on publications and documents
-        originating from development agencies implies that the majority of
-        documents in our corpus relate to low and middle-income countries. But
-        not all documents are country-specific and some cover, in part or in
-        full, high-income countries. To assess the geographic coverage of the
-        corpus and of its components, we cannot exclusively rely on metadata
-        that may be provided by the source websites (the World Bank for example
-        provides information on “Region” and “Country” for most of its
-        documents).
+        originating from development agencies implies that most documents in our
+        corpus relate to low and middle-income countries. But not all documents
+        are country-specific and some cover, in part or in full, high-income
+        countries.
       </p>
-      <p>
+      <p class="mt-1 text-justify">
         To obtain an estimate of country coverage, we count the number of times
         each country is mentioned in each document. This count is a simple word
         search based on a lookup list of country names (which includes multiple
-        ways a country name can be spelled out; script and lookup file available
-        <a href="#">here</a>). The counts are added to each document’s metadata.
-        Combined with the information on the documents’ publication date and
-        origin, this information allows us to generate aggregated counts by
-        country and year (available <a href="#">here</a>), displayed in the
-        following map.
+        ways a country name can be spelled out). The counts are added to each
+        document’s metadata. Combined with the information on the documents’
+        publication date and origin, this information allows us to generate
+        aggregated counts by country and year, displayed in the following map.
       </p>
+
+      <br />
 
       <h4>Extracted countries timeseries</h4>
       <br />
@@ -102,11 +97,10 @@
       </div>
 
       <a id="gc-race-chart"></a>
-      <p v-if="countries_volume" class="lead">
+      <p v-if="countries_volume" class="mt-1 text-justify">
         We also show a race chart of the cumulative country mentions in
-        documents. This animated chart provides a glimpse on how countries'
-        popularity, as measured by the total frequency of mentions, evolve over
-        time.
+        documents, which shows how countries’ “popularity”, as measured by the
+        total frequency of mentions, has evolved over time.
       </p>
       <b-skeleton-img
         v-if="
@@ -128,7 +122,7 @@
         <br />
       </div>
 
-      <p class="lead">
+      <p class="mt-1 text-justify">
         The World Bank corpus contains metadata on the administrative and
         geographic regions that is relevant to documents. The charts below use
         these metadata to show insights on the relative popularity of regions
@@ -153,8 +147,6 @@
       />
       <br />
       <br />
-
-      <!-- <div id="mapDiv" /> -->
     </div>
   </div>
 </template>
@@ -204,11 +196,6 @@ export default {
 
       country_stats_loading: false,
       loading: false,
-
-      date_now: new Date().toDateString(),
-      corpus_size: 200000,
-      org_count: 14,
-      total_tokens: 1029000000,
 
       adm_region: null,
       geo_region: null,

@@ -97,7 +97,7 @@ const explore_subcategories_routes = [
         path: "geographic-coverage",
         name: "explore_geographic-coverage",
         component: GeographicCoverage,
-        props: { page_title: "Corpus – Geographic Coverage" },
+        props: { page_title: "Corpus – Geographic coverage" },
     },
     {
         path: "metadata",
