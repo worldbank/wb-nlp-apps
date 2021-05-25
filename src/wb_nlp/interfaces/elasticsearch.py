@@ -36,6 +36,7 @@ def get_client():
 class NLPDoc(Document):
     id = Keyword()
     title = Text(analyzer='snowball', fields={'raw': Keyword()})
+    app_tags = Keyword()
     body = Text(analyzer='snowball')
     abstract = Text(analyzer='snowball')
     adm_region = Keyword()

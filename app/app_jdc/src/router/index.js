@@ -85,19 +85,19 @@ const explore_subcategories_routes = [
         path: "sources",
         name: "explore_sources",
         component: Sources,
-        props: { page_title: "Sources" },
+        props: { page_title: "Corpus – Sources" },
     },
     {
         path: "volume",
         name: "explore_volume",
         component: Volume,
-        props: { page_title: "Volume" },
+        props: { page_title: "Corpus – Volume" },
     },
     {
         path: "geographic-coverage",
         name: "explore_geographic-coverage",
         component: GeographicCoverage,
-        props: { page_title: "Geographic Coverage" },
+        props: { page_title: "Corpus – Geographic coverage" },
     },
     {
         path: "metadata",
@@ -122,6 +122,12 @@ const explore_subcategories_routes = [
             share_url: "%2fexplore%2fsubcategories%2ffiltering_by_topic_share%2f",
             share_text: "Filtering%20by%20topic%20share"
         }
+    },
+    {
+        path: "topic-profiles",
+        name: "explore_topic-profiles",
+        component: TopicProfiles,
+        props: { page_title: "Topic Profiles", show_topic_words: false },
     },
 
     // KNOWLEDGE PAGE SERVICE
@@ -163,12 +169,6 @@ const explore_routes = [
         name: "explore_topic-composition",
         component: TopicComposition,
         props: { page_title: "Topic Composition" },
-    },
-    {
-        path: "topic-profiles",
-        name: "explore_topic-profiles",
-        component: TopicProfiles,
-        props: { page_title: "Topic Profiles", show_topic_words: false },
     },
     {
         path: "topic-taxonomy",

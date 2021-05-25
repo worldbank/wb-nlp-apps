@@ -62,37 +62,22 @@
               </li>
               <li>
                 <router-link
+                  to="/explore/subcategories/topic-profiles/"
+                  class="wbg_sidebar second-level"
+                  :class="{ active: $route.name === 'explore_topic-profiles' }"
+                  >Topic profiles</router-link
+                >
+              </li>
+              <li>
+                <router-link
                   to="/explore/subcategories/filtering-by-topic-share/"
                   class="wbg_sidebar second-level"
                   :class="{
                     active: $route.name === 'explore_filtering-by-topic-share',
                   }"
-                  >Filtering by topic share</router-link
+                  >Filtering by topic composition</router-link
                 >
               </li>
-              <li>
-                <router-link
-                  to="/explore/topic-profiles/"
-                  :class="{ active: $route.name === 'explore_topic-profiles' }"
-                  >Topic profiles</router-link
-                >
-              </li>
-              <!-- <li>
-                <router-link
-                  to="/explore/topic-taxonomy/"
-                  :class="{ active: $route.name === 'explore_topic-taxonomy' }"
-                  >Topic taxonomy</router-link
-                >
-              </li> -->
-              <!-- <li>
-                <router-link
-                  to="/explore/topic-relationships/"
-                  :class="{
-                    active: $route.name === 'explore_topic-relationships',
-                  }"
-                  >Topic relationships</router-link
-                >
-              </li> -->
               <li>
                 <router-link
                   to="/explore/word-embeddings/"
@@ -100,38 +85,6 @@
                   >Word embeddings</router-link
                 >
               </li>
-              <!-- <li>
-                <router-link
-                  to="/explore/similarity/"
-                  :class="{ active: $route.name === 'explore_similarity' }"
-                  >Analyze document</router-link
-                >
-              </li> -->
-              <!-- <li>
-                <router-link
-                  to="/explore/knowledge-page-service/"
-                  :class="{
-                    active: $route.name === 'explore_knowledge-page-service',
-                  }"
-                  >Knowledge page service</router-link
-                >
-              </li>
-              <li>
-                <router-link
-                  to="/explore/subcategories/example/"
-                  class="wbg_sidebar second-level"
-                  :class="{ active: $route.name === 'explore_example' }"
-                  >Example</router-link
-                >
-              </li>
-              <li>
-                <router-link
-                  to="/explore/subcategories/instructions/"
-                  class="wbg_sidebar second-level"
-                  :class="{ active: $route.name === 'explore_instructions' }"
-                  >Instructions</router-link
-                >
-              </li> -->
             </ol>
           </section>
         </aside>
@@ -141,8 +94,6 @@
         >
           <article class="blog-post">
             <div class="content-row">
-              <!-- {{ toggleButtonShow }} -->
-              <!-- {{ aria_expanded }} -->
               <router-view></router-view>
             </div>
             <hr />

@@ -186,13 +186,14 @@ def get_agg_data_payload(df, field, type="line", is_share=False):
     )
 
 
-def get_agg_data_by_field(field, type="line"):
+def get_agg_data_by_field(field, type="line", filters=None):
     # Get total docs per corpus by year
     # Get percent of docs per corpus by year
     #
     agg = elasticsearch.NLPDocAggregations()
 
-    data = pd.DataFrame(agg.get_doc_counts_by_year_by_field(field=field))
+    data = pd.DataFrame(agg.get_doc_counts_by_year_by_field(
+        field=field, filters=filters))
 
     year_field_doc_count_df = data.pivot(
         index="year", columns=field, values=f"{field}_doc_count").fillna(0)
@@ -234,29 +235,36 @@ def get_agg_data_by_field(field, type="line"):
 
 
 @router.get("/get_corpus_volume_by_source")
-def get_corpus_volume_by_source():
+def get_corpus_volume_by_source(app_tag: str = Query(None)):
     """
     This endpoint generates an aggregated data of the volume of documents and tokens present in the corpus grouped by source and year.
     """
+    filters = None
+    if app_tag:
+        filters = [{"term": {"app_tags": app_tag}}]
 
-    return get_agg_data_by_field(field="corpus")
+    return get_agg_data_by_field(field="corpus", filters=filters)
 
 
 @router.get("/get_corpus_volume_by")
-def get_corpus_volume_by(fields: List[metadata.CategoricalFields] = Query(...)):
+def get_corpus_volume_by(fields: List[metadata.CategoricalFields] = Query(...), app_tag: str = Query(None)):
     """
     This endpoint generates an aggregated data of the volume of documents and tokens present in the corpus grouped by source and year.
     """
+    filters = None
+    if app_tag:
+        filters = [{"term": {"app_tags": app_tag}}]
+
     payload = {}
 
     for k in fields:
-        payload[k] = get_agg_data_by_field(field=k.value)
+        payload[k] = get_agg_data_by_field(field=k.value, filters=filters)
 
     return payload
 
 
 @router.get("/get_extracted_countries_stats")
-def get_extracted_countries_stats(major_doc_type: str = Query(None)):
+def get_extracted_countries_stats(major_doc_type: str = Query(None), app_tag: str = Query(None)):
     """
     This endpoint generates an aggregated data of the volume of documents and tokens present in the corpus grouped by source and year.
     """
@@ -267,6 +275,12 @@ def get_extracted_countries_stats(major_doc_type: str = Query(None)):
 
     if major_doc_type:
         filters = [{"term": {"major_doc_type": major_doc_type}}]
+
+    if app_tag:
+        if filters:
+            filters.append({"term": {"app_tags": app_tag}})
+        else:
+            filters = [{"term": {"app_tags": app_tag}}]
 
     share = elasticsearch.NLPDoc().get_country_share_by_year(filters=filters)
     volume = elasticsearch.NLPDoc().get_country_counts_by_year(filters=filters)
