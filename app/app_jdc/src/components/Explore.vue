@@ -62,20 +62,20 @@
               </li>
               <li>
                 <router-link
+                  to="/explore/subcategories/topic-profiles/"
+                  class="wbg_sidebar second-level"
+                  :class="{ active: $route.name === 'explore_topic-profiles' }"
+                  >Topic profiles</router-link
+                >
+              </li>
+              <li>
+                <router-link
                   to="/explore/subcategories/filtering-by-topic-share/"
                   class="wbg_sidebar second-level"
                   :class="{
                     active: $route.name === 'explore_filtering-by-topic-share',
                   }"
-                  >Filtering by topic share</router-link
-                >
-              </li>
-              <li>
-                <router-link
-                  to="/explore/subcategories/topic-profiles/"
-                  class="wbg_sidebar second-level"
-                  :class="{ active: $route.name === 'explore_topic-profiles' }"
-                  >Topic profiles</router-link
+                  >Filtering by topic composition</router-link
                 >
               </li>
               <li>
