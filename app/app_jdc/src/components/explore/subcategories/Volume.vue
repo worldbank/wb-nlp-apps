@@ -2,13 +2,17 @@
   <div>
     <h1>{{ page_title }}</h1>
     <div>
-      <br />
-      <p>
-        Knowledge produced may be measured by the volume of documents published
-        or the length of content in a document. In this page, we show some
-        summary statistics regarding the breakdown of document count and total
-        number of tokens present in the corpus by source over time. Furthermore,
-        we show some World Bank specific breakdowns below.
+      <p class="mt-4">
+        As of {{ date_now }}, our corpus contains
+        {{ corpus_size.toLocaleString() }} documents (last updated on …).
+      </p>
+      <p class="mt-1 text-justify">
+        The volume of the corpus can be measured by the number of documents it
+        contains, or by the number of tokens in the documents (tokens are the
+        ‘useful’ words that remain in a document after we remove stop words,
+        links, etc.). The charts below show summary statistics (numbers and
+        percentages) of the number of documents and tokens by year, source, and
+        type.
       </p>
 
       <br />
@@ -37,23 +41,6 @@
         :field="major_doc_type.field"
         field_name="document type (WB)"
       />
-      <br />
-      <br />
-      <p>
-        As documents may be tagged with multiple topics, we see that the
-        breakdown by share of topics in the WB corpus have a total of more than
-        100%. Nonetheless, comparison of share among topics will yield some
-        insights regarding the general interest or popularity over time of one
-        topic over other topics of comparison.
-      </p>
-      <br />
-      <br />
-      <VolumeChart
-        v-if="topics_src"
-        :data="topics_src"
-        :field="topics_src.field"
-        field_name="topic (WB)"
-      />
     </div>
   </div>
 </template>
@@ -71,9 +58,6 @@ export default {
     page_title: String,
   },
   mounted() {
-    this.$http.get("/static/data/corpus_details.json").then((response) => {
-      this.items = response.data;
-    });
     this.getFullCorpusData();
   },
   computed: {
@@ -153,9 +137,11 @@ export default {
     return {
       loading: false,
 
+      date_now: new Date().toDateString(),
+      corpus_size: 200000,
+
       corpus: null,
       major_doc_type: null,
-      topics_src: null,
     };
   },
   methods: {
@@ -191,7 +177,6 @@ export default {
       const params = new URLSearchParams();
       params.append("fields", "corpus");
       params.append("fields", "major_doc_type");
-      params.append("fields", "topics_src");
 
       this.$http
         .get(this.$config.corpus_url + "/get_corpus_volume_by", {
@@ -202,7 +187,6 @@ export default {
 
           this.corpus = data.corpus;
           this.major_doc_type = data.major_doc_type;
-          this.topics_src = data.topics_src;
 
           this.loading = false;
         })
