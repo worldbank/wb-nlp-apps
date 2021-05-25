@@ -85,19 +85,19 @@ const explore_subcategories_routes = [
         path: "sources",
         name: "explore_sources",
         component: Sources,
-        props: { page_title: "Sources" },
+        props: { page_title: "Corpus – Sources" },
     },
     {
         path: "volume",
         name: "explore_volume",
         component: Volume,
-        props: { page_title: "Volume" },
+        props: { page_title: "Corpus – Volume" },
     },
     {
         path: "geographic-coverage",
         name: "explore_geographic-coverage",
         component: GeographicCoverage,
-        props: { page_title: "Geographic Coverage" },
+        props: { page_title: "Corpus – Geographic Coverage" },
     },
     {
         path: "metadata",

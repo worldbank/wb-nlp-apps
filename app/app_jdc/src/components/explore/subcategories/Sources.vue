@@ -2,30 +2,37 @@
   <div>
     <h1>{{ page_title }}</h1>
     <div>
-      <br />
-      <p>
-        Listed in the table below are details on the sources of the documents
-        and metadata used in this project. We selected sections of each
-        organization's website where relevant documents and metadata are found.
-        A series of scrapers were implemented to capture available metadata as
-        well as download the corresponding documents.
+      <p class="mt-4 text-justify">
+        The corpus contains documents made publicly available by the UNHCR and
+        five multilateral development banks MDBs). It is updated on a monthly
+        basis. The documents were obtained by web scraping (all sources except
+        World Bank) or by querying an API (World Bank). We do not distribute
+        these documents, but we provide links to the documents in the
+        originating sources. Broken links may occur when the sources (re)move
+        documents from their respective website. Documents from the sources
+        listed in the table below have been collected. To be included in our
+        corpus, a document must:
       </p>
+      <ul>
+        <li>Be written in English</li>
 
-      <p>
-        In selecting the sources, we limit our selection to content that can be
-        classified as publications, project documents, and research papers. We
-        excluded documents pertaining to procurement plans, administrative
-        tribunals, budgets, etc. However, we cannot guarantee that we have
-        exhaustively filtered out documents of these types. Furthermore,
-        documents that may be useful are likewise possible to be omitted. Since
-        these documents are scraped, the dataset only covers content that are
-        publicly available.
-      </p>
-      <p>
-        The availability of the metadata is dependent on the source
-        organization's published content. We tried to extract and curate as much
-        of the metadata found on each source's page.
-      </p>
+        <li>Be available publicly</li>
+        <li>
+          Be of a relevant type (we are interested in analytical documents and
+          reports, and in project documents from MDBs (excluding procurement
+          documents and similar; we are interested in project descriptions,
+          assessments, and reports)
+        </li>
+        <li>
+          Be related to forced displacement; this is determined by setting a
+          threshold on the refugee-related topic extracted from the LDA model,
+          and by the presence of selected keywords in the document.
+          <span style="font-weight: bold; color: red"
+            >!!![when we have the exact filter, describe it here]!!!</span
+          >
+        </li>
+      </ul>
+
       <br />
       <h3>List of data sources</h3>
       <div class="table-container">
@@ -47,12 +54,16 @@ export default {
     page_title: String,
   },
   mounted() {
+    window.cvm = this;
     this.$http.get("/static/data/corpus_details.json").then((response) => {
-      this.items = response.data;
+      this.items = response.data.filter((o) =>
+        this.valid_corpus_ids.includes(o.corpus_id)
+      );
     });
   },
   data: function () {
     return {
+      valid_corpus_ids: ["ADB", "AFDB", "EBRD", "IDB", "UNHCR", "WB"],
       items: [],
       fields: [
         {
@@ -92,6 +103,17 @@ export default {
 } */
 .table-container {
   /* overflow: scroll;
-  height: 510px; */
+  height: 51
+  0px; */
+}
+
+ul {
+  list-style: disc;
+  margin-top: 20px;
+  padding-left: 50px;
+}
+
+li {
+  margin-bottom: 5px;
 }
 </style>
