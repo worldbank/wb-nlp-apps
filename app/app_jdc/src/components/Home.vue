@@ -4,25 +4,66 @@
     <div class="container home-container">
       <div class="row justify-content-center mb-5">
         <div class="col-12 col-md-12">
-          <h3 class="text-justify">
-            Explore our corpus of {{ corpus_size.toLocaleString() }} documents
-          </h3>
-          <p class="small text-justify">
+          <h2 class="text-center">
+            A catalog of {{ corpus_size.toLocaleString() }} documents related to
+            forced displacement
+          </h2>
+          <p class="text-center jdc-update-class">
             Last updated on Wednesday, April 31, 2021
           </p>
+
           <p class="mt-4 text-justify">
-            The Document Explorer puts Natural Language Processing (NLP) at the
-            service of knowledge discovery. We compiled and maintain a
-            <a href="/#">corpus of research</a>, project and other documents
-            from development agencies. Topic and word embeddings models, and
-            other methods are applied to provide information discovery solutions
-            including <a href="/#">lexical and semantic search</a>, filtering by
-            topic composition, and others. A <a href="/#">meta-database</a> is
-            created, which provides a detailed description of all documents and
-            can be used as input to analysis of knowledge on development. All
-            solutions implemented in this project rely on publicly-available
-            documents and on <a href="/#">open source tools</a>. Our solutions
-            are openly accessible in our <a href="/#">GitHub repository</a>.
+            The JDC Document Explorer exploits natural language processing (NLP)
+            techniques to improve the discoverability of documents related to
+            forced displacement, and to assess the scope and coverage of these
+            documents. We applied topic models, word embedding models, and other
+            information extraction methods to a large corpus of publications and
+            project documents made publicly available by the UNHCR and
+            multilateral development banks. This resulted in a document catalog
+            with
+            <router-link to="/search"
+              >lexical and semantic searchability</router-link
+            >, and in an <router-link to="/explore">exploration</router-link> of
+            the composition and evolution over time of this knowledge base on
+            forced displacement, by source, topic, geographic coverage, and type
+            of document.
+          </p>
+          <p class="mt-4 text-justify">
+            The Joint Data Center on Forced Displacement (JDC) was established
+            to enhance the ability of stakeholders to make timely and
+            evidence-informed decisions that can improve the wellbeing of
+            forcibly displaced populations. Among these stakeholders are the
+            multilateral development banks (MDBs): the World Bank, the African
+            Development Bank (AfDB), the Asian Development Bank (ADB), the
+            European Bank for Reconstruction and Development (EBRD), and the
+            Inter-American Development Bank (IDB), who play a critical role in
+            financing and implementing their shareholders policies and programs.
+            In 2016, the MDBs had issued a joint statement expressing their
+            commitment to working together, and within their respective
+            institutional mandates, to respond to the global forced displacement
+            crisis.
+          </p>
+          <p class="mt-4 text-justify">
+            The objective of the Document Explorer project was to support the
+            monitoring of the scope and coverage of MDB's projects and programs
+            related to forced displacement, identify gaps in research and
+            analytical work, and provide tools to researchers and project
+            managers to easily discover useful information in this vast
+            knowledge repository. MDBs make much of their respective research
+            output and project documents publicly available. We built a
+            largely-automated system to extract and organize information
+            contained in these documents, and to describe how MDBs, over time
+            and across countries, address forced displacement and related
+            issues.
+          </p>
+          <p class="mt-4 text-justify">
+            The JDC Document Explorer is built on a more generic
+            <router-link to="/">Document Explorer</router-link> developed and
+            maintained by the World Bank Development Data Group, with support of
+            the Joint Data Center (project P174148) and of the Knowledge for
+            Change Program (KCP, project P173741). The NLP methods (text
+            preparation and modeling) used in this application are openly
+            accessible.
           </p>
         </div>
       </div>
@@ -121,5 +162,12 @@ export default {
 
 .jdc-homepage-block {
   margin-top: 50px !important;
+}
+
+.jdc-update-class {
+  color: #999;
+  font-weight: 600;
+  margin-top: 10px;
+  padding-bottom: 0px !important;
 }
 </style>
