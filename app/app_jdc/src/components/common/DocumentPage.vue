@@ -161,52 +161,6 @@
                   "
                 /></div
             ></b-tab>
-            <b-tab
-              :title-item-class="itemClass(3)"
-              :title-link-class="linkClass(3)"
-              v-on:click="activateSubmit()"
-              @click.prevent
-              title="Related indicators"
-            >
-              <br />
-              <h4>Related World Development Indicators</h4>
-              <div v-if="tabIndex == 3">
-                <SimilarWDIViewer
-                  render_style="horizontal"
-                  :doc_id="metadata.id"
-                />
-              </div>
-              <br />
-              <br />
-              <h4>Related SDG Indicators</h4>
-              <div v-if="tabIndex == 3">
-                <SimilarSDGViewer
-                  render_style="horizontal"
-                  :doc_id="metadata.id"
-                />
-              </div>
-              <br />
-              <br />
-              <h4>Related microdata</h4>
-              <div v-if="tabIndex == 3">
-                <SimilarMicrodataViewer :doc_id="metadata.id" />
-              </div>
-            </b-tab>
-            <!-- <b-tab
-              :title-item-class="itemClass(4)"
-              :title-link-class="linkClass(4)"
-              v-on:click="activateSubmit()"
-              @click.prevent
-              title="Related WDI indicators - vertical"
-            >
-              <br />
-              <h4>Related World Development Indicators</h4>
-              <div v-if="tabIndex == 4">
-                <SimilarWDIViewer
-                  render_style="vertical"
-                  :doc_id="metadata.id"
-                /></div
-            ></b-tab> -->
           </b-tabs>
         </div>
       </div>
@@ -217,9 +171,6 @@
 <script>
 import RelatedDocsPanel from "./RelatedDocsPanel";
 import MetadataViewer from "./MetadataViewer";
-import SimilarWDIViewer from "./SimilarWDIViewer";
-import SimilarSDGViewer from "./SimilarSDGViewer";
-import SimilarMicrodataViewer from "./SimilarMicrodataViewer";
 import Authors from "./Authors";
 import ReadMore from "vue-read-more";
 import Vue from "vue";
@@ -276,10 +227,7 @@ export default {
   components: {
     RelatedDocsPanel,
     MetadataViewer,
-    SimilarWDIViewer,
     Authors,
-    SimilarSDGViewer,
-    SimilarMicrodataViewer,
   },
 
   data: function () {
