@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-row>
-      <b-col :class="col_class">
+      <b-col cols="12" :md="col_class">
         <div>
           <h4>Documents by {{ field_name }}</h4>
           <b-form-radio-group
@@ -98,7 +98,7 @@ export default {
     },
     col_class: {
       type: String,
-      default: "col-6",
+      default: "6",
     },
     field: String,
     field_name: String,
