@@ -17,7 +17,7 @@
           <b-navbar
             type="dark"
             variant="dark"
-            sticky="true"
+            :sticky="true"
             class="banner-navbar"
           >
             <b-navbar-nav>
