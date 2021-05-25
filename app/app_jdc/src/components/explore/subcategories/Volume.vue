@@ -23,23 +23,14 @@
         :field="corpus.field"
         field_name="source"
       />
-      <br />
-      <br />
 
-      <p>
-        The World Bank corpus, via its API, contains standardized data on
-        document types and topics. We use these standardized metadata to further
-        breakdown the World Bank corpus to also show trends of document count
-        and token composition by document type and topics.
-      </p>
-      <br />
-      <br />
+      <p class="mt-4"></p>
 
       <VolumeChart
         v-if="major_doc_type"
         :data="major_doc_type"
         :field="major_doc_type.field"
-        field_name="document type (WB)"
+        field_name="document type"
       />
     </div>
   </div>

@@ -1,53 +1,57 @@
 <template>
   <div>
-    <div>
-      <h4>Documents by {{ field_name }}</h4>
-      <b-form-radio-group
-        v-model="docs_value"
-        value-field="item"
-        text-field="name"
-        :options="group_value_options"
-      />
-      <br />
-
-      <b-row>
-        <b-col>
-          <v-chart
-            class="chart"
-            ref="graphChartDocs"
-            :option="defaultOptions"
-            :autoresize="true"
-            :loading="loading"
+    <b-row>
+      <b-col :class="col_class">
+        <div>
+          <h4>Documents by {{ field_name }}</h4>
+          <b-form-radio-group
+            v-model="docs_value"
+            value-field="item"
+            text-field="name"
+            :options="group_value_options"
           />
-        </b-col>
-      </b-row>
+          <br />
 
-      <br />
-      <br />
-    </div>
+          <b-row>
+            <b-col>
+              <v-chart
+                class="chart"
+                ref="graphChartDocs"
+                :option="defaultOptions"
+                :autoresize="true"
+                :loading="loading"
+              />
+            </b-col>
+          </b-row>
 
-    <div>
-      <h4>Tokens by {{ field_name }}</h4>
-      <b-form-radio-group
-        v-model="tokens_value"
-        value-field="item"
-        text-field="name"
-        :options="group_value_options"
-      />
-      <br />
-
-      <b-row>
-        <b-col>
-          <v-chart
-            class="chart"
-            ref="graphChartTokens"
-            :option="defaultOptions"
-            :autoresize="true"
-            :loading="loading"
+          <br />
+          <br />
+        </div>
+      </b-col>
+      <b-col>
+        <div>
+          <h4>Tokens by {{ field_name }}</h4>
+          <b-form-radio-group
+            v-model="tokens_value"
+            value-field="item"
+            text-field="name"
+            :options="group_value_options"
           />
-        </b-col>
-      </b-row>
-    </div>
+          <br />
+
+          <b-row>
+            <b-col>
+              <v-chart
+                class="chart"
+                ref="graphChartTokens"
+                :option="defaultOptions"
+                :autoresize="true"
+                :loading="loading"
+              />
+            </b-col>
+          </b-row>
+        </div> </b-col
+    ></b-row>
   </div>
 </template>
 
@@ -92,8 +96,13 @@ export default {
       type: Number,
       default: null,
     },
+    col_class: {
+      type: String,
+      default: "col-6",
+    },
     field: String,
     field_name: String,
+
     data: {
       type: Object,
       default: function () {
@@ -137,7 +146,7 @@ export default {
         grid: {
           left: "3%",
           right: "4%",
-          bottom: "10%",
+          bottom: "15%",
           containLabel: true,
         },
         xAxis: [
@@ -267,6 +276,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .chart {
-  height: 420px;
+  height: 300px;
 }
 </style>
