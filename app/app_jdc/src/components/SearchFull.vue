@@ -1,6 +1,7 @@
 <template>
-  <div>
-    <header class="blog-header wbg-internal-header">
+  <div class="container-wrapper">
+    <Banner />
+    <!-- <header class="blog-header wbg-internal-header">
       <div class="container">
         <div class="col-12 mb-2">
           <div id="breadcrumbs">
@@ -15,9 +16,9 @@
           <p></p>
         </div>
       </div>
-    </header>
+    </header> -->
 
-    <div class="container">
+    <div class="container flowing">
       <div class="row">
         <div class="col-12 col-md-12 mb-2">
           <div class="row justify-content-center">
@@ -29,7 +30,7 @@
                 <input
                   v-model="query"
                   type="text"
-                  class="form-control wbg-search-text pl-4"
+                  class="form-control wbg-search-text pl-4 input-height-auto"
                   :placeholder="uploaded_file ? '' : 'Enter your keywords...'"
                   aria-label="Field for search"
                   aria-describedby="basic-addon2"
@@ -416,7 +417,7 @@
                   <i @click="resetYears" class="fa fa-close"></i
                 ></span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.geo_region &&
                     selected_facets.geo_region.length > 0
@@ -434,9 +435,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.country &&
                     selected_facets.country.length > 0
@@ -451,9 +452,9 @@
                     >Country: {{ fcountry }}
                     <i @click="resetCountry(fcountry)" class="fa fa-close"></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.der_country_groups &&
                     selected_facets.der_country_groups.length > 0
@@ -471,9 +472,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.der_jdc_tags &&
                     selected_facets.der_jdc_tags.length > 0
@@ -491,9 +492,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.major_doc_type &&
                     selected_facets.major_doc_type.length > 0
@@ -511,9 +512,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.corpus && selected_facets.corpus.length > 0
                   "
@@ -527,14 +528,15 @@
                     >Source: {{ fcorpus }}
                     <i @click="resetCorpus(fcorpus)" class="fa fa-close"></i
                   ></span>
+                </span>
+                <div>
+                  <a
+                    @click="resetFilters"
+                    href="javascript:void(0);"
+                    class="btn-reset-search btn btn-outline-primary btn-sm"
+                    >Reset filters</a
+                  >
                 </div>
-
-                <a
-                  @click="resetFilters"
-                  href="javascript:void(0);"
-                  class="btn-reset-search btn btn-outline-primary btn-sm"
-                  >Reset filters</a
-                >
               </div>
             </div>
 
@@ -587,6 +589,7 @@
 // import qs from "qs";
 import $ from "jquery";
 import saveState from "vue-save-state";
+import Banner from "./Banner";
 
 import SearchResultCard from "./common/SearchResultCard";
 import SearchResultLoading from "./common/SearchResultLoading";
@@ -607,6 +610,7 @@ export default {
     SearchResultLoading,
     Pagination,
     PageFooter,
+    Banner,
   },
   mixins: [saveState],
   mounted() {
@@ -1324,11 +1328,11 @@ u {
 .content-row {
   min-height: 50vh;
 }
-@media (min-width: 1200px) {
+/* @media (min-width: 1200px) {
   .flowing {
     max-width: 1200px;
   }
-}
+} */
 
 .wbg-internal-header {
   padding-top: 1rem;
@@ -1400,5 +1404,32 @@ u {
 }
 .fa-times:hover {
   color: red;
+}
+
+/* .tab-link-format {
+  margin: 8px;
+  background-color: transparent !important;
+  padding-top: 5px !important;
+  border: 0px !important;
+} */
+
+.nav-link {
+  margin-top: 0px !important;
+  margin: 10px;
+  background-color: transparent !important;
+  border: 0px !important;
+  padding: 0px;
+}
+
+/* .container-wrapper {
+  margin-top: 20px;
+} */
+
+.fa-no-margin {
+  margin: 0px;
+}
+
+.input-height-auto {
+  height: auto;
 }
 </style>
