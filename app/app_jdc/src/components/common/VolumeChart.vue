@@ -28,7 +28,7 @@
           <br />
         </div>
       </b-col>
-      <b-col>
+      <b-col cols="12" :md="col_class">
         <div>
           <h4>Tokens by {{ field_name }}</h4>
           <b-form-radio-group
