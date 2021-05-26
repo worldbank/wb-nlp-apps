@@ -1087,8 +1087,8 @@ export default {
       this.selected_facets.min_year = null;
       this.selected_facets.max_year = null;
 
-      this.prevent_default = false;
-      this.defaultKeywordSearch();
+      // this.prevent_default = false;
+      // this.defaultKeywordSearch();
     },
 
     resetCountry(country) {
@@ -1096,72 +1096,72 @@ export default {
         (o) => o !== country
       );
 
-      this.prevent_default = false;
-      this.defaultKeywordSearch();
+      // this.prevent_default = false;
+      // this.defaultKeywordSearch();
     },
     resetDerCountryGroups(der_country_groups) {
       this.selected_facets.der_country_groups = this.selected_facets.der_country_groups.filter(
         (o) => o !== der_country_groups
       );
 
-      this.prevent_default = false;
-      this.defaultKeywordSearch();
+      // this.prevent_default = false;
+      // this.defaultKeywordSearch();
     },
     resetDerJDCTags(der_jdc_tags) {
       this.selected_facets.der_jdc_tags = this.selected_facets.der_jdc_tags.filter(
         (o) => o !== der_jdc_tags
       );
 
-      this.prevent_default = false;
-      this.defaultKeywordSearch();
+      // this.prevent_default = false;
+      // this.defaultKeywordSearch();
     },
     resetMajorDocType(major_doc_type) {
       this.selected_facets.major_doc_type = this.selected_facets.major_doc_type.filter(
         (o) => o !== major_doc_type
       );
 
-      this.prevent_default = false;
-      this.defaultKeywordSearch();
+      // this.prevent_default = false;
+      // this.defaultKeywordSearch();
     },
     resetAdmRegion(adm_region) {
       this.selected_facets.adm_region = this.selected_facets.adm_region.filter(
         (o) => o !== adm_region
       );
 
-      this.prevent_default = false;
-      this.defaultKeywordSearch();
+      // this.prevent_default = false;
+      // this.defaultKeywordSearch();
     },
     resetGeoRegion(geo_region) {
       this.selected_facets.geo_region = this.selected_facets.geo_region.filter(
         (o) => o !== geo_region
       );
 
-      this.prevent_default = false;
-      this.defaultKeywordSearch();
+      // this.prevent_default = false;
+      // this.defaultKeywordSearch();
     },
     resetTopicsSrc(topics_src) {
       this.selected_facets.topics_src = this.selected_facets.topics_src.filter(
         (o) => o !== topics_src
       );
 
-      this.prevent_default = false;
-      this.defaultKeywordSearch();
+      // this.prevent_default = false;
+      // this.defaultKeywordSearch();
     },
     resetCorpus(corpus) {
       this.selected_facets.corpus = this.selected_facets.corpus.filter(
         (o) => o !== corpus
       );
 
-      this.prevent_default = false;
-      this.defaultKeywordSearch();
+      // this.prevent_default = false;
+      // this.defaultKeywordSearch();
     },
     resetAuthor(author) {
       this.selected_facets.author = this.selected_facets.author.filter(
         (o) => o !== author
       );
 
-      this.prevent_default = false;
-      this.defaultKeywordSearch();
+      // this.prevent_default = false;
+      // this.defaultKeywordSearch();
     },
     resetFilters() {
       var selected_facets = JSON.parse(JSON.stringify(this.selected_facets));
@@ -1172,8 +1172,8 @@ export default {
       );
 
       this.selected_facets = selected_facets;
-      this.prevent_default = false;
-      this.defaultKeywordSearch();
+      // this.prevent_default = false;
+      // this.defaultKeywordSearch();
     },
     isSelectedFacetsEmpty() {
       return Object.values(this.selected_facets).every(
@@ -1459,7 +1459,7 @@ export default {
           if (is_keyword_search) {
             this.highlights = cached.highlights;
             this.facets = cached.facets;
-            this.selected_facets = cached.filters;
+            // this.selected_facets = cached.filters;
           }
 
           this.next = this.curr_page_num + 1;
@@ -1518,7 +1518,7 @@ export default {
             if (is_keyword_search) {
               this.highlights = response.data.highlights;
               this.facets = response.data.facets;
-              this.selected_facets = response.data.filters;
+              // this.selected_facets = response.data.filters;
             }
 
             this.search_cache[search_cache_key] = {
@@ -1609,6 +1609,14 @@ export default {
   watch: {
     search_type: function () {
       this.sendSearch();
+    },
+
+    selected_facets: {
+      deep: true,
+      handler() {
+        this.prevent_default = false;
+        this.defaultKeywordSearch();
+      },
     },
     $route() {
       this.routeChangeSearch();
