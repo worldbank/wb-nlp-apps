@@ -746,7 +746,7 @@
                   ></span>
                 </div>
 
-                <span
+                <!-- <span
                   v-if="
                     selected_facets.author && selected_facets.author.length > 0
                   "
@@ -754,7 +754,23 @@
                   data-type="author"
                   data-value="0"
                   >Author <i @click="resetAuthor" class="fa fa-close"></i
-                ></span>
+                ></span> -->
+
+                <div
+                  v-if="
+                    selected_facets.author && selected_facets.author.length > 0
+                  "
+                >
+                  <span
+                    v-for="fauthor in selected_facets.author"
+                    :key="'country-' + fauthor"
+                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    data-type="author"
+                    :data-value="fauthor"
+                    >Type: {{ fauthor }}
+                    <i @click="resetAuthor(fauthor)" class="fa fa-close"></i
+                  ></span>
+                </div>
 
                 <a
                   @click="resetFilters"
@@ -1139,12 +1155,14 @@ export default {
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
-    resetAuthor() {
-      this.selected_facets.author = [];
+    resetAuthor(author) {
+      this.selected_facets.author = this.selected_facets.author.filter(
+        (o) => o !== author
+      );
+
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
-
     resetFilters() {
       var selected_facets = JSON.parse(JSON.stringify(this.selected_facets));
       Object.keys(selected_facets).forEach(
