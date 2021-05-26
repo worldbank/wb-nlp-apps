@@ -473,7 +473,7 @@
                   <i @click="resetYears" class="fa fa-close"></i
                 ></span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.country &&
                     selected_facets.country.length > 0
@@ -488,9 +488,9 @@
                     >Country: {{ fcountry }}
                     <i @click="resetCountry(fcountry)" class="fa fa-close"></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.der_country_groups &&
                     selected_facets.der_country_groups.length > 0
@@ -508,9 +508,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.der_jdc_tags &&
                     selected_facets.der_jdc_tags.length > 0
@@ -528,9 +528,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.major_doc_type &&
                     selected_facets.major_doc_type.length > 0
@@ -548,9 +548,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.adm_region &&
                     selected_facets.adm_region.length > 0
@@ -568,9 +568,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.geo_region &&
                     selected_facets.geo_region.length > 0
@@ -588,9 +588,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.topics_src &&
                     selected_facets.topics_src.length > 0
@@ -608,9 +608,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.corpus && selected_facets.corpus.length > 0
                   "
@@ -624,9 +624,9 @@
                     >Source: {{ fcorpus }}
                     <i @click="resetCorpus(fcorpus)" class="fa fa-close"></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.author && selected_facets.author.length > 0
                   "
@@ -640,14 +640,15 @@
                     >Author: {{ fauthor }}
                     <i @click="resetAuthor(fauthor)" class="fa fa-close"></i
                   ></span>
+                </span>
+                <div>
+                  <a
+                    @click="resetFilters"
+                    href="javascript:void(0);"
+                    class="btn-reset-search btn btn-outline-primary btn-sm"
+                    >Reset filters</a
+                  >
                 </div>
-
-                <a
-                  @click="resetFilters"
-                  href="javascript:void(0);"
-                  class="btn-reset-search btn btn-outline-primary btn-sm"
-                  >Reset filters</a
-                >
               </div>
             </div>
 
