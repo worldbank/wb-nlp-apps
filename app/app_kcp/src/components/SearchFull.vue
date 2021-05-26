@@ -561,7 +561,7 @@
                   ></span>
                 </div>
 
-                <span
+                <!-- <span
                   v-if="
                     selected_facets.der_jdc_tags &&
                     selected_facets.der_jdc_tags.length > 0
@@ -571,6 +571,27 @@
                   data-value="0"
                   >JDC tags <i @click="resetDerJDCTags" class="fa fa-close"></i
                 ></span>
+ -->
+
+                <div
+                  v-if="
+                    selected_facets.der_jdc_tags &&
+                    selected_facets.der_jdc_tags.length > 0
+                  "
+                >
+                  <span
+                    v-for="fder_jdc_tags in selected_facets.der_jdc_tags"
+                    :key="'country-' + fder_jdc_tags"
+                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    data-type="der_jdc_tags"
+                    :data-value="fder_jdc_tags"
+                    >JDC tag: {{ fder_jdc_tags }}
+                    <i
+                      @click="resetDerJDCTags(fder_jdc_tags)"
+                      class="fa fa-close"
+                    ></i
+                  ></span>
+                </div>
 
                 <span
                   v-if="
@@ -974,8 +995,11 @@ export default {
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
-    resetDerJDCTags() {
-      this.selected_facets.der_jdc_tags = [];
+    resetDerJDCTags(der_jdc_tags) {
+      this.selected_facets.der_jdc_tags = this.selected_facets.der_jdc_tags.filter(
+        (o) => o !== der_jdc_tags
+      );
+
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
