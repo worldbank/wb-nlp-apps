@@ -98,7 +98,7 @@
 
       <a id="gc-race-chart"></a>
       <p v-if="countries_volume" class="mt-1 text-justify">
-        We also show a race chart of the cumulative country mentions in
+        We also show a race chart of the <u>cumulative</u> country mentions in
         documents, which shows how countries’ “popularity”, as measured by the
         total frequency of mentions, has evolved over time.
       </p>
