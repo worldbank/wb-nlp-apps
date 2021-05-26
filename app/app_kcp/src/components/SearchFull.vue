@@ -197,13 +197,25 @@
                     class="form-control"
                   >
                     <option
-                      v-for="year_offset in 131"
-                      :key="'from-' + (2022 - year_offset)"
-                      :value="2022 - year_offset"
+                      v-for="year_offset in curr_year - start_year"
+                      :key="
+                        'from-' +
+                        ((selected_facets.max_year || curr_year + 1) -
+                          year_offset)
+                      "
+                      :value="
+                        (selected_facets.max_year || curr_year + 1) -
+                        year_offset
+                      "
                     >
-                      {{ 2022 - year_offset }}
+                      {{
+                        (selected_facets.max_year || curr_year + 1) -
+                        year_offset
+                      }}
                     </option>
-                    <option value="1890" selected>1890</option>
+                    <option :value="start_year" selected>
+                      {{ start_year }}
+                    </option>
                   </select>
                 </div>
                 <!-- <p class="mt-3 mb-2">and</p> -->
@@ -217,11 +229,13 @@
                     class="form-control"
                   >
                     <option
-                      v-for="year_offset in 132"
-                      :key="'to-' + (2022 - year_offset)"
-                      :value="2022 - year_offset"
+                      v-for="year_offset in selected_facets.min_year
+                        ? curr_year + 1 - selected_facets.min_year
+                        : curr_year - start_year + 1"
+                      :key="'to-' + (curr_year + 1 - year_offset)"
+                      :value="curr_year + 1 - year_offset"
                     >
-                      {{ 2022 - year_offset }}
+                      {{ curr_year + 1 - year_offset }}
                     </option>
                   </select>
                 </div>
@@ -956,6 +970,9 @@ export default {
     return {
       // min_year: null,
       // max_year: null,
+      curr_year: new Date().getUTCFullYear(),
+      start_year: 1890,
+
       navigator: window.navigator,
       search_type: "keyword",
       keyword_search_api_url: this.$config.search_url.keyword,
