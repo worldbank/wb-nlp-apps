@@ -7,24 +7,32 @@
     </header>
     <div>
       <p class="mt-3 text-justify">
-        This demo provides a glimpse of how word embedding models are able to
-        learn relationships of words when trained on a large corpus of data.
+        Word embeddings are numeric representation of words and phrases (in the
+        form of a numeric vector). The vectors are calculated by embedding NLP
+        models (word2vec in our case) in such a way that the distance between
+        vectors (cosine, Euclidian or other) provides a good representation of
+        the semantic closeness between the words or phrases. We trained a
+        word2vec model on a large corpus of documents (much larger than the
+        corpus comprising the JDC-relevant documents we list in our catalog).
+        This model is used, among other things, to implement the
+        <router-link to="/search"
+          >semantic search in the document catalog</router-link
+        >. More information on the model, and our text processing and modeling
+        scripts, are available in our
+        <a href="https://www.github.com/avsolatorio/wb_nlp" target="_blank"
+          >GitHub repository</a
+        >. See also more information on the tools and methods
+        <a href="#">here</a> (external website).
       </p>
-
       <p class="mt-1 text-justify">
-        To start, input a word or phrase in the text box below and press
-        <span style="font-weight: bold">Enter</span>. The input is processed and
-        closely related words are identified using the model. For each related
-        word, we also find the closest words to it as well. We then compute the
-        similarity between all of the shortlisted words and form a network based
-        on their similarity score. We use modularity clustering to identify
-        clusters within the graph network of these words. An interactive graph
-        of the words is rendered for exploration.
-      </p>
-      <p class="mt-1 text-justify">
-        You can also explore further by
-        <span style="font-weight: bold">double-clicking</span> on a node. This
-        will refresh the graph with the data corresponding to the selected node.
+        The tool and visualization below provides you with an option to explore
+        the outcome of the model. Enter a word or a phrase in the text box and
+        press <span style="font-weight: bold">Enter</span>. Closely related
+        words are identified using the model, and the closest words related to
+        them are also identified to form a graph network. We use modularity
+        clustering to identify clusters within the graph network.
+        Double-clicking on a node will refresh the graph with the data
+        corresponding to the selected node.
       </p>
     </div>
 
@@ -33,6 +41,7 @@
     <b-row align-v="center">
       <div class="col-11">
         <b-form-input
+          style="padding-left: 10px"
           v-model="raw_text"
           placeholder="Enter word(s)"
           v-on:keyup.enter="getGraph"
@@ -47,12 +56,22 @@
           class="btn btn btn-outline-success btn-sm wbg-button ml-2"
           ><i class="fab fa-searchengin"></i
         ></a>
-        <b-modal id="modal-lg" size="lg" title="API link"
-          ><a :href="api_link" target="_blank"
-            ><span style="font-family: 'Courier New', Courier, monospace">{{
-              api_link
-            }}</span></a
-          >
+        <b-modal
+          id="modal-lg"
+          size="lg"
+          title="API link"
+          dialog-class="bounded-modal"
+          ><div>
+            <a :href="api_link" target="_blank" style="width: 100%"
+              ><span
+                style="
+                  font-family: 'Courier New', Courier, monospace;
+                  width: 100%;
+                "
+                >{{ api_link }}</span
+              ></a
+            >
+          </div>
           <template #modal-footer>
             <div v-if="navigator.clipboard" class="w-100">
               <b-button
@@ -407,7 +426,8 @@ li {
   display: inline-block;
   margin: 0 10px;
 }
-a {
-  color: #42b983;
+
+.bounded-modal {
+  margin-top: 125px;
 }
 </style>
