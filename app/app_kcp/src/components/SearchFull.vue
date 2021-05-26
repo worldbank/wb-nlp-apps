@@ -501,7 +501,7 @@
                   <i @click="resetYears" class="fa fa-close"></i
                 ></span>
 
-                <span
+                <!-- <span
                   v-if="
                     selected_facets.country &&
                     selected_facets.country.length > 0
@@ -510,9 +510,26 @@
                   data-type="country"
                   data-value="0"
                   >Country <i @click="resetCountry" class="fa fa-close"></i
-                ></span>
+                ></span> -->
 
-                <span
+                <div
+                  v-if="
+                    selected_facets.country &&
+                    selected_facets.country.length > 0
+                  "
+                >
+                  <span
+                    v-for="fcountry in selected_facets.country"
+                    :key="'country-' + fcountry"
+                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    data-type="country"
+                    :data-value="fcountry"
+                    >Country: {{ fcountry }}
+                    <i @click="resetCountry(fcountry)" class="fa fa-close"></i
+                  ></span>
+                </div>
+
+                <!-- <span
                   v-if="
                     selected_facets.der_country_groups &&
                     selected_facets.der_country_groups.length > 0
@@ -522,7 +539,27 @@
                   data-value="0"
                   >Country group
                   <i @click="resetDerCountryGroups" class="fa fa-close"></i
-                ></span>
+                ></span> -->
+
+                <div
+                  v-if="
+                    selected_facets.der_country_groups &&
+                    selected_facets.der_country_groups.length > 0
+                  "
+                >
+                  <span
+                    v-for="fder_country_groups in selected_facets.der_country_groups"
+                    :key="'country-' + fder_country_groups"
+                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    data-type="der_country_groups"
+                    :data-value="fder_country_groups"
+                    >Country group: {{ fder_country_groups }}
+                    <i
+                      @click="resetDerCountryGroups(fder_country_groups)"
+                      class="fa fa-close"
+                    ></i
+                  ></span>
+                </div>
 
                 <span
                   v-if="
@@ -921,13 +958,19 @@ export default {
       this.defaultKeywordSearch();
     },
 
-    resetCountry() {
-      this.selected_facets.country = [];
+    resetCountry(country) {
+      this.selected_facets.country = this.selected_facets.country.filter(
+        (o) => o !== country
+      );
+
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
-    resetDerCountryGroups() {
-      this.selected_facets.der_country_groups = [];
+    resetDerCountryGroups(der_country_groups) {
+      this.selected_facets.der_country_groups = this.selected_facets.der_country_groups.filter(
+        (o) => o !== der_country_groups
+      );
+
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
