@@ -593,7 +593,7 @@
                   ></span>
                 </div>
 
-                <span
+                <!-- <span
                   v-if="
                     selected_facets.major_doc_type &&
                     selected_facets.major_doc_type.length > 0
@@ -602,8 +602,28 @@
                   data-type="major_doc_type"
                   data-value="0"
                   >Document type
-                  <i @click="resetDocType" class="fa fa-close"></i
-                ></span>
+                  <i @click="resetMajorDocType" class="fa fa-close"></i
+                ></span> -->
+
+                <div
+                  v-if="
+                    selected_facets.major_doc_type &&
+                    selected_facets.major_doc_type.length > 0
+                  "
+                >
+                  <span
+                    v-for="fmajor_doc_type in selected_facets.major_doc_type"
+                    :key="'country-' + fmajor_doc_type"
+                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    data-type="major_doc_type"
+                    :data-value="fmajor_doc_type"
+                    >Type: {{ fmajor_doc_type }}
+                    <i
+                      @click="resetMajorDocType(fmajor_doc_type)"
+                      class="fa fa-close"
+                    ></i
+                  ></span>
+                </div>
 
                 <span
                   v-if="
@@ -1003,8 +1023,11 @@ export default {
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
-    resetDocType() {
-      this.selected_facets.major_doc_type = [];
+    resetMajorDocType(major_doc_type) {
+      this.selected_facets.major_doc_type = this.selected_facets.major_doc_type.filter(
+        (o) => o !== major_doc_type
+      );
+
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
