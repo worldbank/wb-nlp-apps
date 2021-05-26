@@ -689,7 +689,7 @@
                   ></span>
                 </div>
 
-                <span
+                <!-- <span
                   v-if="
                     selected_facets.topics_src &&
                     selected_facets.topics_src.length > 0
@@ -698,7 +698,27 @@
                   data-type="topics_src"
                   data-value="0"
                   >Topics <i @click="resetTopicsSrc" class="fa fa-close"></i
-                ></span>
+                ></span> -->
+
+                <div
+                  v-if="
+                    selected_facets.topics_src &&
+                    selected_facets.topics_src.length > 0
+                  "
+                >
+                  <span
+                    v-for="ftopics_src in selected_facets.topics_src"
+                    :key="'country-' + ftopics_src"
+                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    data-type="topics_src"
+                    :data-value="ftopics_src"
+                    >Type: {{ ftopics_src }}
+                    <i
+                      @click="resetTopicsSrc(ftopics_src)"
+                      class="fa fa-close"
+                    ></i
+                  ></span>
+                </div>
 
                 <span
                   v-if="
@@ -1087,8 +1107,11 @@ export default {
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
-    resetTopicsSrc() {
-      this.selected_facets.topics_src = [];
+    resetTopicsSrc(topics_src) {
+      this.selected_facets.topics_src = this.selected_facets.topics_src.filter(
+        (o) => o !== topics_src
+      );
+
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
