@@ -375,7 +375,7 @@
 
             <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
               <h6 v-b-toggle.corpus-collapse>
-                <i class="fa fa-filter pr-2"></i> Corpus
+                <i class="fa fa-filter pr-2"></i> Source
               </h6>
               <b-collapse id="corpus-collapse">
                 <b-card class="facet-options">
@@ -473,7 +473,7 @@
                   <i @click="resetYears" class="fa fa-close"></i
                 ></span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.country &&
                     selected_facets.country.length > 0
@@ -488,9 +488,9 @@
                     >Country: {{ fcountry }}
                     <i @click="resetCountry(fcountry)" class="fa fa-close"></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.der_country_groups &&
                     selected_facets.der_country_groups.length > 0
@@ -508,9 +508,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.der_jdc_tags &&
                     selected_facets.der_jdc_tags.length > 0
@@ -528,9 +528,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.major_doc_type &&
                     selected_facets.major_doc_type.length > 0
@@ -548,9 +548,9 @@
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.adm_region &&
                     selected_facets.adm_region.length > 0
@@ -562,15 +562,15 @@
                     class="badge badge-default wb-badge-close remove-filter active-facets"
                     data-type="adm_region"
                     :data-value="fadm_region"
-                    >Type: {{ fadm_region }}
+                    >Admin region: {{ fadm_region }}
                     <i
                       @click="resetAdmRegion(fadm_region)"
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.geo_region &&
                     selected_facets.geo_region.length > 0
@@ -582,15 +582,15 @@
                     class="badge badge-default wb-badge-close remove-filter active-facets"
                     data-type="geo_region"
                     :data-value="fgeo_region"
-                    >Type: {{ fgeo_region }}
+                    >Geo region: {{ fgeo_region }}
                     <i
                       @click="resetGeoRegion(fgeo_region)"
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.topics_src &&
                     selected_facets.topics_src.length > 0
@@ -602,15 +602,15 @@
                     class="badge badge-default wb-badge-close remove-filter active-facets"
                     data-type="topics_src"
                     :data-value="ftopics_src"
-                    >Type: {{ ftopics_src }}
+                    >Topic: {{ ftopics_src }}
                     <i
                       @click="resetTopicsSrc(ftopics_src)"
                       class="fa fa-close"
                     ></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.corpus && selected_facets.corpus.length > 0
                   "
@@ -621,12 +621,12 @@
                     class="badge badge-default wb-badge-close remove-filter active-facets"
                     data-type="corpus"
                     :data-value="fcorpus"
-                    >Type: {{ fcorpus }}
+                    >Source: {{ fcorpus }}
                     <i @click="resetCorpus(fcorpus)" class="fa fa-close"></i
                   ></span>
-                </div>
+                </span>
 
-                <div
+                <span
                   v-if="
                     selected_facets.author && selected_facets.author.length > 0
                   "
@@ -637,17 +637,18 @@
                     class="badge badge-default wb-badge-close remove-filter active-facets"
                     data-type="author"
                     :data-value="fauthor"
-                    >Type: {{ fauthor }}
+                    >Author: {{ fauthor }}
                     <i @click="resetAuthor(fauthor)" class="fa fa-close"></i
                   ></span>
+                </span>
+                <div>
+                  <a
+                    @click="resetFilters"
+                    href="javascript:void(0);"
+                    class="btn-reset-search btn btn-outline-primary btn-sm"
+                    >Reset filters</a
+                  >
                 </div>
-
-                <a
-                  @click="resetFilters"
-                  href="javascript:void(0);"
-                  class="btn-reset-search btn btn-outline-primary btn-sm"
-                  >Reset filters</a
-                >
               </div>
             </div>
 
