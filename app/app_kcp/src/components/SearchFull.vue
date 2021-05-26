@@ -375,7 +375,7 @@
 
             <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
               <h6 v-b-toggle.corpus-collapse>
-                <i class="fa fa-filter pr-2"></i> Corpus
+                <i class="fa fa-filter pr-2"></i> Source
               </h6>
               <b-collapse id="corpus-collapse">
                 <b-card class="facet-options">
@@ -562,7 +562,7 @@
                     class="badge badge-default wb-badge-close remove-filter active-facets"
                     data-type="adm_region"
                     :data-value="fadm_region"
-                    >Type: {{ fadm_region }}
+                    >Admin region: {{ fadm_region }}
                     <i
                       @click="resetAdmRegion(fadm_region)"
                       class="fa fa-close"
@@ -582,7 +582,7 @@
                     class="badge badge-default wb-badge-close remove-filter active-facets"
                     data-type="geo_region"
                     :data-value="fgeo_region"
-                    >Type: {{ fgeo_region }}
+                    >Geo region: {{ fgeo_region }}
                     <i
                       @click="resetGeoRegion(fgeo_region)"
                       class="fa fa-close"
@@ -602,7 +602,7 @@
                     class="badge badge-default wb-badge-close remove-filter active-facets"
                     data-type="topics_src"
                     :data-value="ftopics_src"
-                    >Type: {{ ftopics_src }}
+                    >Topic: {{ ftopics_src }}
                     <i
                       @click="resetTopicsSrc(ftopics_src)"
                       class="fa fa-close"
@@ -621,7 +621,7 @@
                     class="badge badge-default wb-badge-close remove-filter active-facets"
                     data-type="corpus"
                     :data-value="fcorpus"
-                    >Type: {{ fcorpus }}
+                    >Source: {{ fcorpus }}
                     <i @click="resetCorpus(fcorpus)" class="fa fa-close"></i
                   ></span>
                 </div>
@@ -637,7 +637,7 @@
                     class="badge badge-default wb-badge-close remove-filter active-facets"
                     data-type="author"
                     :data-value="fauthor"
-                    >Type: {{ fauthor }}
+                    >Author: {{ fauthor }}
                     <i @click="resetAuthor(fauthor)" class="fa fa-close"></i
                   ></span>
                 </div>
