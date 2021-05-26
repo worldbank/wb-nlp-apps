@@ -80,9 +80,14 @@ async def keyword_search(
         if max_year:
             filters["year"] = [datetime(y, 1, 1)
                                for y in range(min_year, max_year + 1)]
+            # filters["year"] = [int(datetime(y, 1, 1).timestamp()) * 1000
+            #                    for y in range(min_year, max_year + 1)]
+
         else:
             filters["year"] = [datetime(y, 1, 1)
                                for y in range(min_year, datetime.now().year + 1)]
+            # filters["year"] = [int(datetime(y, 1, 1).timestamp()) * 1000
+            #                    for y in range(min_year, datetime.now().year + 1)]
 
     fs = elasticsearch.NLPDocFacetedSearch(query=query, filters=filters)
 
