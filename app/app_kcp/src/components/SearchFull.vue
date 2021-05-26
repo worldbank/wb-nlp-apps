@@ -625,7 +625,7 @@
                   ></span>
                 </div>
 
-                <span
+                <!-- <span
                   v-if="
                     selected_facets.adm_region &&
                     selected_facets.adm_region.length > 0
@@ -635,7 +635,27 @@
                   data-value="0"
                   >Admin region
                   <i @click="resetAdmRegion" class="fa fa-close"></i
-                ></span>
+                ></span> -->
+
+                <div
+                  v-if="
+                    selected_facets.adm_region &&
+                    selected_facets.adm_region.length > 0
+                  "
+                >
+                  <span
+                    v-for="fadm_region in selected_facets.adm_region"
+                    :key="'country-' + fadm_region"
+                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    data-type="adm_region"
+                    :data-value="fadm_region"
+                    >Type: {{ fadm_region }}
+                    <i
+                      @click="resetAdmRegion(fadm_region)"
+                      class="fa fa-close"
+                    ></i
+                  ></span>
+                </div>
 
                 <span
                   v-if="
@@ -1031,8 +1051,11 @@ export default {
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
-    resetAdmRegion() {
-      this.selected_facets.adm_region = [];
+    resetAdmRegion(adm_region) {
+      this.selected_facets.adm_region = this.selected_facets.adm_region.filter(
+        (o) => o !== adm_region
+      );
+
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
