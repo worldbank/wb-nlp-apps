@@ -378,7 +378,11 @@
                     class="btn btn btn-outline-success btn-sm wbg-button ml-2"
                     ><i class="fab fa-searchengin"></i
                   ></a>
-                  <b-modal id="modal-lg" size="lg" title="API link"
+                  <b-modal
+                    id="modal-lg"
+                    size="lg"
+                    title="API link"
+                    dialog-class="bounded-modal"
                     ><a :href="this.api_link" target="_blank"
                       ><span
                         style="font-family: 'Courier New', Courier, monospace"
@@ -1431,5 +1435,9 @@ u {
 
 .input-height-auto {
   height: auto;
+}
+
+.bounded-modal {
+  margin-top: 125px;
 }
 </style>
