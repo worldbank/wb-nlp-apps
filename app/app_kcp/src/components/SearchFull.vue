@@ -187,58 +187,58 @@
               <div class="sidebar-filter-entries">
                 <input type="hidden" />
                 <!-- <p class="mt-3 mb-2">Show studies conducted between</p> -->
-                <div class="form-group">
-                  <p class="mt-3 mb-2">from</p>
 
-                  <select
-                    name="from"
-                    id="from"
-                    v-model="selected_facets.min_year"
-                    class="form-control"
-                  >
-                    <option
-                      v-for="year_offset in curr_year - start_year"
-                      :key="
-                        'from-' +
-                        ((selected_facets.max_year || curr_year + 1) -
-                          year_offset)
-                      "
-                      :value="
-                        (selected_facets.max_year || curr_year + 1) -
-                        year_offset
-                      "
+                <b-row>
+                  <b-col cols="6"
+                    ><span>From</span>
+                    <select
+                      name="from"
+                      id="from"
+                      v-model="selected_facets.min_year"
+                      class="form-control"
                     >
-                      {{
-                        (selected_facets.max_year || curr_year + 1) -
-                        year_offset
-                      }}
-                    </option>
-                    <option :value="start_year" selected>
-                      {{ start_year }}
-                    </option>
-                  </select>
-                </div>
-                <!-- <p class="mt-3 mb-2">and</p> -->
-                <div class="form-group">
-                  <p class="mt-3 mb-2">to</p>
-
-                  <select
-                    name="to"
-                    id="to"
-                    v-model="selected_facets.max_year"
-                    class="form-control"
+                      <option
+                        v-for="year_offset in curr_year - start_year"
+                        :key="
+                          'from-' +
+                          ((selected_facets.max_year || curr_year + 1) -
+                            year_offset)
+                        "
+                        :value="
+                          (selected_facets.max_year || curr_year + 1) -
+                          year_offset
+                        "
+                      >
+                        {{
+                          (selected_facets.max_year || curr_year + 1) -
+                          year_offset
+                        }}
+                      </option>
+                      <option :value="start_year" selected>
+                        {{ start_year }}
+                      </option>
+                    </select></b-col
                   >
-                    <option
-                      v-for="year_offset in selected_facets.min_year
-                        ? curr_year + 1 - selected_facets.min_year
-                        : curr_year - start_year + 1"
-                      :key="'to-' + (curr_year + 1 - year_offset)"
-                      :value="curr_year + 1 - year_offset"
+                  <b-col cols="6"
+                    ><span>To</span>
+                    <select
+                      name="to"
+                      id="to"
+                      v-model="selected_facets.max_year"
+                      class="form-control"
                     >
-                      {{ curr_year + 1 - year_offset }}
-                    </option>
-                  </select>
-                </div>
+                      <option
+                        v-for="year_offset in selected_facets.min_year
+                          ? curr_year + 1 - selected_facets.min_year
+                          : curr_year - start_year + 1"
+                        :key="'to-' + (curr_year + 1 - year_offset)"
+                        :value="curr_year + 1 - year_offset"
+                      >
+                        {{ curr_year + 1 - year_offset }}
+                      </option>
+                    </select>
+                  </b-col>
+                </b-row>
               </div>
             </div>
 
