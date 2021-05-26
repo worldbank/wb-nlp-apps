@@ -1,4 +1,15 @@
 export default {
+    jdc_models: {
+        embedding_model: {
+            model_name: "word2vec",
+            model_id: "2617e5cf327e60cc8955189110e7f21d", // "0d63e5ae71e4f78fc427ddbec2fefc73",
+        },
+        topic_model: {
+            model_name: "mallet",
+            model_id: "6fd8b418cbe4af7a1b3d24debfafa1ee"
+        },
+        default_topic_id: 39 // Topic on refugee
+    },
     default_model: {
         embedding_model: {
             model_name: "word2vec",

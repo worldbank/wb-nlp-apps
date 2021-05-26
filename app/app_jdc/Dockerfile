@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+COPY src/config.prod.js ./src/config.js
 RUN npm run build
 
 # production stage
