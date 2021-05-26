@@ -657,7 +657,7 @@
                   ></span>
                 </div>
 
-                <span
+                <!-- <span
                   v-if="
                     selected_facets.geo_region &&
                     selected_facets.geo_region.length > 0
@@ -667,7 +667,27 @@
                   data-value="0"
                   >Geographic region
                   <i @click="resetGeoRegion" class="fa fa-close"></i
-                ></span>
+                ></span> -->
+
+                <div
+                  v-if="
+                    selected_facets.geo_region &&
+                    selected_facets.geo_region.length > 0
+                  "
+                >
+                  <span
+                    v-for="fgeo_region in selected_facets.geo_region"
+                    :key="'country-' + fgeo_region"
+                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    data-type="geo_region"
+                    :data-value="fgeo_region"
+                    >Type: {{ fgeo_region }}
+                    <i
+                      @click="resetGeoRegion(fgeo_region)"
+                      class="fa fa-close"
+                    ></i
+                  ></span>
+                </div>
 
                 <span
                   v-if="
@@ -1059,8 +1079,11 @@ export default {
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
-    resetGeoRegion() {
-      this.selected_facets.geo_region = [];
+    resetGeoRegion(geo_region) {
+      this.selected_facets.geo_region = this.selected_facets.geo_region.filter(
+        (o) => o !== geo_region
+      );
+
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
