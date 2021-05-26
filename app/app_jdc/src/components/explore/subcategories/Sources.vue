@@ -1,8 +1,12 @@
 <template>
   <div>
-    <h1>{{ page_title }}</h1>
+    <header>
+      <h1 class="blog-post-title mb-3" dir="auto">
+        {{ page_title }}
+      </h1>
+    </header>
     <div>
-      <p class="mt-4 text-justify">
+      <p class="mt-3 text-justify">
         The corpus contains documents made publicly available by the UNHCR and
         five multilateral development banks MDBs). It is updated on a monthly
         basis. The documents were obtained by web scraping (all sources except

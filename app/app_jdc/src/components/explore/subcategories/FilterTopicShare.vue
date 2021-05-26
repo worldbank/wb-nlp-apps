@@ -2,35 +2,22 @@
   <div>
     <header>
       <h1 class="blog-post-title mb-3" dir="auto">
-        <a
-          href="https://mtt-wb21h.netlify.app/explore/subcategories/filtering_by_topic_share/"
-          >{{ page_title }}</a
-        >
+        {{ page_title }}
       </h1>
     </header>
+
     <div>
       <article class="blog-post">
         <!-- <p class="lead"> -->
         <p>
-          Topic models are able to extract topics present in a document. The
-          extracted topics in a document are weighted based on how much a given
-          topic is represented in the document.
-        </p>
-        <p>
-          In this demo, we show that the topic composition extracted from
-          documents by topic models can be a powerful tool for discovery and
-          retrieval of highly relevant documents.
-        </p>
-
-        <p>
-          To start exploring, select a topic model to use. Then, the topics
-          learned by the model will be available in the table below. You can
-          select up to 3 topics as filter. Use the filter box to easily explore
-          the available topics. The value of the threshold for the selected
-          topic can be adjusted using the slider. A real-time count of expected
-          hits is shown for reference. Click
-          <span style="font-weight: bold">Search</span> to render the relevant
-          documents.
+          The topic composition extracted from documents by our LDA topic model
+          provides a powerful tool for discovery of documents when the relevance
+          of documents is defined by its coverage of a <u>combination</u> of
+          topics. The tool below allows you to select up to 3 topics and to set
+          a threshold for each one of them, representing the share of each topic
+          in the document. A real-time count of expected hits is shown for
+          reference. Click <span style="font-weight: bold">Search</span> to
+          render the relevant documents.
         </p>
 
         <FilterTable @topicRangeReceived="submitTopicSearch" />

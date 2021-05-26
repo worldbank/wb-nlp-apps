@@ -1,8 +1,12 @@
 <template>
   <div>
-    <h1>{{ page_title }}</h1>
+    <header>
+      <h1 class="blog-post-title mb-3" dir="auto">
+        {{ page_title }}
+      </h1>
+    </header>
     <div>
-      <p class="mt-4 text-justify">
+      <p class="mt-3 text-justify">
         Multilateral development banks (MDBs) make much of their respective
         research output and project documents publicly available. An analysis
         and the regular monitoring of the scope and coverage of these documents

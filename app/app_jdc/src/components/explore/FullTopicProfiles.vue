@@ -1,13 +1,18 @@
 <template>
   <div>
-    <h3>{{ page_title }}</h3>
-
-    <p class="mt-4 text-justify">
-      Topics are not covered evenly over time, across regions, by document type,
-      and by organization represented in our corpus. Select a corpus, a topic
-      and a (LDA) model, and two or more partitions to compare the evolution of
-      the topic coverage over time.
-    </p>
+    <header>
+      <h1 class="blog-post-title mb-3" dir="auto">
+        {{ page_title }}
+      </h1>
+    </header>
+    <div>
+      <p class="mt-3 text-justify">
+        Topics are not covered evenly over time, across regions, by document
+        type, and by organization represented in our corpus. Select a corpus, a
+        topic and a (LDA) model, and two or more partitions to compare the
+        evolution of the topic coverage over time.
+      </p>
+    </div>
 
     <hr />
 

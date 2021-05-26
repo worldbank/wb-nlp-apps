@@ -1,27 +1,32 @@
 <template>
   <div>
-    <h1>{{ page_title }}</h1>
-    <br />
-    <p>
-      This demo provides a glimpse of how word embedding models are able to
-      learn relationships of words when trained on a large corpus of data.
-    </p>
+    <header>
+      <h1 class="blog-post-title mb-3" dir="auto">
+        {{ page_title }}
+      </h1>
+    </header>
+    <div>
+      <p class="mt-3 text-justify">
+        This demo provides a glimpse of how word embedding models are able to
+        learn relationships of words when trained on a large corpus of data.
+      </p>
 
-    <p>
-      To start, input a word or phrase in the text box below and press
-      <span style="font-weight: bold">Enter</span>. The input is processed and
-      closely related words are identified using the model. For each related
-      word, we also find the closest words to it as well. We then compute the
-      similarity between all of the shortlisted words and form a network based
-      on their similarity score. We use modularity clustering to identify
-      clusters within the graph network of these words. An interactive graph of
-      the words is rendered for exploration.
-    </p>
-    <p>
-      You can also explore further by
-      <span style="font-weight: bold">double-clicking</span> on a node. This
-      will refresh the graph with the data corresponding to the selected node.
-    </p>
+      <p class="mt-1 text-justify">
+        To start, input a word or phrase in the text box below and press
+        <span style="font-weight: bold">Enter</span>. The input is processed and
+        closely related words are identified using the model. For each related
+        word, we also find the closest words to it as well. We then compute the
+        similarity between all of the shortlisted words and form a network based
+        on their similarity score. We use modularity clustering to identify
+        clusters within the graph network of these words. An interactive graph
+        of the words is rendered for exploration.
+      </p>
+      <p class="mt-1 text-justify">
+        You can also explore further by
+        <span style="font-weight: bold">double-clicking</span> on a node. This
+        will refresh the graph with the data corresponding to the selected node.
+      </p>
+    </div>
 
     <hr />
 
