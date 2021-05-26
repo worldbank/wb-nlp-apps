@@ -1,28 +1,27 @@
 <template>
   <div>
     <h3>{{ page_title }}</h3>
-    <br />
 
-    <p>
+    <p class="mt-4 text-justify">
       Topics are not covered evenly over time, across regions, by document type,
       and by organization represented in our corpus. Select a corpus, a topic
       and a (LDA) model, and two or more partitions to compare the evolution of
-      the topic coverage over time. The resulting chart can be embedded, its
-      code downloaded, and the underlying data are available in our document
-      meta-database.
+      the topic coverage over time.
     </p>
 
     <hr />
 
     <b-container fluid>
-      <h5>Select model</h5>
+      <!-- <h5>Select model</h5>
       <MLModelSelect
         @modelSelected="onModelSelect"
         :model_name="model_name"
         placeholder="Select model"
       />
 
-      <br />
+      <br /> -->
+
+      <h5>Select topic</h5>
 
       <b-row v-show="model_run_info_id !== null">
         <b-col :md="show_topic_words ? 9 : 12">
@@ -30,13 +29,13 @@
             <b-col>
               <b-form-group>
                 <div class="model-select-wrapper">
-                  <model-select
+                  <ModelSelect
                     :options="current_lda_model_topics_options"
                     v-model="topic_id"
                     placeholder="Select topic"
                     class="wbg-model-select"
                   >
-                  </model-select>
+                  </ModelSelect>
                 </div>
               </b-form-group>
             </b-col>
@@ -101,7 +100,7 @@
 import { use } from "echarts/core";
 import VChart from "vue-echarts";
 
-import MLModelSelect from "../common/MLModelSelect";
+// import MLModelSelect from "../common/MLModelSelect";
 import { ModelSelect } from "vue-search-select";
 
 import {
@@ -134,7 +133,7 @@ use([
 export default {
   name: "TopicProfiles",
   components: {
-    MLModelSelect,
+    // MLModelSelect,
     ModelSelect,
     VChart,
   },
@@ -144,13 +143,13 @@ export default {
   },
   data: function () {
     return {
-      nlp_api_url: null,
+      nlp_api_url: this.$config.jdc_models.topic_model_api_url,
       current_lda_model_topics: [],
       current_lda_model_topics_options: [],
       loading: true,
 
-      model_name: "topic_model",
-      model_run_info_id: null,
+      model_name: this.$config.jdc_models.topic_model.model_name,
+      model_run_info_id: this.$config.jdc_models.topic_model.model_id,
 
       full_profile_ready: false,
 
@@ -166,7 +165,7 @@ export default {
       major_doc_type_data: null,
 
       prev_topic_id: -1,
-      topic_id: 0,
+      topic_id: this.$config.jdc_models.default_topic_id,
 
       topic_words: null,
     };
@@ -256,13 +255,14 @@ export default {
   },
   mounted() {
     window.vm = this;
+    this.getModelTopics();
   },
   methods: {
-    onModelSelect: function (result) {
-      this.model_run_info_id = result.model_run_info_id;
-      this.nlp_api_url = result.url;
-      this.getModelTopics();
-    },
+    // onModelSelect: function (result) {
+    //   this.model_run_info_id = result.model_run_info_id;
+    //   this.nlp_api_url = result.url;
+    //   this.getModelTopics();
+    // },
     formatTopicText: function (topic) {
       return (
         "Topic " +
@@ -376,7 +376,7 @@ export default {
       };
     },
     getModelTopics: function () {
-      this.topic_id = 0;
+      // this.topic_id = 0;
       this.$http
         .get(this.nlp_api_url + "/get_model_topic_words", {
           params: this.searchParams,

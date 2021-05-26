@@ -8,6 +8,7 @@ export default {
             model_name: "mallet",
             model_id: "6fd8b418cbe4af7a1b3d24debfafa1ee"
         },
+        topic_model_api_url: "/nlp/models/mallet",
         default_topic_id: 39 // Topic on refugee
     },
     default_model: {

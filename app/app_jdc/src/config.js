@@ -8,6 +8,7 @@ export default {
             model_name: "lda",
             model_id: "6694f3a38bc16dee91be5ccf4a64b6d8"
         },
+        topic_model_api_url: "/nlp/models/lda",
         default_topic_id: 39 // Topic on refugee
     },
     default_model: {
