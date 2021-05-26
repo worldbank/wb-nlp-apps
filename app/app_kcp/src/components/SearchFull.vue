@@ -720,7 +720,7 @@
                   ></span>
                 </div>
 
-                <span
+                <!-- <span
                   v-if="
                     selected_facets.corpus && selected_facets.corpus.length > 0
                   "
@@ -728,7 +728,23 @@
                   data-type="corpus"
                   data-value="0"
                   >Corpus <i @click="resetCorpus" class="fa fa-close"></i
-                ></span>
+                ></span> -->
+
+                <div
+                  v-if="
+                    selected_facets.corpus && selected_facets.corpus.length > 0
+                  "
+                >
+                  <span
+                    v-for="fcorpus in selected_facets.corpus"
+                    :key="'country-' + fcorpus"
+                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    data-type="corpus"
+                    :data-value="fcorpus"
+                    >Type: {{ fcorpus }}
+                    <i @click="resetCorpus(fcorpus)" class="fa fa-close"></i
+                  ></span>
+                </div>
 
                 <span
                   v-if="
@@ -1115,8 +1131,11 @@ export default {
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
-    resetCorpus() {
-      this.selected_facets.corpus = [];
+    resetCorpus(corpus) {
+      this.selected_facets.corpus = this.selected_facets.corpus.filter(
+        (o) => o !== corpus
+      );
+
       this.prevent_default = false;
       this.defaultKeywordSearch();
     },
