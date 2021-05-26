@@ -69,9 +69,9 @@
           </div>
 
           <div>
-            <h4>Topic profile by admin regions</h4>
+            <h4>Topic profile by source</h4>
             <b-form-radio-group
-              v-model="adm_region_value"
+              v-model="corpus_value"
               value-field="item"
               text-field="name"
               :options="group_value_options"
@@ -82,7 +82,7 @@
               <b-col>
                 <v-chart
                   class="chart"
-                  ref="graphChartAdminRegion"
+                  ref="graphChartCorpusRegion"
                   :option="defaultOptions"
                   :autoresize="true"
                   :loading="loading"
@@ -111,6 +111,7 @@ import {
   DataZoomInsideComponent,
   DataZoomSliderComponent,
   ToolboxComponent,
+  // TitleComponent,
 } from "echarts/components";
 import { GraphChart, LinesChart, LineChart, BarChart } from "echarts/charts";
 import { CanvasRenderer } from "echarts/renderers";
@@ -128,6 +129,7 @@ use([
   DataZoomInsideComponent,
   DataZoomSliderComponent,
   ToolboxComponent,
+  // TitleComponent,
 ]);
 
 export default {
@@ -154,14 +156,14 @@ export default {
       full_profile_ready: false,
 
       major_doc_type_value: "volume",
-      adm_region_value: "volume",
+      corpus_value: "volume",
 
       group_value_options: [
         { item: "volume", name: "By volume" },
         { item: "share", name: "By share" },
       ],
 
-      adm_region_data: null,
+      corpus_data: null,
       major_doc_type_data: null,
 
       prev_topic_id: -1,
@@ -210,7 +212,7 @@ export default {
         grid: {
           left: "3%",
           right: "4%",
-          bottom: "10%",
+          bottom: "15%",
           containLabel: true,
         },
         xAxis: [
@@ -258,11 +260,6 @@ export default {
     this.getModelTopics();
   },
   methods: {
-    // onModelSelect: function (result) {
-    //   this.model_run_info_id = result.model_run_info_id;
-    //   this.nlp_api_url = result.url;
-    //   this.getModelTopics();
-    // },
     formatTopicText: function (topic) {
       return (
         "Topic " +
@@ -280,7 +277,10 @@ export default {
       console.log(label);
       return {
         // title: {
-        //   text: "Topic profiles" + "(" + label + ")",
+        //   text: "Topic profiles" + " (" + label + ")",
+        //   subtext: "Default layout",
+        //   top: "bottom",
+        //   left: "right",
         // },
         tooltip: {
           trigger: "axis",
@@ -306,7 +306,7 @@ export default {
         grid: {
           left: "3%",
           right: "4%",
-          bottom: "10%",
+          bottom: "15%",
           containLabel: true,
         },
         xAxis: [
@@ -352,7 +352,10 @@ export default {
       console.log(label);
       return {
         // title: {
-        //   text: "Topic profiles" + "(" + label + ")",
+        //   text: "Topic profiles" + " (" + label + ")",
+        //   subtext: "Default layout",
+        //   top: "bottom",
+        //   left: "right",
         // },
         legend: {
           data: data[value].legend,
@@ -414,7 +417,7 @@ export default {
         .then((response) => {
           let data = response.data;
 
-          this.adm_region_data = data.adm_region;
+          this.corpus_data = data.corpus;
           this.major_doc_type_data = data.major_doc_type;
 
           if ("topic_words" in data) {
@@ -438,12 +441,8 @@ export default {
         )
       );
 
-      this.$refs.graphChartAdminRegion.setOption(
-        this.updateOption(
-          this.adm_region_data,
-          this.adm_region_value,
-          "Admin region"
-        )
+      this.$refs.graphChartCorpusRegion.setOption(
+        this.updateOption(this.corpus_data, this.corpus_value, "Source")
       );
     },
   },
@@ -451,13 +450,9 @@ export default {
     topic_id() {
       this.getFullTopicProfiles();
     },
-    adm_region_value() {
-      this.$refs.graphChartAdminRegion.setOption(
-        this.updateOption(
-          this.adm_region_data,
-          this.adm_region_value,
-          "Admin region"
-        )
+    corpus_value() {
+      this.$refs.graphChartCorpusRegion.setOption(
+        this.updateOption(this.corpus_data, this.corpus_value, "Source")
       );
     },
     major_doc_type_value() {
@@ -502,7 +497,7 @@ export default {
 }
 
 .chart {
-  height: 450px;
+  height: 400px;
 }
 
 .model-select-wrapper {

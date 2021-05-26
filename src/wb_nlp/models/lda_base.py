@@ -597,8 +597,10 @@ class LDAModel(BaseModel):
             field="adm_region", topic_id=topic_id, type=type)
         data_major_doc_type = self.get_topic_profile_by_field(
             field="major_doc_type", topic_id=topic_id, type=type)
+        data_corpus = self.get_topic_profile_by_field(
+            field="corpus", topic_id=topic_id, type=type)
 
-        return dict(adm_region=data_adm_region, major_doc_type=data_major_doc_type)
+        return dict(adm_region=data_adm_region, major_doc_type=data_major_doc_type, corpus=data_corpus)
 
     def get_full_topic_profiles(self, topic_id: int, year_start: int = 1950, year_end: int = datetime.now().year, type="line", return_records=True):
         # docs_metadata = mongodb.get_docs_metadata_collection()
