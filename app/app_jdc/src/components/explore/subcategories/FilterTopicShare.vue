@@ -20,7 +20,7 @@
           render the relevant documents.
         </p>
 
-        <FilterTable @topicRangeReceived="submitTopicSearch" />
+        <DefaultFilterTable @topicRangeReceived="submitTopicSearch" />
 
         <a name="results"></a>
         <div v-if="this.model_id">
@@ -56,7 +56,7 @@
 <script>
 import saveState from "vue-save-state";
 
-import FilterTable from "../../common/FilterTable";
+import DefaultFilterTable from "../../common/DefaultFilterTable";
 import SearchResultCard from "../../common/SearchResultCard";
 import SearchResultLoading from "../../common/SearchResultLoading";
 import Pagination from "../../common/Pagination";
@@ -98,7 +98,7 @@ export default {
     },
   },
   components: {
-    FilterTable,
+    DefaultFilterTable,
     SearchResultCard,
     SearchResultLoading,
     Pagination,
