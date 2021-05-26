@@ -182,11 +182,9 @@
             >
               <h6 class="togglable">
                 <i class="fa fa-search pr-2"></i>Filter by Year
-                <!-- {{ min_year }} - {{ max_year }} -->
               </h6>
               <div class="sidebar-filter-entries">
                 <input type="hidden" />
-                <!-- <p class="mt-3 mb-2">Show studies conducted between</p> -->
 
                 <b-row>
                   <b-col cols="6"
@@ -429,46 +427,6 @@
                 <div
                   class="filter-action-bar d-flex col-12 col-md-9 col-lg-8 justify-content-lg-end"
                 >
-                  <!-- <div class="dropdown">
-                    <button
-                      class="btn btn-outline-secondary btn-sm dropdown-toggle wbg-button"
-                      type="button"
-                      id="dropdownMenuButton"
-                      data-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                    >
-                      Sort by
-                    </button>
-                    <div
-                      class="dropdown-menu"
-                      aria-labelledby="dropdownMenuButton"
-                    >
-                      <a class="dropdown-item" href="#">Relevance</a>
-                      <a class="dropdown-item" href="#">Release date</a>
-                      <a class="dropdown-item" href="#">Trending (past day)</a>
-                      <a class="dropdown-item" href="#">Trending (past week)</a>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    class="btn btn-outline-secondary btn-sm wbg-button ml-2"
-                  >
-                    <i class="fas fa-chart-bar fa-lg mr-1"></i>Show statistics
-                  </button>
-                  <a
-                    target="_blank"
-                    href="#"
-                    class="btn btn btn-outline-success btn-sm wbg-button ml-2"
-                    ><i class="fa fa-print"></i></a
-                  >
-                  <a
-                    target="_blank"
-                    href="#"
-                    class="btn btn btn-outline-success btn-sm wbg-button ml-2"
-                    ><i class="fa fa-file-excel-o"></i
-                  ></a>-->
-
                   <a
                     title="Get API link"
                     v-b-modal.modal-lg
@@ -515,17 +473,6 @@
                   <i @click="resetYears" class="fa fa-close"></i
                 ></span>
 
-                <!-- <span
-                  v-if="
-                    selected_facets.country &&
-                    selected_facets.country.length > 0
-                  "
-                  class="badge badge-default wb-badge-close remove-filter active-facets"
-                  data-type="country"
-                  data-value="0"
-                  >Country <i @click="resetCountry" class="fa fa-close"></i
-                ></span> -->
-
                 <div
                   v-if="
                     selected_facets.country &&
@@ -542,18 +489,6 @@
                     <i @click="resetCountry(fcountry)" class="fa fa-close"></i
                   ></span>
                 </div>
-
-                <!-- <span
-                  v-if="
-                    selected_facets.der_country_groups &&
-                    selected_facets.der_country_groups.length > 0
-                  "
-                  class="badge badge-default wb-badge-close remove-filter active-facets"
-                  data-type="der_country_groups"
-                  data-value="0"
-                  >Country group
-                  <i @click="resetDerCountryGroups" class="fa fa-close"></i
-                ></span> -->
 
                 <div
                   v-if="
@@ -575,18 +510,6 @@
                   ></span>
                 </div>
 
-                <!-- <span
-                  v-if="
-                    selected_facets.der_jdc_tags &&
-                    selected_facets.der_jdc_tags.length > 0
-                  "
-                  class="badge badge-default wb-badge-close remove-filter active-facets"
-                  data-type="der_jdc_tags"
-                  data-value="0"
-                  >JDC tags <i @click="resetDerJDCTags" class="fa fa-close"></i
-                ></span>
- -->
-
                 <div
                   v-if="
                     selected_facets.der_jdc_tags &&
@@ -606,18 +529,6 @@
                     ></i
                   ></span>
                 </div>
-
-                <!-- <span
-                  v-if="
-                    selected_facets.major_doc_type &&
-                    selected_facets.major_doc_type.length > 0
-                  "
-                  class="badge badge-default wb-badge-close remove-filter active-facets"
-                  data-type="major_doc_type"
-                  data-value="0"
-                  >Document type
-                  <i @click="resetMajorDocType" class="fa fa-close"></i
-                ></span> -->
 
                 <div
                   v-if="
@@ -639,18 +550,6 @@
                   ></span>
                 </div>
 
-                <!-- <span
-                  v-if="
-                    selected_facets.adm_region &&
-                    selected_facets.adm_region.length > 0
-                  "
-                  class="badge badge-default wb-badge-close remove-filter active-facets"
-                  data-type="adm_region"
-                  data-value="0"
-                  >Admin region
-                  <i @click="resetAdmRegion" class="fa fa-close"></i
-                ></span> -->
-
                 <div
                   v-if="
                     selected_facets.adm_region &&
@@ -670,18 +569,6 @@
                     ></i
                   ></span>
                 </div>
-
-                <!-- <span
-                  v-if="
-                    selected_facets.geo_region &&
-                    selected_facets.geo_region.length > 0
-                  "
-                  class="badge badge-default wb-badge-close remove-filter active-facets"
-                  data-type="geo_region"
-                  data-value="0"
-                  >Geographic region
-                  <i @click="resetGeoRegion" class="fa fa-close"></i
-                ></span> -->
 
                 <div
                   v-if="
@@ -703,17 +590,6 @@
                   ></span>
                 </div>
 
-                <!-- <span
-                  v-if="
-                    selected_facets.topics_src &&
-                    selected_facets.topics_src.length > 0
-                  "
-                  class="badge badge-default wb-badge-close remove-filter active-facets"
-                  data-type="topics_src"
-                  data-value="0"
-                  >Topics <i @click="resetTopicsSrc" class="fa fa-close"></i
-                ></span> -->
-
                 <div
                   v-if="
                     selected_facets.topics_src &&
@@ -734,16 +610,6 @@
                   ></span>
                 </div>
 
-                <!-- <span
-                  v-if="
-                    selected_facets.corpus && selected_facets.corpus.length > 0
-                  "
-                  class="badge badge-default wb-badge-close remove-filter active-facets"
-                  data-type="corpus"
-                  data-value="0"
-                  >Corpus <i @click="resetCorpus" class="fa fa-close"></i
-                ></span> -->
-
                 <div
                   v-if="
                     selected_facets.corpus && selected_facets.corpus.length > 0
@@ -759,16 +625,6 @@
                     <i @click="resetCorpus(fcorpus)" class="fa fa-close"></i
                   ></span>
                 </div>
-
-                <!-- <span
-                  v-if="
-                    selected_facets.author && selected_facets.author.length > 0
-                  "
-                  class="badge badge-default wb-badge-close remove-filter active-facets"
-                  data-type="author"
-                  data-value="0"
-                  >Author <i @click="resetAuthor" class="fa fa-close"></i
-                ></span> -->
 
                 <div
                   v-if="
