@@ -17,4 +17,4 @@ jdc_data = data[(data["num_tags"] >= AT_LEAST_NUM_TAGS) &
                 (data[f"topic_{TOPIC_ID}"] >= TOPIC_THRESHOLD)]
 jdc_doc_ids = jdc_data["id"].tolist()
 
-elasticsearch.set_app_tag_jds(jdc_doc_ids)
+elasticsearch.set_app_tag_jdc(jdc_doc_ids)

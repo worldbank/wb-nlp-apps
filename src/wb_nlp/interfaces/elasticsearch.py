@@ -1,6 +1,7 @@
 from datetime import datetime
 import re
 from pathlib import Path
+import elasticsearch_dsl
 import pandas as pd
 
 # from elasticsearch import helpers
@@ -207,6 +208,9 @@ class DocTopic(Document):
     major_doc_type = Keyword()
     topics_src = Keyword()
     year = Integer()
+
+    # Add tags here for different applications
+    app_tag_jdc = Boolean()
 
     class Index:
         name = DOC_TOPIC_INDEX
@@ -750,27 +754,67 @@ class DocTopicAggregations:
 
 ######################## JDC and TOPIC related helpers ########################
 
-def set_app_tag_jds(ids):
+# def set_app_tag_jdc(ids):
 
-    for id in ids:
-        doc = NLPDoc.get(id)
-        doc.update(app_tag_jdc=True)
+#     for id in ids:
+#         doc = NLPDoc.get(id)
+#         doc.update(app_tag_jdc=True)
 
-    # Find documents that may have been tagged as a JDC doc
-    # but no longer qualify based on the new filter.
-    # Then set their tags to False.
+#     # Find documents that may have been tagged as a JDC doc
+#     # but no longer qualify based on the new filter.
+#     # Then set their tags to False.
 
-    search = NLPDoc.search()
-    search = search.exclude("ids", values=list(
-        ids)).filter("term", app_tag_jdc=True)
-    search_query = search.to_dict()
+#     search = NLPDoc.search()
+#     search = search.exclude("ids", values=list(
+#         ids)).filter("term", app_tag_jdc=True)
+#     search_query = search.to_dict()
 
-    ids = get_ids_from_query(
-        NLPDoc, query=search_query["query"], ids_only=True)
+#     ids = get_ids_from_query(
+#         NLPDoc, query=search_query["query"], ids_only=True)
 
-    for id in ids:
-        doc = NLPDoc.get(id)
-        doc.update(app_tag_jdc=False)
+#     for id in ids:
+#         doc = NLPDoc.get(id)
+#         doc.update(app_tag_jdc=False)
+
+
+def set_app_tag_jdc(ids):
+    ids = list(ids)
+
+    ubq = elasticsearch_dsl.UpdateByQuery(
+        index=NLPDoc.Index.name, using=get_client())
+    ubq = ubq.filter("terms", id=ids)
+    ubq = ubq.script(source="ctx._source.app_tag_jdc=true;")
+
+    print(f"Executing JDC tag addition in NLPDoc...")
+    response = ubq.execute()
+    print(response.to_dict())
+
+    ubq = elasticsearch_dsl.UpdateByQuery(
+        index=NLPDoc.Index.name, using=get_client())
+    ubq = ubq.filter("term", app_tag_jdc=True).exclude("terms", id=ids)
+    ubq = ubq.script(source="ctx._source.app_tag_jdc=false;")
+
+    print(f"Executing JDC tag removal in NLPDoc...")
+    response = ubq.execute()
+    print(response.to_dict())
+
+    ubq = elasticsearch_dsl.UpdateByQuery(
+        index=DocTopic.Index.name, using=get_client())
+    ubq = ubq.filter("terms", id=ids)
+    ubq = ubq.script(source="ctx._source.app_tag_jdc=true;")
+
+    print(f"Executing JDC tag addition in DocTopic...")
+    response = ubq.execute()
+    print(response.to_dict())
+
+    ubq = elasticsearch_dsl.UpdateByQuery(
+        index=DocTopic.Index.name, using=get_client())
+    ubq = ubq.filter("term", app_tag_jdc=True).exclude("terms", id=ids)
+    ubq = ubq.script(source="ctx._source.app_tag_jdc=false;")
+
+    print(f"Executing JDC tag removal in DocTopic...")
+    response = ubq.execute()
+    print(response.to_dict())
 
 
 def get_topic_threshold_query(model_run_info_id, topic_percentage):
