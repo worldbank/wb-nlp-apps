@@ -1,6 +1,7 @@
 from datetime import datetime
 import re
 from pathlib import Path
+import pandas as pd
 
 # from elasticsearch import helpers
 from elasticsearch import Elasticsearch, exceptions
@@ -389,6 +390,9 @@ def get_metadata_by_ids(doc_ids, index=None, source=None, source_includes=None, 
 
 
 def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt_only=True, remove_doc_whitespaces=True):
+    # from elasticsearch_dsl import Index
+    # i = Index(name=elasticsearch.DOC_INDEX, using=elasticsearch.get_client())
+    # i.delete()
     # from wb_nlp.interfaces import elasticsearch, mongodb
     # docs_metadata_coll = mongodb.get_collection(
     #     db_name="test_nlp", collection_name="docs_metadata")
@@ -553,29 +557,6 @@ def update_doc_topic_metadata(docs_metadata):
 
         for hit in search.execute():
             hit.update(**metadata)
-
-
-def set_app_tag_jds(ids):
-
-    for id in ids:
-        doc = NLPDoc.get(id)
-        doc.app_tag_jdc = True
-
-    # Find documents that may have been tagged as a JDC doc
-    # but no longer qualify based on the new filter.
-    # Then set their tags to False.
-
-    search = NLPDoc.search()
-    search = search.exclude("ids", values=list(
-        ids)).filter("term", app_tag_jdc=True)
-    search_query = search.to_dict()
-
-    ids = get_ids_from_query(
-        NLPDoc, query=search_query["query"], ids_only=True)
-
-    for id in ids:
-        doc = NLPDoc.get(id)
-        doc.app_tag_jdc = False
 
 
 # for dobj in scan(es, query={"query": {"match_all": {}}, "fields": []}, size=10000, index="nlp-documents", doc_type=elasticsearch.NLPDoc):
@@ -757,3 +738,125 @@ class DocTopicAggregations:
 
     def get_topic_profile_by_year_by_adm_region(self, topic, filters=None, return_ids=False):
         return self.get_topic_profile_by_year_by_field(field="adm_region", topic=topic, filters=filters, return_ids=return_ids)
+
+
+######################## JDC and TOPIC related helpers ########################
+
+def set_app_tag_jds(ids):
+
+    for id in ids:
+        doc = NLPDoc.get(id)
+        doc.update(app_tag_jdc=True)
+
+    # Find documents that may have been tagged as a JDC doc
+    # but no longer qualify based on the new filter.
+    # Then set their tags to False.
+
+    search = NLPDoc.search()
+    search = search.exclude("ids", values=list(
+        ids)).filter("term", app_tag_jdc=True)
+    search_query = search.to_dict()
+
+    ids = get_ids_from_query(
+        NLPDoc, query=search_query["query"], ids_only=True)
+
+    for id in ids:
+        doc = NLPDoc.get(id)
+        doc.update(app_tag_jdc=False)
+
+
+def get_topic_threshold_query(model_run_info_id, topic_percentage):
+    """
+    model_run_info_id: id of the topic model
+    topic_percentage: dict => {topic_id: percentage (0-1)}
+    """
+
+    topic_filters = [dict(range={f"topics.topic_{id}": {"gte": val}})
+                     for id, val in sorted(topic_percentage.items())]
+
+    query = dict(bool=dict(
+        must=[{"term": {"model_run_info_id": model_run_info_id}}] + topic_filters))
+
+    return query
+
+
+def get_jdc_docs_stats(ids):
+    # docs = elasticsearch.NLPDoc.mget(ids)
+    index = NLPDoc.Index.name
+
+    search = NLPDoc.search()
+    search = search.filter("ids", values=list(ids))
+    search = search.source(includes=["id", "der_jdc_data"])
+
+    search_query = search.to_dict()
+
+    dataset = []
+    for result in scan(get_client(), query=search_query,
+                       size=5000,
+                       index=index):
+
+        data = result["_source"]
+
+        dataset.append(
+            dict(id=data["id"], total_words=sum(
+                [i["count"] for i in data["der_jdc_data"]]), num_tags=len(data["der_jdc_data"]))
+        )
+
+    return dataset
+
+
+def get_topics_by_id(model_run_info_id, topic_ids, ids):
+    # doc_index: NLPDoc, DocTopic, etc.
+
+    index = DocTopic.Index.name
+
+    ids_topic = [f"{model_run_info_id}-{i}" for i in ids]
+
+    search = DocTopic.search()
+    search = search.filter("term", model_run_info_id=model_run_info_id).filter(
+        "ids", values=ids_topic)
+    search = search.source(
+        includes=["id"] + [f"topics.topic_{i}" for i in topic_ids])
+
+    search_query = search.to_dict()
+
+    dataset = []
+    for result in scan(get_client(), query=search_query,
+                       size=5000,
+                       index=index):
+
+        data = result["_source"]
+
+        data.update(data.pop("topics"))
+        dataset.append(data)
+
+    return dataset
+
+
+def get_topic_jdc_stats(model_run_info_id, topic_percentage):
+
+    topic_ids = list(topic_percentage)
+
+    print("Getting ids_by_topic")
+    ids_by_topic = get_ids_from_query(DocTopic, query=get_topic_threshold_query(
+        model_run_info_id, topic_percentage), ids_only=True)
+
+    print("Getting ids_by_topic_with_tags")
+    ids_by_topic_with_tags = get_ids_from_query(
+        NLPDoc,
+        query=NLPDoc.search().filter(
+            "ids", values=list(ids_by_topic)).filter(
+                "script", script="doc['der_jdc_tags'].length > 0").to_dict()["query"],
+        ids_only=True)
+
+    print("Getting get_jdc_docs_stats")
+    jdc_doc_stats = get_jdc_docs_stats(ids_by_topic_with_tags)
+
+    print("Getting get_topics_by_id")
+    jdc_doc_topics = get_topics_by_id(
+        model_run_info_id, topic_ids, ids_by_topic_with_tags)
+
+    jdc_doc_stats = pd.DataFrame(jdc_doc_stats)
+    jdc_doc_topics = pd.DataFrame(jdc_doc_topics)
+
+    return jdc_doc_stats.merge(jdc_doc_topics, on="id")
