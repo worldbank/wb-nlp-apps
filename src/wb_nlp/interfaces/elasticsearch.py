@@ -784,6 +784,7 @@ def set_app_tag_jdc(ids):
         index=NLPDoc.Index.name, using=get_client())
     ubq = ubq.filter("terms", id=ids)
     ubq = ubq.script(source="ctx._source.app_tag_jdc=true;")
+    ubq = ubq.params(scroll_size=50)  # .params(requests_per_second=10)
 
     print(f"Executing JDC tag addition in NLPDoc...")
     response = ubq.execute()
@@ -793,6 +794,7 @@ def set_app_tag_jdc(ids):
         index=NLPDoc.Index.name, using=get_client())
     ubq = ubq.filter("term", app_tag_jdc=True).exclude("terms", id=ids)
     ubq = ubq.script(source="ctx._source.app_tag_jdc=false;")
+    ubq = ubq.params(scroll_size=50)
 
     print(f"Executing JDC tag removal in NLPDoc...")
     response = ubq.execute()
@@ -802,6 +804,7 @@ def set_app_tag_jdc(ids):
         index=DocTopic.Index.name, using=get_client())
     ubq = ubq.filter("terms", id=ids)
     ubq = ubq.script(source="ctx._source.app_tag_jdc=true;")
+    ubq = ubq.params(scroll_size=50)
 
     print(f"Executing JDC tag addition in DocTopic...")
     response = ubq.execute()
@@ -811,6 +814,7 @@ def set_app_tag_jdc(ids):
         index=DocTopic.Index.name, using=get_client())
     ubq = ubq.filter("term", app_tag_jdc=True).exclude("terms", id=ids)
     ubq = ubq.script(source="ctx._source.app_tag_jdc=false;")
+    ubq = ubq.params(scroll_size=50)
 
     print(f"Executing JDC tag removal in DocTopic...")
     response = ubq.execute()
