@@ -563,13 +563,13 @@ class LDAModel(BaseModel):
             legend=legend,
         )
 
-    def get_topic_profile_by_field(self, field, topic_id, type="line"):
+    def get_topic_profile_by_field(self, field, topic_id, filters=None, type="line"):
         topic_agg = elasticsearch.DocTopicAggregations(model_id=self.model_id)
 
         data = pd.DataFrame(topic_agg.get_topic_profile_by_year_by_field(
             field=field,
             topic=f"topic_{topic_id}",
-            filters=[{"term": {"corpus": "WB"}}]))
+            filters=filters))
 
         year_field_topic_sum_df = data.pivot(
             index="year", columns=field, values=f"{field}_topic_sum").fillna(0)
@@ -591,21 +591,22 @@ class LDAModel(BaseModel):
             share=topic_share
         )
 
-    def get_full_topic_profile(self, topic_id: int, type="line"):
+    def get_full_topic_profile(self, topic_id: int, filters: list = None, type="line"):
 
         data_adm_region = self.get_topic_profile_by_field(
-            field="adm_region", topic_id=topic_id, type=type)
+            field="adm_region", topic_id=topic_id, filters=filters, type=type)
         data_major_doc_type = self.get_topic_profile_by_field(
-            field="major_doc_type", topic_id=topic_id, type=type)
+            field="major_doc_type", topic_id=topic_id, filters=filters, type=type)
         data_corpus = self.get_topic_profile_by_field(
-            field="corpus", topic_id=topic_id, type=type)
+            field="corpus", topic_id=topic_id, filters=filters, type=type)
 
         return dict(adm_region=data_adm_region, major_doc_type=data_major_doc_type, corpus=data_corpus)
 
-    def get_full_topic_profiles(self, topic_id: int, year_start: int = 1950, year_end: int = datetime.now().year, type="line", return_records=True):
+    def get_full_topic_profiles(self, topic_id: int, year_start: int = 1950, year_end: int = datetime.now().year, filters: list = None, type="line", return_records=True):
         # docs_metadata = mongodb.get_docs_metadata_collection()
 
-        data = self.get_full_topic_profile(topic_id=topic_id, type=type)
+        data = self.get_full_topic_profile(
+            topic_id=topic_id, filters=filters, type=type)
 
         data['topic_words'] = self.get_topic_words(topic_id)
 

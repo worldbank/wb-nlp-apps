@@ -49,6 +49,8 @@ DEFAULT_QUERY_FIELDS = dict(
         datetime.now().year, description="End of the year to return data for."),
     return_records=Query(
         True, description="A flag indicating how the returned data is structured."),
+    app_tag_jdc=Query(
+        False, description="Tag to only return documents under the JDC collection."),
     type=Query(
         "line", description="Type of chart."
     )
@@ -185,15 +187,21 @@ def get_full_topic_profiles(
     year_start: int,
     year_end: int,
     return_records: bool,
+    app_tag_jdc: bool,
     type: str
 ):
     model = get_validated_model(model_name, model_id)
+
+    filters = None
+    if app_tag_jdc:
+        filters = [{"term": {"app_tag_jdc": app_tag_jdc}}]
 
     return model.get_full_topic_profiles(
         topic_id=topic_id,
         year_start=year_start,
         year_end=year_end,
         return_records=return_records,
+        filters=filters,
         type=type,
     )
 

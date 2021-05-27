@@ -415,6 +415,7 @@ export default {
       params.append("model_id", this.model_run_info_id);
       params.append("topic_id", this.topic_id);
       params.append("year_start", 1960);
+      params.append("app_tag_jdc", true);
       params.append("type", "line");
 
       this.$http

@@ -133,6 +133,7 @@ async def get_full_topic_profiles(
     year_start: int = DEFAULT_QUERY_FIELDS["year_start"],
     year_end: int = DEFAULT_QUERY_FIELDS["year_end"],
     return_records: bool = DEFAULT_QUERY_FIELDS["return_records"],
+    app_tag_jdc: bool = DEFAULT_QUERY_FIELDS["app_tag_jdc"],
     type: str = DEFAULT_QUERY_FIELDS["type"],
 ):
     return topic_model.get_full_topic_profiles(
@@ -142,6 +143,7 @@ async def get_full_topic_profiles(
         year_start=year_start,
         year_end=year_end,
         return_records=return_records,
+        app_tag_jdc=app_tag_jdc,
         type=type,
     )
 
