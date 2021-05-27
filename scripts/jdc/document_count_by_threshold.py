@@ -81,9 +81,28 @@ def get_jdc_docs_by_total_word_count():
 
 
 def get_jdc_docs_stats(ids):
-    docs = elasticsearch.NLPDoc.mget(ids)
+    # docs = elasticsearch.NLPDoc.mget(ids)
+    index = elasticsearch.NLPDoc.Index.name
 
-    return [dict(id=doc.id, total_words=sum([i["count"] for i in doc.der_jdc_data]), num_tags=len(doc.der_jdc_data)) for doc in docs]
+    search = elasticsearch.NLPDoc.search()
+    search = search.filter("ids", values=list(ids))
+    search = search.source(includes=["id", "der_jdc_data"])
+
+    search_query = search.to_dict()
+
+    dataset = []
+    for result in scan(elasticsearch.get_client(), query=search_query,
+                       size=5000,
+                       index=index):
+
+        data = result["_source"]
+
+        dataset.append(
+            dict(id=data["id"], total_words=sum(
+                [i["count"] for i in data["der_jdc_data"]]), num_tags=len(data["der_jdc_data"]))
+        )
+
+    return dataset
 
 
 def get_topics_by_id(model_run_info_id, topic_ids, ids):
@@ -118,9 +137,11 @@ def get_topic_jdc_stats(model_run_info_id, topic_percentage):
 
     topic_ids = list(topic_percentage)
 
+    print("Getting ids_by_topic")
     ids_by_topic = get_ids(elasticsearch.DocTopic, query=get_topic_threshold_query(
         model_run_info_id, topic_percentage), ids_only=True)
 
+    print("Getting ids_by_topic_with_tags")
     ids_by_topic_with_tags = get_ids(
         elasticsearch.NLPDoc,
         query=elasticsearch.NLPDoc.search().filter(
@@ -128,8 +149,10 @@ def get_topic_jdc_stats(model_run_info_id, topic_percentage):
                 "script", script="doc['der_jdc_tags'].length > 0").to_dict()["query"],
         ids_only=True)
 
+    print("Getting get_jdc_docs_stats")
     jdc_doc_stats = get_jdc_docs_stats(ids_by_topic_with_tags)
 
+    print("Getting get_topics_by_id")
     jdc_doc_topics = get_topics_by_id(
         model_run_info_id, topic_ids, ids_by_topic_with_tags)
 
