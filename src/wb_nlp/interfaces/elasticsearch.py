@@ -776,18 +776,17 @@ class DocTopicAggregations:
 #         doc = NLPDoc.get(id)
 #         doc.update(app_tag_jdc=False)
 
-
-def set_app_tag_jdc(ids):
+def set_app_tag_jdc_NLPDoc(ids):
     ids = list(ids)
 
     ubq = elasticsearch_dsl.UpdateByQuery(
         index=NLPDoc.Index.name, using=get_client())
-    ubq = ubq.filter("terms", id=ids)
+    ubq = ubq.filter("terms", id=ids).exclude("term", app_tag_jdc=True)
     ubq = ubq.script(source="ctx._source.app_tag_jdc=true;")
     ubq = ubq.params(scroll_size=50).params(
         conflicts="proceed")  # .params(requests_per_second=10)
 
-    print(f"Executing JDC tag addition in NLPDoc...")
+    print("Executing JDC tag addition in NLPDoc...")
     response = ubq.execute()
     print(response.to_dict())
 
@@ -797,17 +796,21 @@ def set_app_tag_jdc(ids):
     ubq = ubq.script(source="ctx._source.app_tag_jdc=false;")
     ubq = ubq.params(scroll_size=50).params(conflicts="proceed")
 
-    print(f"Executing JDC tag removal in NLPDoc...")
+    print("Executing JDC tag removal in NLPDoc...")
     response = ubq.execute()
     print(response.to_dict())
 
+
+def set_app_tag_jdc_DocTopic(ids):
+    ids = list(ids)
+
     ubq = elasticsearch_dsl.UpdateByQuery(
         index=DocTopic.Index.name, using=get_client())
-    ubq = ubq.filter("terms", id=ids)
+    ubq = ubq.filter("terms", id=ids).exclude("term", app_tag_jdc=True)
     ubq = ubq.script(source="ctx._source.app_tag_jdc=true;")
     ubq = ubq.params(scroll_size=50).params(conflicts="proceed")
 
-    print(f"Executing JDC tag addition in DocTopic...")
+    print("Executing JDC tag addition in DocTopic...")
     response = ubq.execute()
     print(response.to_dict())
 
@@ -817,9 +820,22 @@ def set_app_tag_jdc(ids):
     ubq = ubq.script(source="ctx._source.app_tag_jdc=false;")
     ubq = ubq.params(scroll_size=50).params(conflicts="proceed")
 
-    print(f"Executing JDC tag removal in DocTopic...")
+    print("Executing JDC tag removal in DocTopic...")
     response = ubq.execute()
     print(response.to_dict())
+
+
+def set_app_tag_jdc(ids):
+
+    try:
+        set_app_tag_jdc_NLPDoc(ids)
+    except Exception as e:
+        print(e)
+
+    try:
+        set_app_tag_jdc_DocTopic(ids)
+    except Exception as e:
+        print(e)
 
 
 def get_topic_threshold_query(model_run_info_id, topic_percentage):
