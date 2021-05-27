@@ -1,4 +1,3 @@
-from scripts.jdc.jdc_document_tagger import TOPIC_THRESHOLD
 from wb_nlp import dir_manager
 from wb_nlp.interfaces import elasticsearch
 
@@ -44,17 +43,17 @@ def get_jdc_docs_by_total_word_count():
 
 if __name__ == "__main__":
     # Refugee topic for mallet model: 6fd8b418cbe4af7a1b3d24debfafa1ee
-    # topic_model_id = "4472e70cc0a0c2263622b4cbe3aa4644"
-    topic_model_id = "6fd8b418cbe4af7a1b3d24debfafa1ee"
+    # TOPIC_MODEL_ID = "4472e70cc0a0c2263622b4cbe3aa4644"
+    TOPIC_MODEL_ID = "6fd8b418cbe4af7a1b3d24debfafa1ee"
     TOPIC_ID = 39
     TOPIC_THRESHOLD = 0.01
     topic_percentage = {TOPIC_ID: TOPIC_THRESHOLD}
 
     # search_topic = elasticsearch.DocTopic.search()
     # search_topic = search_topic.query(
-    #     get_topic_threshold_query(topic_model_id, topic_percentage))
+    #     get_topic_threshold_query(TOPIC_MODEL_ID, topic_percentage))
 
-    data = elasticsearch.get_topic_jdc_stats(topic_model_id, topic_percentage)
+    data = elasticsearch.get_topic_jdc_stats(TOPIC_MODEL_ID, topic_percentage)
 
     data["at least 3 words"] = data["total_words"] >= 3
     data["at least 5 words"] = data["total_words"] >= 5
