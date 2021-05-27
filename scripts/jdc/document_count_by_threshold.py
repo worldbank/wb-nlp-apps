@@ -1,3 +1,4 @@
+from scripts.jdc.jdc_document_tagger import TOPIC_THRESHOLD
 from wb_nlp import dir_manager
 from wb_nlp.interfaces import elasticsearch
 
@@ -45,13 +46,30 @@ if __name__ == "__main__":
     # Refugee topic for mallet model: 6fd8b418cbe4af7a1b3d24debfafa1ee
     # topic_model_id = "4472e70cc0a0c2263622b4cbe3aa4644"
     topic_model_id = "6fd8b418cbe4af7a1b3d24debfafa1ee"
-    topic_percentage = {39: 0.01}
+    TOPIC_ID = 39
+    TOPIC_THRESHOLD = 0.01
+    topic_percentage = {TOPIC_ID: TOPIC_THRESHOLD}
 
     # search_topic = elasticsearch.DocTopic.search()
     # search_topic = search_topic.query(
     #     get_topic_threshold_query(topic_model_id, topic_percentage))
 
     data = elasticsearch.get_topic_jdc_stats(topic_model_id, topic_percentage)
+
+    data["at least 3 words"] = data["total_words"] >= 3
+    data["at least 5 words"] = data["total_words"] >= 5
+    data["at least 2 different tags"] = data["num_tags"] >= 2
+
+    data["1% topic"] = data[f"topic_{TOPIC_ID}"] >= 0.01
+    data["2% topic"] = data[f"topic_{TOPIC_ID}"] >= 0.02
+
+    data["scenario 1"] = data["1% topic"] & data["at least 3 words"]
+    data["scenario 2"] = data["1% topic"] & data["at least 5 words"]
+    data["scenario 3"] = data["1% topic"] & data["at least 2 different tags"]
+
+    data["scenario 1"] = data["2% topic"] & data["at least 3 words"]
+    data["scenario 2"] = data["2% topic"] & data["at least 5 words"]
+    data["scenario 3"] = data["2% topic"] & data["at least 2 different tags"]
 
     data.to_csv(dir_manager.get_data_dir("jdc_docs_stats.csv"), index=None)
 

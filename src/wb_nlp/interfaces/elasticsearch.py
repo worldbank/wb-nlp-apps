@@ -892,6 +892,11 @@ def get_jdc_docs_stats(ids):
 
     search = NLPDoc.search()
     search = search.filter("ids", values=list(ids))
+    search = search.filter(
+        "terms", der_jdc_tags=[
+            "asylum_seeker", "country_of_asylum", "internally_displaced_population",
+            "refugee", "refugee_camp", "stateless"])
+
     search = search.source(includes=["id", "der_jdc_data", "major_doc_type"])
 
     search_query = search.to_dict()
