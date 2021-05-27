@@ -232,6 +232,7 @@ export default {
       const params = new URLSearchParams();
       params.append("fields", "adm_region");
       params.append("fields", "geo_region");
+      params.append("app_tag_jdc", true);
 
       this.$http
         .get(this.$config.corpus_url + "/get_corpus_volume_by", {
@@ -264,6 +265,7 @@ export default {
           ? ""
           : this.doc_type_filter.replace(/WB - /g, "")
       );
+      searchParams.append("app_tag_jdc", true);
       const data_key = searchParams.toLocaleString();
       console.log(data_key);
 
