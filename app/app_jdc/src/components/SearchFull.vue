@@ -811,6 +811,10 @@ export default {
     },
     getFacetOptions(facet_name) {
       // const for_sorting = ["country", "der_country_groups", "geo_region"]
+      if (!this.facets) {
+        return [];
+      }
+
       var options = this.facets["_filter_" + facet_name][
         facet_name
       ].buckets.map((o) => {
