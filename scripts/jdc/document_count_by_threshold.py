@@ -4,28 +4,6 @@ from wb_nlp import dir_manager
 from wb_nlp.interfaces import elasticsearch
 
 
-def get_ids(doc_index, query=None, ids_only=True):
-    # doc_index: NLPDoc, DocTopic, etc.
-
-    index = doc_index.Index.name
-
-    search_query = {}
-
-    if query is None:
-        search_query["query"] = dict(match_all={})
-    else:
-        search_query["query"] = query
-
-    if ids_only:
-        search_query["_source"] = ["id"]
-
-    existing_ids = {obj["_source"]["id"] for obj in scan(elasticsearch.get_client(), query=search_query,
-                                                         size=5000,
-                                                         index=index)}
-
-    return existing_ids
-
-
 def get_topic_threshold_query(model_run_info_id, topic_percentage):
     """
     model_run_info_id: id of the topic model
@@ -138,11 +116,11 @@ def get_topic_jdc_stats(model_run_info_id, topic_percentage):
     topic_ids = list(topic_percentage)
 
     print("Getting ids_by_topic")
-    ids_by_topic = get_ids(elasticsearch.DocTopic, query=get_topic_threshold_query(
+    ids_by_topic = elasticsearch.get_ids_from_query(elasticsearch.DocTopic, query=get_topic_threshold_query(
         model_run_info_id, topic_percentage), ids_only=True)
 
     print("Getting ids_by_topic_with_tags")
-    ids_by_topic_with_tags = get_ids(
+    ids_by_topic_with_tags = elasticsearch.get_ids_from_query(
         elasticsearch.NLPDoc,
         query=elasticsearch.NLPDoc.search().filter(
             "ids", values=list(ids_by_topic)).filter(

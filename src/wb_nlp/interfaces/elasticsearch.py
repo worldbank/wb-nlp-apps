@@ -7,7 +7,7 @@ from elasticsearch import Elasticsearch, exceptions
 from elasticsearch.helpers import scan
 from elasticsearch.exceptions import ConnectionTimeout
 
-from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, Object, Nested, A
+from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, Object, Nested, A, Boolean
 from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl import Search
 
@@ -34,6 +34,9 @@ def get_client():
 
 
 class NLPDoc(Document):
+    # Add tags here for different applications
+    app_tag_jdc = Boolean()
+
     id = Keyword()
     title = Text(analyzer='snowball', fields={'raw': Keyword()})
     app_tags = Keyword()
@@ -69,6 +72,10 @@ class NLPDoc(Document):
         }
 
     def save(self, **kwargs):
+        # Set all application tags to False first
+        # Then just use the tag updated script to set the True values
+        self.app_tag_jdc = False
+
         self.tokens = len(self.body.split())
         self.views = 0
 
@@ -316,6 +323,28 @@ def get_ids(index=None):
     return existing_ids
 
 
+def get_ids_from_query(doc_index, query=None, ids_only=True):
+    # doc_index: NLPDoc, DocTopic, etc.
+
+    index = doc_index.Index.name
+
+    search_query = {}
+
+    if query is None:
+        search_query["query"] = dict(match_all={})
+    else:
+        search_query["query"] = query
+
+    if ids_only:
+        search_query["_source"] = ["id"]
+
+    existing_ids = {obj["_source"]["id"] for obj in scan(get_client(), query=search_query,
+                                                         size=5000,
+                                                         index=index)}
+
+    return list(existing_ids)
+
+
 def get_metadata_by_ids(doc_ids, index=None, source=None, source_includes=None, source_excludes=None):
     '''
     This method returns the metadata corresponding to the list of ids in `doc_ids`.
@@ -524,6 +553,30 @@ def update_doc_topic_metadata(docs_metadata):
 
         for hit in search.execute():
             hit.update(**metadata)
+
+
+def set_app_tag_jds(ids):
+
+    for id in ids:
+        doc = NLPDoc.get(id)
+        doc.app_tag_jdc = True
+
+    # Find documents that may have been tagged as a JDC doc
+    # but no longer qualify based on the new filter.
+    # Then set their tags to False.
+
+    search = NLPDoc.search()
+    search = search.exclude("ids", values=list(
+        ids)).filter("term", app_tag_jdc=True)
+    search_query = search.to_dict()
+
+    ids = get_ids_from_query(
+        NLPDoc, query=search_query["query"], ids_only=True)
+
+    for id in ids:
+        doc = NLPDoc.get(id)
+        doc.app_tag_jdc = False
+
 
 # for dobj in scan(es, query={"query": {"match_all": {}}, "fields": []}, size=10000, index="nlp-documents", doc_type=elasticsearch.NLPDoc):
 
