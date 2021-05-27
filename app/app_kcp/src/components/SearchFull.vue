@@ -181,7 +181,7 @@
               class="sidebar-filter wb-ihsn-sidebar-filter filter-by-year filter-box"
             >
               <h6 class="togglable">
-                <i class="fa fa-search pr-2"></i>Filter by Year
+                <i class="fa fa-search pr-2"></i>Year
               </h6>
               <div class="sidebar-filter-entries">
                 <input type="hidden" />
