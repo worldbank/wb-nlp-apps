@@ -66,9 +66,9 @@ if __name__ == "__main__":
     data["scenario 2"] = data["1% topic"] & data["at least 5 words"]
     data["scenario 3"] = data["1% topic"] & data["at least 2 different tags"]
 
-    data["scenario 1"] = data["2% topic"] & data["at least 3 words"]
-    data["scenario 2"] = data["2% topic"] & data["at least 5 words"]
-    data["scenario 3"] = data["2% topic"] & data["at least 2 different tags"]
+    data["scenario 4"] = data["2% topic"] & data["at least 3 words"]
+    data["scenario 5"] = data["2% topic"] & data["at least 5 words"]
+    data["scenario 6"] = data["2% topic"] & data["at least 2 different tags"]
 
     data.to_csv(dir_manager.get_data_dir("jdc_docs_stats.csv"), index=None)
 
