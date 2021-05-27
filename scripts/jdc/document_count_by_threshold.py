@@ -43,6 +43,7 @@ def get_jdc_docs_by_total_word_count():
 
 if __name__ == "__main__":
     # Refugee topic for mallet model: 6fd8b418cbe4af7a1b3d24debfafa1ee
+    # topic_model_id = "4472e70cc0a0c2263622b4cbe3aa4644"
     topic_model_id = "6fd8b418cbe4af7a1b3d24debfafa1ee"
     topic_percentage = {39: 0.01}
 

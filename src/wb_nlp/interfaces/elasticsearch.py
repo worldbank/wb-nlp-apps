@@ -859,7 +859,7 @@ def get_jdc_docs_stats(ids):
 
     search = NLPDoc.search()
     search = search.filter("ids", values=list(ids))
-    search = search.source(includes=["id", "der_jdc_data"])
+    search = search.source(includes=["id", "der_jdc_data", "major_doc_type"])
 
     search_query = search.to_dict()
 
@@ -871,8 +871,12 @@ def get_jdc_docs_stats(ids):
         data = result["_source"]
 
         dataset.append(
-            dict(id=data["id"], total_words=sum(
-                [i["count"] for i in data["der_jdc_data"]]), num_tags=len(data["der_jdc_data"]))
+            dict(
+                id=data["id"],
+                total_words=sum(
+                    [i["count"] for i in data["der_jdc_data"]]),
+                num_tags=len(data["der_jdc_data"]),
+                doc_type=data.get("major_doc_type", [None])[0])
         )
 
     return dataset
