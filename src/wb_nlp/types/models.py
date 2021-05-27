@@ -13,7 +13,7 @@ from typing import List, Any, Dict, Optional
 from pydantic import BaseModel, Field, validator, AnyUrl
 from wb_nlp.utils.scripts import generate_model_hash
 from wb_nlp.types.metadata import MetadataModel
-from wb_nlp.types.metadata_enums import WBAdminRegions, WBMajorDocTypes
+from wb_nlp.types.metadata_enums import WBAdminRegions, MajorDocTypes
 
 
 class UploadTypes(enum.Enum):
@@ -176,7 +176,7 @@ class PartitionTopicShareParams(ModelIDParams):
         ..., description="Topic id of interest.")
     adm_regions: List[WBAdminRegions] = Field(
         None, description="List of admin regions partition.")
-    major_doc_types: List[WBMajorDocTypes] = Field(
+    major_doc_types: List[MajorDocTypes] = Field(
         None, description="List of major document types partition.")
     year_start: int = Field(
         1950, description="Start of the year to return data for.")

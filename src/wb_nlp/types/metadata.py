@@ -15,6 +15,7 @@ from wb_nlp.types.metadata_enums import (
     WBGeographicRegions,
     WBMajorDocTypes,
     WBTopics,
+    MajorDocTypes,
     # WBSubTopics,  # Don't normalize subtopics since we don't have a reliable curated list yet.
 )
 
@@ -217,8 +218,10 @@ class MetadataModel(BaseModel):
         None,
         description="Abstract of the document."
     )
-    adm_region: List[WBAdminRegions] = Field(
+    adm_region: List[str] = Field(
         None, description="List of administrative regions. Example: Africa.")
+    app_tag_jdc: bool = Field(
+        False, description="Tag associated with documents that belong to the JDC collection.")
     author: List[str] = Field(
         None, description="")
 
@@ -261,13 +264,13 @@ class MetadataModel(BaseModel):
     digital_identifier: str = Field(
         None,
         description="Document digital identifier. For WB documents, use the information from API; for other corpus, use ISBN, or DOI, or other ID if available.")
-    doc_type: List[WBDocTypes] = Field(
+    doc_type: List[str] = Field(
         None, description="")
 
     filename_original: str = Field(
         ..., description="Filename of the document without path.")
 
-    geo_region: List[WBGeographicRegions] = Field(
+    geo_region: List[str] = Field(
         None, description="List of geographic regions covered in the document.")
 
     journal: str = Field(
@@ -283,20 +286,24 @@ class MetadataModel(BaseModel):
     language_src: str = Field(
         None, description="")
     last_update_date: datetime = Field(
-        ..., description="")
+        datetime.now(), description="")
 
-    major_doc_type: List[WBMajorDocTypes] = Field(
+    major_doc_type: List[MajorDocTypes] = Field(
         None, description="")
 
     path_clean: str = Field(
         None, description="")
+
     path_original: str = Field(
         ..., description="")
+    path_pdf_file: str = Field(
+        None, description="Path of the scraped PDF file."
+    )
 
     title: str = Field(
         ..., description="")
     # tokens -> der_clean_token_count
-    topics_src: List[WBTopics] = Field(
+    topics_src: List[str] = Field(
         None, description="Raw topics extracted from source.")
 
     url_pdf: AnyUrl = Field(
