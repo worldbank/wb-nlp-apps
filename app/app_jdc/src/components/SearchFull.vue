@@ -680,6 +680,9 @@ export default {
 
       params.append("from_result", this.from_result);
       params.append("size", this.curr_size);
+
+      params.append("app_tag_jdc", true);
+
       return params;
     },
     fileParams() {

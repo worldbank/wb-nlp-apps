@@ -262,6 +262,39 @@ class NLPDocFacetedSearch(FacetedSearch):
         return search
 
 
+class JDCNLPDocFacetedSearch(FacetedSearch):
+    # doc_types = [elasticsearch.NLPDoc, ]
+    index = DOC_INDEX
+    doc_types = [NLPDoc]
+
+    # fields that should be searched
+    fields = ['title^5', 'body^1.25', 'abstract^1.5', 'author', 'country']
+
+    facets = {
+        # use bucket aggregations to define facets
+        'author': TermsFacet(field='author', size=100),
+        'country': TermsFacet(field='country', size=100),
+        'der_country_groups': TermsFacet(field='der_country_groups', size=100),
+        'der_jdc_tags': TermsFacet(field='der_jdc_tags', size=100),
+        'corpus': TermsFacet(field='corpus', size=100),
+        'major_doc_type': TermsFacet(field='major_doc_type', size=100),
+        'adm_region': TermsFacet(field='adm_region', size=100),
+        'geo_region': TermsFacet(field='geo_region', size=100),
+        'topics_src': TermsFacet(field='topics_src', size=100),
+        'year': DateHistogramFacet(field='date_published', calendar_interval='year')
+    }
+
+    def search(self):
+        search = super().search()
+        search = search.extra(track_total_hits=True)
+        search = search.source(excludes=["body", "doc"])
+        # search.params(preserve_order=True).scan()
+
+        search = search.filter("term", app_tag_jdc=True)
+
+        return search
+
+
 def get_indexed_corpus_size(filters=None):
 
     search = NLPDoc.search()

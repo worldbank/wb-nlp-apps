@@ -40,6 +40,7 @@ async def keyword_search(
     topics_src: List[str] = Query(None),
     from_result: int = 0,
     size: int = 10,
+    app_tag_jdc: bool = Query(False),
 ):
     '''This endpoint provides the service for the keyword search functionality. This uses Elasticsearch in the backend for the full-text search.
     '''
@@ -89,7 +90,10 @@ async def keyword_search(
             # filters["year"] = [int(datetime(y, 1, 1).timestamp()) * 1000
             #                    for y in range(min_year, datetime.now().year + 1)]
 
-    fs = elasticsearch.NLPDocFacetedSearch(query=query, filters=filters)
+    if app_tag_jdc:
+        fs = elasticsearch.JDCNLPDocFacetedSearch(query=query, filters=filters)
+    else:
+        fs = elasticsearch.NLPDocFacetedSearch(query=query, filters=filters)
 
     response = fs[from_result: from_result + size].execute()
 
