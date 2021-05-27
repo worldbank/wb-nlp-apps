@@ -130,9 +130,11 @@ export default {
       return;
     },
     getCorpusSize() {
-      this.$http.get("/nlp/corpus/get_corpus_size").then((response) => {
-        this.corpus_size = response.data.size;
-      });
+      this.$http
+        .get("/nlp/corpus/get_corpus_size?app_tag_jdc=true")
+        .then((response) => {
+          this.corpus_size = response.data.size;
+        });
     },
   },
 };

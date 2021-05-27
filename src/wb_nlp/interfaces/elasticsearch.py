@@ -258,8 +258,16 @@ class NLPDocFacetedSearch(FacetedSearch):
         return search
 
 
-def get_indexed_corpus_size():
-    return NLPDoc.search().count()
+def get_indexed_corpus_size(filters=None):
+
+    search = NLPDoc.search()
+
+    if filters:
+        for f in filters:
+            for ftype, fvalue in f.items():
+                search = search.filter(ftype, **fvalue)
+
+    return search.count()
 
 
 def store_docs_topics(doc_ids, vectors, model_run_info_id, metadata=None, ignore_existing=True):

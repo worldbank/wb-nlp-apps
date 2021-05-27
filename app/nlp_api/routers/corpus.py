@@ -21,10 +21,15 @@ router = APIRouter(
 
 
 @router.get("/get_corpus_size")
-def get_corpus_size():
+def get_corpus_size(app_tag_jdc: bool = Query(False)):
     """This endpoint gets the current size of the corpus.
     """
-    return dict(size=elasticsearch.get_indexed_corpus_size())
+
+    filters = None
+    if app_tag_jdc:
+        filters = [{"term": {"app_tag_jdc": app_tag_jdc}}]
+
+    return dict(size=elasticsearch.get_indexed_corpus_size(filters=filters))
 
 
 @ router.get(
