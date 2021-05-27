@@ -235,25 +235,25 @@ def get_agg_data_by_field(field, type="line", filters=None):
 
 
 @router.get("/get_corpus_volume_by_source")
-def get_corpus_volume_by_source(app_tag: str = Query(None)):
+def get_corpus_volume_by_source(app_tag_jdc: bool = Query(False)):
     """
     This endpoint generates an aggregated data of the volume of documents and tokens present in the corpus grouped by source and year.
     """
     filters = None
-    if app_tag:
-        filters = [{"term": {"app_tags": app_tag}}]
+    if app_tag_jdc:
+        filters = [{"term": {"app_tag_jdc": app_tag_jdc}}]
 
     return get_agg_data_by_field(field="corpus", filters=filters)
 
 
 @router.get("/get_corpus_volume_by")
-def get_corpus_volume_by(fields: List[metadata.CategoricalFields] = Query(...), app_tag: str = Query(None)):
+def get_corpus_volume_by(fields: List[metadata.CategoricalFields] = Query(...), app_tag_jdc: bool = Query(False)):
     """
     This endpoint generates an aggregated data of the volume of documents and tokens present in the corpus grouped by source and year.
     """
     filters = None
-    if app_tag:
-        filters = [{"term": {"app_tags": app_tag}}]
+    if app_tag_jdc:
+        filters = [{"term": {"app_tag_jdc": app_tag_jdc}}]
 
     payload = {}
 
@@ -264,7 +264,7 @@ def get_corpus_volume_by(fields: List[metadata.CategoricalFields] = Query(...), 
 
 
 @router.get("/get_extracted_countries_stats")
-def get_extracted_countries_stats(major_doc_type: str = Query(None), app_tag: str = Query(None)):
+def get_extracted_countries_stats(major_doc_type: str = Query(None), app_tag_jdc: bool = Query(False)):
     """
     This endpoint generates an aggregated data of the volume of documents and tokens present in the corpus grouped by source and year.
     """
@@ -276,11 +276,11 @@ def get_extracted_countries_stats(major_doc_type: str = Query(None), app_tag: st
     if major_doc_type:
         filters = [{"term": {"major_doc_type": major_doc_type}}]
 
-    if app_tag:
+    if app_tag_jdc:
         if filters:
-            filters.append({"term": {"app_tags": app_tag}})
+            filters.append({"term": {"app_tag_jdc": app_tag_jdc}})
         else:
-            filters = [{"term": {"app_tags": app_tag}}]
+            filters = [{"term": {"app_tag_jdc": app_tag_jdc}}]
 
     share = elasticsearch.NLPDoc().get_country_share_by_year(filters=filters)
     volume = elasticsearch.NLPDoc().get_country_counts_by_year(filters=filters)
