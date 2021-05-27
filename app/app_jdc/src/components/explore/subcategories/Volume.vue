@@ -172,6 +172,7 @@ export default {
       const params = new URLSearchParams();
       params.append("fields", "corpus");
       params.append("fields", "major_doc_type");
+      params.append("app_tag_jdc", true);
 
       this.$http
         .get(this.$config.corpus_url + "/get_corpus_volume_by", {
