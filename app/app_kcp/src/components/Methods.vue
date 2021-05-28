@@ -24,7 +24,7 @@
         </div>
       </div>
     </header>
-    <div class="container">
+    <div class="container flowing">
       <div class="row">
         <aside class="col-sm-3 blog-sidebar">
           <section class="sidebar-module">
@@ -248,11 +248,11 @@ export default {
 .content-row {
   min-height: 50vh;
 }
-@media (min-width: 1200px) {
+/* @media (min-width: 1200px) {
   .flowing {
     max-width: 1200px;
   }
-}
+} */
 /*
 .blog-main {
   margin: 0;
@@ -263,4 +263,10 @@ export default {
   margin-left: -2rem;
   padding: 0;
 } */
+
+.flowing {
+  width: 80%;
+  max-width: 80rem;
+  margin: auto;
+}
 </style>

@@ -1469,7 +1469,7 @@ div.facet-options div.card-body {
 
 .flowing {
   width: 80%;
-  max-width: 1080px;
+  max-width: 80rem;
   margin: auto;
 }
 </style>

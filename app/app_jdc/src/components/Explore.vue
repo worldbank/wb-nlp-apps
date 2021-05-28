@@ -211,4 +211,10 @@ export default {
 .fa-no-margin {
   margin: 0px;
 }
+
+.flowing {
+  width: 80%;
+  max-width: 80rem;
+  margin: auto;
+}
 </style>

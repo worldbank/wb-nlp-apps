@@ -266,11 +266,11 @@ export default {
 .content-row {
   min-height: 50vh;
 }
-@media (min-width: 1200px) {
+/* @media (min-width: 1200px) {
   .flowing {
     max-width: 1200px;
   }
-}
+} */
 
 .blog-header {
   margin-bottom: 2rem;
@@ -280,5 +280,11 @@ export default {
   margin-top: -20px;
   margin-left: 75vw;
   position: absolute;
+}
+
+.flowing {
+  width: 80%;
+  max-width: 80rem;
+  margin: auto;
 }
 </style>
