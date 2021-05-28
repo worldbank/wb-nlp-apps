@@ -180,9 +180,7 @@
               id="filter-by-access"
               class="sidebar-filter wb-ihsn-sidebar-filter filter-by-year filter-box"
             >
-              <h6 class="togglable">
-                <i class="fa fa-search pr-2"></i>Year
-              </h6>
+              <h6 class="togglable"><i class="fa fa-search pr-2"></i>Year</h6>
               <div class="sidebar-filter-entries">
                 <input type="hidden" />
 
@@ -933,6 +931,10 @@ export default {
     },
     getFacetOptions(facet_name) {
       // const for_sorting = ["country", "der_country_groups", "adm_region", "geo_region"]
+      if (!this.facets) {
+        return [];
+      }
+
       var options = this.facets["_filter_" + facet_name][
         facet_name
       ].buckets.map((o) => {
