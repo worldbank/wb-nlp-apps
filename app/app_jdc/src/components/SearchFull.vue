@@ -1445,4 +1445,31 @@ u {
 .bounded-modal {
   margin-top: 125px;
 }
+
+.filter-box {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f3f3f3;
+}
+
+.filter-box h6 {
+  color: #333;
+}
+
+.facet-options {
+  border: 0px;
+  background-color: #f3f3f3;
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+div.facet-options div.card-body {
+  padding: 0.25rem;
+}
+
+.flowing {
+  width: 80%;
+  max-width: 1080px;
+  margin: auto;
+}
 </style>

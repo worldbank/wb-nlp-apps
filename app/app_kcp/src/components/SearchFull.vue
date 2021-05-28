@@ -17,7 +17,7 @@
       </div>
     </header>
 
-    <div class="container">
+    <div class="container flowing">
       <div class="row">
         <div class="col-12 col-md-12 mb-2">
           <div class="row justify-content-center">
@@ -1475,11 +1475,11 @@ u {
 .content-row {
   min-height: 50vh;
 }
-@media (min-width: 1200px) {
+/* @media (min-width: 1200px) {
   .flowing {
     max-width: 1200px;
   }
-}
+} */
 
 .wbg-internal-header {
   padding-top: 1rem;
@@ -1551,5 +1551,28 @@ u {
 }
 .fa-times:hover {
   color: red;
+}
+
+.filter-box {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f3f3f3;
+}
+
+.facet-options {
+  border: 0px;
+  background-color: #f3f3f3;
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+div.facet-options div.card-body {
+  padding: 0.25rem;
+}
+
+.flowing {
+  width: 80%;
+  max-width: 1080px;
+  margin: auto;
 }
 </style>
