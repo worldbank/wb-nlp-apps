@@ -36,6 +36,7 @@
 
           <div v-if="highlights" class="highlight">
             <read-more
+              v-if="highlights.body"
               more-str="read more"
               :text="highlights.body.join('... ').replace(/\s\s+/g, ' ') || ''"
               link="#"
