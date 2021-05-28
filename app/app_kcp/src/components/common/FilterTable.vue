@@ -67,13 +67,14 @@
                     :disabled="disableSelect(row.topic_id)"
                   />
                   <label
-                    class="custom-control-label"
+                    class="custom-control-label topic-label"
                     :for="'topicSelect_' + index"
                     >{{ row.topic_label }}</label
                   >
                 </div>
               </th>
               <td
+                class="keywords-class"
                 v-html="
                   highlightMatches([...row.topic_words].sort().join(', '))
                 "
@@ -99,13 +100,23 @@
         <div class="row align-items-center">
           <div class="col-12 col-md-3">
             <h5>{{ topic_data[selected].label }}</h5>
+            <button
+              @click="removeSelected(selected)"
+              type="button"
+              class="btn btn-link btn-sm wbg-button-danger"
+            >
+              <i class="fas fa-trash fa-sm mr-2" aria-hidden="true"></i>Remove
+            </button>
           </div>
           <div class="col-12 col-md-9">
             <div class="form-group mt-2 mb-3">
-              <label for="formControlRange" class="small"
+              <label for="formControlRange" class="small-label"
+                >Current value: {{ getSliderValue(selected) }}%</label
+              >
+              <label style="float: right" class="small-label"
                 >Range {{ Math.round(topic_ranges[selected].min * 100) }}%-{{
                   Math.round(topic_ranges[selected].max * 100)
-                }}% = {{ getSliderValue(selected) }}</label
+                }}%</label
               >
               <input
                 type="range"
@@ -131,7 +142,7 @@
         </div>
         <hr />
       </div>
-      <div class="row">
+      <!-- <div class="row">
         <div class="col-12">
           <button
             @click="removeLastSelected"
@@ -142,11 +153,10 @@
             topic
           </button>
         </div>
-      </div>
+      </div> -->
     </form>
     <div v-if="selected_topic.length > 0" class="row mb-4">
       <div class="col-12">
-        <hr />
         <button
           type="button"
           class="btn btn-primary btn-lg wbg-button"
@@ -227,6 +237,10 @@ export default {
       } else {
         delete this.topicValue[selected];
       }
+    },
+    removeSelected(topic_id) {
+      this.selected_topic = this.selected_topic.filter((o) => o != topic_id);
+      delete this.topicValue[topic_id];
     },
     removeLastSelected() {
       var selected = this.selected_topic.pop();
@@ -412,8 +426,20 @@ select {
 }
 
 .topic-words {
-  font-size: 12px;
+  font-size: 14px;
   color: rgb(119, 115, 115);
+}
+
+.topic-label {
+  font-size: 1rem;
+}
+
+.keywords-class {
+  font-size: 1rem;
+}
+
+.small-label {
+  font-size: 14px;
 }
 
 /*
