@@ -386,6 +386,8 @@ export default {
   watch: {
     selected_topic: function () {
       this.getHitsCount();
+
+      this.$emit("topicSelectionUpdated", true);
     },
   },
 };

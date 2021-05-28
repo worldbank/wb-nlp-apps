@@ -20,19 +20,24 @@
           render the relevant documents.
         </p>
 
-        <DefaultFilterTable @topicRangeReceived="submitTopicSearch" />
+        <DefaultFilterTable
+          @topicRangeReceived="submitTopicSearch"
+          @topicSelectionUpdated="topicSelectionUpdated"
+        />
 
         <a name="results"></a>
         <div v-if="this.model_id">
           <h2>Filtering Results</h2>
 
-          <SearchResultLoading :loading="loading" :size="curr_size" />
-          <SearchResultCard
-            v-for="(result, idx, key) in hits"
-            :result="result"
-            :match="match_stats[idx]"
-            v-bind:key="result.id + key"
-          />
+          <div :class="topic_selection_dirty ? 'blurred' : ''">
+            <SearchResultLoading :loading="loading" :size="curr_size" />
+            <SearchResultCard
+              v-for="(result, idx, key) in hits"
+              :result="result"
+              :match="match_stats[idx]"
+              v-bind:key="result.id + key"
+            />
+          </div>
 
           <Pagination
             @pageNumReceived="sendSearch"
@@ -125,9 +130,13 @@ export default {
       total: Object,
       errored: false,
       loading: false,
+      topic_selection_dirty: false,
     };
   },
   methods: {
+    topicSelectionUpdated(event) {
+      this.topic_selection_dirty = event;
+    },
     getSaveStateConfig() {
       return {
         cacheKey: "filterTopicSharePage",
@@ -166,6 +175,7 @@ export default {
         .finally(() => (this.loading = false));
     },
     submitTopicSearch(filterPanelData) {
+      this.topic_selection_dirty = false;
       this.model_id = filterPanelData.model_id;
       this.model_name = filterPanelData.model_name;
       this.topic_percentage = {};
@@ -186,6 +196,14 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.blurred {
+  -webkit-filter: blur(1px);
+  -moz-filter: blur(1px);
+  -o-filter: blur(1px);
+  -ms-filter: blur(1px);
+  filter: blur(1px);
+}
+
 /* h3 {
   margin: 40px 0 0;
 } */
