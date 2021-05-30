@@ -14,6 +14,7 @@ services:
         ENV_DEV_FILE: "environment.dev.remote.yml"
     volumes:
       - ${REMOTE_PATH}:/workspace
+      - ${REMOTE_PATH}/../scrapers:/workspace/scrapers
       # - ./:/workspace
       # - ${REMOTE_PATH}:/workspace:cached
     # ports:
