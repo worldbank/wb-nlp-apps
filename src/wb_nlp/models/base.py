@@ -93,9 +93,11 @@ class BaseModel:
         self.raise_empty_doc_status = raise_empty_doc_status
 
         # # Try to load the model
+        self.logger.info("Start loading model...")
         self.load()
         self.set_model_specific_attributes()
 
+        self.logger.info("Creating milvus collection...")
         self.create_milvus_collection()
 
         self.doc_topic_meta_fields = [
@@ -444,10 +446,18 @@ class BaseModel:
         self.set_model_word_vectors()
 
     def load_model(self):
+        self.logger.info(f"Model path: {self.model_file_name}")
+
+        if not self.model_file_name.exists():
+            self.model = None
+            return
+
         model_file_name = str(self.model_file_name)
 
         try:
+            self.logger.info("Actually loading model...")
             self.model = self.model_class.load(model_file_name)
+            self.logger.info("Model loaded...")
 
             # model_runs_info_collection = mongodb.get_model_runs_info_collection()
             # assert model_runs_info_collection.find_one({"_id": self.model_run_info["model_run_info_id"]}), "Trained model present but `model_run_info` not in db, aborting load... Options: You can delete the model and retrain. Alternatively, if `model_run_info` is stored available, please make sure to upload it in the correct collection. Also note that the Milvus table must exist!"
