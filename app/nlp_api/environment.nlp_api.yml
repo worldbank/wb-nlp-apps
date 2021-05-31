@@ -44,6 +44,8 @@ dependencies:
     # - elasticsearch-dsl==7.3.0
     - git+https://github.com/avsolatorio/elasticsearch-dsl-py.git@1f6b00bbb4be807f5334aef5801fc22b56a83781
     # - en-core-web-sm==2.3.1
+    - grpcio>=1.22.0,<1.38.0
+    - grpcio-tools>=1.22.0,<1.38.0
     - fastapi==0.63.0
     - fasttext==0.9.2
     - flashtext==2.7

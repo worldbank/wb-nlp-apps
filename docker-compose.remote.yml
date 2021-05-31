@@ -112,8 +112,9 @@ services:
   nlp_api:
     volumes:
       - ${REMOTE_PATH}/models:/workspace/models
-      - ${REMOTE_PATH}/data/preprocessed:/workspace/data/preprocessed
-      - ${REMOTE_PATH}/data/whitelists:/workspace/data/whitelists
+      - ${REMOTE_PATH}/data:/workspace/data
+      # - ${REMOTE_PATH}/data/preprocessed:/workspace/data/preprocessed
+      # - ${REMOTE_PATH}/data/whitelists:/workspace/data/whitelists
 
   app_label:
     volumes:
