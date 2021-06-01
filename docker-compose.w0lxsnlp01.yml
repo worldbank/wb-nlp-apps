@@ -32,8 +32,8 @@ services:
     env_file:
       - .env
     volumes:
-      - ${LOCAL_PATH}/app/load_balancer:/app
-      # - ${LOCAL_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
+      - ${STAGING_PATH}/app/load_balancer:/app
+      # - ${STAGING_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
     links:
       - app_kcp
       - app_jdc

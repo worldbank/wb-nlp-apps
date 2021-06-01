@@ -23,6 +23,24 @@ services:
       - mongodb
       - web
 
+  load_balancer:
+    build:
+      context: ./app/load_balancer
+    restart: always
+    ports:
+      - "80:80"
+    env_file:
+      - .env
+    volumes:
+      - ${REMOTE_PATH}/app/load_balancer:/app
+      # - ${REMOTE_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - app_kcp
+      - app_jdc
+    depends_on:
+      - app_kcp
+      - app_jdc
+
   app:
     volumes:
       - ${REMOTE_PATH}/app/app_vue2:/app
