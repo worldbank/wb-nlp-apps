@@ -460,7 +460,7 @@ export default {
   },
   mixins: [saveState],
   mounted() {
-    window.vm = this;
+    // window.vm = this;
     // this.flowSideBar();
 
     this.routeChangeSearch();
@@ -1009,7 +1009,9 @@ export default {
             location.origin + api_url + "?" + searchParams.toLocaleString();
 
           let vm = this;
-          setTimeout(() => {vm.loading = false}, 10)
+          setTimeout(() => {
+            vm.loading = false;
+          }, 10);
           // this.loading = false;
 
           this.fetchForCache(this.next, ignore_empty_query, this.cache_count);

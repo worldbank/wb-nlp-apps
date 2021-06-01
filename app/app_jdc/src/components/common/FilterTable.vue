@@ -169,7 +169,7 @@ export default {
   name: "FilterTable",
   components: { MLModelSelect },
   mounted() {
-    window.filter_table_vm = this;
+    // window.filter_table_vm = this;
     // this.getModelTopics();
   },
   data: function () {

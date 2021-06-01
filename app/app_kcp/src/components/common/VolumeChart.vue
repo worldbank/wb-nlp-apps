@@ -104,7 +104,7 @@ export default {
   mounted() {
     // this.docs_data = this.data.docs;
     // this.tokens_data = this.data.tokens;
-    window.vvm = this;
+    // window.vvm = this;
     this.updateCharts();
   },
   computed: {

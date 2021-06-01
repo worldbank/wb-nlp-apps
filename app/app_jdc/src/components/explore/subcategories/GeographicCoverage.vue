@@ -214,7 +214,7 @@ export default {
     };
   },
   mounted() {
-    window.gvm = this;
+    // window.gvm = this;
     this.getISOInfo();
     // this.findTopicMap();
     this.getFullCorpusData();

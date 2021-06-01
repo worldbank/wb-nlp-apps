@@ -296,7 +296,7 @@ export default {
     },
   },
   mounted() {
-    window.vm = this;
+    // window.vm = this;
     this.getModelTopics();
   },
   methods: {

@@ -70,7 +70,7 @@ export default {
   components: { SDGCard, WDICard, VueHorizontal },
   mounted() {
     // window.viewer = this;
-    window.document_indicators = this;
+    // window.document_indicators = this;
     this.updateData();
   },
   data() {

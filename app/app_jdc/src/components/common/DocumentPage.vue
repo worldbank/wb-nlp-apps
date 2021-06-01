@@ -180,7 +180,7 @@ export default {
   name: "DocumentPage",
   props: {},
   mounted() {
-    window.vm = this;
+    // window.vm = this;
     this.getMetadata();
   },
   computed: {

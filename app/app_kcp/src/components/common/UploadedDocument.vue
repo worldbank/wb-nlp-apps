@@ -78,7 +78,7 @@ export default {
   components: { WBMapChart, VueJsonPretty },
   mounted() {
     // window.viewer = this;
-    window.document_analyzed = this;
+    // window.document_analyzed = this;
     this.getISOInfo();
   },
   data() {

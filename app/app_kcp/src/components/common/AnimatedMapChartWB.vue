@@ -392,7 +392,7 @@ export default {
     // this.startAnimation();
 
     // this.renderMapCSS();
-    window.mapVM = this;
+    // window.mapVM = this;
     this.$emit("mounted", true);
   },
   destroyed() {

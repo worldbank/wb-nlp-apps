@@ -116,7 +116,7 @@ export default {
   },
   components: { WBMapChart, VueJsonPretty },
   mounted() {
-    window.viewer = this;
+    // window.viewer = this;
     this.privateFilteredDocTopics = null;
     this.privateCountryData = null;
     this.doc_topics = [];

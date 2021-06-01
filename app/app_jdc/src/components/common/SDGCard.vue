@@ -35,7 +35,7 @@ export default {
     result: Object,
   },
   mounted() {
-    window.sdg_card = this;
+    // window.sdg_card = this;
   },
   data() {
     return {};

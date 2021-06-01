@@ -28,12 +28,12 @@ Vue.prototype.$config = config
 
 // Install BootstrapVue
 Vue.use(BootstrapVue)
-    // Optionally install the BootstrapVue icon components plugin
+// Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin)
 
 Vue.use(VueFriendlyIframe)
 Vue.use(VueLodash, { lodash: lodash })
-    // Vue.use(VueAxios, axios)
+// Vue.use(VueAxios, axios)
 
 Vue.use(checkView)
 Vue.component("v-select", vSelect)

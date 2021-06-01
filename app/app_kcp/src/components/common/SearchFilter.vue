@@ -243,7 +243,7 @@ export default {
     },
   },
   mounted() {
-    window.sf = this;
+    // window.sf = this;
   },
   methods: {
     setSelectedFilters() {

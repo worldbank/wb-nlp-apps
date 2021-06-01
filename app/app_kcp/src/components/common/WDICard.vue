@@ -54,7 +54,7 @@ export default {
     result: Object,
   },
   mounted() {
-    window.wdi_card = this;
+    // window.wdi_card = this;
     this.getIndicatorMetadata(this.result);
   },
   data() {

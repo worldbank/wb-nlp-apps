@@ -77,7 +77,7 @@ export default {
   },
   mixins: [saveState],
   mounted() {
-    window.vm = this;
+    // window.vm = this;
     this.model_id = null;
     this.hits = [];
   },

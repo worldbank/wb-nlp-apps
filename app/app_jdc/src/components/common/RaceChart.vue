@@ -62,7 +62,7 @@ export default {
   name: "RaceAChart",
   components: { VChart },
   mounted() {
-    window.rvm = this;
+    // window.rvm = this;
     this.fetchData();
     if (this.input_data.length > 0) {
       this.loadInputData();

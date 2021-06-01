@@ -188,7 +188,7 @@ export default {
         return;
       }
 
-      window.x = this.$refs;
+      // window.x = this.$refs;
       var file = this.$refs.file.files[0];
 
       this.is_file_uploaded = true;

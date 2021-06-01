@@ -255,7 +255,7 @@ export default {
     },
   },
   mounted() {
-    window.vm = this;
+    // window.vm = this;
   },
   methods: {
     onModelSelect: function (result) {

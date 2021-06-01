@@ -318,7 +318,7 @@ export default {
   },
   mixins: [saveState],
   mounted() {
-    window.vm = this;
+    // window.vm = this;
     this.model_options.topic_model.model_id = null;
     this.model_options.word2vec.model_id = null;
   },

@@ -218,7 +218,7 @@ export default {
     // document.body.appendChild(this.$data.node);
 
     this.renderMapCSS();
-    window.mapVM = this;
+    // window.mapVM = this;
   },
 };
 </script>

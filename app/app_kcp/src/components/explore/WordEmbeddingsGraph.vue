@@ -134,7 +134,7 @@ export default {
   },
   mounted() {
     // this.getGraph();
-    window.vm = this;
+    // window.vm = this;
     this.getGraph("refugee");
   },
   computed: {

@@ -58,7 +58,7 @@ export default {
     page_title: String,
   },
   mounted() {
-    window.cvm = this;
+    // window.cvm = this;
     this.$http.get("/static/data/corpus_details.json").then((response) => {
       this.items = response.data.filter((o) =>
         this.valid_corpus_ids.includes(o.corpus_id)
