@@ -111,6 +111,7 @@ services:
     volumes:
       - ${SERVER7_DATA_PATH}/models:/workspace/models
       - ${SERVER7_DATA_PATH}/data:/workspace/data
+      - ${SERVER7_DATA_PATH}/../scrapers:/workspace/scrapers
       - ${SERVER7_PATH}/data/whitelists:/workspace/data/whitelists
       - ${SERVER7_PATH}/data/maps:/workspace/data/maps
 
