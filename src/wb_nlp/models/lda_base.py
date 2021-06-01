@@ -571,6 +571,9 @@ class LDAModel(BaseModel):
             topic=f"topic_{topic_id}",
             filters=filters))
 
+        if data.empty:
+            return None
+
         year_field_topic_sum_df = data.pivot(
             index="year", columns=field, values=f"{field}_topic_sum").fillna(0)
         year_doc_count_df = data.pivot(

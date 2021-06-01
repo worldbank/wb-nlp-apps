@@ -51,6 +51,10 @@ DEFAULT_QUERY_FIELDS = dict(
         True, description="A flag indicating how the returned data is structured."),
     app_tag_jdc=Query(
         False, description="Tag to only return documents under the JDC collection."),
+    corpus=Query(
+        None, description="Corpus id."),
+    major_doc_type=Query(
+        None, description="Major document type."),
     type=Query(
         "line", description="Type of chart."
     )
@@ -188,13 +192,24 @@ def get_full_topic_profiles(
     year_end: int,
     return_records: bool,
     app_tag_jdc: bool,
+    corpus: str,
+    major_doc_type: str,
     type: str
 ):
     model = get_validated_model(model_name, model_id)
 
-    filters = None
+    filters = []
     if app_tag_jdc:
-        filters = [{"term": {"app_tag_jdc": app_tag_jdc}}]
+        filters.append({"term": {"app_tag_jdc": app_tag_jdc}})
+
+    if corpus:
+        filters.append({"term": {"corpus": corpus}})
+
+    if major_doc_type:
+        filters.append({"term": {"major_doc_type": major_doc_type}})
+
+    if len(filters) == 0:
+        filters = None
 
     return model.get_full_topic_profiles(
         topic_id=topic_id,

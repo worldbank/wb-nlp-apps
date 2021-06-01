@@ -292,6 +292,8 @@ if __name__ == '__main__':
     # Do this if the model is available in disk but the model_run_info is not. This is to dump the model_run_info to db in case it's not present.
     # mallet_model.save()
 
+    mallet_model.drop_milvus_collection()
+
     mallet_model.build_doc_vecs(pool_workers=3)
     print(mallet_model.get_similar_words('bank'))
     print(mallet_model.get_similar_documents('bank'))

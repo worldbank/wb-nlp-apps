@@ -45,9 +45,27 @@
               </b-form-group>
             </b-col>
           </b-row>
-          <br />
+          <!-- <br /> -->
 
-          <div>
+          <h4 class="mt-4">Filter data</h4>
+          <b-row>
+            <b-col>
+              by source
+              <b-form-select
+                v-model="corpus_filter"
+                :options="corpus_options"
+              ></b-form-select>
+            </b-col>
+            <b-col>
+              by document type
+              <b-form-select
+                v-model="major_doc_type_filter"
+                :options="major_doc_type_options"
+              ></b-form-select>
+            </b-col>
+          </b-row>
+
+          <div class="mt-5">
             <h4>Topic profile by document type</h4>
             <b-form-radio-group
               v-model="major_doc_type_value"
@@ -166,6 +184,23 @@ export default {
       group_value_options: [
         { item: "volume", name: "By volume" },
         { item: "share", name: "By share" },
+      ],
+
+      major_doc_type_filter: "",
+      major_doc_type_options: [
+        { value: "", text: "All documents" },
+        { value: "Project Documents", text: "Project Documents" },
+        {
+          value: "Publications and Research",
+          text: "Publications and Research",
+        },
+      ],
+
+      corpus_filter: "",
+      corpus_options: [
+        { value: "", text: "All sources" },
+        { value: "WB", text: "World Bank" },
+        // { value: "ADB", text: "Asian Development Bank" },
       ],
 
       corpus_data: null,
@@ -416,6 +451,9 @@ export default {
       params.append("topic_id", this.topic_id);
       params.append("year_start", 1960);
       params.append("app_tag_jdc", true);
+      params.append("major_doc_type", this.major_doc_type_filter);
+      params.append("corpus", this.corpus_filter);
+
       params.append("type", "line");
 
       this.$http
@@ -454,6 +492,12 @@ export default {
   },
   watch: {
     topic_id() {
+      this.getFullTopicProfiles();
+    },
+    major_doc_type_filter() {
+      this.getFullTopicProfiles();
+    },
+    corpus_filter() {
       this.getFullTopicProfiles();
     },
     corpus_value() {
