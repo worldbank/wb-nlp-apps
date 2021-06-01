@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import { publicPath } from '../../vue.config'
+
 import ExploreNav from '../components/ExploreNav.vue'
 import Home from '../components/Home.vue'
 import Search from '../components/SearchFull.vue'
@@ -309,6 +311,7 @@ const routes = [
 const router = new VueRouter({
     mode: 'history',
     routes: routes,
+    base: publicPath,
     // scrollBehavior(to, from, savedPosition) {
     scrollBehavior() {
         // var to = to

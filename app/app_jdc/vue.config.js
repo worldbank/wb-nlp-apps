@@ -1,5 +1,5 @@
 module.exports = {
-    // publicPath: process.env.NODE_ENV === 'production' ? '/jdc/' : '/jdc/',
+    publicPath: process.env.NODE_ENV === 'production' ? '/jdc/' : '/jdc/',
     devServer: {
         proxy: {
             // '^/nlp': {
