@@ -20,7 +20,7 @@ Expected output:
 """
 
 import json
-
+import shutil
 from pathlib import Path
 from polyglot.detect import Detector
 
@@ -171,12 +171,17 @@ def convert_pdf_to_text(input_file):
     output_file = Path(dir_manager.get_data_dir(
         "corpus", corpus_id, "TXT_ORIG", f"{doc_id}.txt"))
 
-    if not output_file.exists():
-        pages = document.PDFDoc2Txt().parse(
-            source=str(input_file.resolve()), source_type="file")
+    scraped_txt_file = input_file.parent.parent / "TXT_ORIG" / f"{doc_id}.txt"
 
-        with open(output_file, "w") as out_file:
-            out_file.write(" ".join(pages))
+    if not output_file.exists():
+        if not scraped_txt_file.exists():
+            pages = document.PDFDoc2Txt().parse(
+                source=str(input_file.resolve()), source_type="file")
+
+            with open(output_file, "w") as out_file:
+                out_file.write(" ".join(pages))
+        else:
+            shutil.copy(scraped_txt_file, output_file)
 
     return output_file
 
