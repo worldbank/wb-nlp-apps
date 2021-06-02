@@ -12,45 +12,49 @@ from wb_nlp.types.models import LDAModelConfig, MalletModelConfig, Word2VecModel
 
 from pymongo.errors import DuplicateKeyError
 
-cleaning_configs_collection = mongodb.get_cleaning_configs_collection()
 
-for cfg_path in Path(get_configs_dir('cleaning')).glob('*.yml'):
-    config = load_config(cfg_path, 'cleaning_config')
-    config = json.loads(CleaningConfig(**config).json())
+def load_configs():
+    cleaning_configs_collection = mongodb.get_cleaning_configs_collection()
 
-    config["_id"] = config["cleaning_config_id"]
+    for cfg_path in Path(get_configs_dir('cleaning')).glob('*.yml'):
+        config = load_config(cfg_path, 'cleaning_config')
+        config = json.loads(CleaningConfig(**config).json())
 
-    try:
-        cleaning_configs_collection.insert_one(config)
-        print(config)
-    except DuplicateKeyError:
-        print(
-            f"Config {cfg_path} already in database with id: {config['_id']}...")
-
-    print()
-
-
-model_configs_collection = mongodb.get_model_configs_collection()
-
-
-model_config_set = [
-    (LDAModelConfig, "lda"),
-    (MalletModelConfig, "mallet"),
-    (Word2VecModelConfig, "word2vec"),
-]
-
-for model_config_type, model_name in model_config_set:
-    for cfg_path in Path(get_configs_dir('models', model_name)).glob('*.yml'):
-        config = load_config(cfg_path, 'model_config')
-        config = json.loads(model_config_type(**config).json())
-
-        config["_id"] = config["model_config_id"]
+        config["_id"] = config["cleaning_config_id"]
 
         try:
-            model_configs_collection.insert_one(config)
+            cleaning_configs_collection.insert_one(config)
             print(config)
         except DuplicateKeyError:
             print(
                 f"Config {cfg_path} already in database with id: {config['_id']}...")
 
         print()
+
+    model_configs_collection = mongodb.get_model_configs_collection()
+
+    model_config_set = [
+        (LDAModelConfig, "lda"),
+        (MalletModelConfig, "mallet"),
+        (Word2VecModelConfig, "word2vec"),
+    ]
+
+    for model_config_type, model_name in model_config_set:
+        for cfg_path in Path(get_configs_dir('models', model_name)).glob('*.yml'):
+            config = load_config(cfg_path, 'model_config')
+            config = json.loads(model_config_type(**config).json())
+
+            config["_id"] = config["model_config_id"]
+
+            try:
+                model_configs_collection.insert_one(config)
+                print(config)
+            except DuplicateKeyError:
+                print(
+                    f"Config {cfg_path} already in database with id: {config['_id']}...")
+
+            print()
+
+
+if __name__ == "__main__":
+    load_configs()
