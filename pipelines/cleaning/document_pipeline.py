@@ -22,14 +22,15 @@ Expected output:
 import json
 
 from pathlib import Path
+from polyglot.detect import Detector
 
 from prefect import task, Flow, Parameter
-
 
 from wb_nlp import dir_manager
 from wb_nlp.types.metadata import MetadataModel
 from wb_nlp.processing import document
 from wb_nlp.extraction.pdf_cover import DocumentCover
+from wb_nlp.extraction.english_content_extractor import filter_document_by_language
 """
 1.
 """
@@ -202,18 +203,59 @@ def extract_pdf_cover(input_file):
     # return ret
 
 
-# def transform_corpus_metadata(metadata):
-#     validated_metadata = []
-#     for meta in metadata:
-#         major_doc_type = meta.get("major_doc_type")
-#         if not isinstance(major_doc_type, list) and major_doc_type:
-#             meta["major_doc_type"] = [major_doc_type]
+#######################
+# TEXT PROCESSING TASKS
+#######################
 
-#         # Validate based on the metadata schema
-#         meta = json.loads(MetadataModel(**meta).json())
-#         validated_metadata.append(meta)
+@task
+def extract_valid_language_lines(input_file):
+    doc_id = input_file.stem
+    corpus_id = input_file.parent.parent.name
 
-#     return validated_metadata
+    output_file = Path(dir_manager.get_data_dir(
+        "corpus", corpus_id, "EN_TXT_ORIG", f"{doc_id}.txt"))
+
+    non_en_output_file = Path(dir_manager.get_data_dir(
+        "corpus", corpus_id, "NON_EN_TXT_ORIG", f"{doc_id}.txt"))
+
+    is_ok = True
+
+    if not output_file.exists():
+        with open(input_file, "rb") as open_file:
+            text = open_file.read().decode("utf-8", errors="ignore").strip()
+
+            # Only process texts that mainly contain English content.
+            if text and (len(text.split()) >= 10):
+                d = Detector(
+                    "".join(x for x in text if x.isprintable()), quiet=True)
+                if d.language.code == "en" and d.language.confidence > 50:
+                    pval = 0.05
+                    non_en_spell_df = filter_document_by_language(
+                        text, return_df=True)
+
+                    if non_en_spell_df is not None:
+                        en_txt = "\n".join(
+                            non_en_spell_df[non_en_spell_df["pval"] > pval]["sent"])
+                        non_en_txt = "\n".join(
+                            non_en_spell_df[non_en_spell_df["pval"] <= pval]["sent"])
+
+                        with open(output_file, "w") as out_file:
+                            out_file.write(en_txt)
+
+                        with open(non_en_output_file, "w") as non_en_out_file:
+                            non_en_out_file.write(non_en_txt)
+            else:
+                is_ok = False
+
+    return dict(is_ok=is_ok, output_file=output_file)
+
+
+# def dump_final_metadata(corpus_id, valid_text_files):
+#     l_corpus_id = corpus_id.lower()
+
+#     tmp_clean_metadata_jsonl = Path(dir_manager.get_data_dir(
+#         "corpus", corpus_id, f"{l_corpus_id}_clean_metadata.tmp.jsonl"))
+#     pass
 
 
 def main():
@@ -231,11 +273,16 @@ def main():
         validated_corpus_metadata = validate_corpus_metadata.map(
             corpus_metadata)
 
-        pdf_paths = get_pdf_paths.map(validated_corpus_metadata)
-
-        convert_pdf_to_text.map(pdf_paths)
-        extract_pdf_cover.map(pdf_paths)
         persist_temp_clean_metadata(validated_corpus_metadata)
+
+        pdf_paths = get_pdf_paths.map(validated_corpus_metadata)
+        extract_pdf_cover.map(pdf_paths)
+
+        corpus_text_files = convert_pdf_to_text.map(pdf_paths)
+
+        valid_text_files = extract_valid_language_lines.map(corpus_text_files)
+
+        # valid_text_files
 
         # reference_data = extract_reference_data()
         # live_data = extract_live_data(airport, radius, reference_data)
