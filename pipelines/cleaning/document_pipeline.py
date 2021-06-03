@@ -309,15 +309,15 @@ def main(corpus_id, size=None):
     assert corpus_id, "Please specify the corpus_id to be processed with the --corpus-id=<corpus_id> parameter..."
 
     with Flow("cleaning") as flow:
-        corpus_id = Parameter("corpus_id", default="WB")
+        flow_corpus_id = Parameter("corpus_id", default="WB")
         max_process_size = Parameter("size", default=None)
 
-        create_corpus_dirs(corpus_id)
+        create_corpus_dirs(flow_corpus_id)
 
-        corpus_clean_metadata = extract_corpus_clean_metadata(corpus_id)
+        corpus_clean_metadata = extract_corpus_clean_metadata(flow_corpus_id)
 
         corpus_metadata = extract_corpus_raw_metadata(
-            corpus_id, corpus_clean_metadata, max_process_size)
+            flow_corpus_id, corpus_clean_metadata, max_process_size)
 
         validated_corpus_metadata = validate_corpus_metadata.map(
             corpus_metadata)
