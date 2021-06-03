@@ -305,7 +305,9 @@ def end_task_report(valid_text_files):
 #     pass
 
 
-def main():
+def main(corpus_id, size=None):
+    assert corpus_id, "Please specify the corpus_id to be processed with the --corpus-id=<corpus_id> parameter..."
+
     with Flow("cleaning") as flow:
         corpus_id = Parameter("corpus_id", default="WB")
         max_process_size = Parameter("size", default=None)
@@ -335,9 +337,18 @@ def main():
 
         end_task_report(valid_text_files)
 
-    flow.run(corpus_id="ADB", size=100, executor=DaskExecutor(
+    flow.run(corpus_id=corpus_id, size=size, executor=DaskExecutor(
         adapt_kwargs={"maximum": 256}))
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--corpus-id', dest='corpus_id', type=str)
+    parser.add_argument('--size', dest='size', type=int, default=None)
+    args = parser.parse_args()
+
+    main(**vars(args))
+
+    # python document_pipeline.py --corpus-id=WB --size=100
