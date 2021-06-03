@@ -66,6 +66,18 @@ def extract_corpus_clean_metadata_ids(corpus_id):
     return clean_ids
 
 
+def raw_pdf_file_exists(corpus_id, doc_id):
+    l_corpus_id = corpus_id.lower()
+    pdf_path = Path(
+        dir_manager.get_path_from_root(
+            "scrapers", l_corpus_id,
+            "corpus", corpus_id, "PDF_ORIG", f"{doc_id}.pdf"
+        )
+    )
+
+    return pdf_path.exists()
+
+
 @task
 def extract_corpus_raw_metadata(corpus_id, clean_ids, size=None):
     l_corpus_id = corpus_id.lower()
@@ -81,19 +93,16 @@ def extract_corpus_raw_metadata(corpus_id, clean_ids, size=None):
         for line in json_file:
             if line.strip():
                 meta = json.loads(line.strip())
-                meta_id = meta["id"]
+                doc_id = meta["id"]
 
-                if meta_id in seen_ids:
+                if doc_id in seen_ids:
                     continue
 
-                pdf_path = corpus_root / "corpus" / \
-                    corpus_id / "PDF_ORIG" / f"{meta_id}.pdf"
-
-                if not pdf_path.exists():
+                if not raw_pdf_file_exists(corpus_id, doc_id):
                     continue
 
                 data.append(meta)
-                seen_ids.add(meta_id)
+                seen_ids.add(doc_id)
 
                 if size and len(seen_ids) >= size:
                     break
