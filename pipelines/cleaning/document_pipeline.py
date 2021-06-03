@@ -35,9 +35,9 @@ from wb_nlp.extraction.english_content_extractor import filter_document_by_langu
 """
 1.
 """
-################
-# METADATA TASKS
-################
+###########
+# FUNCTIONS
+###########
 
 
 def get_clean_metadata_file(corpus_id):
@@ -45,25 +45,6 @@ def get_clean_metadata_file(corpus_id):
 
     return Path(dir_manager.get_data_dir(
         "corpus", corpus_id, f"{l_corpus_id}_clean_metadata.jsonl"))
-
-
-@task
-def extract_corpus_clean_metadata_ids(corpus_id):
-    clean_metadata_jsonl = get_clean_metadata_file(corpus_id)
-
-    clean_ids = set()
-
-    if clean_metadata_jsonl.exists():
-
-        with open(clean_metadata_jsonl) as json_file:
-            for line in json_file:
-                if line.strip():
-                    meta = json.loads(line.strip())
-                    meta_id = meta["id"]
-
-                    clean_ids.add(meta_id)
-
-    return clean_ids
 
 
 def raw_pdf_file_exists(corpus_id, doc_id):
@@ -77,9 +58,27 @@ def raw_pdf_file_exists(corpus_id, doc_id):
 
     return pdf_path.exists()
 
+################
+# METADATA TASKS
+################
+
 
 @task
-def extract_corpus_raw_metadata(corpus_id, clean_ids, size=None):
+def extract_corpus_clean_metadata(corpus_id):
+    clean_metadata_jsonl = get_clean_metadata_file(corpus_id)
+
+    metadata = []
+
+    if clean_metadata_jsonl.exists():
+        with open(clean_metadata_jsonl) as json_file:
+            metadata = [json.loads(line.strip())
+                        for line in json_file if line.strip()]
+
+    return metadata
+
+
+@task
+def extract_corpus_raw_metadata(corpus_id, clean_metadata, size=None):
     l_corpus_id = corpus_id.lower()
     corpus_root = Path(dir_manager.get_path_from_root("scrapers", l_corpus_id))
 
@@ -87,7 +86,7 @@ def extract_corpus_raw_metadata(corpus_id, clean_ids, size=None):
 
     data = []
 
-    seen_ids = clean_ids
+    seen_ids = {m["id"] for m in clean_metadata}
 
     with open(metadata_jsonl) as json_file:
         for line in json_file:
@@ -126,7 +125,7 @@ def persist_clean_metadata(metadata):
     if not clean_metadata_jsonl.parent.exists():
         clean_metadata_jsonl.parent.mkdir(parents=True)
 
-    with open(clean_metadata_jsonl, 'w') as json_outfile:
+    with open(clean_metadata_jsonl, 'a+') as json_outfile:
         for meta in metadata:
 
             # Write data to temp file
@@ -145,6 +144,12 @@ def validate_corpus_metadata(meta):
     # Validate based on the metadata schema
     meta = json.loads(MetadataModel(**meta).json())
     return meta
+
+
+@task
+def aggregate_metadata(old_metadata, new_metadata):
+    return old_metadata + new_metadata
+
 
 ################
 # PDF TASKS
@@ -240,6 +245,7 @@ def extract_valid_language_lines(input_file):
         "corpus", corpus_id, "NON_EN_TXT_ORIG", f"{doc_id}.txt"))
 
     is_ok = True
+    message = None
 
     if not output_file.exists():
         with open(input_file, "rb") as open_file:
@@ -265,10 +271,17 @@ def extract_valid_language_lines(input_file):
 
                         with open(non_en_output_file, "w") as non_en_out_file:
                             non_en_out_file.write(non_en_txt)
+                    else:
+                        is_ok = False
+                        message = "non_en_spell_df is None"
+                else:
+                    is_ok = False
+                    message = "Document language not primarily in English."
             else:
                 is_ok = False
+                message = "Raw text has less that 10 tokens."
 
-    return dict(is_ok=is_ok, output_file=output_file)
+    return dict(is_ok=is_ok, output_file=output_file, message=message)
 
 
 # def dump_final_metadata(corpus_id, valid_text_files):
@@ -286,10 +299,10 @@ def main():
 
         create_corpus_dirs(corpus_id)
 
-        corpus_clean_ids = extract_corpus_clean_metadata_ids(corpus_id)
+        corpus_clean_metadata = extract_corpus_clean_metadata(corpus_id)
 
         corpus_metadata = extract_corpus_raw_metadata(
-            corpus_id, corpus_clean_ids, max_process_size)
+            corpus_id, corpus_clean_metadata, max_process_size)
 
         validated_corpus_metadata = validate_corpus_metadata.map(
             corpus_metadata)
@@ -297,22 +310,15 @@ def main():
         persisted_clean_metadata = persist_clean_metadata(
             validated_corpus_metadata)
 
-        pdf_paths = get_pdf_paths.map(persisted_clean_metadata)
+        full_clean_metadata = aggregate_metadata(
+            corpus_clean_metadata, persisted_clean_metadata)
+
+        pdf_paths = get_pdf_paths.map(full_clean_metadata)
         extract_pdf_cover.map(pdf_paths)
 
         corpus_text_files = convert_pdf_to_text.map(pdf_paths)
 
         valid_text_files = extract_valid_language_lines.map(corpus_text_files)
-
-        # valid_text_files
-
-        # reference_data = extract_reference_data()
-        # live_data = extract_live_data(airport, radius, reference_data)
-
-        # transformed_live_data = transform(live_data, reference_data)
-
-        # load_reference_data(reference_data)
-        # load_live_data(transformed_live_data)
 
     flow.run(corpus_id="ADB", size=100, executor=DaskExecutor(
         adapt_kwargs={"maximum": 256}))
