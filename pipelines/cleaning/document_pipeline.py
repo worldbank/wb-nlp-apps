@@ -24,8 +24,10 @@ import shutil
 from pathlib import Path
 from polyglot.detect import Detector
 
-from prefect import task, Flow, Parameter
+from prefect import task, Flow, Parameter, flatten, Task
 from prefect.executors import DaskExecutor
+
+from prefect.tasks.shell import ShellTask
 
 from wb_nlp import dir_manager
 from wb_nlp.types.metadata import MetadataModel
@@ -38,6 +40,10 @@ from wb_nlp.extraction.english_content_extractor import filter_document_by_langu
 ###########
 # FUNCTIONS
 ###########
+
+MAX_LINES = 100
+
+shell_task = ShellTask(helper_script=f"cd {dir_manager.get_path_from_root()}")
 
 
 def get_clean_metadata_file(corpus_id):
@@ -78,7 +84,58 @@ def extract_corpus_clean_metadata(corpus_id):
 
 
 @task
-def extract_corpus_raw_metadata(corpus_id, clean_metadata, size=None):
+def extract_corpus_clean_metadata_ids(clean_metadata):
+    return {m["id"] for m in clean_metadata}
+
+
+def split_corpus_raw_metadata_file(corpus_id):
+    l_corpus_id = corpus_id.lower()
+    corpus_root = Path(dir_manager.get_path_from_root("scrapers", l_corpus_id))
+
+    metadata_jsonl = corpus_root / f"{l_corpus_id}_metadata.jsonl"
+
+    return shell_task(
+        command=f"split -a 5 -d -l {MAX_LINES} {metadata_jsonl} /tmp/{corpus_id}/raw_metadata.jsonl")
+
+
+@task
+def get_split_raw_metadata_files(corpus_id, size=None):
+    p = Path(f"/tmp/{corpus_id}")
+    files = list(p.glob("raw_metadata.jsonl*"))
+    if size:
+        num_files = (size // MAX_LINES) + 1
+        files = files[:num_files]
+
+    return files
+
+
+class ExtractCorpusRawMetadataFromPart(Task):
+    def run(self, part_file, clean_metadata_ids):
+        corpus_id = part_file.parent.name
+        data = []
+
+        seen_ids = clean_metadata_ids
+
+        with open(part_file) as json_file:
+            for line in json_file:
+                if line.strip():
+                    meta = json.loads(line.strip())
+                    doc_id = meta["id"]
+
+                    if doc_id in seen_ids:
+                        continue
+
+                    if not raw_pdf_file_exists(corpus_id, doc_id):
+                        continue
+
+                    data.append(meta)
+                    seen_ids.add(doc_id)
+
+        return data
+
+
+@task
+def extract_corpus_raw_metadata(corpus_id, clean_metadata_ids, size=None):
     l_corpus_id = corpus_id.lower()
     corpus_root = Path(dir_manager.get_path_from_root("scrapers", l_corpus_id))
 
@@ -86,7 +143,7 @@ def extract_corpus_raw_metadata(corpus_id, clean_metadata, size=None):
 
     data = []
 
-    seen_ids = {m["id"] for m in clean_metadata}
+    seen_ids = clean_metadata_ids
 
     with open(metadata_jsonl) as json_file:
         for line in json_file:
@@ -110,17 +167,20 @@ def extract_corpus_raw_metadata(corpus_id, clean_metadata, size=None):
 
 
 @task
-def persist_clean_metadata(metadata):
+def persist_clean_metadata(metadata, clean_metadata_ids):
     """
     Persist a batch of cleaned metadata of a given corpus into a temp file.
     """
     if len(metadata) == 0:
         return
 
+    final_data = []
     meta = metadata[0]
     corpus_id = meta["corpus"]
 
     clean_metadata_jsonl = get_clean_metadata_file(corpus_id)
+
+    seen_ids = clean_metadata_ids
 
     if not clean_metadata_jsonl.parent.exists():
         clean_metadata_jsonl.parent.mkdir(parents=True)
@@ -128,11 +188,33 @@ def persist_clean_metadata(metadata):
     with open(clean_metadata_jsonl, 'a+') as json_outfile:
         for meta in metadata:
 
+            if meta["id"] in seen_ids:
+                continue
+
             # Write data to temp file
             json.dump(meta, json_outfile)
             json_outfile.write("\n")
 
-    return metadata
+            seen_ids.add(meta["id"])
+
+            final_data.append(meta)
+
+    return final_data
+
+
+@task
+def validate_corpus_metadata_part(metadata):
+    data = []
+    for meta in metadata:
+        major_doc_type = meta.get("major_doc_type")
+        if not isinstance(major_doc_type, list) and major_doc_type:
+            meta["major_doc_type"] = [major_doc_type]
+
+        # Validate based on the metadata schema
+        meta = json.loads(MetadataModel(**meta).json())
+        data.append(meta)
+
+    return data
 
 
 @task
@@ -177,6 +259,10 @@ def create_corpus_dirs(corpus_id):
         dir_path = corpus_dir / dir_name
         if not dir_path.exists():
             dir_path.mkdir(parents=True)
+
+    tmp_path = Path(f"/tmp/{corpus_id}")
+    if not tmp_path.exists():
+        tmp_path.mkdir()
 
 
 @task
@@ -315,15 +401,32 @@ def main(corpus_id, size=None):
         create_corpus_dirs(flow_corpus_id)
 
         corpus_clean_metadata = extract_corpus_clean_metadata(flow_corpus_id)
+        corpus_clean_metadata_ids = extract_corpus_clean_metadata_ids(
+            corpus_clean_metadata)
 
-        corpus_metadata = extract_corpus_raw_metadata(
-            flow_corpus_id, corpus_clean_metadata, max_process_size)
+        split_corpus_raw_metadata_file(corpus_id)
 
-        validated_corpus_metadata = validate_corpus_metadata.map(
-            corpus_metadata)
+        split_raw_metadata_files = get_split_raw_metadata_files(
+            flow_corpus_id, max_process_size)
+
+        corpus_metadata_part = ExtractCorpusRawMetadataFromPart()
+
+        corpus_metadata_part.set_upstream(
+            split_raw_metadata_files, key="part_file", mapped=True, flow=flow)
+        corpus_metadata_part.set_upstream(
+            corpus_clean_metadata_ids, key="clean_metadata_ids", mapped=False, flow=flow)
+
+        validated_corpus_metadata_part = validate_corpus_metadata_part.map(
+            corpus_metadata_part)
+
+        # corpus_metadata = extract_corpus_raw_metadata(
+        #     flow_corpus_id, corpus_clean_metadata_ids, max_process_size)
+
+        # validated_corpus_metadata = validate_corpus_metadata.map(
+        #     corpus_metadata)
 
         persisted_clean_metadata = persist_clean_metadata(
-            validated_corpus_metadata)
+            flatten(validated_corpus_metadata_part), corpus_clean_metadata_ids)
 
         full_clean_metadata = aggregate_metadata(
             corpus_clean_metadata, persisted_clean_metadata)
