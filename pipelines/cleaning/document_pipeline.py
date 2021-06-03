@@ -60,7 +60,7 @@ def extract_corpus_clean_metadata_ids(corpus_id):
 
 
 @task
-def extract_corpus_raw_metadata(corpus_id, clean_ids, size=100):
+def extract_corpus_raw_metadata(corpus_id, clean_ids, size=None):
     l_corpus_id = corpus_id.lower()
     corpus_root = Path(dir_manager.get_path_from_root("scrapers", l_corpus_id))
 
@@ -88,7 +88,7 @@ def extract_corpus_raw_metadata(corpus_id, clean_ids, size=100):
                 data.append(meta)
                 seen_ids.add(meta_id)
 
-                if len(seen_ids) >= size:
+                if size and len(seen_ids) >= size:
                     break
 
     return data
@@ -266,7 +266,7 @@ def extract_valid_language_lines(input_file):
 def main():
     with Flow("cleaning") as flow:
         corpus_id = Parameter("corpus_id", default="WB")
-        max_process_size = Parameter("size", default=100)
+        max_process_size = Parameter("size", default=None)
 
         create_corpus_dirs(corpus_id)
 
