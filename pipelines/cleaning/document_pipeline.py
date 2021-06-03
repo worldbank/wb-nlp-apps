@@ -25,6 +25,7 @@ from pathlib import Path
 from polyglot.detect import Detector
 
 from prefect import task, Flow, Parameter
+from prefect.executors import DaskExecutor
 
 from wb_nlp import dir_manager
 from wb_nlp.types.metadata import MetadataModel
@@ -297,7 +298,8 @@ def main():
         # load_reference_data(reference_data)
         # load_live_data(transformed_live_data)
 
-    flow.run(corpus_id="ADB", size=100)
+    flow.run(corpus_id="ADB", size=100, executor=DaskExecutor(
+        adapt_kwargs={"maximum": 256}))
 
 
 if __name__ == "__main__":
