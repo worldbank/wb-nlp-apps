@@ -40,11 +40,17 @@ from wb_nlp.extraction.english_content_extractor import filter_document_by_langu
 ################
 
 
+def get_clean_metadata_file(corpus_id):
+    l_corpus_id = corpus_id.lower()
+
+    return Path(dir_manager.get_data_dir(
+        "corpus", corpus_id, f"{l_corpus_id}_clean_metadata.jsonl"))
+
+
 @task
 def extract_corpus_clean_metadata_ids(corpus_id):
-    l_corpus_id = corpus_id.lower()
-    clean_metadata_jsonl = Path(dir_manager.get_data_dir(
-        "corpus", corpus_id, f"{l_corpus_id}_clean_metadata.jsonl"))
+    clean_metadata_jsonl = get_clean_metadata_file(corpus_id)
+
     clean_ids = set()
 
     if clean_metadata_jsonl.exists():
@@ -96,7 +102,7 @@ def extract_corpus_raw_metadata(corpus_id, clean_ids, size=None):
 
 
 @task
-def persist_temp_clean_metadata(metadata):
+def persist_clean_metadata(metadata):
     """
     Persist a batch of cleaned metadata of a given corpus into a temp file.
     """
@@ -105,20 +111,20 @@ def persist_temp_clean_metadata(metadata):
 
     meta = metadata[0]
     corpus_id = meta["corpus"]
-    l_corpus_id = corpus_id.lower()
 
-    tmp_clean_metadata_jsonl = Path(dir_manager.get_data_dir(
-        "corpus", corpus_id, f"{l_corpus_id}_clean_metadata.tmp.jsonl"))
+    clean_metadata_jsonl = get_clean_metadata_file(corpus_id)
 
-    if not tmp_clean_metadata_jsonl.parent.exists():
-        tmp_clean_metadata_jsonl.parent.mkdir(parents=True)
+    if not clean_metadata_jsonl.parent.exists():
+        clean_metadata_jsonl.parent.mkdir(parents=True)
 
-    with open(tmp_clean_metadata_jsonl, 'w') as json_outfile:
+    with open(clean_metadata_jsonl, 'w') as json_outfile:
         for meta in metadata:
 
             # Write data to temp file
             json.dump(meta, json_outfile)
             json_outfile.write("\n")
+
+    return metadata
 
 
 @task
@@ -279,9 +285,10 @@ def main():
         validated_corpus_metadata = validate_corpus_metadata.map(
             corpus_metadata)
 
-        persist_temp_clean_metadata(validated_corpus_metadata)
+        persisted_clean_metadata = persist_clean_metadata(
+            validated_corpus_metadata)
 
-        pdf_paths = get_pdf_paths.map(validated_corpus_metadata)
+        pdf_paths = get_pdf_paths.map(persisted_clean_metadata)
         extract_pdf_cover.map(pdf_paths)
 
         corpus_text_files = convert_pdf_to_text.map(pdf_paths)
