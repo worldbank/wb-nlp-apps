@@ -284,6 +284,19 @@ def extract_valid_language_lines(input_file):
     return dict(is_ok=is_ok, output_file=output_file, message=message)
 
 
+@task
+def end_task_report(valid_text_files):
+    success = 0
+    not_success = 0
+    for p in valid_text_files:
+        if p["is_ok"]:
+            success += 1
+        else:
+            not_success += 1
+
+    print(f"Summary: success={success} not_success={not_success}")
+
+
 # def dump_final_metadata(corpus_id, valid_text_files):
 #     l_corpus_id = corpus_id.lower()
 
@@ -319,6 +332,8 @@ def main():
         corpus_text_files = convert_pdf_to_text.map(pdf_paths)
 
         valid_text_files = extract_valid_language_lines.map(corpus_text_files)
+
+        end_task_report(valid_text_files)
 
     flow.run(corpus_id="ADB", size=100, executor=DaskExecutor(
         adapt_kwargs={"maximum": 256}))
