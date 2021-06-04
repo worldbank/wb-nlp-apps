@@ -262,15 +262,29 @@ def aggregate_metadata(old_metadata, new_metadata):
 # PDF TASKS
 ################
 
-
-@task
-def get_pdf_paths(corpus_id, metadata_ids):
+def _get_pdf_paths(corpus_id, metadata_ids):
     l_corpus_id = corpus_id.lower()
 
     base = Path(dir_manager.get_path_from_root(
         "scrapers", l_corpus_id, "corpus", corpus_id, "PDF_ORIG"))
 
     return [base / f"{doc_id}.pdf" for doc_id in metadata_ids]
+
+
+@task
+def get_pdf_paths(corpus_id, metadata_ids):
+    return _get_pdf_paths(corpus_id, metadata_ids)
+
+
+@task
+def get_batched_pdf_paths(corpus_id, metadata_ids):
+    batch_size = 50
+    pdf_paths = _get_pdf_paths(corpus_id, metadata_ids)
+
+    batched_pdf_paths = [pdf_paths[i: i+batch_size]
+                         for i in range(0, len(pdf_paths), batch_size)]
+
+    return batched_pdf_paths
 
 
 @task
@@ -290,8 +304,7 @@ def create_corpus_dirs(corpus_id):
     return corpus_id
 
 
-@task
-def convert_pdf_to_text(input_file):
+def _convert_pdf_to_text(input_file):
     '''
     Wrapper function for joblib to parallelize the cleaning of the text files.
 
@@ -319,33 +332,43 @@ def convert_pdf_to_text(input_file):
 
 
 @task
-def extract_pdf_cover(input_file):
+def convert_pdf_to_text(input_file):
+    return _convert_pdf_to_text(input_file)
+
+
+@task
+def convert_batched_pdf_to_text(input_files):
+    return [_convert_pdf_to_text(input_file) for input_file in input_files]
+
+
+def _extract_pdf_cover(input_file):
     doc_id = input_file.stem
     corpus_id = input_file.parent.parent.name
     cover_dir = Path(dir_manager.get_data_dir(
         "corpus", corpus_id, "COVER"))
-
-    # ret = dict(status='ok', doc_id=doc_id,
-    #            corpus_id=corpus_id, pdf_path=str(input_file))
 
     dc = DocumentCover(
         doc_id=doc_id, cover_dir=cover_dir, pdf_path=input_file)
     r = dc.save()
     dc.cleanup()
 
-    # try:
-    # except Exception as e:
-    #     ret['status'] = e.__str__()
 
-    # return ret
+@task
+def extract_pdf_cover(input_file):
+    return _extract_pdf_cover(input_file)
+
+
+@task
+def extract_batched_pdf_cover(input_files):
+    for input_file in input_files:
+        _extract_pdf_cover(input_file)
 
 
 #######################
 # TEXT PROCESSING TASKS
 #######################
 
-@task
-def extract_valid_language_lines(input_file):
+def _extract_valid_language_lines(input_file):
     doc_id = input_file.stem
     corpus_id = input_file.parent.parent.name
 
@@ -393,6 +416,16 @@ def extract_valid_language_lines(input_file):
                 message = "Raw text has less that 10 tokens."
 
     return dict(is_ok=is_ok, output_file=output_file, message=message)
+
+
+@task
+def extract_valid_language_lines(input_file):
+    return _extract_valid_language_lines(input_file)
+
+
+@task
+def extract_batched_valid_language_lines(input_files):
+    return [_extract_valid_language_lines(input_file) for input_file in input_files]
 
 
 @task
@@ -466,21 +499,30 @@ def main(corpus_id, size=None):
         persisted_clean_metadata_ids = persist_clean_metadata(
             flatten(validated_corpus_metadata_part), corpus_clean_metadata_ids)
 
-        pdf_paths = get_pdf_paths(flow_corpus_id, persisted_clean_metadata_ids)
+        batched_pdf_paths = get_batched_pdf_paths(
+            flow_corpus_id, persisted_clean_metadata_ids)
+        # pdf_paths = get_pdf_paths(flow_corpus_id, persisted_clean_metadata_ids)
         # full_clean_metadata = aggregate_metadata(
         #     corpus_clean_metadata, persisted_clean_metadata)
         # pdf_paths = get_pdf_paths.map(full_clean_metadata)
 
-        extract_pdf_cover.map(pdf_paths)
+        extract_batched_pdf_cover.map(batched_pdf_paths)
+        # extract_pdf_cover.map(pdf_paths)
 
-        corpus_text_files = convert_pdf_to_text.map(pdf_paths)
+        batched_corpus_text_files = convert_batched_pdf_to_text.map(
+            batched_pdf_paths)
+        # corpus_text_files = convert_pdf_to_text.map(pdf_paths)
 
-        valid_text_files = extract_valid_language_lines.map(corpus_text_files)
+        batched_valid_text_files = extract_batched_valid_language_lines.map(
+            batched_corpus_text_files)
+        # valid_text_files = extract_valid_language_lines.map(corpus_text_files)
 
-        end_task_report_and_cleanup(flow_corpus_id, valid_text_files)
+        end_task_report_and_cleanup(
+            flow_corpus_id, flatten(batched_valid_text_files))
+        # end_task_report_and_cleanup(flow_corpus_id, valid_text_files)
 
     flow.run(corpus_id=corpus_id, size=size, executor=DaskExecutor(
-        adapt_kwargs={"maximum": 256}))
+        adapt_kwargs={"maximum": 128}))
 
 
 if __name__ == "__main__":
