@@ -55,6 +55,19 @@ def load_clean_metadata():
 
                 meta["_id"] = meta["id"]
 
+                pid = meta.get("project_id")
+
+                if not pid:
+                    wb_pid = meta.get("wb_project_id")
+                    if wb_pid:
+                        meta["project_id"] = wb_pid
+
+                # ["adm_region", "doc_type", "major_doc_type"]:
+                for field in meta.keys():
+                    # Convert any empty data to None
+                    if not meta[field]:
+                        meta[field] = None
+
                 metadata.append(meta)
                 ids_in_db.add(meta["id"])
 
