@@ -172,7 +172,7 @@ def persist_clean_metadata(metadata, clean_metadata_ids):
     Persist a batch of cleaned metadata of a given corpus into a temp file.
     """
     if len(metadata) == 0:
-        return
+        return clean_metadata_ids
 
     final_data = []
     meta = metadata[0]
@@ -180,7 +180,7 @@ def persist_clean_metadata(metadata, clean_metadata_ids):
 
     clean_metadata_jsonl = get_clean_metadata_file(corpus_id)
 
-    seen_ids = clean_metadata_ids
+    processed_ids = clean_metadata_ids
 
     if not clean_metadata_jsonl.parent.exists():
         clean_metadata_jsonl.parent.mkdir(parents=True)
@@ -188,18 +188,18 @@ def persist_clean_metadata(metadata, clean_metadata_ids):
     with open(clean_metadata_jsonl, 'a+') as json_outfile:
         for meta in metadata:
 
-            if meta["id"] in seen_ids:
+            if meta["id"] in processed_ids:
                 continue
 
             # Write data to temp file
             json.dump(meta, json_outfile)
             json_outfile.write("\n")
 
-            seen_ids.add(meta["id"])
+            processed_ids.add(meta["id"])
 
             final_data.append(meta)
 
-    return final_data
+    return processed_ids
 
 
 @task
@@ -239,15 +239,13 @@ def aggregate_metadata(old_metadata, new_metadata):
 
 
 @task
-def get_pdf_paths(meta):
-    corpus_id = meta["corpus"]
-    meta_id = meta["id"]
+def get_pdf_paths(corpus_id, metadata_ids):
     l_corpus_id = corpus_id.lower()
 
-    input_file = Path(dir_manager.get_path_from_root(
-        "scrapers", l_corpus_id, "corpus", corpus_id, "PDF_ORIG", f"{meta_id}.pdf"))
+    base = Path(dir_manager.get_path_from_root(
+        "scrapers", l_corpus_id, "corpus", corpus_id, "PDF_ORIG"))
 
-    return input_file
+    return [base / f"{doc_id}.pdf" for doc_id in metadata_ids]
 
 
 @task
@@ -425,13 +423,14 @@ def main(corpus_id, size=None):
         # validated_corpus_metadata = validate_corpus_metadata.map(
         #     corpus_metadata)
 
-        persisted_clean_metadata = persist_clean_metadata(
+        persisted_clean_metadata_ids = persist_clean_metadata(
             flatten(validated_corpus_metadata_part), corpus_clean_metadata_ids)
 
-        full_clean_metadata = aggregate_metadata(
-            corpus_clean_metadata, persisted_clean_metadata)
+        pdf_paths = get_pdf_paths(flow_corpus_id, persisted_clean_metadata_ids)
+        # full_clean_metadata = aggregate_metadata(
+        #     corpus_clean_metadata, persisted_clean_metadata)
+        # pdf_paths = get_pdf_paths.map(full_clean_metadata)
 
-        pdf_paths = get_pdf_paths.map(full_clean_metadata)
         extract_pdf_cover.map(pdf_paths)
 
         corpus_text_files = convert_pdf_to_text.map(pdf_paths)
