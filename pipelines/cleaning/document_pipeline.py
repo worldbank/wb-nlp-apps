@@ -41,7 +41,7 @@ from wb_nlp.extraction.english_content_extractor import filter_document_by_langu
 # FUNCTIONS
 ###########
 
-MAX_LINES = 100
+MAX_LINES = 500
 
 shell_task = ShellTask(helper_script=f"cd {dir_manager.get_path_from_root()}")
 
@@ -91,6 +91,12 @@ def extract_corpus_clean_metadata_ids(clean_metadata):
 @task
 def build_split_corpus_raw_metadata_file_command(corpus_id):
     l_corpus_id = corpus_id.lower()
+
+    # Make sure no data in /tmp/<corpus_id> is present.
+    tmp_dirpath = Path('/tmp') / corpus_id
+    if tmp_dirpath.exists() and tmp_dirpath.is_dir():
+        shutil.rmtree(tmp_dirpath)
+
     corpus_root = Path(dir_manager.get_path_from_root("scrapers", l_corpus_id))
 
     metadata_jsonl = corpus_root / f"{l_corpus_id}_metadata.jsonl"
