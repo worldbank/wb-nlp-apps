@@ -213,6 +213,10 @@ export default {
         .then((response) => {
           this.doc_topics = response.data;
           this.filteredDocTopics();
+        })
+        .catch((error) => {
+          console.log(error);
+          this.errored = true;
         });
     },
   },

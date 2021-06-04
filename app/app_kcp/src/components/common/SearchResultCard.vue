@@ -45,7 +45,7 @@
             ></read-more>
           </div>
 
-          <div class="study-country">
+          <div v-if="result.country" class="study-country">
             {{ result.country[0] }}, {{ result.year }}
           </div>
 
