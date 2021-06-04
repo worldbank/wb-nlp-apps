@@ -19,7 +19,7 @@
       </ul>
     </div>
 
-    <div v-if="metadata.country.length > 0">
+    <div v-if="metadata.country && metadata.country.length > 0">
       <div class="xsl-caption field-caption">Tagged country or region</div>
       <ul>
         <li v-for="country in metadata.country" :key="country">
@@ -28,7 +28,7 @@
       </ul>
     </div>
 
-    <div v-if="metadata.doc_type.length > 0">
+    <div v-if="metadata.doc_type && metadata.doc_type.length > 0">
       <div class="xsl-caption field-caption">Document type</div>
       <ul>
         <li v-for="doc_type in metadata.doc_type" :key="doc_type">
