@@ -94,13 +94,15 @@ def build_split_corpus_raw_metadata_file_command(corpus_id):
     corpus_root = Path(dir_manager.get_path_from_root("scrapers", l_corpus_id))
 
     metadata_jsonl = corpus_root / f"{l_corpus_id}_metadata.jsonl"
+    split_files_command = f"split -a 5 -d -l {MAX_LINES} {metadata_jsonl} /tmp/{corpus_id}/raw_metadata.jsonl"
 
-    return f"split -a 5 -d -l {MAX_LINES} {metadata_jsonl} /tmp/{corpus_id}/raw_metadata.jsonl"
+    print(split_files_command)
+
+    return split_files_command
 
 
 @task
-def get_split_raw_metadata_files(corpus_id, size=None, command_result=None):
-    print(command_result)
+def get_split_raw_metadata_files(corpus_id, size=None):
     p = Path(f"/tmp/{corpus_id}")
     files = sorted(p.glob("raw_metadata.jsonl*"))
     if size:
@@ -441,7 +443,9 @@ def main(corpus_id, size=None):
             corpus_clean_metadata)
 
         split_raw_metadata_files = get_split_raw_metadata_files(
-            flow_corpus_id, max_process_size, command_result)
+            flow_corpus_id, max_process_size)
+
+        split_raw_metadata_files.set_upstream(command_result)
 
         corpus_metadata_part = ExtractCorpusRawMetadataFromPart()
 

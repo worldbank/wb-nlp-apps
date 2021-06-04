@@ -299,6 +299,9 @@ class MetadataModel(BaseModel):
     path_pdf_file: str = Field(
         None, description="Path of the scraped PDF file."
     )
+    project_id: List[str] = Field(
+        None, description="Project id(s) associated with the document."
+    )
 
     title: str = Field(
         ..., description="")
