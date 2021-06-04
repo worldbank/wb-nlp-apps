@@ -1,3 +1,24 @@
+"""
+This script handles the loading of the cleaned metadata into the mongodb.
+
+Further steps:
+
+1. Load data to elasticsearch. Do this by running the following snippet:
+
+    # # # Optional - depends if the index is broken
+    # # from elasticsearch_dsl import Index
+    # # i = Index(name=elasticsearch.DOC_INDEX, using=elasticsearch.get_client())
+    # # i.delete()
+    # from wb_nlp.interfaces import elasticsearch, mongodb
+    # docs_metadata_coll = mongodb.get_collection(
+    #     db_name="test_nlp", collection_name="docs_metadata")
+    # docs_metadata = list(docs_metadata_coll.find({}))
+    # elasticsearch.make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt_only=True, remove_doc_whitespaces=True)
+    # elasticsearch.make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=False, en_txt_only=True, remove_doc_whitespaces=True)
+
+2. Next clean the documents and generate the vectors for the data.
+
+"""
 import json
 from pathlib import Path
 from wb_nlp import dir_manager
