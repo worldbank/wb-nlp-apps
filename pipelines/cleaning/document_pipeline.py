@@ -18,7 +18,7 @@ Expected output:
 1. Get metadata
 
 """
-
+from collections import Counter
 import json
 import shutil
 from pathlib import Path
@@ -88,20 +88,20 @@ def extract_corpus_clean_metadata_ids(clean_metadata):
     return {m["id"] for m in clean_metadata}
 
 
-def split_corpus_raw_metadata_file(corpus_id):
+@task
+def build_split_corpus_raw_metadata_file_command(corpus_id):
     l_corpus_id = corpus_id.lower()
     corpus_root = Path(dir_manager.get_path_from_root("scrapers", l_corpus_id))
 
     metadata_jsonl = corpus_root / f"{l_corpus_id}_metadata.jsonl"
 
-    return shell_task(
-        command=f"split -a 5 -d -l {MAX_LINES} {metadata_jsonl} /tmp/{corpus_id}/raw_metadata.jsonl")
+    return f"split -a 5 -d -l {MAX_LINES} {metadata_jsonl} /tmp/{corpus_id}/raw_metadata.jsonl"
 
 
 @task
 def get_split_raw_metadata_files(corpus_id, size=None):
     p = Path(f"/tmp/{corpus_id}")
-    files = list(p.glob("raw_metadata.jsonl*"))
+    files = sorted(p.glob("raw_metadata.jsonl*"))
     if size:
         num_files = (size // MAX_LINES) + 1
         files = files[:num_files]
@@ -329,7 +329,7 @@ def extract_valid_language_lines(input_file):
         "corpus", corpus_id, "NON_EN_TXT_ORIG", f"{doc_id}.txt"))
 
     is_ok = True
-    message = None
+    message = "OK"
 
     if not output_file.exists():
         with open(input_file, "rb") as open_file:
@@ -369,16 +369,24 @@ def extract_valid_language_lines(input_file):
 
 
 @task
-def end_task_report(valid_text_files):
-    success = 0
-    not_success = 0
-    for p in valid_text_files:
-        if p["is_ok"]:
-            success += 1
-        else:
-            not_success += 1
+def end_task_report_and_cleanup(corpus_id, valid_text_files):
+    print("Summary")
+    for k, v in Counter([v["message"] for v in valid_text_files]).most_common():
+        print(f"\t{k: <70}={v}")
 
-    print(f"Summary: success={success} not_success={not_success}")
+    tmp_dirpath = Path('/tmp') / corpus_id
+    if tmp_dirpath.exists() and tmp_dirpath.is_dir():
+        shutil.rmtree(tmp_dirpath)
+
+    # success = 0
+    # not_success = 0
+    # for p in valid_text_files:
+    #     if p["is_ok"]:
+    #         success += 1
+    #     else:
+    #         not_success += 1
+
+    # print(f"Summary: success={success} not_success={not_success}")
 
 
 # def dump_final_metadata(corpus_id, valid_text_files):
@@ -402,7 +410,10 @@ def main(corpus_id, size=None):
         corpus_clean_metadata_ids = extract_corpus_clean_metadata_ids(
             corpus_clean_metadata)
 
-        split_corpus_raw_metadata_file(corpus_id)
+        split_files_command = build_split_corpus_raw_metadata_file_command(
+            flow_corpus_id)
+
+        shell_task(command=split_files_command)
 
         split_raw_metadata_files = get_split_raw_metadata_files(
             flow_corpus_id, max_process_size)
@@ -410,9 +421,9 @@ def main(corpus_id, size=None):
         corpus_metadata_part = ExtractCorpusRawMetadataFromPart()
 
         corpus_metadata_part.set_upstream(
-            split_raw_metadata_files, key="part_file", mapped=True, flow=flow)
+            split_raw_metadata_files, key="part_file", mapped=True)  # , flow=flow)
         corpus_metadata_part.set_upstream(
-            corpus_clean_metadata_ids, key="clean_metadata_ids", mapped=False, flow=flow)
+            corpus_clean_metadata_ids, key="clean_metadata_ids", mapped=False)  # , flow=flow)
 
         validated_corpus_metadata_part = validate_corpus_metadata_part.map(
             corpus_metadata_part)
@@ -437,7 +448,7 @@ def main(corpus_id, size=None):
 
         valid_text_files = extract_valid_language_lines.map(corpus_text_files)
 
-        end_task_report(valid_text_files)
+        end_task_report_and_cleanup(flow_corpus_id, valid_text_files)
 
     flow.run(corpus_id=corpus_id, size=size, executor=DaskExecutor(
         adapt_kwargs={"maximum": 256}))
