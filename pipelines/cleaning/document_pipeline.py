@@ -96,6 +96,7 @@ def build_split_corpus_raw_metadata_file_command(corpus_id):
     tmp_dirpath = Path('/tmp') / corpus_id
     if tmp_dirpath.exists() and tmp_dirpath.is_dir():
         shutil.rmtree(tmp_dirpath)
+        tmp_dirpath.mkdir(parents=True)
 
     corpus_root = Path(dir_manager.get_path_from_root("scrapers", l_corpus_id))
 
