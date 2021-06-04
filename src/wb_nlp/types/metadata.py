@@ -122,14 +122,14 @@ def migrate_nlp_schema(body):
     body["url_txt"] = pop_get(body, "url_txt")
 
     body["volume"] = pop_get(body, "volume")
-    body["wb_lending_instrument"] = pop_get(body, "wb_lending_instrument")
-    body["wb_major_theme"] = pop_get(body, "wb_major_theme")
+    body["wb_lending_instrument"] = [pop_get(body, "wb_lending_instrument")]
+    body["wb_major_theme"] = [pop_get(body, "wb_major_theme")]
     body["wb_product_line"] = pop_get(body, "wb_product_line")
-    body["wb_project_id"] = pop_get(body, "wb_project_id")
-    body["wb_sector"] = pop_get(body, "wb_sector")
+    body["wb_project_id"] = [pop_get(body, "wb_project_id")]
+    body["wb_sector"] = [pop_get(body, "wb_sector")]
     body["wb_subtopic_src"] = make_list_or_null(
         body["wb_subtopic_src"], delimiter=",")
-    body["wb_theme"] = pop_get(body, "wb_theme")
+    body["wb_theme"] = [pop_get(body, "wb_theme")]
 
     body["year"] = pop_get(body, "year")
 
@@ -314,19 +314,19 @@ class MetadataModel(BaseModel):
     volume: str = Field(
         None, description="")
 
-    wb_lending_instrument: str = Field(
+    wb_lending_instrument: List[str] = Field(
         None, description="")
-    wb_major_theme: str = Field(
+    wb_major_theme: List[str] = Field(
         None, description="")
     wb_product_line: str = Field(
         None, description="")
-    wb_project_id: str = Field(
+    wb_project_id: List[str] = Field(
         None, description="")
-    wb_sector: str = Field(
+    wb_sector: List[str] = Field(
         None, description="")
     wb_subtopic_src: List[str] = Field(
         None, description="")
-    wb_theme: str = Field(
+    wb_theme: List[str] = Field(
         None, description="")
 
     year: int = Field(
