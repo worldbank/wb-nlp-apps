@@ -211,7 +211,11 @@ def validate_corpus_metadata_part(metadata):
             meta["major_doc_type"] = [major_doc_type]
 
         # Validate based on the metadata schema
-        meta = json.loads(MetadataModel(**meta).json())
+        try:
+            meta = json.loads(MetadataModel(**meta).json())
+        except Exception as e:
+            print(meta)
+            raise e
         data.append(meta)
 
     return data
@@ -224,7 +228,11 @@ def validate_corpus_metadata(meta):
         meta["major_doc_type"] = [major_doc_type]
 
     # Validate based on the metadata schema
-    meta = json.loads(MetadataModel(**meta).json())
+    try:
+        meta = json.loads(MetadataModel(**meta).json())
+    except Exception as e:
+        print(meta)
+        raise e
     return meta
 
 
