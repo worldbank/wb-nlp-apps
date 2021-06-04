@@ -99,7 +99,8 @@ def build_split_corpus_raw_metadata_file_command(corpus_id):
 
 
 @task
-def get_split_raw_metadata_files(corpus_id, size=None):
+def get_split_raw_metadata_files(corpus_id, size=None, command_result=None):
+    print(command_result)
     p = Path(f"/tmp/{corpus_id}")
     files = sorted(p.glob("raw_metadata.jsonl*"))
     if size:
@@ -171,6 +172,15 @@ def persist_clean_metadata(metadata, clean_metadata_ids):
     """
     Persist a batch of cleaned metadata of a given corpus into a temp file.
     """
+    invalid_metadata = [i["meta"] for i in metadata if not i["ok"]]
+
+    if invalid_metadata:
+        corpus_id = invalid_metadata[0]["corpus"]
+        with open(Path(dir_manager.get_data_dir("corpus", corpus_id, "invalid_metadata.json")), "w") as json_file:
+            json.dump(invalid_metadata, json_file)
+
+    metadata = [i["meta"] for i in metadata if i["ok"]]
+
     if len(metadata) == 0:
         return clean_metadata_ids
 
@@ -206,6 +216,7 @@ def persist_clean_metadata(metadata, clean_metadata_ids):
 def validate_corpus_metadata_part(metadata):
     data = []
     for meta in metadata:
+        is_ok = True
         major_doc_type = meta.get("major_doc_type")
         if not isinstance(major_doc_type, list) and major_doc_type:
             meta["major_doc_type"] = [major_doc_type]
@@ -214,15 +225,15 @@ def validate_corpus_metadata_part(metadata):
         try:
             meta = json.loads(MetadataModel(**meta).json())
         except Exception as e:
-            print(meta)
-            raise e
-        data.append(meta)
+            is_ok = False
+        data.append(dict(meta=meta, ok=is_ok))
 
     return data
 
 
 @task
 def validate_corpus_metadata(meta):
+    is_ok = True
     major_doc_type = meta.get("major_doc_type")
     if not isinstance(major_doc_type, list) and major_doc_type:
         meta["major_doc_type"] = [major_doc_type]
@@ -231,9 +242,8 @@ def validate_corpus_metadata(meta):
     try:
         meta = json.loads(MetadataModel(**meta).json())
     except Exception as e:
-        print(meta)
-        raise e
-    return meta
+        is_ok = False
+    return dict(meta=meta, ok=is_ok)
 
 
 @task
@@ -269,6 +279,8 @@ def create_corpus_dirs(corpus_id):
     tmp_path = Path(f"/tmp/{corpus_id}")
     if not tmp_path.exists():
         tmp_path.mkdir()
+
+    return corpus_id
 
 
 @task
@@ -412,19 +424,19 @@ def main(corpus_id, size=None):
         flow_corpus_id = Parameter("corpus_id", default="WB")
         max_process_size = Parameter("size", default=None)
 
-        create_corpus_dirs(flow_corpus_id)
+        flow_corpus_id = create_corpus_dirs(flow_corpus_id)
+
+        split_files_command = build_split_corpus_raw_metadata_file_command(
+            flow_corpus_id)
+
+        command_result = shell_task(command=split_files_command)
 
         corpus_clean_metadata = extract_corpus_clean_metadata(flow_corpus_id)
         corpus_clean_metadata_ids = extract_corpus_clean_metadata_ids(
             corpus_clean_metadata)
 
-        split_files_command = build_split_corpus_raw_metadata_file_command(
-            flow_corpus_id)
-
-        shell_task(command=split_files_command)
-
         split_raw_metadata_files = get_split_raw_metadata_files(
-            flow_corpus_id, max_process_size)
+            flow_corpus_id, max_process_size, command_result)
 
         corpus_metadata_part = ExtractCorpusRawMetadataFromPart()
 
