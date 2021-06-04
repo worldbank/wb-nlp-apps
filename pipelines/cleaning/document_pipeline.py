@@ -221,6 +221,11 @@ def validate_corpus_metadata_part(metadata):
         if not isinstance(major_doc_type, list) and major_doc_type:
             meta["major_doc_type"] = [major_doc_type]
 
+        date_published = meta.get("date_published")
+        if not date_published:
+            # This handles the initial empty string values in the WB scraper
+            meta["date_published"] = None
+
         # Validate based on the metadata schema
         try:
             meta = json.loads(MetadataModel(**meta).json())
