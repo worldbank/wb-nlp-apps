@@ -909,6 +909,9 @@ export default {
     clearSearchInput() {
       this.query_cache = "";
       this.removeFile();
+
+      this.prevent_default = false;
+      this.defaultKeywordSearch();
     },
     removeFile() {
       this.uploaded_file = null;
