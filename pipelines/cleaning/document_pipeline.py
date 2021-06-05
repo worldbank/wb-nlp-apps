@@ -19,6 +19,7 @@ Expected output:
 
 """
 from collections import Counter
+import html
 import json
 import shutil
 from pathlib import Path
@@ -129,6 +130,8 @@ def _meta_normalization(meta):
     if not date_published:
         # This handles the initial empty string values in the WB scraper
         meta["date_published"] = None
+
+    meta["title"] = html.unescape(meta.get("title", ""))
 
     return meta
 
