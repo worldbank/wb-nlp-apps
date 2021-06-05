@@ -356,7 +356,14 @@ def _extract_pdf_cover(input_file):
 
     dc = DocumentCover(
         doc_id=doc_id, cover_dir=cover_dir, pdf_path=input_file)
-    r = dc.save()
+
+    try:
+        r = dc.save()
+    except Exception as e:
+        # Gracefully handle cover extraction error.
+        # Example: pdf2image.exceptions.PDFPageCountError: Unable to get page count.
+        print(e)
+
     dc.cleanup()
 
 
