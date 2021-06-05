@@ -33,7 +33,10 @@
             ></read-more>
           </div>
 
-          <div class="study-country">
+          <div
+            v-if="metadata.country && metadata.country.length > 0"
+            class="study-country"
+          >
             {{ metadata.country[0] }}, {{ metadata.year }}
           </div>
           <div class="sub-title">
