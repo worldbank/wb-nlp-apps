@@ -26,7 +26,7 @@ from polyglot.detect import Detector
 
 from prefect import task, Flow, Parameter, flatten, Task
 from prefect.executors import DaskExecutor
-
+from prefect.triggers import all_finished
 from prefect.tasks.shell import ShellTask
 
 from wb_nlp import dir_manager
@@ -435,15 +435,15 @@ def extract_batched_valid_language_lines(input_files):
     return [_extract_valid_language_lines(input_file) for input_file in input_files]
 
 
-@task
-def end_task_report_and_cleanup(corpus_id, valid_text_files):
+def _end_task_report(valid_text_files):
     print("Summary")
     for k, v in Counter([v["message"] for v in valid_text_files]).most_common():
         print(f"\t{k: <70}={v}")
 
-    tmp_dirpath = Path('/tmp') / corpus_id
-    if tmp_dirpath.exists() and tmp_dirpath.is_dir():
-        shutil.rmtree(tmp_dirpath)
+
+@task
+def end_task_report(valid_text_files):
+    _end_task_report(valid_text_files)
 
     # success = 0
     # not_success = 0
@@ -454,6 +454,21 @@ def end_task_report_and_cleanup(corpus_id, valid_text_files):
     #         not_success += 1
 
     # print(f"Summary: success={success} not_success={not_success}")
+
+
+@task
+def end_batched_task_report(batched_valid_text_files):
+    valid_text_files = [
+        tf for batch in batched_valid_text_files for tf in batch]
+    _end_task_report(valid_text_files)
+
+
+@task(trigger=all_finished)
+def remove_corpus_tmp_dir(corpus_id):
+
+    tmp_dirpath = Path('/tmp') / corpus_id
+    if tmp_dirpath.exists() and tmp_dirpath.is_dir():
+        shutil.rmtree(tmp_dirpath)
 
 
 # def dump_final_metadata(corpus_id, valid_text_files):
@@ -508,25 +523,32 @@ def main(corpus_id, size=None):
 
         batched_pdf_paths = get_batched_pdf_paths(
             flow_corpus_id, persisted_clean_metadata_ids)
+
         # pdf_paths = get_pdf_paths(flow_corpus_id, persisted_clean_metadata_ids)
+
         # full_clean_metadata = aggregate_metadata(
         #     corpus_clean_metadata, persisted_clean_metadata)
         # pdf_paths = get_pdf_paths.map(full_clean_metadata)
 
-        extract_batched_pdf_cover.map(batched_pdf_paths)
         # extract_pdf_cover.map(pdf_paths)
+        # corpus_text_files = convert_pdf_to_text.map(pdf_paths)
+        # valid_text_files = extract_valid_language_lines.map(corpus_text_files)
+        # end_report = end_task_report(valid_text_files)
+
+        extract_batched_pdf_cover.map(batched_pdf_paths)
 
         batched_corpus_text_files = convert_batched_pdf_to_text.map(
             batched_pdf_paths)
-        # corpus_text_files = convert_pdf_to_text.map(pdf_paths)
 
         batched_valid_text_files = extract_batched_valid_language_lines.map(
             batched_corpus_text_files)
-        # valid_text_files = extract_valid_language_lines.map(corpus_text_files)
 
-        end_task_report_and_cleanup(
-            flow_corpus_id, flatten(batched_valid_text_files))
-        # end_task_report_and_cleanup(flow_corpus_id, valid_text_files)
+        end_report = end_batched_task_report(
+            batched_valid_text_files)
+
+        cleanup_task = remove_corpus_tmp_dir(flow_corpus_id)
+
+        cleanup_task.set_upstream(end_report)
 
     flow.run(corpus_id=corpus_id, size=size, executor=DaskExecutor(
         adapt_kwargs={"maximum": 128}))
