@@ -1,6 +1,38 @@
 """
 This script handles the loading of the cleaned metadata into the mongodb.
 
+Data from scraping server is compressed.
+server: scraping server
+workdir: data/corpus
+command: tar -czvf KCP_<list_of_corpus_ids_to_compress_separated_by_underscore>.tar.gz
+
+Send compressed data to gateway:
+server: scraping server
+workdir: data/corpus
+command: rsync -avP KCP_<list_of_corpus_ids_to_compress_separated_by_underscore>.tar.gz gw1:~/
+
+Send data in gateway to app server:
+server: gateway server
+workdir: ~/
+command: rsync -avP KCP_<list_of_corpus_ids_to_compress_separated_by_underscore>.tar.gz app_server:/<path_to_app>/wb_nlp/data/corpus/
+
+Decompress data in app server:
+server: app server
+workdir: /<path_to_app>/wb_nlp/data/corpus/
+command: tar -xzvf KCP_<list_of_corpus_ids_to_compress_separated_by_underscore>.tar.gz
+
+Enter nlp_api container
+server: app server
+command: docker exec -it wb_nlp_nlp_api_1 /bin/bash
+
+Activate nlp_api conda environment
+server: nlp_api container
+command: conda activate nlp_api
+
+Load available new data to db and es
+server: nlp_api container
+command: python pipelines/loading/load_metadata.py
+
 Further steps:
 
 1. Load data to elasticsearch. Do this by running the following snippet:
