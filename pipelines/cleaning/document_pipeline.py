@@ -545,10 +545,12 @@ def main(corpus_id, size=None):
 
         end_report = end_batched_task_report(
             batched_valid_text_files)
-
         cleanup_task = remove_corpus_tmp_dir(flow_corpus_id)
-
         cleanup_task.set_upstream(end_report)
+
+        # end_batched_task_report(
+        #     batched_valid_text_files)
+        # remove_corpus_tmp_dir(flow_corpus_id)
 
     flow.run(corpus_id=corpus_id, size=size, executor=DaskExecutor(
         adapt_kwargs={"maximum": 128}))
