@@ -49,9 +49,11 @@ def load_clean_metadata():
         print(f"Processing metadata from {corpus_id}...")
 
         metadata = []
+        total_meta = 0
 
         with open(metadata_file) as open_file:
             for line in open_file:
+                total_meta += 1
                 line = line.strip()
                 meta = json.loads(line)
 
@@ -76,8 +78,10 @@ def load_clean_metadata():
                 metadata.append(meta)
                 ids_in_db.add(meta["id"])
 
-        print(f"Inserting data for {corpus_id} to DB...")
-        collection.insert_many(metadata)
+        print(
+            f"Inserting {len(metadata)} of {total_meta} data for {corpus_id} to DB...")
+        if metadata:
+            collection.insert_many(metadata)
 
 
 def load_data_to_es(ignore_existing=True):
