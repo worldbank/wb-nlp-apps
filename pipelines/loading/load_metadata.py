@@ -22,7 +22,12 @@ Further steps:
 import json
 from pathlib import Path
 from wb_nlp import dir_manager
-from wb_nlp.interfaces import mongodb
+from wb_nlp.interfaces import elasticsearch, mongodb
+
+
+def get_docs_metadata_collection():
+    return mongodb.get_collection(
+        db_name="test_nlp", collection_name="docs_metadata")
 
 
 def load_clean_metadata():
@@ -33,7 +38,7 @@ def load_clean_metadata():
     The files are expected to be stored in corpus/<corpus_id>/<l_corpus_id>_clean_metadata.jsonl paths.
     """
 
-    collection = mongodb.get_collection("test_nlp", "docs_metadata")
+    collection = get_docs_metadata_collection()
     ids_in_db = {i["_id"]
                  for i in collection.find({}, projection=["_id"])}
 
@@ -75,5 +80,23 @@ def load_clean_metadata():
         collection.insert_many(metadata)
 
 
-if __name__ == "__main__":
+def load_data_to_es(ignore_existing=True):
+    docs_metadata_coll = get_docs_metadata_collection()
+
+    docs_metadata = list(docs_metadata_coll.find({}))
+    elasticsearch.make_nlp_docs_from_docs_metadata(
+        docs_metadata, ignore_existing=ignore_existing, en_txt_only=True, remove_doc_whitespaces=True)
+
+
+def main():
+    print("load_clean_metadata")
     load_clean_metadata()
+
+    print("load_data_to_es")
+    load_data_to_es()
+
+    print("Finished...")
+
+
+if __name__ == "__main__":
+    main()
