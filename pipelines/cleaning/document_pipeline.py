@@ -119,6 +119,20 @@ def get_split_raw_metadata_files(corpus_id, size=None):
     return files
 
 
+def _meta_normalization(meta):
+
+    major_doc_type = meta.get("major_doc_type")
+    if not isinstance(major_doc_type, list) and major_doc_type:
+        meta["major_doc_type"] = [major_doc_type]
+
+    date_published = meta.get("date_published")
+    if not date_published:
+        # This handles the initial empty string values in the WB scraper
+        meta["date_published"] = None
+
+    return meta
+
+
 class ExtractCorpusRawMetadataFromPart(Task):
     def run(self, part_file, clean_metadata_ids):
         corpus_id = part_file.parent.name
@@ -226,14 +240,7 @@ def validate_corpus_metadata_part(metadata):
     data = []
     for meta in metadata:
         is_ok = True
-        major_doc_type = meta.get("major_doc_type")
-        if not isinstance(major_doc_type, list) and major_doc_type:
-            meta["major_doc_type"] = [major_doc_type]
-
-        date_published = meta.get("date_published")
-        if not date_published:
-            # This handles the initial empty string values in the WB scraper
-            meta["date_published"] = None
+        meta = _meta_normalization(meta)
 
         # Validate based on the metadata schema
         try:
@@ -248,9 +255,7 @@ def validate_corpus_metadata_part(metadata):
 @task
 def validate_corpus_metadata(meta):
     is_ok = True
-    major_doc_type = meta.get("major_doc_type")
-    if not isinstance(major_doc_type, list) and major_doc_type:
-        meta["major_doc_type"] = [major_doc_type]
+    meta = _meta_normalization(meta)
 
     # Validate based on the metadata schema
     try:
