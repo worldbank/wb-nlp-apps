@@ -51,6 +51,7 @@ Further steps:
 2. Next clean the documents and generate the vectors for the data.
 
 """
+from datetime import datetime
 import json
 from pathlib import Path
 from wb_nlp import dir_manager
@@ -123,13 +124,37 @@ def load_data_to_es(ignore_existing=True):
     elasticsearch.make_nlp_docs_from_docs_metadata(
         docs_metadata, ignore_existing=ignore_existing, en_txt_only=True, remove_doc_whitespaces=True)
 
+    return len(docs_metadata)
+
+
+def set_update_latest_data(mongodb_doc_count):
+    collection = mongodb.get_latest_update_collection()
+
+    search = elasticsearch.NLPDoc.search()
+    search.aggs.bucket("corpus_count", "terms", field="corpus").bucket(
+        "docs_count", "terms", field="major_doc_type")
+    executed_search = search.execute()
+    docs_summary_stats = executed_search.aggs.to_dict()
+
+    collection.insert_one(
+        dict(
+            last_update_date=datetime.now(),
+            docs_summary_stats=docs_summary_stats,
+            es_doc_count=search.count(),
+            mongodb_doc_count=mongodb_doc_count,
+        )
+    )
+
 
 def main():
     print("load_clean_metadata")
     load_clean_metadata()
 
     print("load_data_to_es")
-    load_data_to_es()
+    mongodb_doc_count = load_data_to_es()
+
+    print("set_update_latest_data")
+    set_update_latest_data(mongodb_doc_count)
 
     print("Finished...")
 
