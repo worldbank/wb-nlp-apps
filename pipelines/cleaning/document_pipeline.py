@@ -122,9 +122,22 @@ def get_split_raw_metadata_files(corpus_id, size=None):
 
 def _meta_normalization(meta):
 
-    major_doc_type = meta.get("major_doc_type")
-    if not isinstance(major_doc_type, list) and major_doc_type:
-        meta["major_doc_type"] = [major_doc_type]
+    list_fields = [
+        "adm_region", "author", "country", "doc_type", "geo_region",
+        "keywords", "major_doc_type", "project_id", "topics_src",
+        "wb_lending_instrument", "wb_major_theme",
+        "wb_project_id", "wb_sector", "wb_subtopic_src", "wb_theme"]
+
+    for field in list_fields:
+        if field in meta:
+            field_value = meta.get(field)
+            if field_value:
+                if not isinstance(field_value, list):
+                    meta[field] = [field_value]
+
+            else:
+                # Assuming field_value is an empty string, empty list, etc.
+                meta[field] = None
 
     date_published = meta.get("date_published")
     if not date_published:
