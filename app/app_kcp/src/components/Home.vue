@@ -138,8 +138,8 @@
           <h3 class="text-center">
             Explore our corpus of {{ corpus_size.toLocaleString() }} documents
           </h3>
-          <div class="small text-center">
-            Last updated on Wednesday, April 31, 2021
+          <div v-if="last_update_date" class="small text-center">
+            Last updated on {{ last_update_date.toDateString() }}
           </div>
           <p class="mt-4 text-center">
             The Document Explorer puts Natural Language Processing (NLP) at the
@@ -299,10 +299,13 @@ export default {
       file_input: null,
       search_text_cache: "",
       corpus_size: "",
+      last_update: null,
+      last_update_date: null,
     };
   },
   mounted() {
     this.getCorpusSize();
+    this.getLastUpdateDate();
   },
   computed: {
     hasUploadedFile() {
@@ -347,6 +350,14 @@ export default {
     getCorpusSize() {
       this.$http.get("/nlp/corpus/get_corpus_size").then((response) => {
         this.corpus_size = response.data.size;
+      });
+    },
+    getLastUpdateDate() {
+      this.$http.get("/nlp/corpus/get_last_update_date").then((response) => {
+        this.last_update = response.data;
+        if (this.last_update) {
+          this.last_update_date = new Date(this.last_update.last_update_date);
+        }
       });
     },
   },

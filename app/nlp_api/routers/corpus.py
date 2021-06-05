@@ -1,11 +1,9 @@
 '''This router contains the implementation for the cleaning API.
 '''
 from bson.son import SON
-import enum
-from datetime import datetime
-from typing import Optional, List
-from functools import lru_cache
+from typing import List
 import pandas as pd
+import pymongo
 from fastapi import APIRouter, Depends, HTTPException, Body, Query
 
 from wb_nlp.interfaces import mongodb, elasticsearch
@@ -18,6 +16,15 @@ router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
+
+
+@router.get("/get_last_update_date")
+def get_last_update_date():
+    collection = mongodb.get_latest_update_collection()
+    data = collection.find_one(sort=[("_id", pymongo.DESCENDING)])
+    if "_id" in data:
+        data.pop("_id")
+    return data
 
 
 @router.get("/get_corpus_size")

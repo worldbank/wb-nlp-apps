@@ -8,7 +8,11 @@
     <div>
       <p class="mt-3">
         As of {{ date_now }}, our corpus contains
-        {{ corpus_size.toLocaleString() }} documents (last updated on …).
+        {{ corpus_size.toLocaleString() }} documents (last updated on
+        <span v-if="last_update_date">{{
+          last_update_date.toDateString()
+        }}</span
+        >).
       </p>
       <p class="mt-1 text-justify">
         The volume of the corpus can be measured by the number of documents it
@@ -54,6 +58,8 @@ export default {
   },
   mounted() {
     this.getFullCorpusData();
+    this.getCorpusSize();
+    this.getLastUpdateDate();
   },
   computed: {
     defaultOptions() {
@@ -133,10 +139,13 @@ export default {
       loading: false,
 
       date_now: new Date().toDateString(),
-      corpus_size: 200000,
+      corpus_size: "",
 
       corpus: null,
       major_doc_type: null,
+
+      last_update: null,
+      last_update_date: null,
     };
   },
   methods: {
@@ -188,6 +197,21 @@ export default {
         })
 
         .finally(() => {});
+    },
+    getCorpusSize() {
+      this.$http
+        .get("/nlp/corpus/get_corpus_size?app_tag_jdc=true")
+        .then((response) => {
+          this.corpus_size = response.data.size;
+        });
+    },
+    getLastUpdateDate() {
+      this.$http.get("/nlp/corpus/get_last_update_date").then((response) => {
+        this.last_update = response.data;
+        if (this.last_update) {
+          this.last_update_date = new Date(this.last_update.last_update_date);
+        }
+      });
     },
   },
   watch: {},

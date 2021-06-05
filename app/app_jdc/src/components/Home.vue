@@ -8,8 +8,8 @@
             A catalog of {{ corpus_size.toLocaleString() }} documents related to
             forced displacement
           </h2>
-          <p class="text-center jdc-update-class">
-            Last updated on Wednesday, April 31, 2021
+          <p v-if="last_update_date" class="text-center jdc-update-class">
+            Last updated on {{ last_update_date.toDateString() }}
           </p>
 
           <p class="mt-4 text-justify">
@@ -84,10 +84,13 @@ export default {
       file_input: null,
       search_text_cache: "",
       corpus_size: "",
+      last_update: null,
+      last_update_date: null,
     };
   },
   mounted() {
     this.getCorpusSize();
+    this.getLastUpdateDate();
   },
   computed: {
     hasUploadedFile() {
@@ -135,6 +138,14 @@ export default {
         .then((response) => {
           this.corpus_size = response.data.size;
         });
+    },
+    getLastUpdateDate() {
+      this.$http.get("/nlp/corpus/get_last_update_date").then((response) => {
+        this.last_update = response.data;
+        if (this.last_update) {
+          this.last_update_date = new Date(this.last_update.last_update_date);
+        }
+      });
     },
   },
 };
