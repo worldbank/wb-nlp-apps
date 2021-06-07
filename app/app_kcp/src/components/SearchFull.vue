@@ -1144,18 +1144,13 @@ export default {
         });
       }
     },
-    sendKeywordSearch: function (from = 0, ignore_empty_query = false) {
-      if (!this.query) {
-        if (!ignore_empty_query) {
-          return;
-        }
-      }
+    sendKeywordSearch: function (from = 0) {
       if (from > this.total.value) {
         return;
       }
       this.query = this.query.replaceAll("_", " ");
 
-      this.getCachedOrFetchData(from, false, false);
+      this.getCachedOrFetchData(from, false);
     },
     sendSemanticSearch: function (from = 0) {
       this.facets = null;
@@ -1167,7 +1162,7 @@ export default {
       //   return;
       // }
 
-      this.getCachedOrFetchData(from, false, false);
+      this.getCachedOrFetchData(from, false);
     },
     sendFileSearch: function (from = 0) {
       this.from_result = from;
@@ -1257,11 +1252,7 @@ export default {
         }
       }
     },
-    getCachedOrFetchData: function (
-      from = 0,
-      ignore_empty_query = false,
-      for_cache = false
-    ) {
+    getCachedOrFetchData: function (from = 0, for_cache = false) {
       // :from is in the unit of actual result count
 
       var search_cache_key = null;
@@ -1327,7 +1318,7 @@ export default {
           }, 10);
           // this.loading = false;
 
-          this.fetchForCache(this.next, ignore_empty_query, this.cache_count);
+          this.fetchForCache(this.next, this.cache_count);
 
           return;
         }
@@ -1398,11 +1389,10 @@ export default {
 
             this.loading = false;
 
-            this.fetchForCache(this.next, ignore_empty_query, this.cache_count);
+            this.fetchForCache(this.next, this.cache_count);
 
             // this.getCachedOrFetchData(
             //   (this.next - 1) * this.curr_size,
-            //   ignore_empty_query,
             //   true
             // );
           } else {
@@ -1429,18 +1419,14 @@ export default {
         })
         .finally(() => (this.loading = false));
     },
-    fetchForCache(next, ignore_empty_query, cache_count = 1) {
+    fetchForCache(next, cache_count = 1) {
       for (var i = next; i < next + cache_count; i++) {
-        this.getCachedOrFetchData(
-          (i - 1) * this.curr_size,
-          ignore_empty_query,
-          true
-        );
+        this.getCachedOrFetchData((i - 1) * this.curr_size, true);
       }
     },
     defaultKeywordSearch() {
       if (!this.loading && !this.prevent_default) {
-        this.sendKeywordSearch(0, true);
+        this.sendKeywordSearch(0);
       }
     },
   },
