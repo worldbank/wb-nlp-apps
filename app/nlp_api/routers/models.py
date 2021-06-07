@@ -101,7 +101,8 @@ async def get_similar_words(model_name: ModelTypes, transform_params: SimilarWor
         metric=transform_params.metric.value)
 
 
-@ router.post("/{model_name}/get_similar_docs", response_model=SimilarDocsReturns)
+# @ router.post("/{model_name}/get_similar_docs", response_model=SimilarDocsReturns)
+@ router.post("/{model_name}/get_similar_docs")
 async def get_similar_docs(model_name: ModelTypes, transform_params: SimilarDocsParams):
     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
     '''
@@ -173,7 +174,8 @@ async def get_similar_words_by_doc_id(model_name: ModelTypes, transform_params: 
         metric=transform_params.metric.value)
 
 
-@ router.post("/{model_name}/get_similar_docs_by_doc_id", response_model=SimilarDocsByDocIDReturns)
+# @ router.post("/{model_name}/get_similar_docs_by_doc_id", response_model=SimilarDocsByDocIDReturns)
+@ router.post("/{model_name}/get_similar_docs_by_doc_id")
 async def get_similar_docs_by_doc_id(model_name: ModelTypes, transform_params: SimilarDocsByDocIDParams, return_metadata: bool = True):
     '''This endpoint converts the `raw_text` provided into a vector transformed using the specified word2vec model.
     '''
