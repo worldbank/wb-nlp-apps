@@ -607,7 +607,7 @@ def main(corpus_id, scraper_root=None, size=None):
         #     batched_valid_text_files)
         # remove_corpus_tmp_dir(flow_corpus_id)
 
-    flow.run(corpus_id=corpus_id, size=size, executor=DaskExecutor(
+    flow.run(corpus_id=corpus_id, size=size, scraper_root=scraper_root, executor=DaskExecutor(
         adapt_kwargs={"maximum": 128}))
 
 
