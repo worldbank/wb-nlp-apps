@@ -420,7 +420,7 @@
               >
                 <div class="col-12 col-md-3 col-lg-4 mb-3 mb-md-0 small">
                   Showing <b>{{ start }}-{{ end }}</b> of
-                  <b>{{ total.message }}</b> studies
+                  <b>{{ total.message }}</b> documents
                 </div>
                 <div
                   class="filter-action-bar d-flex col-12 col-md-9 col-lg-8 justify-content-lg-end"
