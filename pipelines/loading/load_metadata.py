@@ -35,6 +35,31 @@ command: python pipelines/loading/load_metadata.py
 
 Further steps:
 
+Clean processed data
+server: scraping server
+workdir: /workspace/
+command: python -u ./scripts/cleaning/clean_corpus.py --cleaning-config-id <cleaning_config_id> --input-dir data/corpus --source-dir-name EN_TXT_ORIG --recursive -vv |& tee ./logs/clean_corpus.py.log
+
+Compress cleaned data
+server: scraping server
+workdir: data/corpus
+command: tar -czvf KCP_cleaned_corpus-id-1_corpus-id-2_corpus-id-3.tar.gz cleaned/<cleaning_config_id>/corpus_id_1 cleaned/<cleaning_config_id>/corpus_id_2 cleaned/<cleaning_config_id>/corpus_id_3 ...
+
+
+Send cleaned data to gateway
+server: scraping server
+workdir: data/corpus
+command: rsync -avP KCP_cleaned_corpus-id-1_corpus-id-2_corpus-id-3.tar.gz gw1:~/
+
+Send cleaned data from gateway to app server
+server: gateway server
+workdir: ~/
+command: rsync -avP KCP_cleaned_corpus-id-1_corpus-id-2_corpus-id-3.tar.gz app_server:/<path_to_app>/wb_nlp/data/corpus/
+
+
+Transform documents and load to model server
+
+
 1. Load data to elasticsearch. Do this by running the following snippet:
 
     # # # Optional - depends if the index is broken
