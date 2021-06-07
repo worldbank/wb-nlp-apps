@@ -109,7 +109,7 @@ export default {
         topn_docs: 10,
         metric: "cosine_similarity",
         show_duplicates: false,
-        duplicate_threshold: 0.98,
+        duplicate_threshold: 0.999,
         metric_type: "IP",
       };
     },

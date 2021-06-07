@@ -898,7 +898,7 @@ class BaseModel:
         # print(f"CMR Elapsed 3: {timer.elapsed}")
         return get_milvus_client().search(self.model_collection_id, dsl)
 
-    def search_similar_documents(self, document, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10, batch_size=100):
+    def search_similar_documents(self, document, duplicate_threshold=0.999, show_duplicates=False, serialize=False, metric_type="IP", from_result=0, size=10, batch_size=100):
         # document: any text
         # topn: number of returned related documents in the database
         # return_data: string corresponding to a column in the docs or list of column names
@@ -950,7 +950,7 @@ class BaseModel:
 
             return payload
 
-    def get_similar_documents(self, document, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
+    def get_similar_documents(self, document, topn=10, duplicate_threshold=0.999, show_duplicates=False, serialize=False, metric_type="IP"):
         # document: any text
         # topn: number of returned related documents in the database
         # return_data: string corresponding to a column in the docs or list of column names
@@ -1016,7 +1016,7 @@ class BaseModel:
         doc_vec = np.array(doc.embedding)
         return doc_vec
 
-    def get_similar_docs_by_doc_id(self, doc_id, topn=10, duplicate_threshold=0.98, show_duplicates=False, serialize=False, metric_type="IP"):
+    def get_similar_docs_by_doc_id(self, doc_id, topn=10, duplicate_threshold=0.999, show_duplicates=False, serialize=False, metric_type="IP"):
         self.check_wvecs()
 
         doc_vec = self.get_milvus_doc_vector_by_doc_id(doc_id)
