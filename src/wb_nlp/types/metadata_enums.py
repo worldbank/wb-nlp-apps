@@ -58,7 +58,7 @@ class Corpus(WBEnum):
     EPDC = "EPDC"
     ESCAP = "ESCAP"
     FAO = "FAO"
-    IDB = "IDB"
+    IADB = "IADB"
     IIEP = "IIEP"
     IMF = "IMF"
     OECD = "OECD"
@@ -74,6 +74,12 @@ class Corpus(WBEnum):
     @classmethod
     def clean(cls, value):
         value = value.upper()
+
+        mappings = {
+            "IDB": "IADB",
+        }
+
+        value = mappings.get(value, value)
 
         return value
 
