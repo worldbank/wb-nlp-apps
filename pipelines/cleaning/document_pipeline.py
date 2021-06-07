@@ -54,8 +54,12 @@ def get_clean_metadata_file(corpus_id):
         "corpus", corpus_id, f"{l_corpus_id}_clean_metadata.jsonl"))
 
 
-def raw_pdf_file_exists(corpus_id, doc_id):
-    l_corpus_id = corpus_id.lower()
+def raw_pdf_file_exists(corpus_id, doc_id, scraper_root=None):
+    if scraper_root is None:
+        l_corpus_id = corpus_id.lower()
+    else:
+        l_corpus_id = scraper_root.lower()
+
     pdf_path = Path(
         dir_manager.get_path_from_root(
             "scrapers", l_corpus_id,
@@ -90,8 +94,11 @@ def extract_corpus_clean_metadata_ids(clean_metadata):
 
 
 @task
-def build_split_corpus_raw_metadata_file_command(corpus_id):
-    l_corpus_id = corpus_id.lower()
+def build_split_corpus_raw_metadata_file_command(corpus_id, scraper_root=None):
+    if scraper_root is None:
+        l_corpus_id = corpus_id.lower()
+    else:
+        l_corpus_id = scraper_root.lower()
 
     # Make sure no data in /tmp/<corpus_id> is present.
     tmp_dirpath = Path('/tmp') / corpus_id
@@ -150,7 +157,7 @@ def _meta_normalization(meta):
 
 
 class ExtractCorpusRawMetadataFromPart(Task):
-    def run(self, part_file, clean_metadata_ids):
+    def run(self, part_file, clean_metadata_ids, scraper_root=None):
         corpus_id = part_file.parent.name
         data = []
 
@@ -165,7 +172,7 @@ class ExtractCorpusRawMetadataFromPart(Task):
                     if doc_id in seen_ids:
                         continue
 
-                    if not raw_pdf_file_exists(corpus_id, doc_id):
+                    if not raw_pdf_file_exists(corpus_id, doc_id, scraper_root):
                         continue
 
                     data.append(meta)
@@ -175,7 +182,7 @@ class ExtractCorpusRawMetadataFromPart(Task):
 
 
 @task
-def extract_corpus_raw_metadata(corpus_id, clean_metadata_ids, size=None):
+def extract_corpus_raw_metadata(corpus_id, clean_metadata_ids, size=None, scraper_root=None):
     l_corpus_id = corpus_id.lower()
     corpus_root = Path(dir_manager.get_path_from_root("scrapers", l_corpus_id))
 
@@ -194,7 +201,7 @@ def extract_corpus_raw_metadata(corpus_id, clean_metadata_ids, size=None):
                 if doc_id in seen_ids:
                     continue
 
-                if not raw_pdf_file_exists(corpus_id, doc_id):
+                if not raw_pdf_file_exists(corpus_id, doc_id, scraper_root):
                     continue
 
                 data.append(meta)
@@ -206,8 +213,7 @@ def extract_corpus_raw_metadata(corpus_id, clean_metadata_ids, size=None):
     return data
 
 
-@task
-def persist_clean_metadata(metadata, clean_metadata_ids):
+def _persist_clean_metadata(metadata, clean_metadata_ids):
     """
     Persist a batch of cleaned metadata of a given corpus into a temp file.
     """
@@ -252,6 +258,18 @@ def persist_clean_metadata(metadata, clean_metadata_ids):
 
 
 @task
+def persist_clean_metadata(metadata, clean_metadata_ids):
+    return _persist_clean_metadata(metadata, clean_metadata_ids)
+
+
+@task
+def persist_batched_clean_metadata(batched_metadata, clean_metadata_ids):
+    return _persist_clean_metadata(
+        [meta for batch in batched_metadata for meta in batch],
+        clean_metadata_ids)
+
+
+@task
 def validate_corpus_metadata_part(metadata):
     data = []
     for meta in metadata:
@@ -290,8 +308,11 @@ def aggregate_metadata(old_metadata, new_metadata):
 # PDF TASKS
 ################
 
-def _get_pdf_paths(corpus_id, metadata_ids):
-    l_corpus_id = corpus_id.lower()
+def _get_pdf_paths(corpus_id, metadata_ids, scraper_root=None):
+    if scraper_root is None:
+        l_corpus_id = corpus_id.lower()
+    else:
+        l_corpus_id = scraper_root.lower()
 
     base = Path(dir_manager.get_path_from_root(
         "scrapers", l_corpus_id, "corpus", corpus_id, "PDF_ORIG"))
@@ -300,14 +321,14 @@ def _get_pdf_paths(corpus_id, metadata_ids):
 
 
 @task
-def get_pdf_paths(corpus_id, metadata_ids):
-    return _get_pdf_paths(corpus_id, metadata_ids)
+def get_pdf_paths(corpus_id, metadata_ids, scraper_root=None):
+    return _get_pdf_paths(corpus_id, metadata_ids, scraper_root)
 
 
 @task
-def get_batched_pdf_paths(corpus_id, metadata_ids):
+def get_batched_pdf_paths(corpus_id, metadata_ids, scraper_root=None):
     batch_size = 50
-    pdf_paths = _get_pdf_paths(corpus_id, metadata_ids)
+    pdf_paths = _get_pdf_paths(corpus_id, metadata_ids, scraper_root)
 
     batched_pdf_paths = [pdf_paths[i: i+batch_size]
                          for i in range(0, len(pdf_paths), batch_size)]
@@ -507,17 +528,18 @@ def remove_corpus_tmp_dir(corpus_id):
 #     pass
 
 
-def main(corpus_id, size=None):
+def main(corpus_id, scraper_root=None, size=None):
     assert corpus_id, "Please specify the corpus_id to be processed with the --corpus-id=<corpus_id> parameter..."
 
     with Flow("cleaning") as flow:
         flow_corpus_id = Parameter("corpus_id", default="WB")
+        flow_scraper_root = Parameter("scraper_root", default=None)
         max_process_size = Parameter("size", default=None)
 
         flow_corpus_id = create_corpus_dirs(flow_corpus_id)
 
         split_files_command = build_split_corpus_raw_metadata_file_command(
-            flow_corpus_id)
+            flow_corpus_id, flow_scraper_root)
 
         command_result = shell_task(command=split_files_command)
 
@@ -536,23 +558,28 @@ def main(corpus_id, size=None):
             split_raw_metadata_files, key="part_file", mapped=True)  # , flow=flow)
         corpus_metadata_part.set_upstream(
             corpus_clean_metadata_ids, key="clean_metadata_ids", mapped=False)  # , flow=flow)
+        corpus_metadata_part.set_upstream(
+            flow_scraper_root, key="scraper_root", mapped=False)  # , flow=flow)
 
         validated_corpus_metadata_part = validate_corpus_metadata_part.map(
             corpus_metadata_part)
 
         # corpus_metadata = extract_corpus_raw_metadata(
-        #     flow_corpus_id, corpus_clean_metadata_ids, max_process_size)
+        #     flow_corpus_id, corpus_clean_metadata_ids, max_process_size, flow_scraper_root)
 
         # validated_corpus_metadata = validate_corpus_metadata.map(
         #     corpus_metadata)
 
-        persisted_clean_metadata_ids = persist_clean_metadata(
-            flatten(validated_corpus_metadata_part), corpus_clean_metadata_ids)
+        persisted_clean_metadata_ids = persist_batched_clean_metadata(
+            validated_corpus_metadata_part, corpus_clean_metadata_ids)
+
+        # persisted_clean_metadata_ids = persist_clean_metadata(
+        #     flatten(validated_corpus_metadata_part), corpus_clean_metadata_ids)
 
         batched_pdf_paths = get_batched_pdf_paths(
-            flow_corpus_id, persisted_clean_metadata_ids)
+            flow_corpus_id, persisted_clean_metadata_ids, flow_scraper_root)
 
-        # pdf_paths = get_pdf_paths(flow_corpus_id, persisted_clean_metadata_ids)
+        # pdf_paths = get_pdf_paths(flow_corpus_id, persisted_clean_metadata_ids, flow_scraper_root)
 
         # full_clean_metadata = aggregate_metadata(
         #     corpus_clean_metadata, persisted_clean_metadata)
@@ -589,6 +616,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--corpus-id', dest='corpus_id', type=str)
+    parser.add_argument(
+        '--scraper-root', dest='scraper_root', type=str, default=None)
     parser.add_argument('--size', dest='size', type=int, default=None)
     args = parser.parse_args()
 
