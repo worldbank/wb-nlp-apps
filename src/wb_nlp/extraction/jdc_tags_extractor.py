@@ -1,10 +1,8 @@
-import re
 from collections import Counter
 
 import pandas as pd
 from flashtext import KeywordProcessor
 import inflect
-from wb_nlp.extraction.whitelist import mappings
 from wb_nlp.dir_manager import get_data_dir
 
 jdc_tags_processor = KeywordProcessor()
