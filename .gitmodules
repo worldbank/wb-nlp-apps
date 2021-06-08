@@ -1,0 +1,3 @@
+[submodule "wb_cleaning"]
+	path = wb_cleaning
+	url = https://github.com/worldbank/wb-nlp-tools.git
