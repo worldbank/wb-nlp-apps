@@ -50,15 +50,18 @@
           </div>
 
           <div class="study-id d-md-flex mt-2">
-            <span class="badge badge-pill badge-secondary"
+            <!-- <span class="badge badge-pill badge-secondary"
               >ID: {{ result.id }}</span
             >
-            <div class="small ml-md-3 mt-2 mt-md-0">
+            <div class="small ml-md-3 mt-2 mt-md-0"> -->
+
+            <div class="small mt-2 mt-md-0">
               Corpus: {{ result.corpus
-              }}<span v-if="match && match.rank">, Rank: {{ match.rank }}</span
-              ><span v-if="match && match.score"
+              }}<span v-if="match && match.rank">, Rank: {{ match.rank }}</span>
+              <!-- <span v-if="match && match.score"
                 >, Score: {{ truncate(match.score, 4) }}</span
-              ><span v-if="match && match.topic"
+              > -->
+              <span v-if="match && match.topic"
                 ><span
                   v-for="topic_id_score in Object.entries(match.topic)"
                   :key="topic_id_score"
