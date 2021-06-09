@@ -14,8 +14,7 @@ from pydantic import BaseModel, Field, validator, AnyUrl
 
 from wb_cleaning.types.metadata_enums import WBAdminRegions, MajorDocTypes
 from wb_cleaning.types.metadata import MetadataModel
-
-from wb_nlp.utils.scripts import generate_model_hash
+from wb_cleaning.utils.scripts import generate_model_hash
 
 
 class UploadTypes(enum.Enum):

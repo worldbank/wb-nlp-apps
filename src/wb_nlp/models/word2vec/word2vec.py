@@ -11,12 +11,12 @@ import joblib
 from joblib import Parallel, delayed
 
 from milvus import DataType
+from wb_cleaning.utils.scripts import create_dask_cluster
+
 from wb_nlp.interfaces.milvus import (
     get_milvus_client, get_hex_id, get_int_id,
     get_collection_ids, get_embedding_dsl,
 )
-
-from wb_nlp.utils.scripts import create_dask_cluster
 
 
 class Word2VecModel:
