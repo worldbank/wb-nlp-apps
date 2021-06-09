@@ -1,4 +1,4 @@
-from wb_nlp.types import metadata
+from wb_cleaning.types import metadata
 from collections import Counter
 from wb_nlp.interfaces.mongodb import get_metadata_collection
 
@@ -41,7 +41,7 @@ def get_invalid_values(field, enum_type, delimiter):
 
     return invalid_values
 
-# from wb_nlp.types import metadata_enums as me
+# from wb_cleaning.types import metadata_enums as me
 # d = get_invalid_values("topics_src", me.WBTopics, ",")
 
 

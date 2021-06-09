@@ -8,9 +8,10 @@ from functools import lru_cache
 
 from fastapi import APIRouter, Depends, HTTPException, Body
 
+# from wb_cleaning.types.metadata_enums import Corpus
+from wb_cleaning.types import metadata
+
 from wb_nlp.interfaces import mongodb, elasticsearch
-from wb_nlp.types import metadata
-# from wb_nlp.types.metadata_enums import Corpus
 
 router = APIRouter(
     prefix="/corpus",

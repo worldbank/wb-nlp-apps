@@ -6,9 +6,10 @@ import pandas as pd
 import pymongo
 from fastapi import APIRouter, Depends, HTTPException, Body, Query
 
+# from wb_cleaning.types.metadata_enums import Corpus
+from wb_cleaning.types import metadata
+
 from wb_nlp.interfaces import mongodb, elasticsearch
-from wb_nlp.types import metadata
-# from wb_nlp.types.metadata_enums import Corpus
 
 router = APIRouter(
     prefix="/corpus",

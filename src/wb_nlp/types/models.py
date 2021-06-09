@@ -11,9 +11,11 @@ import json
 from fastapi import File, UploadFile, Query
 from typing import List, Any, Dict, Optional
 from pydantic import BaseModel, Field, validator, AnyUrl
+
+from wb_cleaning.types.metadata_enums import WBAdminRegions, MajorDocTypes
+from wb_cleaning.types.metadata import MetadataModel
+
 from wb_nlp.utils.scripts import generate_model_hash
-from wb_nlp.types.metadata import MetadataModel
-from wb_nlp.types.metadata_enums import WBAdminRegions, MajorDocTypes
 
 
 class UploadTypes(enum.Enum):
