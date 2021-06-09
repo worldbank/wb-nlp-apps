@@ -213,24 +213,6 @@ services:
       - mongodb
       - es01
 
-  app_label:
-    build:
-      context: ./app/app_label
-    restart: always
-    ports:
-      - "8998:80"
-    env_file:
-      - .env
-    volumes:
-      - ${LOCAL_PATH}/app/app_label:/app
-      - ${LOCAL_PATH}/app/app_label/site.conf:/etc/nginx/conf.d/site.conf
-    links:
-      - nlp_api
-      - dfr
-    depends_on:
-      - nlp_api
-      - dfr
-
 # networks:
 #   elastic:
 #     driver: bridge

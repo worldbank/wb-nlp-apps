@@ -85,8 +85,3 @@ services:
       # - ${SERVER7_DATA_PATH}/data/corpus:/workspace/data/corpus
       # - ${SERVER7_DATA_PATH}/data/raw:/workspace/data/raw
       # - ${SERVER7_DATA_PATH}/data/preprocessed:/workspace/data/preprocessed
-
-  app_label:
-    volumes:
-      - ${SERVER7_PATH}/app/app_label:/app
-      - ${SERVER7_PATH}/app/app_label/site.conf:/etc/nginx/conf.d/site.conf

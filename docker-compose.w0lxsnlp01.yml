@@ -100,8 +100,3 @@ services:
       # - ${STAGING_PATH}/data/raw:/workspace/data/raw
       # - ${STAGING_PATH}/data/preprocessed:/workspace/data/preprocessed
       # - ${STAGING_PATH}/data/whitelists:/workspace/data/whitelists
-
-  app_label:
-    volumes:
-      - ${STAGING_PATH}/app/app_label:/app
-      - ${STAGING_PATH}/app/app_label/site.conf:/etc/nginx/conf.d/site.conf

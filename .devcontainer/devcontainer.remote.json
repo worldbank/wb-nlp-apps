@@ -17,7 +17,6 @@
         "es01",
         "es02",
         "es03",
-        "app_label",
         "nlp_api"
     ],
     // Set *default* container specific settings.json values on container create.

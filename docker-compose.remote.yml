@@ -100,11 +100,6 @@ services:
       # - ${REMOTE_PATH}/data/preprocessed:/workspace/data/preprocessed
       # - ${REMOTE_PATH}/data/whitelists:/workspace/data/whitelists
 
-  app_label:
-    volumes:
-      - ${REMOTE_PATH}/app/app_label:/app
-      - ${REMOTE_PATH}/app/app_label/site.conf:/etc/nginx/conf.d/site.conf
-
   selenium:
     environment:
       - JAVA_OPTS=-Dwebdriver.chrome.whitelistedIps=
