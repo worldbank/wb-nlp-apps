@@ -55,6 +55,13 @@ def get_doc_metadata_by_id(id: str = "wb_725385"):
 
     doc = elasticsearch.NLPDoc.get(id=id).to_dict()
 
+    wb_list_types = ["wb_lending_instrument", "wb_major_theme",
+                     "wb_project_id", "wb_sector", "wb_subtopic_src", "wb_theme"]
+    for field in wb_list_types:
+        field_val = doc.get(field)
+        if field_val is not None and not isinstance(field_val, list):
+            doc[field] = [field_val]
+
     doc = metadata.MetadataModel(**doc)
 
     return doc
