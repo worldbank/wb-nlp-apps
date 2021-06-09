@@ -8,16 +8,16 @@ import os
 import sys
 import hashlib
 import json
+from functools import lru_cache
+
 import yaml
 import click
-from functools import lru_cache
 
 from dask.distributed import Client, LocalCluster
 # export DASK_DISTRIBUTED__SCHEDULER__ALLOWED_FAILURES=210
 # export DASK_DISTRIBUTED__COMM__TIMEOUTS__CONNECT=60
 # export DASK_DISTRIBUTED__COMM__RETRY__COUNT=20
-from wb_nlp.processing.corpus import load_file, generate_files
-from wb_nlp.cleaning import cleaner
+from wb_cleaning.cleaning import cleaner
 from wb_nlp.interfaces import mongodb
 
 

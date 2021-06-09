@@ -51,6 +51,7 @@ COPY . .
 # COPY ./app/nlp_api ./app/nlp_api
 # COPY ./src .
 
+RUN ${CONDA_PATH}/bin/pip install -e wb_cleaning
 RUN ${CONDA_PATH}/bin/python setup.py develop
 
 # # Always try to install the latest prod env file.

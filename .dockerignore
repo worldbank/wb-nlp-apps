@@ -3,3 +3,6 @@ data/mongodb/
 elasticsearch/
 models/
 milvus/
+workspace/
+notebooks/
+scrapers/

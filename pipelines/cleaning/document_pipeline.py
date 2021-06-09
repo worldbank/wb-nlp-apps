@@ -32,9 +32,9 @@ from prefect.tasks.shell import ShellTask
 
 from wb_nlp import dir_manager
 from wb_nlp.types.metadata import MetadataModel
-from wb_nlp.processing import document
-from wb_nlp.extraction.pdf_cover import DocumentCover
-from wb_nlp.extraction.english_content_extractor import filter_document_by_language
+from wb_cleaning.processing import document
+from wb_cleaning.extraction.pdf_cover import DocumentCover
+from wb_cleaning.extraction.english_content_extractor import filter_document_by_language
 """
 1.
 """
