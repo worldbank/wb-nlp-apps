@@ -34,19 +34,6 @@ services:
   selenium:
     image: selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20200907
     ports:
-      - "4444:4444"
+      - 127.0.0.1:4444:4444
     volumes:
       - /dev/shm:/dev/shm
-
-  # nlp-app-mongodb:
-  #   image: mongo:latest
-  #   environment:
-  #     - MONGO_DATA_DIR=/data/db
-  #     - MONGO_LOG_DIR=/dev/null
-  #   volumes:
-  #     - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
-  #   ports:
-  #     - $NLP_APP_MONGODB_PORT:27017
-  #   # command: mongod --smallfiles  # --auth
-  #   env_file:
-  #     - .env

@@ -32,7 +32,6 @@ services:
       - .env
     volumes:
       - ${REMOTE_PATH}/app/load_balancer:/app
-      # - ${REMOTE_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
     links:
       - app_kcp
       - app_jdc
@@ -51,8 +50,8 @@ services:
       - ${REMOTE_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
 
   dfr:
-    ports:
-    - "8098:80"
+    # ports:
+    # - "8098:80"
     volumes:
       - ${REMOTE_PATH}/models/dfr/data:/usr/share/nginx/html/data
       # - ${REMOTE_PATH}/app/dfr/data:/usr/share/nginx/html/data
@@ -60,21 +59,8 @@ services:
   mongodb:
     volumes:
       - ${REMOTE_PATH}/data/mongodb:/data/db
-      # - ./data/mongodb:/data/db
     ports:
-      - 27018:27017
-  # nlp-app-mongodb:
-  #   image: mongo:latest
-  #   environment:
-  #     - MONGO_DATA_DIR=/data/db
-  #     - MONGO_LOG_DIR=/dev/null
-  #   volumes:
-  #     - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
-  #   ports:
-  #     - $NLP_APP_MONGODB_PORT:27017
-  #   # command: mongod --smallfiles  # --auth
-  #   env_file:
-  #     - .env
+      - 127.0.0.1:27018:27017
 
   milvus:
     volumes:

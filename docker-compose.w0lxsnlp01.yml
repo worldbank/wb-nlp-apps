@@ -3,77 +3,30 @@ services:
 
   dev:
     image: hello-world:latest
-  #   build:
-  #     context: ./
-  #     dockerfile: .devcontainer/Dockerfile.dev.base
-  #     args:
-  #       USERNAME: vscode
-  #       USER_UID: 1000
-  #       ENV_ID: dev
-  #       ENV_DEV_BASE_FILE: "environment.dev.base.remote.yml"
-  #       PROJECT_ID: wb_nlp
-  #       ENV_DEV_FILE: "environment.dev.remote.yml"
-  #   volumes:
-  #     - ${STAGING_PATH}:/workspace
-  #     # - ./:/workspace
-  #     # - ${STAGING_PATH}:/workspace:cached
-  #   # ports:
-  #   #   - "8000:8000"
-  #   depends_on:
-  #     - mongodb
 
   load_balancer:
-    build:
-      context: ./app/load_balancer
-    restart: always
-    ports:
-      - "80:80"
-    env_file:
-      - .env
     volumes:
       - ${STAGING_PATH}/app/load_balancer:/app
-      # - ${STAGING_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
-    links:
-      - app_kcp
-      - app_jdc
-    depends_on:
-      - app_kcp
-      - app_jdc
 
   app_kcp:
     volumes:
       - ${STAGING_PATH}/app/app_kcp:/app
-      # - ${STAGING_PATH}/app/app_kcp/site.conf:/etc/nginx/conf.d/site.conf
 
   app_jdc:
     volumes:
       - ${STAGING_PATH}/app/app_jdc:/app
-      # - ${STAGING_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
 
   dfr:
-    ports:
-    - "8098:80"
+    # ports:
+    # - "8098:80"
     volumes:
       - ${STAGING_PATH}/app/dfr/data:/usr/share/nginx/html/data
 
   mongodb:
     volumes:
       - ${STAGING_PATH}/data/mongodb:/data/db
-      # - ./data/mongodb:/data/db
     ports:
-      - 27018:27017
-  # nlp-app-mongodb:
-  #   image: mongo:latest
-  #   environment:
-  #     - MONGO_DATA_DIR=/data/db
-  #     - MONGO_LOG_DIR=/dev/null
-  #   volumes:
-  #     - $BASE_DIR/$NLP_APP_MONGODB_DATADIR:/data/db
-  #   ports:
-  #     - $NLP_APP_MONGODB_PORT:27017
-  #   # command: mongod --smallfiles  # --auth
-  #   env_file:
-  #     - .env
+      - 127.0.0.1:27018:27017
 
   milvus:
     volumes:
