@@ -4,14 +4,17 @@ import json
 from functools import lru_cache
 from fastapi import HTTPException
 import requests
-from wb_nlp.interfaces import mongodb, language
-from wb_nlp.translate import translation
+
+from wb_cleaning.interfaces import language
+from wb_cleaning.translate import translation
+from wb_cleaning.processing import document
+
+from wb_nlp.interfaces import mongodb
 
 from wb_nlp.types.models import (
     ModelTypes,
 )
 from wb_nlp.models import word2vec_base, lda_base, mallet_base
-from wb_nlp.processing import document
 
 # This is faster than lru_cache
 MODEL_CACHE = {}
