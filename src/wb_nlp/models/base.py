@@ -22,6 +22,7 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from milvus import DataType
 
 from wb_cleaning.cleaning import stopwords
+from wb_cleaning.processing.corpus import MultiDirGenerator, replace_phrases
 
 from wb_nlp.interfaces.milvus import (
     get_milvus_client,
@@ -33,7 +34,6 @@ from wb_nlp.interfaces.milvus import (
 from wb_nlp.interfaces import mongodb, elasticsearch
 from wb_nlp.types.models import ModelRunInfo, ModelTypes
 from wb_nlp import dir_manager
-from wb_nlp.processing.corpus import MultiDirGenerator, replace_phrases
 from wb_nlp.utils.scripts import (
     configure_logger,
     create_dask_cluster,

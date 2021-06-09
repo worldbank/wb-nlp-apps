@@ -16,6 +16,8 @@ import joblib
 from joblib import Parallel, delayed
 
 from milvus import DataType
+from wb_cleaning.processing.corpus import MultiDirGenerator
+
 from wb_nlp.interfaces.milvus import (
     get_milvus_client, get_hex_id, get_int_id,
     get_collection_ids, get_embedding_dsl,
@@ -24,7 +26,6 @@ from wb_nlp.interfaces import mongodb
 from wb_nlp.utils.scripts import create_dask_cluster
 from wb_nlp.types.models import LDAModelConfig, ModelRunInfo
 from wb_nlp import dir_manager
-from wb_nlp.processing.corpus import MultiDirGenerator
 from wb_nlp.utils.scripts import (
     configure_logger,
     generate_model_hash,
