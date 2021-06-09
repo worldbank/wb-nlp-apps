@@ -59,8 +59,6 @@
     "postCreateCommand": "cp /tmp/conda-tmp/${ENV_DEV_FILE} ./ && /opt/conda/envs/${ENV_ID}/bin/python -m ipykernel install --user --name=wb_nlp && /opt/conda/envs/${ENV_ID}/bin/pip install -e wb_cleaning && /opt/conda/envs/${ENV_ID}/bin/python setup.py develop",
     // Comment out to connect as root instead.
     "remoteUser": "vscode",
-    // "docker.host": "ssh://avsolatorio@10.0.0.25",
-    // "workspaceFolder": "/workspace",
     "workspaceMount": "source=/home/avsolatorio/WBG/wb_nlp,target=/workspace,type=bind,consistency=cached",
     "workspaceFolder": "/workspace"
 }
