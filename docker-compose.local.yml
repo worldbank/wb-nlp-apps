@@ -25,23 +25,6 @@ services:
     #       cpus: '3'
     #       memory: 3G
 
-  web:
-    image: nginx:latest
-    ports:
-    - "80:80"
-    volumes:
-        - ./app/frontend:/frontend/nlp
-        - ./app/site.conf:/etc/nginx/conf.d/site.conf
-    links:
-      - php
-    depends_on:
-      - php
-
-  php:
-    image: php:7-fpm
-    volumes:
-      - ./app/frontend:/frontend/nlp
-
   tika:
     image: apache/tika:latest
 

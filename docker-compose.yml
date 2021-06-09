@@ -18,11 +18,9 @@ services:
       - ${LOCAL_PATH}:/workspace
     links:
       - mongodb
-      - web
       # - es01
     depends_on:
       - mongodb
-      - web
       # - es01
     # ports:
     #   - "8000:8000"
@@ -78,29 +76,6 @@ services:
     volumes:
       - ${LOCAL_PATH}/models/dfr/data:/usr/share/nginx/html/data
       # - ${LOCAL_PATH}/app/dfr/data:/usr/share/nginx/html/data
-
-  web:
-    image: nginx:latest
-    restart: always
-    ports:
-      - "8880:80"
-    env_file:
-      - .env
-    volumes:
-      - ${LOCAL_PATH}/app/frontend:/frontend/nlp
-      - ${LOCAL_PATH}/app/site.conf:/etc/nginx/conf.d/site.conf
-    links:
-      - php
-    depends_on:
-      - php
-
-  php:
-    image: php:7-fpm
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - ${LOCAL_PATH}/app/frontend:/frontend/nlp
 
   tika:
     image: apache/tika:latest

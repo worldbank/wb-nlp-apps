@@ -21,7 +21,6 @@ services:
   #   #   - "8000:8000"
   #   depends_on:
   #     - mongodb
-  #     - web
 
   app_kcp:
     volumes:
@@ -38,18 +37,6 @@ services:
     - "8098:80"
     volumes:
       - ${SERVER7_PATH}/app/dfr/data:/usr/share/nginx/html/data
-
-  web:
-    ports:
-      - "8880:80"
-    volumes:
-      - ${SERVER7_PATH}/app/frontend:/frontend/nlp
-      - ${SERVER7_PATH}/app/site.conf:/etc/nginx/conf.d/site.conf
-
-  php:
-    volumes:
-      - ${SERVER7_PATH}/app/frontend:/frontend/nlp
-      # - ./app/frontend:/frontend/nlp
 
   mongodb:
     volumes:

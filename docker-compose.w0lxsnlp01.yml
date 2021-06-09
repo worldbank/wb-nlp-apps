@@ -21,7 +21,6 @@ services:
   #   #   - "8000:8000"
   #   depends_on:
   #     - mongodb
-  #     - web
 
   load_balancer:
     build:
@@ -56,18 +55,6 @@ services:
     - "8098:80"
     volumes:
       - ${STAGING_PATH}/app/dfr/data:/usr/share/nginx/html/data
-
-  web:
-    ports:
-      - "8880:80"
-    volumes:
-      - ${STAGING_PATH}/app/frontend:/frontend/nlp
-      - ${STAGING_PATH}/app/site.conf:/etc/nginx/conf.d/site.conf
-
-  php:
-    volumes:
-      - ${STAGING_PATH}/app/frontend:/frontend/nlp
-      # - ./app/frontend:/frontend/nlp
 
   mongodb:
     volumes:

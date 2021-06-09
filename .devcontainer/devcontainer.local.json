@@ -8,8 +8,6 @@
 	"service": "dev",
 	"runServices": [
 		"dev",
-		"web",
-		"php",
 		"tika",
 		"redis",
 		"selenium"
