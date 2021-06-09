@@ -23,11 +23,6 @@ services:
   #     - mongodb
   #     - web
 
-  app:
-    volumes:
-      - ${SERVER7_PATH}/app/app_vue2:/app
-      - ${SERVER7_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
-
   app_kcp:
     volumes:
       - ${SERVER7_PATH}/app/app_kcp:/app

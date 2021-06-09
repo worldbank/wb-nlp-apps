@@ -4,18 +4,6 @@ services:
   dev:
     image: hello-world:latest
 
-  app:
-    build:
-      context: ./app/app_vue2
-    restart: always
-    ports:
-      - "8088:80"
-    env_file:
-      - .env
-    volumes:
-      - ${LOCAL_PATH}/app/app_vue2:/app
-      - ${LOCAL_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
-
   app_kcp:
     build:
       context: ./app/app_kcp

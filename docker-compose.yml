@@ -19,12 +19,10 @@ services:
     links:
       - mongodb
       - web
-      - app
       # - es01
     depends_on:
       - mongodb
       - web
-      - app
       # - es01
     # ports:
     #   - "8000:8000"
@@ -36,18 +34,6 @@ services:
     #     reservations:
     #       cpus: '3'
     #       memory: 3G
-
-  app:
-    build:
-      context: ./app/app_vue2
-    restart: always
-    ports:
-      - "8088:80"
-    env_file:
-      - .env
-    volumes:
-      - ${LOCAL_PATH}/app/app_vue2:/app
-      - ${LOCAL_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
 
   app_kcp:
     build:

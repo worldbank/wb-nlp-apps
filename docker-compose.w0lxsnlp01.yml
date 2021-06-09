@@ -41,12 +41,6 @@ services:
       - app_kcp
       - app_jdc
 
-
-  app:
-    volumes:
-      - ${STAGING_PATH}/app/app_vue2:/app
-      - ${STAGING_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
-
   app_kcp:
     volumes:
       - ${STAGING_PATH}/app/app_kcp:/app
