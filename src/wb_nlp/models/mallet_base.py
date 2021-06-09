@@ -12,15 +12,14 @@ from gensim.models.wrappers.ldamallet import malletmodel2ldamodel
 from gensim import matutils
 import numpy as np
 from sklearn.decomposition import PCA
+
 from wb_nlp.interfaces.milvus import (
     get_milvus_client, get_embedding_dsl
 )
 from wb_nlp.interfaces import mongodb
 from wb_nlp import dir_manager
 from wb_nlp.types.models import MalletModelConfig, ModelTypes
-from wb_nlp.utils.scripts import (
-    configure_logger,
-)
+
 from wb_nlp.models.lda_base import LDAModel
 
 

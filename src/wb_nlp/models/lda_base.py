@@ -15,9 +15,7 @@ from wb_nlp.interfaces.milvus import (
 from wb_nlp.interfaces import mongodb, elasticsearch
 
 from wb_nlp.types.models import LDAModelConfig, ModelTypes
-from wb_nlp.utils.scripts import (
-    configure_logger,
-)
+
 from wb_nlp.models.base import BaseModel
 
 

@@ -19,9 +19,6 @@ from wb_cleaning.cleaning import stopwords
 
 from wb_nlp.types.models import Word2VecModelConfig, ModelTypes
 from wb_nlp.models.base import BaseModel
-from wb_nlp.utils.scripts import (
-    configure_logger,
-)
 
 
 class Word2VecModel(BaseModel):
@@ -50,29 +47,6 @@ class Word2VecModel(BaseModel):
             raise_empty_doc_status=raise_empty_doc_status,
             log_level=log_level,
         )
-
-        # configure_logger(log_level)
-        # self.log_level = log_level
-        # self.logger = logging.getLogger(__file__)
-
-        # self.cleaning_config_id = cleaning_config_id
-        # self.model_config_id = model_config_id
-        # self.model_class = model_class  # Example: LdaMulticore
-        # self.model_config_type = model_config_type  # Example: LDAModelConfig
-        # self.model_run_info_description = model_run_info_description
-
-        # self.expected_model_name = expected_model_name
-
-        # self.validate_and_prepare_requirements()
-
-        # self.model = None
-        # self.raise_empty_doc_status = raise_empty_doc_status
-
-        # # Try to load the model
-        # self.load()
-        # self.set_model_specific_attributes()
-
-        # self.create_milvus_collection()
 
     def combine_word_vectors(self, word_vecs):
         return word_vecs.mean(axis=0).reshape(1, -1)

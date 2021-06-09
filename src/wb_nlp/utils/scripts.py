@@ -43,16 +43,6 @@ def get_command_options(**kwargs):
     return kwargs
 
 
-def configure_logger(log_level):
-    '''
-    Configures how the logger output is formatted.
-    '''
-    logging.basicConfig(stream=sys.stdout,
-                        level=log_level,
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-
 def load_config(config_path: Path, config_root: str, logger=None) -> dict:
     '''
     Function to load a yaml config file and returns a dictionary version of the config.
