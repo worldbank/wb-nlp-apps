@@ -15,8 +15,9 @@ import networkx as nx
 import umap
 # from wb_nlp.graph.graph_interface import FixedInterGraph
 
+from wb_cleaning.cleaning import stopwords
+
 from wb_nlp.types.models import Word2VecModelConfig, ModelTypes
-from wb_nlp.cleaning import stopwords
 from wb_nlp.models.base import BaseModel
 from wb_nlp.utils.scripts import (
     configure_logger,

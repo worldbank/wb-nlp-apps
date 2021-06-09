@@ -20,6 +20,9 @@ from joblib import delayed, Parallel
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from milvus import DataType
+
+from wb_cleaning.cleaning import stopwords
+
 from wb_nlp.interfaces.milvus import (
     get_milvus_client,
     get_collection_ids,
@@ -40,7 +43,6 @@ from wb_nlp.utils.scripts import (
     get_cleaner,
 )
 from wb_nlp import live_cache
-from wb_nlp.cleaning import stopwords
 
 
 def read_text_file(fname):
