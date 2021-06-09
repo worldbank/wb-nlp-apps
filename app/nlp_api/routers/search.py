@@ -5,11 +5,14 @@ from typing import List
 from fastapi import APIRouter, UploadFile, File, Form, Query
 from pydantic import HttpUrl
 from contexttimer import Timer
+
+from wb_cleaning.extraction import country_extractor
+
 from wb_nlp.interfaces import elasticsearch
 from wb_nlp.types.models import (
     ModelTypes
 )
-from wb_nlp.extraction import country_extractor
+
 from ..common.utils import (
     get_validated_model, read_uploaded_file,
     read_url_file, clean_text, check_translate_keywords

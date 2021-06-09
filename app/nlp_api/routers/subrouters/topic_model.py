@@ -9,11 +9,12 @@ from contexttimer import Timer
 from fastapi import Query, UploadFile, File, Form
 from pydantic import HttpUrl
 
+from wb_cleaning.extraction import country_extractor
+
 from wb_nlp.types.models import (
     ModelTypes,
     TopicCompositionParams, PartitionTopicShareParams, FullTopicProfilesParams
 )
-from wb_nlp.extraction import country_extractor
 from wb_nlp.interfaces import mongodb, elasticsearch
 from ...common.utils import (
     get_validated_model, read_uploaded_file,

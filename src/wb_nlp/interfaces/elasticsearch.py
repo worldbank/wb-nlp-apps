@@ -15,7 +15,8 @@ from elasticsearch_dsl import Search
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet, DateHistogramFacet
 from elasticsearch_dsl.query import MultiMatch, Match, Term
-from wb_nlp.extraction import country_extractor, jdc_tags_extractor
+from wb_cleaning.extraction import country_extractor, jdc_tags_extractor
+
 from wb_nlp.dir_manager import get_path_from_root
 
 connections.create_connection(hosts=['es01'])

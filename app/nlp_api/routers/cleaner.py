@@ -8,9 +8,9 @@ from fastapi import APIRouter, Depends, HTTPException, Body
 from pydantic import BaseModel, Field
 
 
-from wb_nlp.cleaning import cleaner
-from wb_nlp.utils.data_types import HashableDict
-from wb_nlp.types.cleaning import CleaningConfig
+from wb_cleaning.cleaning import cleaner
+from wb_cleaning.types.cleaning import CleaningConfig
+from wb_cleaning.utils.data_types import HashableDict
 
 router = APIRouter(
     prefix="/cleaner",
