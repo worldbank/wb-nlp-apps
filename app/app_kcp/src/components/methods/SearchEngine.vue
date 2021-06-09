@@ -98,7 +98,6 @@
         enrich our preprocessing analyzers to better anticipate and help users
         with their information need.
       </p>
-      (WIP)
       <!--
       <p>
         We are using

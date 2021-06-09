@@ -56,7 +56,6 @@
         relevant. To address this, we analyzed the topics learned by the models
         and tagged which ones are to be excluded.
       </p>
-      <p>(WIP)</p>
     </div>
   </div>
 </template>

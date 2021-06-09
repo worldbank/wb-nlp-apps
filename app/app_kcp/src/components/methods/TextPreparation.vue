@@ -80,7 +80,6 @@
         stop words list is then used in our cleaning pipeline to remove the
         unimportant words in our final cleaned dataset.
       </p>
-      (WIP)
       <!-- <h5>Phrase detection</h5>
 
       <p>
