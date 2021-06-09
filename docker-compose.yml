@@ -20,13 +20,11 @@ services:
       - mongodb
       - web
       - app
-      - api
       # - es01
     depends_on:
       - mongodb
       - web
       - app
-      - api
       # - es01
     # ports:
     #   - "8000:8000"
@@ -39,29 +37,6 @@ services:
     #       cpus: '3'
     #       memory: 3G
 
-  api:
-    build:
-      context: ./
-      dockerfile: ./app/api/Dockerfile
-      args:
-        ENV_ID: prod
-        ENV_PROD_FILE: "environment.prod.api.yml"
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - ${LOCAL_PATH}/models:/workspace/models
-      - ${LOCAL_PATH}/data/preprocessed:/workspace/data/preprocessed
-      - ${LOCAL_PATH}/data/whitelists:/workspace/data/whitelists
-    # command:
-    #   - /opt/conda/envs/prod/bin/gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200
-    ports:
-      - "8911:8910"
-    links:
-      - mongodb
-    depends_on:
-      - mongodb
-
   app:
     build:
       context: ./app/app_vue2
@@ -73,10 +48,6 @@ services:
     volumes:
       - ${LOCAL_PATH}/app/app_vue2:/app
       - ${LOCAL_PATH}/app/app_vue2/site.conf:/etc/nginx/conf.d/site.conf
-    links:
-      - api
-    depends_on:
-      - api
 
   app_kcp:
     build:
@@ -90,10 +61,8 @@ services:
       - ${LOCAL_PATH}/app/app_kcp:/app
       # - ${LOCAL_PATH}/app/app_kcp/site.conf:/etc/nginx/conf.d/site.conf
     links:
-      - api
       - nlp_api
     depends_on:
-      - api
       - nlp_api
 
   app_jdc:
@@ -108,10 +77,8 @@ services:
       - ${LOCAL_PATH}/app/app_jdc:/app
       # - ${LOCAL_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
     links:
-      - api
       - nlp_api
     depends_on:
-      - api
       - nlp_api
 
   dfr:
@@ -138,10 +105,8 @@ services:
       - ${LOCAL_PATH}/app/site.conf:/etc/nginx/conf.d/site.conf
     links:
       - php
-      - api
     depends_on:
       - php
-      - api
 
   php:
     image: php:7-fpm
@@ -299,11 +264,9 @@ services:
       - ${LOCAL_PATH}/app/app_label:/app
       - ${LOCAL_PATH}/app/app_label/site.conf:/etc/nginx/conf.d/site.conf
     links:
-      - api
       - nlp_api
       - dfr
     depends_on:
-      - api
       - nlp_api
       - dfr
 

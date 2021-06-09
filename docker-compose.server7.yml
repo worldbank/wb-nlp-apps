@@ -38,21 +38,6 @@ services:
       - ${SERVER7_PATH}/app/app_jdc:/app
       - ${SERVER7_PATH}/app/app_jdc/site.conf:/etc/nginx/conf.d/site.conf
 
-  api:
-    volumes:
-      - ${SERVER7_PATH}/models:/workspace/models
-      - ${SERVER7_PATH}/data/preprocessed:/workspace/data/preprocessed
-      - ${SERVER7_PATH}/data/whitelists:/workspace/data/whitelists
-    # command:
-      # - "/opt/conda/envs/prod/bin/gunicorn -w 4 -b 0.0.0.0:8910 --chdir /workspace/app/api server:app  --reload --timeout 1200"
-      # - "tail -f /dev/null"
-    ports:
-      - "8911:8910"
-    links:
-      - mongodb
-    depends_on:
-      - mongodb
-
   dfr:
     ports:
     - "8098:80"
