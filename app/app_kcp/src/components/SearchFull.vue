@@ -374,25 +374,6 @@
                 </b-card>
               </b-collapse>
             </div>
-
-            <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
-              <h6 v-b-toggle.author-collapse>
-                <i class="fa fa-filter pr-2"></i> Author
-              </h6>
-              <b-collapse id="author-collapse">
-                <b-card class="facet-options">
-                  <b-form-group v-slot="{ ariaDescribedby }">
-                    <b-form-checkbox-group
-                      v-model="selected_facets.author"
-                      :options="getFacetOptions('author')"
-                      :aria-describedby="ariaDescribedby"
-                      name="author"
-                      stacked
-                    ></b-form-checkbox-group>
-                  </b-form-group>
-                </b-card>
-              </b-collapse>
-            </div>
           </div>
         </aside>
         <div class="col-sm-9 blog-main">
@@ -636,26 +617,6 @@
                   ></span>
                 </span>
 
-                <span
-                  v-if="
-                    selected_facets.author && selected_facets.author.length > 0
-                  "
-                >
-                  <span
-                    v-for="fauthor in selected_facets.author"
-                    :key="'country-' + fauthor"
-                    class="
-                      badge badge-default
-                      wb-badge-close
-                      remove-filter
-                      active-facets
-                    "
-                    data-type="author"
-                    :data-value="fauthor"
-                    >Author: {{ fauthor }}
-                    <i @click="resetAuthor(fauthor)" class="fa fa-close"></i
-                  ></span>
-                </span>
                 <div>
                   <a
                     @click="resetFilters"
@@ -774,9 +735,6 @@ export default {
         params.append("max_year", this.selected_facets.max_year);
       }
 
-      if (this.selected_facets.author) {
-        this.selected_facets.author.map((v) => params.append("author", v));
-      }
       if (this.selected_facets.country) {
         this.selected_facets.country.map((v) => params.append("country", v));
       }
@@ -870,7 +828,6 @@ export default {
 
       facets: null,
       selected_facets: {},
-      // author: [],
       // country: [],
       // corpus: [],
       // major_doc_type: [],
@@ -1008,11 +965,6 @@ export default {
         (o) => o !== corpus
       );
     },
-    resetAuthor(author) {
-      this.selected_facets.author = this.selected_facets.author.filter(
-        (o) => o !== author
-      );
-    },
     resetFilters() {
       var selected_facets = JSON.parse(JSON.stringify(this.selected_facets));
       Object.keys(selected_facets).forEach(
@@ -1030,7 +982,6 @@ export default {
     },
     keywordSearchBody() {
       const body = {};
-      body["author"] = this.selected_facets.author;
       body["country"] = this.selected_facets.country;
       body["der_country_groups"] = this.selected_facets.der_country_groups;
       body["der_jdc_tags"] = this.selected_facets.der_jdc_tags;
