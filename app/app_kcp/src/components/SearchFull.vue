@@ -338,25 +338,6 @@
             </div>
 
             <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
-              <h6 v-b-toggle.topics_src-collapse>
-                <i class="fa fa-filter pr-2"></i> Topics
-              </h6>
-              <b-collapse id="topics_src-collapse">
-                <b-card class="facet-options">
-                  <b-form-group v-slot="{ ariaDescribedby }">
-                    <b-form-checkbox-group
-                      v-model="selected_facets.topics_src"
-                      :options="getFacetOptions('topics_src')"
-                      :aria-describedby="ariaDescribedby"
-                      name="topics_src"
-                      stacked
-                    ></b-form-checkbox-group>
-                  </b-form-group>
-                </b-card>
-              </b-collapse>
-            </div>
-
-            <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
               <h6 v-b-toggle.corpus-collapse>
                 <i class="fa fa-filter pr-2"></i> Source
               </h6>
@@ -573,31 +554,6 @@
 
                 <span
                   v-if="
-                    selected_facets.topics_src &&
-                    selected_facets.topics_src.length > 0
-                  "
-                >
-                  <span
-                    v-for="ftopics_src in selected_facets.topics_src"
-                    :key="'country-' + ftopics_src"
-                    class="
-                      badge badge-default
-                      wb-badge-close
-                      remove-filter
-                      active-facets
-                    "
-                    data-type="topics_src"
-                    :data-value="ftopics_src"
-                    >Topic: {{ ftopics_src }}
-                    <i
-                      @click="resetTopicsSrc(ftopics_src)"
-                      class="fa fa-close"
-                    ></i
-                  ></span>
-                </span>
-
-                <span
-                  v-if="
                     selected_facets.corpus && selected_facets.corpus.length > 0
                   "
                 >
@@ -763,11 +719,6 @@ export default {
           params.append("geo_region", v)
         );
       }
-      if (this.selected_facets.topics_src) {
-        this.selected_facets.topics_src.map((v) =>
-          params.append("topics_src", v)
-        );
-      }
 
       params.append("from_result", this.from_result);
       params.append("size", this.curr_size);
@@ -832,7 +783,6 @@ export default {
       // corpus: [],
       // major_doc_type: [],
       // geo_region: [],
-      // topics_src: [],
 
       api_link: "",
 
@@ -955,11 +905,6 @@ export default {
         (o) => o !== geo_region
       );
     },
-    resetTopicsSrc(topics_src) {
-      this.selected_facets.topics_src = this.selected_facets.topics_src.filter(
-        (o) => o !== topics_src
-      );
-    },
     resetCorpus(corpus) {
       this.selected_facets.corpus = this.selected_facets.corpus.filter(
         (o) => o !== corpus
@@ -988,7 +933,6 @@ export default {
       body["corpus"] = this.selected_facets.corpus;
       body["major_doc_type"] = this.selected_facets.major_doc_type;
       body["geo_region"] = this.selected_facets.geo_region;
-      body["topics_src"] = this.selected_facets.topics_src;
 
       return body;
     },
