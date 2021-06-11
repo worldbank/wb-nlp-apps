@@ -243,6 +243,25 @@
             </div>
 
             <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
+              <h6 v-b-toggle.geo_region-collapse>
+                <i class="fa fa-filter pr-2"></i> Geographic region
+              </h6>
+              <b-collapse id="geo_region-collapse">
+                <b-card class="facet-options">
+                  <b-form-group v-slot="{ ariaDescribedby }">
+                    <b-form-checkbox-group
+                      v-model="selected_facets.geo_region"
+                      :options="getFacetOptions('geo_region')"
+                      :aria-describedby="ariaDescribedby"
+                      name="geo_region"
+                      stacked
+                    ></b-form-checkbox-group>
+                  </b-form-group>
+                </b-card>
+              </b-collapse>
+            </div>
+
+            <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
               <h6 v-b-toggle.country-collapse>
                 <i class="fa fa-filter pr-2"></i> Country
               </h6>
@@ -292,25 +311,6 @@
                       :options="getFacetOptions('major_doc_type')"
                       :aria-describedby="ariaDescribedby"
                       name="major_doc_type"
-                      stacked
-                    ></b-form-checkbox-group>
-                  </b-form-group>
-                </b-card>
-              </b-collapse>
-            </div>
-
-            <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
-              <h6 v-b-toggle.geo_region-collapse>
-                <i class="fa fa-filter pr-2"></i> Geographic region
-              </h6>
-              <b-collapse id="geo_region-collapse">
-                <b-card class="facet-options">
-                  <b-form-group v-slot="{ ariaDescribedby }">
-                    <b-form-checkbox-group
-                      v-model="selected_facets.geo_region"
-                      :options="getFacetOptions('geo_region')"
-                      :aria-describedby="ariaDescribedby"
-                      name="geo_region"
                       stacked
                     ></b-form-checkbox-group>
                   </b-form-group>
