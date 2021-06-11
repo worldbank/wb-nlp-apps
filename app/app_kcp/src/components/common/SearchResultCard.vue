@@ -131,29 +131,33 @@
       </div>
     </div>
     <a
+      style="text-decoration: none"
       v-if="show_related && !loading"
       v-b-toggle
       :href="'#' + result.id"
       v-on:click="activateSubmit()"
       @click.prevent
-      >Related documents...</a
+      >Related documents
+      <span>
+        <i
+          class="fa"
+          :class="related_docs_visible ? 'fa-chevron-up' : 'fa-chevron-down'"
+        ></i>
+      </span>
+    </a>
+    <b-collapse
+      v-show="related_docs_visible && !loading"
+      v-model="related_docs_visible"
+      :id="result.id"
     >
-    <div v-show="!loading">
-      <b-collapse v-model="visible" :id="result.id">
-        <RelatedDocsPanel
-          :reference_id="result.id"
-          :submit="submit_related"
-          :first_entry="match && match.rank === 1"
-          @errorStatus="
-            (error) => {
-              if (error === true) {
-                show_related = false;
-              }
-            }
-          "
-        />
-      </b-collapse>
-    </div>
+      <RelatedDocsPanel
+        :reference_id="result.id"
+        :submit="submit_related"
+        :first_entry="match && match.rank === 1"
+        @errorStatus="relatedDocsError()"
+        @firstEntryReady="openRelatedDocs()"
+      />
+    </b-collapse>
     <hr />
   </div>
 </template>
@@ -185,18 +189,13 @@ export default {
     SearchResultLoading,
   },
   mounted() {
-    if (this.match && this.match.rank === 1) {
-      this.visible = true;
-      this.activateSubmit();
-    } else {
-      this.visible = false;
-    }
+    this.resetStateParams();
   },
   data: function () {
     return {
       submit_related: false,
       rrandom_id: null,
-      visible: false,
+      related_docs_visible: false,
       show_related: true,
     };
   },
@@ -235,14 +234,26 @@ export default {
         this.submit_related = true;
       }
     },
+    relatedDocsError(error) {
+      if (error === true) {
+        this.show_related = false;
+      }
+    },
+    openRelatedDocs() {
+      this.related_docs_visible = true;
+      this.submit_related = true;
+    },
+    resetStateParams() {
+      this.related_docs_visible = false;
+      this.submit_related = false;
+      if (this.match && this.match.rank === 1) {
+        this.activateSubmit();
+      }
+    },
   },
   watch: {
     result() {
-      this.visible = false;
-      if (this.match) {
-        this.visible = this.match.rank === 1;
-      }
-      this.submit_related = false;
+      this.resetStateParams();
     },
   },
 };

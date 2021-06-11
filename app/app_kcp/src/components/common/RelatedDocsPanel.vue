@@ -1,6 +1,6 @@
 <template>
   <div>
-    <vue-horizontal v-if="!errored && results === null">
+    <vue-horizontal v-if="!errored && !results">
       <div
         class="related-section"
         :style="'height: ' + panel_section_height + 'px;'"
@@ -202,8 +202,12 @@ export default {
       this.$emit("errorStatus", this.errored);
     },
     results: function () {
-      if (this.results && this.results.length === 0) {
-        this.$emit("errorStatus", true);
+      if (this.results) {
+        if (this.results.length === 0) {
+          this.$emit("errorStatus", true);
+        } else if (this.first_entry && this.results.length > 0) {
+          this.$emit("firstEntryReady", true);
+        }
       }
     },
   },
