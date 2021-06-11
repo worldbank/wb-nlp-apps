@@ -281,25 +281,6 @@
             </div>
 
             <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
-              <h6 v-b-toggle.der_jdc_tags-collapse>
-                <i class="fa fa-filter pr-2"></i> JDC tags
-              </h6>
-              <b-collapse id="der_jdc_tags-collapse">
-                <b-card class="facet-options">
-                  <b-form-group v-slot="{ ariaDescribedby }">
-                    <b-form-checkbox-group
-                      v-model="selected_facets.der_jdc_tags"
-                      :options="getFacetOptions('der_jdc_tags')"
-                      :aria-describedby="ariaDescribedby"
-                      name="der_jdc_tags"
-                      stacked
-                    ></b-form-checkbox-group>
-                  </b-form-group>
-                </b-card>
-              </b-collapse>
-            </div>
-
-            <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
               <h6 v-b-toggle.major_doc_type-collapse>
                 <i class="fa fa-filter pr-2"></i> Document type
               </h6>
@@ -472,31 +453,6 @@
                     >Country group: {{ fder_country_groups }}
                     <i
                       @click="resetDerCountryGroups(fder_country_groups)"
-                      class="fa fa-close"
-                    ></i
-                  ></span>
-                </span>
-
-                <span
-                  v-if="
-                    selected_facets.der_jdc_tags &&
-                    selected_facets.der_jdc_tags.length > 0
-                  "
-                >
-                  <span
-                    v-for="fder_jdc_tags in selected_facets.der_jdc_tags"
-                    :key="'country-' + fder_jdc_tags"
-                    class="
-                      badge badge-default
-                      wb-badge-close
-                      remove-filter
-                      active-facets
-                    "
-                    data-type="der_jdc_tags"
-                    :data-value="fder_jdc_tags"
-                    >JDC tag: {{ fder_jdc_tags }}
-                    <i
-                      @click="resetDerJDCTags(fder_jdc_tags)"
                       class="fa fa-close"
                     ></i
                   ></span>
@@ -699,11 +655,6 @@ export default {
           params.append("der_country_groups", v)
         );
       }
-      if (this.selected_facets.der_jdc_tags) {
-        this.selected_facets.der_jdc_tags.map((v) =>
-          params.append("der_jdc_tags", v)
-        );
-      }
 
       if (this.selected_facets.corpus) {
         this.selected_facets.corpus.map((v) => params.append("corpus", v));
@@ -823,26 +774,8 @@ export default {
         return key.toUpperCase();
       }
     },
-    processJDCTagsKey(facet_name, key) {
-      if (facet_name !== "der_jdc_tags") {
-        return key;
-      }
-
-      if (key.includes("_")) {
-        return key
-          .split("_")
-          .filter((x) => x.length > 0)
-          .join(" ");
-      } else if (key === "unhcr") {
-        return "UNHCR";
-      } else {
-        return key;
-      }
-    },
     processFacetKey(facet_name, key) {
-      if (facet_name === "der_jdc_tags") {
-        return this.processJDCTagsKey(facet_name, key);
-      } else if (facet_name === "der_country_groups") {
+      if (facet_name === "der_country_groups") {
         return this.processCountryGroupKey(facet_name, key);
       } else {
         return key;
@@ -892,10 +825,6 @@ export default {
           (o) => o !== der_country_groups
         );
     },
-    resetDerJDCTags(der_jdc_tags) {
-      this.selected_facets.der_jdc_tags =
-        this.selected_facets.der_jdc_tags.filter((o) => o !== der_jdc_tags);
-    },
     resetMajorDocType(major_doc_type) {
       this.selected_facets.major_doc_type =
         this.selected_facets.major_doc_type.filter((o) => o !== major_doc_type);
@@ -929,7 +858,6 @@ export default {
       const body = {};
       body["country"] = this.selected_facets.country;
       body["der_country_groups"] = this.selected_facets.der_country_groups;
-      body["der_jdc_tags"] = this.selected_facets.der_jdc_tags;
       body["corpus"] = this.selected_facets.corpus;
       body["major_doc_type"] = this.selected_facets.major_doc_type;
       body["geo_region"] = this.selected_facets.geo_region;
