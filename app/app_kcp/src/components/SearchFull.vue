@@ -178,7 +178,11 @@
           <div>
             <div
               id="filter-by-access"
-              class="sidebar-filter wb-ihsn-sidebar-filter filter-by-year filter-box"
+              class="
+                sidebar-filter
+                wb-ihsn-sidebar-filter
+                filter-by-year filter-box
+              "
             >
               <h6 class="togglable"><i class="fa fa-search pr-2"></i>Year</h6>
               <div class="sidebar-filter-entries">
@@ -315,25 +319,6 @@
             </div>
 
             <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
-              <h6 v-b-toggle.adm_region-collapse>
-                <i class="fa fa-filter pr-2"></i> Admin region
-              </h6>
-              <b-collapse id="adm_region-collapse">
-                <b-card class="facet-options">
-                  <b-form-group v-slot="{ ariaDescribedby }">
-                    <b-form-checkbox-group
-                      v-model="selected_facets.adm_region"
-                      :options="getFacetOptions('adm_region')"
-                      :aria-describedby="ariaDescribedby"
-                      name="adm_region"
-                      stacked
-                    ></b-form-checkbox-group>
-                  </b-form-group>
-                </b-card>
-              </b-collapse>
-            </div>
-
-            <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
               <h6 v-b-toggle.geo_region-collapse>
                 <i class="fa fa-filter pr-2"></i> Geographic region
               </h6>
@@ -416,14 +401,26 @@
 
             <div class="nada-pagination" v-show="hits.length > 0">
               <div
-                class="row mt-3 mb-3 d-flex justify-content-lg-between align-items-center"
+                class="
+                  row
+                  mt-3
+                  mb-3
+                  d-flex
+                  justify-content-lg-between
+                  align-items-center
+                "
               >
                 <div class="col-12 col-md-3 col-lg-4 mb-3 mb-md-0 small">
                   Showing <b>{{ start }}-{{ end }}</b> of
                   <b>{{ total.message }}</b> documents
                 </div>
                 <div
-                  class="filter-action-bar d-flex col-12 col-md-9 col-lg-8 justify-content-lg-end"
+                  class="
+                    filter-action-bar
+                    d-flex
+                    col-12 col-md-9 col-lg-8
+                    justify-content-lg-end
+                  "
                 >
                   <a
                     title="Get API link"
@@ -480,7 +477,12 @@
                   <span
                     v-for="fcountry in selected_facets.country"
                     :key="'country-' + fcountry"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="country"
                     :data-value="fcountry"
                     >Country: {{ fcountry }}
@@ -497,7 +499,12 @@
                   <span
                     v-for="fder_country_groups in selected_facets.der_country_groups"
                     :key="'country-' + fder_country_groups"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="der_country_groups"
                     :data-value="fder_country_groups"
                     >Country group: {{ fder_country_groups }}
@@ -517,7 +524,12 @@
                   <span
                     v-for="fder_jdc_tags in selected_facets.der_jdc_tags"
                     :key="'country-' + fder_jdc_tags"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="der_jdc_tags"
                     :data-value="fder_jdc_tags"
                     >JDC tag: {{ fder_jdc_tags }}
@@ -537,32 +549,17 @@
                   <span
                     v-for="fmajor_doc_type in selected_facets.major_doc_type"
                     :key="'country-' + fmajor_doc_type"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="major_doc_type"
                     :data-value="fmajor_doc_type"
                     >Type: {{ fmajor_doc_type }}
                     <i
                       @click="resetMajorDocType(fmajor_doc_type)"
-                      class="fa fa-close"
-                    ></i
-                  ></span>
-                </span>
-
-                <span
-                  v-if="
-                    selected_facets.adm_region &&
-                    selected_facets.adm_region.length > 0
-                  "
-                >
-                  <span
-                    v-for="fadm_region in selected_facets.adm_region"
-                    :key="'country-' + fadm_region"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
-                    data-type="adm_region"
-                    :data-value="fadm_region"
-                    >Admin region: {{ fadm_region }}
-                    <i
-                      @click="resetAdmRegion(fadm_region)"
                       class="fa fa-close"
                     ></i
                   ></span>
@@ -577,7 +574,12 @@
                   <span
                     v-for="fgeo_region in selected_facets.geo_region"
                     :key="'country-' + fgeo_region"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="geo_region"
                     :data-value="fgeo_region"
                     >Geo region: {{ fgeo_region }}
@@ -597,7 +599,12 @@
                   <span
                     v-for="ftopics_src in selected_facets.topics_src"
                     :key="'country-' + ftopics_src"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="topics_src"
                     :data-value="ftopics_src"
                     >Topic: {{ ftopics_src }}
@@ -616,7 +623,12 @@
                   <span
                     v-for="fcorpus in selected_facets.corpus"
                     :key="'country-' + fcorpus"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="corpus"
                     :data-value="fcorpus"
                     >Source: {{ fcorpus }}
@@ -632,7 +644,12 @@
                   <span
                     v-for="fauthor in selected_facets.author"
                     :key="'country-' + fauthor"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="author"
                     :data-value="fauthor"
                     >Author: {{ fauthor }}
@@ -663,6 +680,7 @@
                   :highlights="highlights[idx]"
                   v-bind:key="'src' + idx"
                   :loading="loading"
+                  :ref="'src' + idx"
                 />
               </div>
 
@@ -756,11 +774,6 @@ export default {
         params.append("max_year", this.selected_facets.max_year);
       }
 
-      if (this.selected_facets.adm_region) {
-        this.selected_facets.adm_region.map((v) =>
-          params.append("adm_region", v)
-        );
-      }
       if (this.selected_facets.author) {
         this.selected_facets.author.map((v) => params.append("author", v));
       }
@@ -861,7 +874,6 @@ export default {
       // country: [],
       // corpus: [],
       // major_doc_type: [],
-      // adm_region: [],
       // geo_region: [],
       // topics_src: [],
 
@@ -930,7 +942,7 @@ export default {
       }
     },
     getFacetOptions(facet_name) {
-      // const for_sorting = ["country", "der_country_groups", "adm_region", "geo_region"]
+      // const for_sorting = ["country", "der_country_groups", "geo_region"]
       if (!this.facets) {
         return [];
       }
@@ -968,24 +980,18 @@ export default {
       );
     },
     resetDerCountryGroups(der_country_groups) {
-      this.selected_facets.der_country_groups = this.selected_facets.der_country_groups.filter(
-        (o) => o !== der_country_groups
-      );
+      this.selected_facets.der_country_groups =
+        this.selected_facets.der_country_groups.filter(
+          (o) => o !== der_country_groups
+        );
     },
     resetDerJDCTags(der_jdc_tags) {
-      this.selected_facets.der_jdc_tags = this.selected_facets.der_jdc_tags.filter(
-        (o) => o !== der_jdc_tags
-      );
+      this.selected_facets.der_jdc_tags =
+        this.selected_facets.der_jdc_tags.filter((o) => o !== der_jdc_tags);
     },
     resetMajorDocType(major_doc_type) {
-      this.selected_facets.major_doc_type = this.selected_facets.major_doc_type.filter(
-        (o) => o !== major_doc_type
-      );
-    },
-    resetAdmRegion(adm_region) {
-      this.selected_facets.adm_region = this.selected_facets.adm_region.filter(
-        (o) => o !== adm_region
-      );
+      this.selected_facets.major_doc_type =
+        this.selected_facets.major_doc_type.filter((o) => o !== major_doc_type);
     },
     resetGeoRegion(geo_region) {
       this.selected_facets.geo_region = this.selected_facets.geo_region.filter(
@@ -1024,7 +1030,6 @@ export default {
     },
     keywordSearchBody() {
       const body = {};
-      body["adm_region"] = this.selected_facets.adm_region;
       body["author"] = this.selected_facets.author;
       body["country"] = this.selected_facets.country;
       body["der_country_groups"] = this.selected_facets.der_country_groups;
