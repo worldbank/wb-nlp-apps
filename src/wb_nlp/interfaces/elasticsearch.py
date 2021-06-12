@@ -13,7 +13,7 @@ from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, Object, Ne
 from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl import Search
 
-from elasticsearch_dsl import FacetedSearch, TermsFacet, DateHistogramFacet
+from elasticsearch_dsl import FacetedSearch, TermsFacet, DateHistogramFacet, NestedFacet
 from elasticsearch_dsl.query import MultiMatch, Match, Term
 from wb_cleaning.extraction import country_extractor, jdc_tags_extractor
 
@@ -53,6 +53,9 @@ class NLPDoc(Document):
     der_countries = Object()
     der_country_details = Nested(properties={"code": Keyword(), "count": Integer(
     ), "name": Keyword(), "region": Keyword(), "sub-region": Keyword()})
+    der_regions = Keyword()
+    der_sub_regions = Keyword()
+    der_intermediate_regions = Keyword()
     der_country_groups = Keyword()
     der_jdc_data = Nested(properties={"tag": Keyword(), "count": Integer()})
     der_jdc_tags = Keyword()
@@ -102,6 +105,7 @@ class NLPDoc(Document):
         self.der_countries = country_counts
         self.der_country_details = country_extractor.get_country_count_details(
             country_counts)
+
         return super(NLPDoc, self).save(**kwargs)
 
     def structure_stats_by_year_data(self, data, round_size=None):
@@ -246,6 +250,7 @@ class NLPDocFacetedSearch(FacetedSearch):
         'author': TermsFacet(field='author', size=100),
         'country': TermsFacet(field='country', size=100),
         'der_country_groups': TermsFacet(field='der_country_groups', size=100),
+        'der_country_details_region': NestedFacet("der_country_details", TermsFacet(field='der_country_details.region', size=100, metric=A("value_count", field='id'))),
         'der_jdc_tags': TermsFacet(field='der_jdc_tags', size=100),
         'corpus': TermsFacet(field='corpus', size=100),
         'major_doc_type': TermsFacet(field='major_doc_type', size=100),
@@ -261,6 +266,57 @@ class NLPDocFacetedSearch(FacetedSearch):
         search = search.source(excludes=["body", "doc"])
         # search.params(preserve_order=True).scan()
         return search
+
+    def build_search(self):
+        """
+        Construct the ``Search`` object.
+        """
+        s = self.search()
+        s = self.query(s, self._query)
+        s = self.filter(s)
+        if self.fields:
+            s = self.highlight(s)
+        s = self.sort(s)
+        self.aggregate(s)
+
+        # # Region aggregation from nested field
+        d = {
+            "query": {
+                "match_all": {}
+            },
+            "aggs": {
+                "der_country_details": {
+                    "nested": {
+                        "path": "der_country_details"
+                    },
+                    "aggs": {
+                        "top_regions": {
+                            "terms": {
+                                "field": "der_country_details.region"
+                            },
+                            "aggs": {
+                                "region_to_doc": {
+                                    "reverse_nested": {},
+                                    "aggs": {
+                                        "doc_count_per_region": {
+                                            "value_count": {
+                                                "field": "id"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        query = s.to_dict()
+        query['aggs']['_filter_der_country_details_region']['aggs'] = d['aggs']
+        s = s.from_dict(query)
+
+        return s
 
 
 class JDCNLPDocFacetedSearch(FacetedSearch):
