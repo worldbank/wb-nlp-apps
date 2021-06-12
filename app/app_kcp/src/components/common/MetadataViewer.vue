@@ -10,11 +10,11 @@
       <p>{{ metadata.date_published }}</p>
     </div>
 
-    <div v-if="getTopics().length > 0">
-      <div class="xsl-caption field-caption">Topics</div>
+    <div v-if="metadata.doc_type && metadata.doc_type.length > 0">
+      <div class="xsl-caption field-caption">Document type</div>
       <ul>
-        <li v-for="topic_name in getTopics()" :key="topic_name">
-          {{ topic_name }}
+        <li v-for="doc_type in metadata.doc_type" :key="doc_type">
+          {{ doc_type }}
         </li>
       </ul>
     </div>
@@ -24,15 +24,6 @@
       <ul>
         <li v-for="country in metadata.country" :key="country">
           {{ country }}
-        </li>
-      </ul>
-    </div>
-
-    <div v-if="metadata.doc_type && metadata.doc_type.length > 0">
-      <div class="xsl-caption field-caption">Document type</div>
-      <ul>
-        <li v-for="doc_type in metadata.doc_type" :key="doc_type">
-          {{ doc_type }}
         </li>
       </ul>
     </div>
@@ -54,8 +45,28 @@
       <!-- defaultCountryFillColor="#fefefe" -->
     </div>
 
+    <div v-if="getTopics().length > 0">
+      <div class="xsl-caption field-caption">Topics</div>
+      <p>
+        This list of topics is based on The World Bank's topic taxonomy and is
+        only available for documents from The World Bank.
+      </p>
+      <ul>
+        <li v-for="topic_name in getTopics()" :key="topic_name">
+          {{ topic_name }}
+        </li>
+      </ul>
+    </div>
+
     <div v-if="privateFilteredDocTopics">
       <div class="xsl-caption field-caption">LDA topics</div>
+      <p>
+        The table below provides a breakdown of the relative share of topics in
+        the document as inferred by the trained
+        <router-link to="/methods/lda">LDA model</router-link>. The topics were
+        automatically generated after training the model. The top words serve as
+        a qualitative guide regarding the concept a given topic may be about.
+      </p>
       <div class="field-value">
         <div class="row border-bottom">
           <div class="col-md-2 font-weight-bold">Topic</div>
