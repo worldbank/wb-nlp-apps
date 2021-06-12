@@ -314,7 +314,13 @@ class NLPDocFacetedSearch(FacetedSearch):
 
         query = s.to_dict()
         query['aggs']['_filter_der_country_details_region']['aggs'] = d['aggs']
-        s = s.from_dict(query)
+
+        # `from_dict` will not have the index and doc_type properties so it will search for all the indices available.
+        # Since we are just interested in updating the aggregation, we can just create a new search object from the dict
+        # and override the aggs attribute of the original search object that actually index- and doc_type-aware.
+
+        search = Search.from_dict(query)
+        s.aggs = search.aggs
 
         return s
 
