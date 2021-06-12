@@ -875,6 +875,7 @@ export default {
     clearSearchInput() {
       this.query_cache = "";
       this.removeFile();
+      this.suggestions = [];
 
       this.prevent_default = false;
       this.defaultKeywordSearch();
@@ -897,6 +898,7 @@ export default {
     },
     getSuggestions: function () {
       if (!this.query) {
+        this.suggestions = [];
         return;
       }
       if (this.query === this.suggestion_anchor) {
