@@ -46,7 +46,7 @@
               }}</span>
             </div>
             <div class="owner-collection">
-              Corpus:
+              Source:
               <router-link to="/search/">{{ metadata.corpus }}</router-link>
             </div>
             <div v-if="metadata.corpus === 'WB' && metadata.url_pdf">

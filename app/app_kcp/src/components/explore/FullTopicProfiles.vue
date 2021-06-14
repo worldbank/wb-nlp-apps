@@ -5,7 +5,7 @@
 
     <p>
       Topics are not covered evenly over time, across regions, by document type,
-      and by organization represented in our corpus. Select a corpus, a topic
+      and by organization represented in our corpus. Select a source, a topic
       and a (LDA) model, and two or more partitions to compare the evolution of
       the topic coverage over time. The resulting chart can be embedded, its
       code downloaded, and the underlying data are available in our document
