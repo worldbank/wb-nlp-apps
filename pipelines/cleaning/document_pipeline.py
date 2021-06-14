@@ -31,7 +31,7 @@ from prefect.triggers import all_finished
 from prefect.tasks.shell import ShellTask
 
 from wb_nlp import dir_manager
-from wb_nlp.types.metadata import MetadataModel
+from wb_cleaning.types.metadata import MetadataModel
 from wb_cleaning.processing import document
 from wb_cleaning.extraction.pdf_cover import DocumentCover
 from wb_cleaning.extraction.english_content_extractor import filter_document_by_language
