@@ -151,6 +151,18 @@ def _meta_normalization(meta):
         # This handles the initial empty string values in the WB scraper
         meta["date_published"] = None
 
+    if meta["corpus"] == "ADB":
+        # Use correct source of document publication date
+        date_published = meta.get("metadata", {}).get(
+            "ds_field_date_content", None)
+
+        if date_published:
+            date_published = date_published.split("T")[0]
+
+        meta["date_published"] = date_published
+        meta["year"] = date_published.split(
+            "-")[0] if date_published else None
+
     meta["title"] = html.unescape(meta.get("title", ""))
 
     return meta
