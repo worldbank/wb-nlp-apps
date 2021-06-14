@@ -186,16 +186,12 @@ export default {
 
       doc_type_options: [
         { value: "Full corpus", text: "Full corpus" },
-        { value: "WB - Board Documents", text: "WB - Board Documents" },
+        { value: "Board Documents", text: "Board Documents" },
+
+        { value: "Project Documents", text: "Project Documents" },
         {
-          value: "WB - Economic and Sector Work",
-          text: "WB - Economic and Sector Work",
-        },
-        { value: "WB - Project Documents", text: "WB - Project Documents" },
-        { value: "WB - Publications", text: "WB - Publications" },
-        {
-          value: "WB - Publications and Research",
-          text: "WB - Publications and Research",
+          value: "Publications and Research",
+          text: "Publications and Research",
         },
       ],
       doc_type_filter: "Full corpus",
