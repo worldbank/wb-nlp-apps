@@ -74,15 +74,10 @@
     </b-badge>
 
     <br />
-    <div v-if="this.graph === null && loading">
-      <b-skeleton-img></b-skeleton-img>
-    </div>
-    <br />
     <b-container fluid>
       <v-chart
         @dblclick="searchNode"
         @mouseover="isHighlighted"
-        v-if="this.graph !== null"
         class="chart"
         refs="graphChart"
         :option="option2"
@@ -253,7 +248,11 @@ export default {
     return {
       navigator: window.navigator,
       api_link: null,
-      graph: null,
+      graph: {
+        nodes: [],
+        links: [],
+        categories: [],
+      },
       raw_text: "",
       related_words: [],
       loading: false,
