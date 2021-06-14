@@ -497,7 +497,7 @@ def get_metadata_by_ids(doc_ids, index=None, source=None, source_includes=None, 
         index=index)]
 
 
-def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt_only=True, remove_doc_whitespaces=True):
+def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt_only=True, remove_doc_whitespaces=True, log_freq_rate=25):
     # from elasticsearch_dsl import Index
     # i = Index(name=elasticsearch.DOC_INDEX, using=elasticsearch.get_client())
     # i.delete()
@@ -510,6 +510,8 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt
 
     # test_docs_metadata = mongodb.get_collection(
     #     db_name="test_nlp", collection_name="docs_metadata")
+    docs_count = len(docs_metadata)
+    log_freq = docs_count // log_freq_rate
 
     existing_ids = set()
 
@@ -530,8 +532,8 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt
         # doc_path = doc_path.parent / "TXT_ORIG" / doc_path.name
         en_doc_path = doc_path.parent.parent / "EN_TXT_ORIG" / doc_path.name
 
-        if ix and ix % 10000 == 0:
-            print(ix)
+        if ix and ix % log_freq == 0:
+            print(f"Processed {ix} of {docs_count} docs...")
 
         if en_txt_only and not en_doc_path.exists():
             continue
