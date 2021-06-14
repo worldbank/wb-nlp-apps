@@ -195,13 +195,13 @@ const explore_routes = [
         props: { page_title: "Word Embeddings" },
     },
     {
-        path: "similarity",
-        name: "explore_similarity",
+        path: "analyze-your-document",
+        name: "explore_analyze-your-document",
         component: Similarity,
         props: {
             page_title: "Analyze your document",
-            share_url: "%2fexplore%2fsimilarity%2f",
-            share_text: "Similarity"
+            share_url: "%2fexplore%2fanalyze_your_document%2f",
+            share_text: "Analyze%20your%20document"
         },
     },
     {

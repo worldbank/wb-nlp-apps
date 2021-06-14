@@ -141,9 +141,11 @@
               </li>
               <li>
                 <router-link
-                  to="/explore/similarity/"
-                  :class="{ active: $route.name === 'explore_similarity' }"
-                  >Analyze document</router-link
+                  to="/explore/analyze-your-document/"
+                  :class="{
+                    active: $route.name === 'explore_analyze-your-document',
+                  }"
+                  >Analyze your document</router-link
                 >
               </li>
               <!-- <li>
@@ -219,7 +221,7 @@ export default {
         "explore_filtering-by-topic-share",
         "explore_topic-profiles",
         "explore_word-embeddings",
-        "explore_similarity",
+        "explore_analyze-your-document",
       ];
       return valid_routes.includes(this.$route.name);
     },
