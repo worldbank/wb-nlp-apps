@@ -8,7 +8,7 @@
         or the length of content in a document. In this page, we show some
         summary statistics regarding the breakdown of document count and total
         number of tokens present in the corpus by source over time. Furthermore,
-        we show some World Bank specific breakdowns below.
+        we also show the breakdown of the corpus by document type.
       </p>
 
       <br />
@@ -18,10 +18,10 @@
       <br />
 
       <p>
-        The World Bank corpus, via its API, contains standardized data on
-        document types and topics. We use these standardized metadata to further
-        breakdown the World Bank corpus to also show trends of document count
-        and token composition by document type and topics.
+        We worked on classifying documents from the different sources into three
+        main groups: Board Documents, Project Documents, and Publications and
+        Research. The charts below show the trend of the volume and token counts
+        of published documents under each of these document types.
       </p>
       <br />
       <br />
@@ -29,9 +29,9 @@
       <VolumeChart
         ref="majorDocTypeChart"
         :loading="loading"
-        field_name="document type (WB)"
+        field_name="document type"
       />
-      <br />
+      <!-- <br />
       <br />
       <p>
         As documents may be tagged with multiple topics, we see that the
@@ -45,8 +45,8 @@
       <VolumeChart
         ref="topicsSrcChart"
         :loading="loading"
-        field_name="topic (WB)"
-      />
+        field_name="topic"
+      /> -->
     </div>
   </div>
 </template>
@@ -184,7 +184,7 @@ export default {
       const params = new URLSearchParams();
       params.append("fields", "corpus");
       params.append("fields", "major_doc_type");
-      params.append("fields", "topics_src");
+      // params.append("fields", "topics_src");
 
       this.$http
         .get(this.$config.corpus_url + "/get_corpus_volume_by", {
@@ -195,7 +195,7 @@ export default {
 
           this.$refs.corpusChart.setData(data.corpus);
           this.$refs.majorDocTypeChart.setData(data.major_doc_type);
-          this.$refs.topicsSrcChart.setData(data.topics_src);
+          // this.$refs.topicsSrcChart.setData(data.topics_src);
 
           this.loading = false;
         })
