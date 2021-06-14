@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="text-justify">
     <header>
       <h1 class="blog-post-title mb-3" dir="auto">
         {{ page_title }}
@@ -7,7 +7,7 @@
     </header>
     <div>
       <article class="blog-post">
-        <p class="lead">
+        <p>
           Topic models and embedding models produce vector representation of
           texts that correspond to the topic distribution or that contain
           semantic information of the documents, respectively, which can be used
@@ -58,7 +58,7 @@
           <div class="col-6 fluid">
             <MLModelSelect
               @modelSelected="onModelSelectWord2Vec"
-              :model_name="model_name.word2vec"
+              :model_name="model_names.word2vec"
               :parent_model_run_info_id="model_options.word2vec.model_id"
               placeholder="Choose a word embedding model..."
             />
@@ -66,7 +66,7 @@
           <div class="col-6 fluid">
             <MLModelSelect
               @modelSelected="onModelSelectTopicModel"
-              :model_name="model_name.topic_model"
+              :model_name="model_names.topic_model"
               :parent_model_run_info_id="model_options.topic_model.model_id"
               placeholder="Choose a topic model..."
             />
@@ -319,6 +319,7 @@ export default {
   mixins: [saveState],
   mounted() {
     // window.vm = this;
+    // console.log(this.model_names);
     this.model_options.topic_model.model_id = null;
     this.model_options.word2vec.model_id = null;
   },
@@ -331,7 +332,7 @@ export default {
       init_click: false,
 
       next_override: true,
-      model_name: {
+      model_names: {
         word2vec: "word2vec",
         topic_model: "topic_model",
       },
@@ -396,8 +397,10 @@ export default {
   },
   computed: {
     stateReady() {
-      if (this.model_options[this.model_name.word2vec].model_id !== null) {
-        if (this.model_options[this.model_name.topic_model].model_id !== null) {
+      if (this.model_options[this.model_names.word2vec].model_id !== null) {
+        if (
+          this.model_options[this.model_names.topic_model].model_id !== null
+        ) {
           if (this.url !== "" || this.uploaded_file !== null) return true;
         }
       }
@@ -451,16 +454,16 @@ export default {
     selectedModel() {
       if (this.tabIndex === 0) {
         // Document analysis
-        return this.model_name.topic_model;
+        return this.model_names.topic_model;
       } else if (this.tabIndex === 1) {
         // Embedding model
-        return this.model_name.word2vec;
+        return this.model_names.word2vec;
       } else if (this.tabIndex === 2) {
         // Topic model
-        return this.model_name.topic_model;
+        return this.model_names.topic_model;
       } else if (this.tabIndex === 3) {
         // Related data
-        return this.model_name.word2vec;
+        return this.model_names.word2vec;
       } else {
         return null;
       }
@@ -499,13 +502,11 @@ export default {
       };
     },
     onModelSelectWord2Vec(result) {
-      this.model_options[
-        this.model_name.word2vec
-      ].upload_nlp_api_url = this.$config.search_url[result.model_name].file;
-      this.model_options[
-        this.model_name.word2vec
-      ].url_nlp_api_url = this.$config.search_url[result.model_name].url;
-      this.model_options[this.model_name.word2vec].model_id =
+      this.model_options[this.model_names.word2vec].upload_nlp_api_url =
+        this.$config.search_url[result.model_name].file;
+      this.model_options[this.model_names.word2vec].url_nlp_api_url =
+        this.$config.search_url[result.model_name].url;
+      this.model_options[this.model_names.word2vec].model_id =
         result.model_run_info_id;
 
       this.indicators_model_id = result.model_run_info_id;
@@ -513,21 +514,17 @@ export default {
       console.log(result.model_run_info_id);
     },
     onModelSelectTopicModel(result) {
-      this.model_options[
-        this.model_name.topic_model
-      ].upload_nlp_api_url = this.$config.search_url[result.model_name].file;
-      this.model_options[
-        this.model_name.topic_model
-      ].url_nlp_api_url = this.$config.search_url[result.model_name].url;
-      this.model_options[this.model_name.topic_model].model_id =
+      this.model_options[this.model_names.topic_model].upload_nlp_api_url =
+        this.$config.search_url[result.model_name].file;
+      this.model_options[this.model_names.topic_model].url_nlp_api_url =
+        this.$config.search_url[result.model_name].url;
+      this.model_options[this.model_names.topic_model].model_id =
         result.model_run_info_id;
 
-      this.upload_analyze_document_url = this.$config.analyze_document_url[
-        result.model_name
-      ].analyze_file;
-      this.url_analyze_document_url = this.$config.analyze_document_url[
-        result.model_name
-      ].analyze_url;
+      this.upload_analyze_document_url =
+        this.$config.analyze_document_url[result.model_name].analyze_file;
+      this.url_analyze_document_url =
+        this.$config.analyze_document_url[result.model_name].analyze_url;
       this.analyze_document_model_id = result.model_run_info_id;
 
       console.log(result.model_run_info_id);

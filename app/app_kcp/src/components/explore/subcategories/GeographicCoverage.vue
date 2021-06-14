@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="text-justify">
     <h1>{{ page_title }}</h1>
     <div>
       <br />
@@ -102,7 +102,7 @@
       </div>
 
       <a id="gc-race-chart"></a>
-      <p v-if="countries_volume" class="lead">
+      <p v-if="countries_volume">
         We also show a race chart of the cumulative country mentions in
         documents. This animated chart provides a glimpse on how countries'
         popularity, as measured by the total frequency of mentions, evolve over
@@ -128,7 +128,7 @@
         <br />
       </div>
 
-      <p class="lead">
+      <p>
         The World Bank corpus contains metadata on the administrative and
         geographic regions that is relevant to documents. The charts below use
         these metadata to show insights on the relative popularity of regions
@@ -609,13 +609,15 @@ export default {
         if (this.$refs.countryVolumeMap) {
           this.$refs.countryVolumeMap.clearQueue();
 
-          this.$refs.countryVolumeMap.timeseriesCountryData = this.timeseriesCountryDataVolume;
+          this.$refs.countryVolumeMap.timeseriesCountryData =
+            this.timeseriesCountryDataVolume;
         }
 
         if (this.$refs.countryShareMap) {
           this.$refs.countryShareMap.clearQueue();
 
-          this.$refs.countryShareMap.timeseriesCountryData = this.timeseriesCountryDataShare;
+          this.$refs.countryShareMap.timeseriesCountryData =
+            this.timeseriesCountryDataShare;
         }
         // this.$refs.countryVolumeMap.startAnimation();
         // this.$refs.countryShareMap.startAnimation();

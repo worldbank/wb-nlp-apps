@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="text-justify">
     <h3>{{ page_title }}</h3>
     <br />
 

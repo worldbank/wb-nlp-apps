@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="text-justify">
     <header>
       <h1 class="blog-post-title mb-3" dir="auto">
         {{ page_title }}
@@ -37,7 +37,7 @@
         />
 
         <a name="results"></a>
-        <div v-if="this.model_id">
+        <div v-if="this.model_id" class="text-left">
           <h2>Results</h2>
 
           <div :class="topic_selection_dirty ? 'blurred' : ''">

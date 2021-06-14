@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="text-justify">
     <h1>{{ page_title }}</h1>
     <div>
       <br />
@@ -28,7 +28,7 @@
       </p>
       <br />
       <h3>List of data sources</h3>
-      <div class="table-container">
+      <div class="table-container text-left">
         <b-table :fields="fields" :items="items">
           <template #cell(name)="data">
             <!-- `data.value` is the value after formatted by the Formatter -->
