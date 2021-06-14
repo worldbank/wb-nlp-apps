@@ -92,20 +92,15 @@ export default {
       type: Number,
       default: null,
     },
-    field: String,
     field_name: String,
-    data: {
-      type: Object,
-      default: function () {
-        return null;
-      },
-    },
+
+    loading: Boolean,
   },
   mounted() {
     // this.docs_data = this.data.docs;
     // this.tokens_data = this.data.tokens;
     // window.vvm = this;
-    this.updateCharts();
+    // this.updateCharts();
   },
   computed: {
     defaultOptions() {
@@ -187,9 +182,33 @@ export default {
   },
   data: function () {
     return {
-      loading: false,
-      docs_data: null,
-      tokens_data: null,
+      vdata: {
+        field: "",
+        docs: {
+          volume: {
+            legend: [],
+            year: [],
+            series: [],
+          },
+          share: {
+            legend: [],
+            year: [],
+            series: [],
+          },
+        },
+        tokens: {
+          volume: {
+            legend: [],
+            year: [],
+            series: [],
+          },
+          share: {
+            legend: [],
+            year: [],
+            series: [],
+          },
+        },
+      },
 
       docs_value: "volume",
       tokens_value: "volume",
@@ -229,8 +248,8 @@ export default {
       };
     },
     updateCharts() {
-      this.docs_data = this.data.docs;
-      this.tokens_data = this.data.tokens;
+      this.docs_data = this.vdata.docs;
+      this.tokens_data = this.vdata.tokens;
 
       this.$refs.graphChartDocs.setOption(
         this.updateOption(this.docs_data, this.docs_value, "Documents")
@@ -240,11 +259,13 @@ export default {
         this.updateOption(this.tokens_data, this.tokens_value, "Tokens")
       );
     },
-  },
-  watch: {
-    data() {
+    setData(data) {
+      // Call this from the main component using the ref for the chart.
+      this.vdata = data;
       this.updateCharts();
     },
+  },
+  watch: {
     docs_value() {
       this.$refs.graphChartDocs.setOption(
         this.updateOption(this.docs_data, this.docs_value, "Documents")
@@ -254,11 +275,6 @@ export default {
       this.$refs.graphChartTokens.setOption(
         this.updateOption(this.tokens_data, this.tokens_value, "Tokens")
       );
-    },
-    loading() {
-      if (this.loading === false) {
-        this.updateCharts();
-      }
     },
   },
 };

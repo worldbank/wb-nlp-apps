@@ -136,19 +136,17 @@
       </p>
       <br />
       <VolumeChart
-        v-if="adm_region"
-        :data="adm_region"
-        :field="adm_region.field"
+        ref="admRegionChart"
+        :loading="loading"
         field_name="admin regions"
       />
       <br />
       <br />
 
       <VolumeChart
-        v-if="geo_region"
+        ref="geoRegionChart"
+        :loading="loading"
         :grid_top="120"
-        :data="geo_region"
-        :field="geo_region.field"
         field_name="geographic regions"
       />
       <br />
@@ -249,8 +247,8 @@ export default {
         .then((response) => {
           let data = response.data;
 
-          this.adm_region = data.adm_region;
-          this.geo_region = data.geo_region;
+          this.$refs.admRegionChart.setData(data.adm_region);
+          this.$refs.geoRegionChart.setData(data.geo_region);
 
           this.loading = false;
         })

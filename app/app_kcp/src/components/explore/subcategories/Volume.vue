@@ -13,12 +13,7 @@
 
       <br />
 
-      <VolumeChart
-        v-if="corpus"
-        :data="corpus"
-        :field="corpus.field"
-        field_name="source"
-      />
+      <VolumeChart ref="corpusChart" :loading="loading" field_name="source" />
       <br />
       <br />
 
@@ -32,9 +27,8 @@
       <br />
 
       <VolumeChart
-        v-if="major_doc_type"
-        :data="major_doc_type"
-        :field="major_doc_type.field"
+        ref="majorDocTypeChart"
+        :loading="loading"
         field_name="document type (WB)"
       />
       <br />
@@ -49,9 +43,8 @@
       <br />
       <br />
       <VolumeChart
-        v-if="topics_src"
-        :data="topics_src"
-        :field="topics_src.field"
+        ref="topicsSrcChart"
+        :loading="loading"
         field_name="topic (WB)"
       />
     </div>
@@ -200,9 +193,9 @@ export default {
         .then((response) => {
           let data = response.data;
 
-          this.corpus = data.corpus;
-          this.major_doc_type = data.major_doc_type;
-          this.topics_src = data.topics_src;
+          this.$refs.corpusChart.setData(data.corpus);
+          this.$refs.majorDocTypeChart.setData(data.major_doc_type);
+          this.$refs.topicsSrcChart.setData(data.topics_src);
 
           this.loading = false;
         })
