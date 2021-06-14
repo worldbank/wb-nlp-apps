@@ -1,11 +1,10 @@
 <template>
   <div>
     <div v-if="metadata" class="container">
-      <br />
-      <router-link to="/search/">Return to search</router-link>
-      <br />
-      <br />
-      <div class="row">
+      <div class="mt-2">
+        <router-link to="/search/">Back to search</router-link>
+      </div>
+      <div class="mt-4 row">
         <div class="col-sm-12 col-md-3">
           <img
             width="100%"
