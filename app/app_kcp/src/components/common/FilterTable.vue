@@ -162,15 +162,14 @@
           class="btn btn-primary btn-lg wbg-button"
           @click="submitTopicRanges"
         >
-          <i class="fas fa-search fa-sm mr-1" aria-hidden="true"></i>Search
+          <i class="fas fa-search fa-sm mr-1" aria-hidden="true"></i>Apply
+          filter
         </button>
         <hr />
       </div>
     </div>
   </div>
 </template>
-
-topic_set
 
 
 <script>

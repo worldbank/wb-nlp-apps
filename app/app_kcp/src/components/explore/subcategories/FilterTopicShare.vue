@@ -38,7 +38,7 @@
 
         <a name="results"></a>
         <div v-if="this.model_id">
-          <h2>Filtering Results</h2>
+          <h2>Results</h2>
 
           <div :class="topic_selection_dirty ? 'blurred' : ''">
             <SearchResultLoading :loading="loading" :size="curr_size" />
