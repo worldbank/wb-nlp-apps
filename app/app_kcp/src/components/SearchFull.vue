@@ -615,6 +615,8 @@ export default {
   mounted() {
     // window.vm = this;
     // this.flowSideBar();
+    this.prevent_route_change_search = false;
+    this.prevent_default = false;
 
     this.routeChangeSearch();
   },
@@ -876,6 +878,7 @@ export default {
       this.query_cache = "";
       this.removeFile();
       this.suggestions = [];
+      this.checkUpdateRoute();
 
       this.prevent_default = false;
       this.defaultKeywordSearch();
@@ -937,6 +940,18 @@ export default {
         this.$route.query.search_type !== this.search_type
       );
     },
+    checkUpdateRoute() {
+      if (this.updateRoute()) {
+        this.$router.replace({
+          name: "search",
+          query: {
+            search_text: this.query,
+            search_type: this.search_type,
+            // page: this.curr_page_num,
+          },
+        });
+      }
+    },
     sendSearch: function (page_num = 1) {
       this.prevent_route_change_search = true;
       this.prevent_default = false;
@@ -963,16 +978,7 @@ export default {
         return;
       }
 
-      if (this.updateRoute()) {
-        this.$router.replace({
-          name: "search",
-          query: {
-            search_text: this.query,
-            search_type: this.search_type,
-            // page: this.curr_page_num,
-          },
-        });
-      }
+      this.checkUpdateRoute();
     },
     sendKeywordSearch: function (from = 0) {
       if (from > this.total.value) {
