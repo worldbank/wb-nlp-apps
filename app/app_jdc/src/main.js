@@ -26,6 +26,9 @@ Vue.prototype.$Plotly = Plotly
 Vue.prototype.$window = window
 Vue.prototype.$config = config
 
+// Set global Cache-Control request header for security.
+Vue.prototype.$http.defaults.headers.common["Cache-Control"] = "max-age=0";
+
 // Install BootstrapVue
 Vue.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
