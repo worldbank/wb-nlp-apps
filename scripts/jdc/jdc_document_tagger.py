@@ -8,7 +8,7 @@ TOPIC_PERCENTAGE = 0.01
 
 TOPIC_THRESHOLD = 0.01
 AT_LEAST_NUM_TAGS = 2
-DOC_TYPE = [MajorDocTypes.publications_and_research,
+DOC_TYPE = [MajorDocTypes.publications_and_reports,
             MajorDocTypes.project_documents]
 
 topic_percentage = {TOPIC_ID: TOPIC_PERCENTAGE}
