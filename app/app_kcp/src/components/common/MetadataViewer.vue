@@ -2,7 +2,7 @@
   <div>
     <div v-if="metadata.title">
       <div class="xsl-caption field-caption">Title</div>
-      <p>{{ metadata.title }}</p>
+      <p>{{ normalizeTitle(metadata.title) }}</p>
     </div>
 
     <div v-if="metadata.date_published">
@@ -156,6 +156,12 @@ export default {
     },
   },
   methods: {
+    normalizeTitle(title) {
+      if (title.endsWith(".pdf")) {
+        title = title.slice(0, title.length - 4);
+      }
+      return title;
+    },
     getTopics() {
       if (this.metadata.topics_src) {
         if (this.metadata.wb_subtopic_src) {

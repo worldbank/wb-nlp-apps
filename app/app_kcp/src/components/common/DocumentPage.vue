@@ -13,7 +13,7 @@
         </div>
         <div class="col-sm-12 col-md-9">
           <h3 class="title">
-            {{ metadata.title }}
+            {{ normalizeTitle(metadata.title) }}
           </h3>
 
           <!-- <Authors /> -->
@@ -53,7 +53,7 @@
               Open in:
               <a
                 :href="document_wbdocs_link"
-                :title="metadata.title"
+                :title="normalizeTitle(metadata.title)"
                 target="_blank"
                 >World Bank Documents and Reports</a
               >
@@ -292,6 +292,12 @@ export default {
     };
   },
   methods: {
+    normalizeTitle(title) {
+      if (title.endsWith(".pdf")) {
+        title = title.slice(0, title.length - 4);
+      }
+      return title;
+    },
     loadStorage() {
       this.result = JSON.parse(
         sessionStorage.getItem(this.$route.params.doc_id)

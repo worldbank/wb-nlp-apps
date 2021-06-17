@@ -26,8 +26,8 @@
                 params: { doc_id: result.id, metadata: result },
               }"
             > -->
-              <!-- <router-link :to="document_link" :title="result.title"> -->
-              {{ result.title }}</router-link
+              <!-- <router-link :to="document_link" :title="normalizeTitle(result.title)"> -->
+              {{ normalizeTitle(result.title) }}</router-link
             >
           </h5>
 
@@ -88,7 +88,7 @@
             </div>
             <b-modal
               :id="'modal-scoped-meta-' + random_id() + '-' + result.id"
-              :title="result.title"
+              :title="normalizeTitle(result.title)"
               size="lg"
             >
               <DocumentMetadata :metadata="result" />
@@ -106,7 +106,7 @@
             </div>
             <b-modal
               :id="'modal-scoped-' + random_id() + '-' + result.id"
-              :title="result.title"
+              :title="normalizeTitle(result.title)"
               size="lg"
             >
               <DocumentTopic :doc_id="result.id" />
@@ -214,6 +214,12 @@ export default {
     },
   },
   methods: {
+    normalizeTitle(title) {
+      if (title.endsWith(".pdf")) {
+        title = title.slice(0, title.length - 4);
+      }
+      return title;
+    },
     truncate(value, size) {
       return (value.toFixed(size) * 100 + "").slice(0, size + 1);
     },
