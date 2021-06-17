@@ -184,16 +184,10 @@ export default {
 
       doc_type_options: [
         { value: "Full corpus", text: "Full corpus" },
-        // { value: "WB - Board Documents", text: "WB - Board Documents" },
-        // {
-        //   value: "WB - Economic and Sector Work",
-        //   text: "WB - Economic and Sector Work",
-        // },
-        { value: "WB - Project Documents", text: "Project Documents" },
-        // { value: "WB - Publications", text: "WB - Publications" },
+        { value: "Project Documents", text: "Project Documents" },
         {
-          value: "WB - Publications and Research",
-          text: "Publications and Research",
+          value: "Publications and Reports",
+          text: "Publications and Reports",
         },
       ],
       doc_type_filter: "Full corpus",
@@ -602,13 +596,15 @@ export default {
         if (this.$refs.countryVolumeMap) {
           this.$refs.countryVolumeMap.clearQueue();
 
-          this.$refs.countryVolumeMap.timeseriesCountryData = this.timeseriesCountryDataVolume;
+          this.$refs.countryVolumeMap.timeseriesCountryData =
+            this.timeseriesCountryDataVolume;
         }
 
         if (this.$refs.countryShareMap) {
           this.$refs.countryShareMap.clearQueue();
 
-          this.$refs.countryShareMap.timeseriesCountryData = this.timeseriesCountryDataShare;
+          this.$refs.countryShareMap.timeseriesCountryData =
+            this.timeseriesCountryDataShare;
         }
         // this.$refs.countryVolumeMap.startAnimation();
         // this.$refs.countryShareMap.startAnimation();

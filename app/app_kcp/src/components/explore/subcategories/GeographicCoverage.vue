@@ -190,7 +190,7 @@ export default {
 
         { value: "Project Documents", text: "Project Documents" },
         {
-          value: "Publications and Research",
+          value: "Publications and Reports",
           text: "Publications and Reports",
         },
       ],
