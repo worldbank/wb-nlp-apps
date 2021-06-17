@@ -117,7 +117,7 @@
               <span class="study-by">{{
                 result.major_doc_type[0].replace(
                   "Publications and Research",
-                  "Document and Research"
+                  "Publications and Reports"
                 )
               }}</span>
             </div>
