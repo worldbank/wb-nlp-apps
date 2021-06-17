@@ -191,7 +191,7 @@ export default {
         { value: "Project Documents", text: "Project Documents" },
         {
           value: "Publications and Research",
-          text: "Publications and Research",
+          text: "Publications and Reports",
         },
       ],
       doc_type_filter: "Full corpus",
