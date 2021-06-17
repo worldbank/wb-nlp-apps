@@ -74,7 +74,8 @@ class NLPDoc(Document):
         settings = {
             "number_of_shards": 2,
             "number_of_replicas": 1,
-            "highlight": {"max_analyzed_offset": 5000000}
+            "highlight": {"max_analyzed_offset": 5000000},
+            "max_terms_count": 262144,  # 2 ^ 18
         }
 
     def save(self, **kwargs):
@@ -222,6 +223,7 @@ class DocTopic(Document):
         settings = {
             "number_of_shards": 2,
             "number_of_replicas": 1,
+            "max_terms_count": 262144,  # 2 ^ 18
         }
 
     def save(self, **kwargs):
