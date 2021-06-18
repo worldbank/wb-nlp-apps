@@ -1,33 +1,21 @@
 <template>
   <div>
-    <div v-for="result in results" :key="'microdata-' + result.id">
-      <div v-if="metadata[result.id]">
-        <hr />
-        <p class="lead">
-          <a :href="metadataLink(result)" target="_blank">{{
-            metadata[result.id].title
-          }}</a>
-        </p>
-        Year: {{ metadata[result.id].year_from }}
-        <br />
-        ID: {{ result.id }}
-        <br />
-        Country/countries: {{ metadata[result.id].countries }}
-        <br />
-        <br />
-      </div>
-    </div>
+    <MicrodataCard
+      v-for="result in results"
+      :key="'microdata-' + result.id"
+      :result="result"
+      :metadata="metadata"
+    />
+    <div v-show="loading" class="text-center"><b-spinner></b-spinner></div>
   </div>
 </template>
 <script>
+import MicrodataCard from "./MicrodataCard";
+
 export default {
-  components: {},
+  components: { MicrodataCard },
   name: "SimilarMicrodataViewer",
   props: {
-    render_style: {
-      default: "horizontal",
-      type: String,
-    },
     doc_id: String,
     topn: {
       type: Number,
@@ -36,7 +24,6 @@ export default {
   },
   mounted() {
     this.loadKCPMetadata();
-    // this.getSimilarMicrodata();
   },
   computed: {
     searchParams() {
@@ -58,25 +45,14 @@ export default {
   methods: {
     loadKCPMetadata() {
       if (!this.metadata) {
+        this.loading = true;
         this.$http
           .get("/static/data/kcp_microdata_metadata_minified.json")
           .then((response) => {
             this.metadata = response.data;
             this.getSimilarMicrodata();
+            this.loading = false;
           });
-      }
-    },
-    metadataLink(result) {
-      return (
-        "https://microdatalib.worldbank.org/index.php/catalog/study/" +
-        result.id
-      );
-    },
-    getIndicatorName(result) {
-      if (result.url_wb) {
-        var name = result.url_wb.split("/");
-        this.indicator_name = name[name.length - 1];
-        return this.indicator_name;
       }
     },
     getSimilarMicrodata() {
@@ -118,5 +94,9 @@ export default {
   border: 2px solid #ebebeb;
   border-radius: 4px;
   margin-bottom: 20px;
+}
+
+.microdata-info {
+  border: 0px;
 }
 </style>
