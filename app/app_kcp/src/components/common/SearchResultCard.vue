@@ -56,8 +56,9 @@
             <div class="small ml-md-3 mt-2 mt-md-0"> -->
 
             <div class="small mt-2 mt-md-0">
-              Source: {{ result.corpus
-              }}<span v-if="match && match.rank">, Rank: {{ match.rank }}</span>
+              Source:
+              <a :href="result.url_pdf" target="_blank">{{ result.corpus }}</a
+              ><span v-if="match && match.rank">, Rank: {{ match.rank }}</span>
               <!-- <span v-if="match && match.score"
                 >, Score: {{ truncate(match.score, 4) }}</span
               > -->

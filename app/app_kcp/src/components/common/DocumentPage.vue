@@ -47,7 +47,9 @@
             </div>
             <div class="owner-collection">
               Source:
-              <router-link to="/search/">{{ metadata.corpus }}</router-link>
+              <a :href="metadata.url_pdf" target="_blank">{{
+                metadata.corpus
+              }}</a>
             </div>
             <div v-if="metadata.corpus === 'WB' && metadata.url_pdf">
               Open in:
@@ -103,7 +105,16 @@
               :title-link-class="linkClass(1)"
             >
               <br />
-              <div>
+              Source:
+              {{
+                this.$config.corpus_details.filter(
+                  (o) => o.corpus_id === metadata.corpus
+                )[0].name
+              }},
+              <a :href="metadata.url_pdf" target="_blank">{{
+                metadata.url_pdf
+              }}</a>
+              <div class="mt-2">
                 <iframe
                   ref="iframe"
                   width="100%"
