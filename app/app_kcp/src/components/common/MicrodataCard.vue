@@ -10,7 +10,7 @@
       <div class="microdata-info-wrapper">
         <div class="microdata-info">
           <span class="xsl-caption field-caption">Year:</span>
-          {{ metadata[result.id].year_from }}
+          {{ year }}
         </div>
         <div class="microdata-info">
           <span class="xsl-caption field-caption">ID:</span> {{ result.id }}
@@ -47,6 +47,19 @@ export default {
     metadata: Object,
   },
   computed: {
+    year() {
+      if (
+        this.metadata[this.result.id].year_from ==
+        this.metadata[this.result.id].year_to
+      ) {
+        return this.metadata[this.result.id].year_from;
+      }
+      return (
+        this.metadata[this.result.id].year_from +
+        "-" +
+        this.metadata[this.result.id].year_to
+      );
+    },
     hasAbstract() {
       if (this.microdata_meta) {
         if (this.microdata_meta.dataset) {
