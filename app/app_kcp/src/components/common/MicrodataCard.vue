@@ -15,9 +15,9 @@
         <div class="microdata-info">
           <span class="xsl-caption field-caption">ID:</span> {{ result.id }}
         </div>
-        <div class="microdata-info">
+        <div v-show="!loading && hasNation" class="microdata-info">
           <span class="xsl-caption field-caption">Country / countries:</span>
-          {{ metadata[result.id].countries }}
+          {{ countries }}
         </div>
       </div>
 
@@ -58,6 +58,16 @@ export default {
     metadata: Object,
   },
   computed: {
+    countries() {
+      if (this.microdata_meta) {
+        return this.microdata_meta.dataset.metadata.study_desc.study_info.nation
+          .map((o) => {
+            return o.name;
+          })
+          .join("; ");
+      }
+      return null;
+    },
     year() {
       if (
         this.metadata[this.result.id].year_from ==
@@ -72,42 +82,13 @@ export default {
       );
     },
     hasAbstract() {
-      if (this.microdata_meta) {
-        if (this.microdata_meta.dataset) {
-          if (this.microdata_meta.dataset.metadata) {
-            if (this.microdata_meta.dataset.metadata.study_desc) {
-              if (this.microdata_meta.dataset.metadata.study_desc.study_info) {
-                if (
-                  this.microdata_meta.dataset.metadata.study_desc.study_info
-                    .abstract
-                ) {
-                  return true;
-                }
-              }
-            }
-          }
-        }
-      }
-      return false;
+      return this.hasField("abstract");
+    },
+    hasNation() {
+      return this.hasField("nation");
     },
     hasStudyScope() {
-      if (this.microdata_meta) {
-        if (this.microdata_meta.dataset) {
-          if (this.microdata_meta.dataset.metadata) {
-            if (this.microdata_meta.dataset.metadata.study_desc) {
-              if (this.microdata_meta.dataset.metadata.study_desc.study_info) {
-                if (
-                  this.microdata_meta.dataset.metadata.study_desc.study_info
-                    .study_scope
-                ) {
-                  return true;
-                }
-              }
-            }
-          }
-        }
-      }
-      return false;
+      return this.hasField("study_scope");
     },
   },
   mounted() {
@@ -134,6 +115,26 @@ export default {
     },
     metadataLink(result) {
       return "https://catalog.ihsn.org/catalog/study/" + result.id;
+    },
+    hasField(field) {
+      if (this.microdata_meta) {
+        if (this.microdata_meta.dataset) {
+          if (this.microdata_meta.dataset.metadata) {
+            if (this.microdata_meta.dataset.metadata.study_desc) {
+              if (this.microdata_meta.dataset.metadata.study_desc.study_info) {
+                if (
+                  this.microdata_meta.dataset.metadata.study_desc.study_info[
+                    field
+                  ]
+                ) {
+                  return true;
+                }
+              }
+            }
+          }
+        }
+      }
+      return false;
     },
   },
 };
