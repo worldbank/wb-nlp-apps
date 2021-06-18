@@ -30,9 +30,7 @@
       </div>
 
       <div class="microdata-abstract" v-if="hasAbstract">
-        <span style="white-space: pre-wrap">{{
-          microdata_meta.dataset.metadata.study_desc.study_info.abstract
-        }}</span>
+        <div class="text-justify" v-html="abstract"></div>
       </div>
 
       <div class="microdata-info" v-if="hasStudyScope">
@@ -40,9 +38,7 @@
       </div>
 
       <div class="microdata-study-scope" v-if="hasStudyScope">
-        <span style="white-space: pre-wrap">{{
-          microdata_meta.dataset.metadata.study_desc.study_info.study_scope
-        }}</span>
+        <div class="text-justify" v-html="study_scope"></div>
       </div>
 
       <br />
@@ -67,6 +63,18 @@ export default {
           .join("; ");
       }
       return null;
+    },
+    abstract() {
+      return this.microdata_meta.dataset.metadata.study_desc.study_info.abstract.replaceAll(
+        "\n",
+        "<br/>"
+      );
+    },
+    study_scope() {
+      return this.microdata_meta.dataset.metadata.study_desc.study_info.study_scope.replaceAll(
+        "\n",
+        "<br/>"
+      );
     },
     year() {
       if (
