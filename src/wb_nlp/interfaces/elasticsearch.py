@@ -269,6 +269,9 @@ class NLPDocFacetedSearch(FacetedSearch):
         search = search.extra(track_total_hits=True)
         search = search.source(excludes=["body", "doc"])
         # search.params(preserve_order=True).scan()
+
+        search = search.exclude("term", major_doc_type="Board Documents")
+
         return search
 
     def build_search(self):
