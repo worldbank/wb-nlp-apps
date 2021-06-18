@@ -1,12 +1,21 @@
 <template>
   <div>
     <div v-for="result in results" :key="'microdata-' + result.id">
-      <p class="lead">
-        <a :href="metadataLink(result)" target="_blank">{{ result.name }}</a>
-      </p>
-      <p>{{ result.id }}</p>
-      <br />
-      <br />
+      <div v-if="metadata[result.id]">
+        <hr />
+        <p class="lead">
+          <a :href="metadataLink(result)" target="_blank">{{
+            metadata[result.id].title
+          }}</a>
+        </p>
+        Year: {{ metadata[result.id].year_from }}
+        <br />
+        ID: {{ result.id }}
+        <br />
+        Country/countries: {{ metadata[result.id].countries }}
+        <br />
+        <br />
+      </div>
     </div>
   </div>
 </template>
@@ -26,7 +35,8 @@ export default {
     },
   },
   mounted() {
-    this.getSimilarMicrodata();
+    this.loadKCPMetadata();
+    // this.getSimilarMicrodata();
   },
   computed: {
     searchParams() {
@@ -42,9 +52,20 @@ export default {
       results: [],
       loading: false,
       indicator_name: null,
+      metadata: null,
     };
   },
   methods: {
+    loadKCPMetadata() {
+      if (!this.metadata) {
+        this.$http
+          .get("/static/data/kcp_microdata_metadata_minified.json")
+          .then((response) => {
+            this.metadata = response.data;
+            this.getSimilarMicrodata();
+          });
+      }
+    },
     metadataLink(result) {
       return (
         "https://microdatalib.worldbank.org/index.php/catalog/study/" +
