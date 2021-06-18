@@ -165,7 +165,7 @@
               :title-link-class="linkClass(3)"
               v-on:click="activateSubmit()"
               @click.prevent
-              title="Related indicators"
+              title="Related data"
             >
               <br />
               <h4>Related World Development Indicators</h4>
