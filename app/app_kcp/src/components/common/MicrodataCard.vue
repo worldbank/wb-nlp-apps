@@ -55,8 +55,8 @@ export default {
   },
   computed: {
     countries() {
-      if (this.microdata_meta) {
-        return this.microdata_meta.dataset.metadata.study_desc.study_info.nation
+      if (this.hasNation) {
+        return this.getField("nation")
           .map((o) => {
             return o.name;
           })
@@ -65,16 +65,14 @@ export default {
       return null;
     },
     abstract() {
-      return this.microdata_meta.dataset.metadata.study_desc.study_info.abstract.replaceAll(
-        "\n",
-        "<br/>"
-      );
+      return this.hasAbstract
+        ? this.getField("abstract").replaceAll("\n", "<br/>")
+        : null;
     },
     study_scope() {
-      return this.microdata_meta.dataset.metadata.study_desc.study_info.study_scope.replaceAll(
-        "\n",
-        "<br/>"
-      );
+      return this.hasStudyScope
+        ? this.getField("study_scope").replaceAll("\n", "<br/>")
+        : null;
     },
     year() {
       if (
@@ -104,11 +102,8 @@ export default {
   },
   data() {
     return {
-      //   results: [],
       loading: false,
-      indicator_name: null,
       microdata_meta: null,
-      //   metadata: null,
     };
   },
   methods: {
@@ -123,6 +118,9 @@ export default {
     },
     metadataLink(result) {
       return "https://catalog.ihsn.org/catalog/study/" + result.id;
+    },
+    getField(field) {
+      return this.microdata_meta.dataset.metadata.study_desc.study_info[field];
     },
     hasField(field) {
       if (this.microdata_meta) {
