@@ -34,6 +34,17 @@
           microdata_meta.dataset.metadata.study_desc.study_info.abstract
         }}</span>
       </div>
+
+      <div class="microdata-info" v-if="hasStudyScope">
+        <span class="xsl-caption field-caption">Scope</span>
+      </div>
+
+      <div class="microdata-study-scope" v-if="hasStudyScope">
+        <span style="white-space: pre-wrap">{{
+          microdata_meta.dataset.metadata.study_desc.study_info.study_scope
+        }}</span>
+      </div>
+
       <br />
     </div>
   </div>
@@ -79,6 +90,25 @@ export default {
       }
       return false;
     },
+    hasStudyScope() {
+      if (this.microdata_meta) {
+        if (this.microdata_meta.dataset) {
+          if (this.microdata_meta.dataset.metadata) {
+            if (this.microdata_meta.dataset.metadata.study_desc) {
+              if (this.microdata_meta.dataset.metadata.study_desc.study_info) {
+                if (
+                  this.microdata_meta.dataset.metadata.study_desc.study_info
+                    .study_scope
+                ) {
+                  return true;
+                }
+              }
+            }
+          }
+        }
+      }
+      return false;
+    },
   },
   mounted() {
     this.fetchMicrodataStudyInfo(this.result);
@@ -96,9 +126,7 @@ export default {
     fetchMicrodataStudyInfo(result) {
       this.loading = true;
       this.$http
-        // .get("https://catalog.ihsn.org/api/catalog/" + result.id)
-
-        .get("/nlp/extra/microdata/get_microdata_metadata/" + result.id)
+        .get("/nlp/extra/microdata/get_microdata_study_info/" + result.id)
         .then((response) => {
           this.microdata_meta = response.data;
           this.loading = false;
@@ -152,5 +180,13 @@ export default {
   max-width: 100%;
   max-height: 500px;
   overflow-y: scroll;
+  margin-bottom: 20px;
+}
+
+.microdata-study-scope {
+  max-width: 100%;
+  max-height: 500px;
+  overflow-y: scroll;
+  margin-bottom: 20px;
 }
 </style>
