@@ -59,11 +59,14 @@ export default {
   },
   mounted() {
     // window.cvm = this;
-    this.$http.get("/static/data/corpus_details.json").then((response) => {
-      this.items = response.data.filter((o) =>
-        this.valid_corpus_ids.includes(o.corpus_id)
-      );
-    });
+    this.items = this.$config.corpus_details.filter((o) =>
+      this.valid_corpus_ids.includes(o.corpus_id)
+    );
+    // this.$http.get("/static/data/corpus_details.json").then((response) => {
+    //   this.items = response.data.filter((o) =>
+    //     this.valid_corpus_ids.includes(o.corpus_id)
+    //   );
+    // });
   },
   data: function () {
     return {

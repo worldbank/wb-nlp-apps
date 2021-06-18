@@ -47,9 +47,10 @@ export default {
     page_title: String,
   },
   mounted() {
-    this.$http.get("/static/data/corpus_details.json").then((response) => {
-      this.items = response.data;
-    });
+    this.items = this.$config.corpus_details;
+    // this.$http.get("/static/data/corpus_details.json").then((response) => {
+    //   this.items = response.data;
+    // });
   },
   data: function () {
     return {
