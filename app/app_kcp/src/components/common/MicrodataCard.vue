@@ -181,6 +181,8 @@ export default {
   max-height: 500px;
   overflow-y: scroll;
   margin-bottom: 20px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
 
 .microdata-study-scope {
@@ -188,5 +190,19 @@ export default {
   max-height: 500px;
   overflow-y: scroll;
   margin-bottom: 20px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.microdata-abstract::-webkit-scrollbar {
+  /* WebKit */
+  width: 0;
+  height: 0;
+}
+
+.microdata-study-scope::-webkit-scrollbar {
+  /* WebKit */
+  width: 0;
+  height: 0;
 }
 </style>
