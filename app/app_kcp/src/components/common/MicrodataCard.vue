@@ -113,6 +113,8 @@ export default {
         .get("/nlp/extra/microdata/get_microdata_study_info/" + result.id)
         .then((response) => {
           this.microdata_meta = response.data;
+        })
+        .finally(() => {
           this.loading = false;
         });
     },
