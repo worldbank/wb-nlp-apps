@@ -51,11 +51,11 @@ class NLPDoc(Document):
     corpus = Keyword()
     date_published = Date()
     der_countries = Object()
+    der_country = Keyword()
+    der_country_counts = Object()
     der_country_details = Nested(properties={"code": Keyword(), "count": Integer(
     ), "name": Keyword(), "region": Keyword(), "sub-region": Keyword()})
     der_regions = Keyword()
-    der_sub_regions = Keyword()
-    der_intermediate_regions = Keyword()
     der_country_groups = Keyword()
     der_jdc_data = Nested(properties={"tag": Keyword(), "count": Integer()})
     der_jdc_tags = Keyword()
@@ -93,19 +93,28 @@ class NLPDoc(Document):
 
         # Extract country mentions data
         country_counts = country_extractor.get_country_counts(self.body)
+        self.der_countries = country_counts
+        self.der_country_counts = country_counts
 
-        country_groups = []
-        if self.country is not None:
-            for c in self.country:
-                code = country_extractor.get_country_code_from_name(c)
+        country_groups = set()
+        country_names = set()
+        if self.der_country_counts is not None:
+            for code in self.der_country_counts:
                 g = country_extractor.country_code_country_group_map.get(code)
                 if g:
-                    country_groups.extend(g)
+                    country_groups.update(g)
 
-        self.der_country_groups = country_groups
+                n = country_extractor.get_country_name_from_code(code)
+                if n:
+                    country_names.add(n)
 
-        self.der_countries = country_counts
+        self.der_country = sorted(country_names)
+        self.der_country_groups = sorted(country_groups)
+
         self.der_country_details = country_extractor.get_country_count_details(
+            country_counts)
+
+        self.der_regions = country_extractor.get_country_counts_regions(
             country_counts)
 
         return super(NLPDoc, self).save(**kwargs)
