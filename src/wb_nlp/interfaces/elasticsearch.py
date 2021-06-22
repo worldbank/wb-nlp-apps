@@ -355,12 +355,14 @@ class JDCNLPDocFacetedSearch(FacetedSearch):
         # use bucket aggregations to define facets
         'author': TermsFacet(field='author', size=100),
         'country': TermsFacet(field='country', size=100),
+        'der_country': TermsFacet(field='der_country', size=100),
         'der_country_groups': TermsFacet(field='der_country_groups', size=100),
         'der_jdc_tags': TermsFacet(field='der_jdc_tags', size=100),
         'corpus': TermsFacet(field='corpus', size=100),
         'major_doc_type': TermsFacet(field='major_doc_type', size=100),
         'adm_region': TermsFacet(field='adm_region', size=100),
         'geo_region': TermsFacet(field='geo_region', size=100),
+        'der_regions': TermsFacet(field='der_regions', size=100),
         'topics_src': TermsFacet(field='topics_src', size=100),
         'year': DateHistogramFacet(field='date_published', calendar_interval='year')
     }
@@ -378,7 +380,8 @@ class JDCNLPDocFacetedSearch(FacetedSearch):
 
 def get_indexed_corpus_size(filters=None):
 
-    search = NLPDoc.search()
+    # search = NLPDoc.search()
+    search = NLPDocFacetedSearch().search()
 
     if filters:
         for f in filters:
@@ -697,11 +700,11 @@ def update_doc_topic_metadata(docs_metadata):
 
 class NLPDocAggregations:
     def __init__(self, doc_class=None):
-        self.doc_class = doc_class or NLPDoc
+        # Use NLPDocFacetedSearch since we only care about the search method.
+        self.doc_class = doc_class or NLPDocFacetedSearch()  # NLPDoc
 
     def get_search_aggregation(self, field, filters=None, return_ids=False):
         search = self.doc_class.search()
-        search = search.exclude("term", major_doc_type="Board Documents")
 
         if filters:
             for f in filters:
