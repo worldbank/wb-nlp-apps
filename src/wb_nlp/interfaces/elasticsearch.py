@@ -59,6 +59,8 @@ class NLPDoc(Document):
     der_country_groups = Keyword()
     der_jdc_data = Nested(properties={"tag": Keyword(), "count": Integer()})
     der_jdc_tags = Keyword()
+    der_top_country = Keyword()
+    der_top_region = Keyword()
     doc_type = Keyword()
     geo_region = Keyword()
     last_update_date = Date()
@@ -98,6 +100,7 @@ class NLPDoc(Document):
 
         country_groups = set()
         country_names = set()
+
         if self.der_country_counts is not None:
             for code in self.der_country_counts:
                 g = country_extractor.country_code_country_group_map.get(code)
@@ -107,6 +110,13 @@ class NLPDoc(Document):
                 n = country_extractor.get_country_name_from_code(code)
                 if n:
                     country_names.add(n)
+
+            top_code = max(self.der_country_counts,
+                           key=lambda x: self.der_country_counts[x])
+            self.der_top_country = country_extractor.get_country_name_from_code(
+                top_code)
+            self.der_top_region = country_extractor.get_region_from_country_code(
+                top_code)
 
         self.der_country = sorted(country_names)
         self.der_country_groups = sorted(country_groups)
