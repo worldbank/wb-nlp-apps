@@ -26,7 +26,20 @@
         organization's published content. We tried to extract and curate as much
         of the metadata found on each source's page.
       </p>
-      <br />
+      <p>
+        We also augment the corpus with documents from other external
+        publication sources such as
+        <a
+          href="https://isi-iass.org/home/services/the-survey-statistician"
+          target="_blank"
+          >The Survey Statistician</a
+        >
+        (International Association of Survey Statisticians),
+        <a href="https://www.jstatsoft.org" target="_blank"
+          >Journal of Statistical Software</a
+        >, and the text descriptions of SDG indicators.<br />
+      </p>
+
       <h3>List of data sources</h3>
       <div class="table-container text-left">
         <b-table :fields="fields" :items="items">
