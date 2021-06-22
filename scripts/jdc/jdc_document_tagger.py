@@ -1,5 +1,5 @@
 from wb_nlp.interfaces import elasticsearch
-from wb_nlp.types.metadata_enums import MajorDocTypes
+from wb_cleaning.types.metadata_enums import MajorDocTypes
 # Refugee topic for mallet model: 6fd8b418cbe4af7a1b3d24debfafa1ee
 # TOPIC_MODEL_ID = "4472e70cc0a0c2263622b4cbe3aa4644"
 TOPIC_MODEL_ID = "6fd8b418cbe4af7a1b3d24debfafa1ee"
