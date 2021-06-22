@@ -732,6 +732,9 @@ export default {
 
       facets: null,
       selected_facets: {},
+
+      valid_countries: null,
+
       // country: [],
       // corpus: [],
       // major_doc_type: [],
@@ -802,7 +805,15 @@ export default {
         };
       });
 
-      return options.sort((a, b) => a.text.localeCompare(b.text));
+      options = options.sort((a, b) => a.text.localeCompare(b.text));
+
+      if (facet_name === "country" && this.valid_countries) {
+        options = options.filter((o) => {
+          return this.valid_countries.includes(o.value);
+        });
+      }
+
+      return options;
     },
 
     // SEARCH METHODS
@@ -1125,6 +1136,7 @@ export default {
             this.highlights = cached.highlights;
             this.facets = cached.facets;
             // this.selected_facets = cached.filters;
+            this.valid_countries = cached.valid_countries;
           }
 
           this.next = this.curr_page_num + 1;
@@ -1184,6 +1196,7 @@ export default {
               this.highlights = response.data.highlights;
               this.facets = response.data.facets;
               // this.selected_facets = response.data.filters;
+              this.valid_countries = response.data.valid_countries;
             }
 
             this.search_cache[search_cache_key] = {
@@ -1199,6 +1212,8 @@ export default {
               this.search_cache[search_cache_key].facets = response.data.facets;
               this.search_cache[search_cache_key].filters =
                 response.data.filters;
+              this.search_cache[search_cache_key].valid_countries =
+                response.data.valid_countries;
             }
 
             this.next = this.curr_page_num + 1;
@@ -1245,6 +1260,8 @@ export default {
               this.search_cache[search_cache_key].facets = response.data.facets;
               this.search_cache[search_cache_key].filters =
                 response.data.filters;
+              this.search_cache[search_cache_key].valid_countries =
+                response.data.valid_countries;
             }
           }
         })
