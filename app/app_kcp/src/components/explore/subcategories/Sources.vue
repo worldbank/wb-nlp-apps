@@ -37,7 +37,10 @@
         (International Association of Survey Statisticians),
         <a href="https://www.jstatsoft.org" target="_blank"
           >Journal of Statistical Software</a
-        >, and the text descriptions of SDG indicators.<br />
+        >, and the text descriptions of
+        <a href="https://unstats.un.org/sdgs/metadata/" target="_blank"
+          >SDG indicators</a
+        >.<br />
       </p>
 
       <h3>List of data sources</h3>

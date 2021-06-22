@@ -229,6 +229,8 @@ class DocTopic(Document):
     country = Keyword()
     corpus = Keyword()
     date_published = Date()
+    der_country = Keyword()
+    der_regions = Keyword()
     doc_type = Keyword()
     geo_region = Keyword()
     major_doc_type = Keyword()

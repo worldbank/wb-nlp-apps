@@ -595,7 +595,7 @@ class LDAModel(BaseModel):
     def get_full_topic_profile(self, topic_id: int, filters: list = None, type="line"):
 
         data_adm_region = self.get_topic_profile_by_field(
-            field="adm_region", topic_id=topic_id, filters=filters, type=type)
+            field="der_regions", topic_id=topic_id, filters=filters, type=type)
         data_major_doc_type = self.get_topic_profile_by_field(
             field="major_doc_type", topic_id=topic_id, filters=filters, type=type)
         data_corpus = self.get_topic_profile_by_field(

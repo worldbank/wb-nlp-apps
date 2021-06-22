@@ -7,6 +7,7 @@ export default {
         topic_model: {
             model_name: "mallet", // "lda",
             model_id: "6fd8b418cbe4af7a1b3d24debfafa1ee", // "6694f3a38bc16dee91be5ccf4a64b6d8"
+            default_topic_id: 13, // Topic on poverty
         },
         word2vec: {
             model_id: "2617e5cf327e60cc8955189110e7f21d",  // "854ae5f9cdda093265212c435d1ddfd4",  // "777a9cf47411f6c4932e8941f177f90a",
