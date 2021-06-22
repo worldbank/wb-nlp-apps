@@ -6,7 +6,6 @@ import ExploreNav from '../components/ExploreNav.vue'
 import Home from '../components/Home.vue'
 import Search from '../components/SearchFull.vue'
 import Explore from '../components/Explore.vue'
-import Methods from '../components/Methods.vue'
 import API from '../components/API.vue'
 import About from '../components/About.vue'
 
@@ -31,18 +30,6 @@ import GeographicCoverage from '../components/explore/subcategories/GeographicCo
 import Metadata from '../components/explore/subcategories/Metadata.vue'
 import TopicBrowser from '../components/explore/subcategories/TopicBrowser.vue'
 import FilterTopicShare from '../components/explore/subcategories/FilterTopicShare.vue'
-
-// METHODS components
-import MethodsMethods from '../components/methods/Methods.vue'
-import TextAcquisition from '../components/methods/TextAcquisition.vue'
-import TextPreparation from '../components/methods/TextPreparation.vue'
-import LDATopicModel from '../components/methods/LDATopicModel.vue'
-import MethodsWordEmbeddings from '../components/methods/WordEmbeddings.vue'
-import TopicClassification from '../components/methods/TopicClassification.vue'
-import Cataloguing from '../components/methods/Cataloguing.vue'
-import SearchEngine from '../components/methods/SearchEngine.vue'
-import Visualizations from '../components/methods/Visualizations.vue'
-import TrainingMaterials from '../components/methods/TrainingMaterials.vue'
 
 // COMMON
 import DocumentPage from '../components/common/DocumentPage.vue'
@@ -215,69 +202,6 @@ const explore_routes = [
 ]
 
 
-const methods_routes = [
-    {
-        path: "",
-        name: "methods",
-        component: MethodsMethods,
-        props: { page_title: "Methods & Tools" },
-    },
-    {
-        path: "text-acquisition",
-        name: "methods_text-acquisition",
-        component: TextAcquisition,
-        props: { page_title: "Text Acquisition" },
-    },
-    {
-        path: "text-preparation",
-        name: "methods_text-preparation",
-        component: TextPreparation,
-        props: { page_title: "Text Preparation" },
-    },
-    {
-        path: "lda",
-        name: "methods_lda",
-        component: LDATopicModel,
-        props: { page_title: "LDA Topic Model" },
-    },
-    {
-        path: "word-embeddings",
-        name: "methods_word-embeddings",
-        component: MethodsWordEmbeddings,
-        props: { page_title: "Word Embeddings" },
-    },
-    {
-        path: "topic-classification",
-        name: "methods_topic-classification",
-        component: TopicClassification,
-        props: { page_title: "Topic Classification" },
-    },
-    {
-        path: "cataloguing",
-        name: "methods_cataloguing",
-        component: Cataloguing,
-        props: { page_title: "Cataloguing" },
-    },
-    {
-        path: "search-engine",
-        name: "methods_search-engine",
-        component: SearchEngine,
-        props: { page_title: "Search Engine" },
-    },
-    {
-        path: "visualizations",
-        name: "methods_visualizations",
-        component: Visualizations,
-        props: { page_title: "Visualizations" },
-    },
-    {
-        path: "training-materials",
-        name: "methods_training-materials",
-        component: TrainingMaterials,
-        props: { page_title: "Training Materials" },
-    },
-]
-
 const routes = [
     {
         path: '',
@@ -293,11 +217,6 @@ const routes = [
         path: '/explore/subcategories',
         component: Explore,
         children: explore_subcategories_routes
-    },
-    {
-        path: '/methods',
-        component: Methods,
-        children: methods_routes
     },
     {
         path: "/document/:doc_id",
