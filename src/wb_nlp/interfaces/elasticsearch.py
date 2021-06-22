@@ -269,8 +269,8 @@ class NLPDocFacetedSearch(FacetedSearch):
         'corpus': TermsFacet(field='corpus', size=100),
         'major_doc_type': TermsFacet(field='major_doc_type', size=100),
         'adm_region': TermsFacet(field='adm_region', size=100),
-        'geo_region': TermsFacet(field='der_regions', size=100),
-        # 'der_regions': TermsFacet(field='der_regions', size=100),
+        'geo_region': TermsFacet(field='geo_region', size=100),
+        'der_regions': TermsFacet(field='der_regions', size=100),
         'topics_src': TermsFacet(field='topics_src', size=100),
         'year': DateHistogramFacet(field='date_published', calendar_interval='year')
     }

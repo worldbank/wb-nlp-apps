@@ -35,6 +35,7 @@ async def keyword_search(
     author: List[str] = Query(None),
     der_country: List[str] = Query(None),
     der_country_groups: List[str] = Query(None),
+    der_regions: List[str] = Query(None),
     der_jdc_tags: List[str] = Query(None),
     corpus: List[str] = Query(None),
     major_doc_type: List[str] = Query(None),
@@ -72,6 +73,7 @@ async def keyword_search(
         author=author or [],
         der_country=der_country or [],
         der_country_groups=der_country_groups or [],
+        der_regions=der_regions or [],
         der_jdc_tags=der_jdc_tags or [],
         corpus=corpus or [],
         major_doc_type=major_doc_type or [],
@@ -125,7 +127,7 @@ async def keyword_search(
     filters["min_year"] = min_year
     filters["max_year"] = max_year
 
-    valid_countries = country_extractor.get_region_countries(geo_region)
+    valid_countries = country_extractor.get_region_countries(der_regions)
 
     return dict(
         total=total,

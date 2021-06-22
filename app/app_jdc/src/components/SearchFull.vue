@@ -244,17 +244,17 @@
             </div>
 
             <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
-              <h6 v-b-toggle.geo_region-collapse>
+              <h6 v-b-toggle.der_regions-collapse>
                 <i class="fa fa-filter pr-2"></i> Geographic region
               </h6>
-              <b-collapse id="geo_region-collapse">
+              <b-collapse id="der_regions-collapse">
                 <b-card class="facet-options">
                   <b-form-group v-slot="{ ariaDescribedby }">
                     <b-form-checkbox-group
-                      v-model="selected_facets.geo_region"
-                      :options="getFacetOptions('geo_region')"
+                      v-model="selected_facets.der_regions"
+                      :options="getFacetOptions('der_regions')"
                       :aria-describedby="ariaDescribedby"
-                      name="geo_region"
+                      name="der_regions"
                       stacked
                     ></b-form-checkbox-group>
                   </b-form-group>
@@ -437,24 +437,24 @@
 
                 <span
                   v-if="
-                    selected_facets.geo_region &&
-                    selected_facets.geo_region.length > 0
+                    selected_facets.der_regions &&
+                    selected_facets.der_regions.length > 0
                   "
                 >
                   <span
-                    v-for="fgeo_region in selected_facets.geo_region"
-                    :key="'country-' + fgeo_region"
+                    v-for="fder_regions in selected_facets.der_regions"
+                    :key="'country-' + fder_regions"
                     class="
                       badge badge-default
                       wb-badge-close
                       remove-filter
                       active-facets
                     "
-                    data-type="geo_region"
-                    :data-value="fgeo_region"
-                    >Geo region: {{ fgeo_region }}
+                    data-type="der_regions"
+                    :data-value="fder_regions"
+                    >Geo region: {{ fder_regions }}
                     <i
-                      @click="resetGeoRegion(fgeo_region)"
+                      @click="resetGeoRegion(fder_regions)"
                       class="fa fa-close"
                     ></i
                   ></span>
@@ -725,9 +725,9 @@ export default {
           params.append("major_doc_type", v)
         );
       }
-      if (this.selected_facets.geo_region) {
-        this.selected_facets.geo_region.map((v) =>
-          params.append("geo_region", v)
+      if (this.selected_facets.der_regions) {
+        this.selected_facets.der_regions.map((v) =>
+          params.append("der_regions", v)
         );
       }
 
@@ -799,7 +799,7 @@ export default {
       // der_country: [],
       // corpus: [],
       // major_doc_type: [],
-      // geo_region: [],
+      // der_regions: [],
 
       api_link: "",
 
@@ -866,7 +866,7 @@ export default {
       }
     },
     getFacetOptions(facet_name) {
-      // const for_sorting = ["der_country", "der_country_groups", "geo_region"]
+      // const for_sorting = ["der_country", "der_country_groups", "der_regions"]
       if (!this.facets) {
         return [];
       }
@@ -924,10 +924,9 @@ export default {
       this.selected_facets.major_doc_type =
         this.selected_facets.major_doc_type.filter((o) => o !== major_doc_type);
     },
-    resetGeoRegion(geo_region) {
-      this.selected_facets.geo_region = this.selected_facets.geo_region.filter(
-        (o) => o !== geo_region
-      );
+    resetGeoRegion(der_regions) {
+      this.selected_facets.der_regions =
+        this.selected_facets.der_regions.filter((o) => o !== der_regions);
     },
     resetCorpus(corpus) {
       this.selected_facets.corpus = this.selected_facets.corpus.filter(
@@ -956,7 +955,7 @@ export default {
       body["der_jdc_tags"] = this.selected_facets.der_jdc_tags;
       body["corpus"] = this.selected_facets.corpus;
       body["major_doc_type"] = this.selected_facets.major_doc_type;
-      body["geo_region"] = this.selected_facets.geo_region;
+      body["der_regions"] = this.selected_facets.der_regions;
 
       return body;
     },
