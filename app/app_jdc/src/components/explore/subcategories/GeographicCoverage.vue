@@ -125,28 +125,21 @@
         <br />
         <br />
       </div>
-
-      <p class="mt-1 text-justify">
-        The World Bank corpus contains metadata on the administrative and
-        geographic regions that is relevant to documents. The charts below use
-        these metadata to show insights on the relative popularity of regions
-        over time within the World Bank corpus.
+      <p>
+        We also get the regions corresponding to the countries mentioned in the
+        documents. This information allows us to see the trends in the volume of
+        documents by region. Note that a document may be associated to multiple
+        regions, in which case, the document is counted multiple times (once per
+        region). The effect of this can be observed in the "share" view. This
+        view is normalized by the total number of unique documents in a given
+        year. But since documents are counted as many times as the number of
+        regions extracted, the resulting values show more than 100%.
       </p>
       <br />
-      <VolumeChart
-        v-if="adm_region"
-        :data="adm_region"
-        :field="adm_region.field"
-        field_name="admin regions"
-      />
-      <br />
-      <br />
 
       <VolumeChart
-        v-if="geo_region"
-        :grid_top="120"
-        :data="geo_region"
-        :field="geo_region.field"
+        ref="geoRegionChart"
+        :loading="loading"
         field_name="geographic regions"
       />
       <br />
@@ -195,9 +188,6 @@ export default {
       country_stats_loading: false,
       loading: false,
 
-      adm_region: null,
-      geo_region: null,
-
       countries_volume: null,
       countries_share: null,
 
@@ -224,8 +214,7 @@ export default {
       this.loading = true;
 
       const params = new URLSearchParams();
-      params.append("fields", "adm_region");
-      params.append("fields", "geo_region");
+      params.append("fields", "der_regions");
       params.append("app_tag_jdc", true);
 
       this.$http
@@ -235,8 +224,7 @@ export default {
         .then((response) => {
           let data = response.data;
 
-          this.adm_region = data.adm_region;
-          this.geo_region = data.geo_region;
+          this.$refs.geoRegionChart.setData(data.der_regions);
 
           this.loading = false;
         })

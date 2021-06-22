@@ -129,24 +129,20 @@
       </div>
 
       <p>
-        The World Bank corpus contains metadata on the administrative and
-        geographic regions that is relevant to documents. The charts below use
-        these metadata to show insights on the relative popularity of regions
-        over time within the World Bank corpus.
+        We also get the regions corresponding to the countries mentioned in the
+        documents. This information allows us to see the trends in the volume of
+        documents by region. Note that a document may be associated to multiple
+        regions, in which case, the document is counted multiple times (once per
+        region). The effect of this can be observed in the "share" view. This
+        view is normalized by the total number of unique documents in a given
+        year. But since documents are counted as many times as the number of
+        regions extracted, the resulting values show more than 100%.
       </p>
-      <br />
-      <VolumeChart
-        ref="admRegionChart"
-        :loading="loading"
-        field_name="admin regions"
-      />
-      <br />
       <br />
 
       <VolumeChart
         ref="geoRegionChart"
         :loading="loading"
-        :grid_top="120"
         field_name="geographic regions"
       />
       <br />
@@ -204,9 +200,6 @@ export default {
       org_count: 14,
       total_tokens: 1029000000,
 
-      adm_region: null,
-      geo_region: null,
-
       countries_volume: null,
       countries_share: null,
 
@@ -233,8 +226,7 @@ export default {
       this.loading = true;
 
       const params = new URLSearchParams();
-      params.append("fields", "adm_region");
-      params.append("fields", "geo_region");
+      params.append("fields", "der_regions");
 
       this.$http
         .get(this.$config.corpus_url + "/get_corpus_volume_by", {
@@ -243,8 +235,7 @@ export default {
         .then((response) => {
           let data = response.data;
 
-          this.$refs.admRegionChart.setData(data.adm_region);
-          this.$refs.geoRegionChart.setData(data.geo_region);
+          this.$refs.geoRegionChart.setData(data.der_regions);
 
           this.loading = false;
         })

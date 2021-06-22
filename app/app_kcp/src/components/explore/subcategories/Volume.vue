@@ -18,10 +18,11 @@
       <br />
 
       <p>
-        We worked on classifying documents from the different sources into three
-        main groups: Board Documents, Project Documents, and Publications and
-        Research. The charts below show the trend of the volume and token counts
-        of published documents under each of these document types.
+        We classified documents from the different sources into two main groups:
+        <span style="font-weight: bold"> Project Documents</span> and
+        <span style="font-weight: bold">Publications and Reports</span>. The
+        charts below show the trend of the volume and token counts of published
+        documents under each of these document types.
       </p>
       <br />
       <br />

@@ -25,19 +25,23 @@
 
       <br />
 
-      <VolumeChart
-        v-if="corpus"
-        :data="corpus"
-        :field="corpus.field"
-        field_name="source"
-      />
+      <VolumeChart ref="corpusChart" :loading="loading" field_name="source" />
+      <br />
+      <br />
 
-      <p class="mt-4"></p>
+      <p>
+        We classified documents from the different sources into two main groups:
+        <span style="font-weight: bold"> Project Documents</span> and
+        <span style="font-weight: bold">Publications and Reports</span>. The
+        charts below show the trend of the volume and token counts of published
+        documents under each of these document types.
+      </p>
+      <br />
+      <br />
 
       <VolumeChart
-        v-if="major_doc_type"
-        :data="major_doc_type"
-        :field="major_doc_type.field"
+        ref="majorDocTypeChart"
+        :loading="loading"
         field_name="document type"
       />
     </div>
@@ -190,8 +194,8 @@ export default {
         .then((response) => {
           let data = response.data;
 
-          this.corpus = data.corpus;
-          this.major_doc_type = data.major_doc_type;
+          this.$refs.corpusChart.setData(data.corpus);
+          this.$refs.majorDocTypeChart.setData(data.major_doc_type);
 
           this.loading = false;
         })
