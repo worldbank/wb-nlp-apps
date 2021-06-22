@@ -33,7 +33,7 @@ async def keyword_search(
     min_year: int = None,
     max_year: int = None,
     author: List[str] = Query(None),
-    country: List[str] = Query(None),
+    der_country: List[str] = Query(None),
     der_country_groups: List[str] = Query(None),
     der_jdc_tags: List[str] = Query(None),
     corpus: List[str] = Query(None),
@@ -70,7 +70,7 @@ async def keyword_search(
 
     filters = dict(
         author=author or [],
-        country=country or [],
+        der_country=der_country or [],
         der_country_groups=der_country_groups or [],
         der_jdc_tags=der_jdc_tags or [],
         corpus=corpus or [],
@@ -125,6 +125,8 @@ async def keyword_search(
     filters["min_year"] = min_year
     filters["max_year"] = max_year
 
+    valid_countries = country_extractor.get_region_countries(geo_region)
+
     return dict(
         total=total,
         hits=hits,
@@ -133,6 +135,7 @@ async def keyword_search(
         translated=translated,
         facets=facets,
         filters=filters,
+        valid_countries=valid_countries,
         next=from_result + size
     )
 
@@ -249,3 +252,44 @@ async def url_search(
     document = read_url_file(url)
 
     return common_semantic_search(model_name=model_name, model_id=model_id, query=document, from_result=from_result, size=size, clean=clean)
+
+
+# '_filter_der_country_details_region': {'filter': {'match_all': {}},
+#    'aggs': {
+#           'der_country_details_region': {'nested': {'path': 'der_country_details'},
+#               'aggs': {'inner': {'terms': {'field': 'der_country_details.region',
+#         'size': 100,
+#         'order': {'metric': 'desc'}},
+#        'aggs': {'metric': {'value_count': {'field': 'id'}}}}}}}}
+
+# {
+#   "query": {
+#     "match_all": {}
+#   },
+#   "aggs": {
+#     "der_country_details": {
+#       "nested": {
+#         "path": "der_country_details"
+#       },
+#       "aggs": {
+#         "top_regions": {
+#           "terms": {
+#             "field": "der_country_details.region"
+#           },
+#           "aggs": {
+#             "region_to_doc": {
+#               "reverse_nested": {},
+#               "aggs": {
+#                 "doc_count_per_region": {
+#                   "value_count": {
+#                     "field": "id"
+#                   }
+#                 }
+#               }
+#             }
+#           }
+#         }
+#       }
+#     }
+#   }
+# }

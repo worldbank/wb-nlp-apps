@@ -261,8 +261,8 @@ class NLPDocFacetedSearch(FacetedSearch):
     facets = {
         # use bucket aggregations to define facets
         'author': TermsFacet(field='author', size=100),
-        'country': TermsFacet(field='der_country', size=100),
-        # 'der_country': TermsFacet(field='der_country', size=100),
+        'country': TermsFacet(field='country', size=100),
+        'der_country': TermsFacet(field='der_country', size=100),
         'der_country_groups': TermsFacet(field='der_country_groups', size=100),
         'der_country_details_region': NestedFacet("der_country_details", TermsFacet(field='der_country_details.region', size=100, metric=A("value_count", field='id'))),
         'der_jdc_tags': TermsFacet(field='der_jdc_tags', size=100),
@@ -701,6 +701,7 @@ class NLPDocAggregations:
 
     def get_search_aggregation(self, field, filters=None, return_ids=False):
         search = self.doc_class.search()
+        search = search.exclude("term", major_doc_type="Board Documents")
 
         if filters:
             for f in filters:

@@ -262,17 +262,17 @@
             </div>
 
             <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
-              <h6 v-b-toggle.country-collapse>
+              <h6 v-b-toggle.der_country-collapse>
                 <i class="fa fa-filter pr-2"></i> Country
               </h6>
-              <b-collapse id="country-collapse">
+              <b-collapse id="der_country-collapse">
                 <b-card class="facet-options">
                   <b-form-group v-slot="{ ariaDescribedby }">
                     <b-form-checkbox-group
-                      v-model="selected_facets.country"
-                      :options="getFacetOptions('country')"
+                      v-model="selected_facets.der_country"
+                      :options="getFacetOptions('der_country')"
                       :aria-describedby="ariaDescribedby"
-                      name="country"
+                      name="der_country"
                       stacked
                     ></b-form-checkbox-group>
                   </b-form-group>
@@ -413,23 +413,23 @@
 
                 <span
                   v-if="
-                    selected_facets.country &&
-                    selected_facets.country.length > 0
+                    selected_facets.der_country &&
+                    selected_facets.der_country.length > 0
                   "
                 >
                   <span
-                    v-for="fcountry in selected_facets.country"
-                    :key="'country-' + fcountry"
+                    v-for="fder_country in selected_facets.der_country"
+                    :key="'der_country-' + fder_country"
                     class="
                       badge badge-default
                       wb-badge-close
                       remove-filter
                       active-facets
                     "
-                    data-type="country"
-                    :data-value="fcountry"
-                    >Country: {{ fcountry }}
-                    <i @click="resetCountry(fcountry)" class="fa fa-close"></i
+                    data-type="der_country"
+                    :data-value="fder_country"
+                    >Country: {{ fder_country }}
+                    <i @click="resetCountry(fder_country)" class="fa fa-close"></i
                   ></span>
                 </span>
 
@@ -649,8 +649,8 @@ export default {
         params.append("max_year", this.selected_facets.max_year);
       }
 
-      if (this.selected_facets.country) {
-        this.selected_facets.country.map((v) => params.append("country", v));
+      if (this.selected_facets.der_country) {
+        this.selected_facets.der_country.map((v) => params.append("der_country", v));
       }
       if (this.selected_facets.der_country_groups) {
         this.selected_facets.der_country_groups.map((v) =>
@@ -735,7 +735,7 @@ export default {
 
       valid_countries: null,
 
-      // country: [],
+      // der_country: [],
       // corpus: [],
       // major_doc_type: [],
       // geo_region: [],
@@ -787,7 +787,7 @@ export default {
       }
     },
     getFacetOptions(facet_name) {
-      // const for_sorting = ["country", "der_country_groups", "geo_region"]
+      // const for_sorting = ["der_country", "der_country_groups", "geo_region"]
       if (!this.facets) {
         return [];
       }
@@ -807,7 +807,7 @@ export default {
 
       options = options.sort((a, b) => a.text.localeCompare(b.text));
 
-      if (facet_name === "country" && this.valid_countries) {
+      if (facet_name === "der_country" && this.valid_countries) {
         options = options.filter((o) => {
           return this.valid_countries.includes(o.value);
         });
@@ -827,9 +827,9 @@ export default {
       this.selected_facets.max_year = null;
     },
 
-    resetCountry(country) {
-      this.selected_facets.country = this.selected_facets.country.filter(
-        (o) => o !== country
+    resetCountry(der_country) {
+      this.selected_facets.der_country = this.selected_facets.der_country.filter(
+        (o) => o !== der_country
       );
     },
     resetDerCountryGroups(der_country_groups) {
@@ -869,7 +869,7 @@ export default {
     },
     keywordSearchBody() {
       const body = {};
-      body["country"] = this.selected_facets.country;
+      body["der_country"] = this.selected_facets.der_country;
       body["der_country_groups"] = this.selected_facets.der_country_groups;
       body["corpus"] = this.selected_facets.corpus;
       body["major_doc_type"] = this.selected_facets.major_doc_type;
