@@ -141,6 +141,7 @@
           <div v-if="last_update_date" class="small text-center">
             Last updated on {{ last_update_date.toDateString() }}
           </div>
+
           <p class="mt-4 text-center">
             The Document Explorer puts Natural Language Processing (NLP) at the
             service of knowledge discovery. We compiled and maintain a
@@ -154,6 +155,21 @@
             solutions implemented in this project rely on publicly-available
             documents and on <a href="/#">open source tools</a>. Our solutions
             are openly accessible in our <a href="/#">GitHub repository</a>.
+          </p>
+
+          <p class="mt-4 text-center">
+            For the full World Bank documents and open access repositories,
+            visit the
+            <a
+              href="https://documents.worldbank.org/en/publication/documents-reports"
+              target="_blank"
+              >Documents and Reports</a
+            >
+            portal and the
+            <a href="https://openknowledge.worldbank.org/" target="_blank"
+              >Open Knowledge Repository (OKR)</a
+            >
+            website.
           </p>
         </div>
       </div>
@@ -219,7 +235,9 @@
               <i class="fab fa-github fa-lg" aria-hidden="true"></i>
             </div>
             <h3>
-              <a href="https://github.com/avsolatorio/wb_nlp" target="_blank"
+              <a
+                href="https://github.com/worldbank/wb-nlp-tools"
+                target="_blank"
                 >Github</a
               >
             </h3>

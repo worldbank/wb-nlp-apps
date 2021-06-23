@@ -46,7 +46,9 @@
           >
           – The map charts are used across different pages, mostly in document
           metadata page. It is also used in the
-          <router-link to="/explore/similarity/">Analyze document</router-link>
+          <router-link to="/explore/analyze-your-document/"
+            >Analyze document</router-link
+          >
           page to visualize which countries are popular in the user’s uploaded
           document.
         </li>

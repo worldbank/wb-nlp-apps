@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="text-justify">
     <h3>{{ page_title }}</h3>
     <br />
 
     <p>
       Topics are not covered evenly over time, across regions, by document type,
-      and by organization represented in our corpus. Select a corpus, a topic
+      and by organization represented in our corpus. Select a source, a topic
       and a (LDA) model, and two or more partitions to compare the evolution of
       the topic coverage over time. The resulting chart can be embedded, its
       code downloaded, and the underlying data are available in our document
@@ -69,7 +69,7 @@
             <br />
           </div>
 
-          <div>
+          <div v-if="adm_region_data">
             <h4>Topic profile by admin regions</h4>
             <b-form-radio-group
               v-model="adm_region_value"
@@ -166,7 +166,7 @@ export default {
       major_doc_type_data: null,
 
       prev_topic_id: -1,
-      topic_id: 0,
+      topic_id: this.$config.default_model.topic_model.default_topic_id,
 
       topic_words: null,
     };
@@ -255,7 +255,7 @@ export default {
     },
   },
   mounted() {
-    // window.vm = this;
+    window.vm = this;
   },
   methods: {
     onModelSelect: function (result) {
@@ -376,7 +376,7 @@ export default {
       };
     },
     getModelTopics: function () {
-      this.topic_id = 0;
+      // this.topic_id = 0;
       this.$http
         .get(this.nlp_api_url + "/get_model_topic_words", {
           params: this.searchParams,
@@ -438,13 +438,15 @@ export default {
         )
       );
 
-      this.$refs.graphChartAdminRegion.setOption(
-        this.updateOption(
-          this.adm_region_data,
-          this.adm_region_value,
-          "Admin region"
-        )
-      );
+      if (this.adm_region_data) {
+        this.$refs.graphChartAdminRegion.setOption(
+          this.updateOption(
+            this.adm_region_data,
+            this.adm_region_value,
+            "Geographic region"
+          )
+        );
+      }
     },
   },
   watch: {
@@ -452,13 +454,15 @@ export default {
       this.getFullTopicProfiles();
     },
     adm_region_value() {
-      this.$refs.graphChartAdminRegion.setOption(
-        this.updateOption(
-          this.adm_region_data,
-          this.adm_region_value,
-          "Admin region"
-        )
-      );
+      if (this.adm_region_data) {
+        this.$refs.graphChartAdminRegion.setOption(
+          this.updateOption(
+            this.adm_region_data,
+            this.adm_region_value,
+            "Geographic region"
+          )
+        );
+      }
     },
     major_doc_type_value() {
       this.$refs.graphChartMajorDocType.setOption(

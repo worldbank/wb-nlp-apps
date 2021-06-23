@@ -1,11 +1,10 @@
 <template>
   <div>
     <div v-if="metadata" class="container">
-      <br />
-      <router-link to="/search/">Return to search</router-link>
-      <br />
-      <br />
-      <div class="row">
+      <div class="mt-2">
+        <router-link to="/search/">Back to search</router-link>
+      </div>
+      <div class="mt-4 row">
         <div class="col-sm-12 col-md-3">
           <img
             width="100%"
@@ -45,13 +44,15 @@
               <span class="study-by">{{
                 metadata.major_doc_type[0].replace(
                   "Publications and Research",
-                  "Document and Research"
+                  "Publications and Reports"
                 )
               }}</span>
             </div>
             <div class="owner-collection">
-              Corpus:
-              <router-link to="/search/">{{ metadata.corpus }}</router-link>
+              Source:
+              <a :href="metadata.url_pdf" target="_blank">{{
+                metadata.corpus
+              }}</a>
             </div>
             <div v-if="metadata.corpus === 'WB' && metadata.url_pdf">
               Open in:
@@ -107,7 +108,16 @@
               :title-link-class="linkClass(1)"
             >
               <br />
-              <div>
+              Source:
+              {{
+                this.$config.corpus_details.filter(
+                  (o) => o.corpus_id === metadata.corpus
+                )[0].name
+              }},
+              <a :href="metadata.url_pdf" target="_blank">{{
+                metadata.url_pdf
+              }}</a>
+              <div class="mt-2">
                 <iframe
                   ref="iframe"
                   width="100%"

@@ -51,14 +51,16 @@ class NLPDoc(Document):
     corpus = Keyword()
     date_published = Date()
     der_countries = Object()
+    der_country = Keyword()
+    der_country_counts = Object()
     der_country_details = Nested(properties={"code": Keyword(), "count": Integer(
     ), "name": Keyword(), "region": Keyword(), "sub-region": Keyword()})
     der_regions = Keyword()
-    der_sub_regions = Keyword()
-    der_intermediate_regions = Keyword()
     der_country_groups = Keyword()
     der_jdc_data = Nested(properties={"tag": Keyword(), "count": Integer()})
     der_jdc_tags = Keyword()
+    der_top_country = Keyword()
+    der_top_region = Keyword()
     doc_type = Keyword()
     geo_region = Keyword()
     last_update_date = Date()
@@ -74,7 +76,9 @@ class NLPDoc(Document):
         settings = {
             "number_of_shards": 2,
             "number_of_replicas": 1,
-            "highlight": {"max_analyzed_offset": 5000000}
+            "highlight": {"max_analyzed_offset": 5000000},
+            "max_terms_count": 262144,  # 2 ^ 18
+            "refresh_interval": "30s"
         }
 
     def save(self, **kwargs):
@@ -91,19 +95,36 @@ class NLPDoc(Document):
 
         # Extract country mentions data
         country_counts = country_extractor.get_country_counts(self.body)
+        self.der_countries = country_counts
+        self.der_country_counts = country_counts
 
-        country_groups = []
-        if self.country is not None:
-            for c in self.country:
-                code = country_extractor.get_country_code_from_name(c)
+        country_groups = set()
+        country_names = set()
+
+        if self.der_country_counts is not None:
+            for code in self.der_country_counts:
                 g = country_extractor.country_code_country_group_map.get(code)
                 if g:
-                    country_groups.extend(g)
+                    country_groups.update(g)
 
-        self.der_country_groups = country_groups
+                n = country_extractor.get_country_name_from_code(code)
+                if n:
+                    country_names.add(n)
 
-        self.der_countries = country_counts
+            top_code = max(self.der_country_counts,
+                           key=lambda x: self.der_country_counts[x])
+            self.der_top_country = country_extractor.get_country_name_from_code(
+                top_code)
+            self.der_top_region = country_extractor.get_region_from_country_code(
+                top_code)
+
+        self.der_country = sorted(country_names)
+        self.der_country_groups = sorted(country_groups)
+
         self.der_country_details = country_extractor.get_country_count_details(
+            country_counts)
+
+        self.der_regions = country_extractor.get_country_counts_regions(
             country_counts)
 
         return super(NLPDoc, self).save(**kwargs)
@@ -208,6 +229,8 @@ class DocTopic(Document):
     country = Keyword()
     corpus = Keyword()
     date_published = Date()
+    der_country = Keyword()
+    der_regions = Keyword()
     doc_type = Keyword()
     geo_region = Keyword()
     major_doc_type = Keyword()
@@ -222,6 +245,8 @@ class DocTopic(Document):
         settings = {
             "number_of_shards": 2,
             "number_of_replicas": 1,
+            "max_terms_count": 262144,  # 2 ^ 18
+            "refresh_interval": "30s"
         }
 
     def save(self, **kwargs):
@@ -249,6 +274,7 @@ class NLPDocFacetedSearch(FacetedSearch):
         # use bucket aggregations to define facets
         'author': TermsFacet(field='author', size=100),
         'country': TermsFacet(field='country', size=100),
+        'der_country': TermsFacet(field='der_country', size=100),
         'der_country_groups': TermsFacet(field='der_country_groups', size=100),
         'der_country_details_region': NestedFacet("der_country_details", TermsFacet(field='der_country_details.region', size=100, metric=A("value_count", field='id'))),
         'der_jdc_tags': TermsFacet(field='der_jdc_tags', size=100),
@@ -256,6 +282,7 @@ class NLPDocFacetedSearch(FacetedSearch):
         'major_doc_type': TermsFacet(field='major_doc_type', size=100),
         'adm_region': TermsFacet(field='adm_region', size=100),
         'geo_region': TermsFacet(field='geo_region', size=100),
+        'der_regions': TermsFacet(field='der_regions', size=100),
         'topics_src': TermsFacet(field='topics_src', size=100),
         'year': DateHistogramFacet(field='date_published', calendar_interval='year')
     }
@@ -265,6 +292,9 @@ class NLPDocFacetedSearch(FacetedSearch):
         search = search.extra(track_total_hits=True)
         search = search.source(excludes=["body", "doc"])
         # search.params(preserve_order=True).scan()
+
+        search = search.exclude("term", major_doc_type="Board Documents")
+
         return search
 
     def build_search(self):
@@ -337,12 +367,14 @@ class JDCNLPDocFacetedSearch(FacetedSearch):
         # use bucket aggregations to define facets
         'author': TermsFacet(field='author', size=100),
         'country': TermsFacet(field='country', size=100),
+        'der_country': TermsFacet(field='der_country', size=100),
         'der_country_groups': TermsFacet(field='der_country_groups', size=100),
         'der_jdc_tags': TermsFacet(field='der_jdc_tags', size=100),
         'corpus': TermsFacet(field='corpus', size=100),
         'major_doc_type': TermsFacet(field='major_doc_type', size=100),
         'adm_region': TermsFacet(field='adm_region', size=100),
         'geo_region': TermsFacet(field='geo_region', size=100),
+        'der_regions': TermsFacet(field='der_regions', size=100),
         'topics_src': TermsFacet(field='topics_src', size=100),
         'year': DateHistogramFacet(field='date_published', calendar_interval='year')
     }
@@ -360,7 +392,8 @@ class JDCNLPDocFacetedSearch(FacetedSearch):
 
 def get_indexed_corpus_size(filters=None):
 
-    search = NLPDoc.search()
+    # search = NLPDoc.search()
+    search = NLPDocFacetedSearch().search()
 
     if filters:
         for f in filters:
@@ -497,7 +530,7 @@ def get_metadata_by_ids(doc_ids, index=None, source=None, source_includes=None, 
         index=index)]
 
 
-def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt_only=True, remove_doc_whitespaces=True):
+def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt_only=True, remove_doc_whitespaces=True, log_freq_rate=25):
     # from elasticsearch_dsl import Index
     # i = Index(name=elasticsearch.DOC_INDEX, using=elasticsearch.get_client())
     # i.delete()
@@ -510,6 +543,8 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt
 
     # test_docs_metadata = mongodb.get_collection(
     #     db_name="test_nlp", collection_name="docs_metadata")
+    docs_count = len(docs_metadata)
+    log_freq = docs_count // log_freq_rate
 
     existing_ids = set()
 
@@ -530,8 +565,8 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt
         # doc_path = doc_path.parent / "TXT_ORIG" / doc_path.name
         en_doc_path = doc_path.parent.parent / "EN_TXT_ORIG" / doc_path.name
 
-        if ix and ix % 10000 == 0:
-            print(ix)
+        if ix and ix % log_freq == 0:
+            print(f"Processed {ix} of {docs_count} docs...")
 
         if en_txt_only and not en_doc_path.exists():
             continue
@@ -677,7 +712,8 @@ def update_doc_topic_metadata(docs_metadata):
 
 class NLPDocAggregations:
     def __init__(self, doc_class=None):
-        self.doc_class = doc_class or NLPDoc
+        # Use NLPDocFacetedSearch since we only care about the search method.
+        self.doc_class = doc_class or NLPDocFacetedSearch()  # NLPDoc
 
     def get_search_aggregation(self, field, filters=None, return_ids=False):
         search = self.doc_class.search()
@@ -1038,35 +1074,3 @@ def get_topic_jdc_stats(model_run_info_id, topic_percentage):
     jdc_doc_topics = pd.DataFrame(jdc_doc_topics)
 
     return jdc_doc_stats.merge(jdc_doc_topics, on="id")
-
-
-###########################
-
-def set_other_wb_maj_doc_type_to_PR():
-    other_types = ["Evaluation Document",
-                   "Country Focus", "Economic and Sector Work"]
-    ids = get_ids_from_query(
-        NLPDoc,
-        query=NLPDoc.search().filter(
-            "terms", major_doc_type=other_types).to_dict()["query"],
-
-        ids_only=True
-    )
-    ids = list(ids)
-
-    if ids:
-        print(f"Updating major_doc_type for {len(ids)} documents...")
-
-        ubq = elasticsearch_dsl.UpdateByQuery(
-            index=NLPDoc.Index.name, using=get_client())
-        ubq = ubq.filter("terms", id=ids)
-        ubq = ubq.script(
-            source='ctx._source.major_doc_type=["Publications and Research"];')
-        ubq = ubq.params(scroll_size=50).params(
-            conflicts="proceed")  # .params(requests_per_second=10)
-
-        print("Executing major doc type update...")
-        response = ubq.execute()
-        print(response.to_dict())
-    else:
-        print("No ids that need updating...")

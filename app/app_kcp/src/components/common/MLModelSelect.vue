@@ -78,9 +78,10 @@ export default {
             model_name: o.model_name,
           };
         });
-        this.model_run_info_id = this.model_run_infos[
-          this.model_run_infos.length - 1
-        ].model_run_info_id;
+        this.model_run_info_id =
+          this.model_run_infos[
+            this.model_run_infos.length - 1
+          ].model_run_info_id;
       });
     },
   },

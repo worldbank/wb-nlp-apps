@@ -179,7 +179,11 @@
           <div>
             <div
               id="filter-by-access"
-              class="sidebar-filter wb-ihsn-sidebar-filter filter-by-year filter-box"
+              class="
+                sidebar-filter
+                wb-ihsn-sidebar-filter
+                filter-by-year filter-box
+              "
             >
               <h6 class="togglable"><i class="fa fa-search pr-2"></i>Year</h6>
               <div class="sidebar-filter-entries">
@@ -240,17 +244,17 @@
             </div>
 
             <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
-              <h6 v-b-toggle.geo_region-collapse>
+              <h6 v-b-toggle.der_regions-collapse>
                 <i class="fa fa-filter pr-2"></i> Geographic region
               </h6>
-              <b-collapse id="geo_region-collapse">
+              <b-collapse id="der_regions-collapse">
                 <b-card class="facet-options">
                   <b-form-group v-slot="{ ariaDescribedby }">
                     <b-form-checkbox-group
-                      v-model="selected_facets.geo_region"
-                      :options="getFacetOptions('geo_region')"
+                      v-model="selected_facets.der_regions"
+                      :options="getFacetOptions('der_regions')"
                       :aria-describedby="ariaDescribedby"
-                      name="geo_region"
+                      name="der_regions"
                       stacked
                     ></b-form-checkbox-group>
                   </b-form-group>
@@ -259,17 +263,17 @@
             </div>
 
             <div class="sidebar-filter wb-ihsn-sidebar-filter filter-box">
-              <h6 v-b-toggle.country-collapse>
+              <h6 v-b-toggle.der_country-collapse>
                 <i class="fa fa-filter pr-2"></i> Country
               </h6>
-              <b-collapse id="country-collapse">
+              <b-collapse id="der_country-collapse">
                 <b-card class="facet-options">
                   <b-form-group v-slot="{ ariaDescribedby }">
                     <b-form-checkbox-group
-                      v-model="selected_facets.country"
-                      :options="getFacetOptions('country')"
+                      v-model="selected_facets.der_country"
+                      :options="getFacetOptions('der_country')"
                       :aria-describedby="ariaDescribedby"
-                      name="country"
+                      name="der_country"
                       stacked
                     ></b-form-checkbox-group>
                   </b-form-group>
@@ -360,14 +364,26 @@
 
             <div class="nada-pagination" v-show="hits.length > 0">
               <div
-                class="row mt-3 mb-3 d-flex justify-content-lg-between align-items-center"
+                class="
+                  row
+                  mt-3
+                  mb-3
+                  d-flex
+                  justify-content-lg-between
+                  align-items-center
+                "
               >
                 <div class="col-12 col-md-3 col-lg-4 mb-3 mb-md-0 small">
                   Showing <b>{{ start }}-{{ end }}</b> of
                   <b>{{ total.message }}</b> documents
                 </div>
                 <div
-                  class="filter-action-bar d-flex col-12 col-md-9 col-lg-8 justify-content-lg-end"
+                  class="
+                    filter-action-bar
+                    d-flex
+                    col-12 col-md-9 col-lg-8
+                    justify-content-lg-end
+                  "
                 >
                   <a
                     title="Get API link"
@@ -421,19 +437,24 @@
 
                 <span
                   v-if="
-                    selected_facets.geo_region &&
-                    selected_facets.geo_region.length > 0
+                    selected_facets.der_regions &&
+                    selected_facets.der_regions.length > 0
                   "
                 >
                   <span
-                    v-for="fgeo_region in selected_facets.geo_region"
-                    :key="'country-' + fgeo_region"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
-                    data-type="geo_region"
-                    :data-value="fgeo_region"
-                    >Geo region: {{ fgeo_region }}
+                    v-for="fder_regions in selected_facets.der_regions"
+                    :key="'country-' + fder_regions"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
+                    data-type="der_regions"
+                    :data-value="fder_regions"
+                    >Geo region: {{ fder_regions }}
                     <i
-                      @click="resetGeoRegion(fgeo_region)"
+                      @click="resetGeoRegion(fder_regions)"
                       class="fa fa-close"
                     ></i
                   ></span>
@@ -441,18 +462,26 @@
 
                 <span
                   v-if="
-                    selected_facets.country &&
-                    selected_facets.country.length > 0
+                    selected_facets.der_country &&
+                    selected_facets.der_country.length > 0
                   "
                 >
                   <span
-                    v-for="fcountry in selected_facets.country"
-                    :key="'country-' + fcountry"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
-                    data-type="country"
-                    :data-value="fcountry"
-                    >Country: {{ fcountry }}
-                    <i @click="resetCountry(fcountry)" class="fa fa-close"></i
+                    v-for="fder_country in selected_facets.der_country"
+                    :key="'der_country-' + fder_country"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
+                    data-type="der_country"
+                    :data-value="fder_country"
+                    >Country: {{ fder_country }}
+                    <i
+                      @click="resetCountry(fder_country)"
+                      class="fa fa-close"
+                    ></i
                   ></span>
                 </span>
 
@@ -465,7 +494,12 @@
                   <span
                     v-for="fder_country_groups in selected_facets.der_country_groups"
                     :key="'country-' + fder_country_groups"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="der_country_groups"
                     :data-value="fder_country_groups"
                     >Country group: {{ fder_country_groups }}
@@ -485,7 +519,12 @@
                   <span
                     v-for="fder_jdc_tags in selected_facets.der_jdc_tags"
                     :key="'country-' + fder_jdc_tags"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="der_jdc_tags"
                     :data-value="fder_jdc_tags"
                     >JDC tag: {{ fder_jdc_tags }}
@@ -505,7 +544,12 @@
                   <span
                     v-for="fmajor_doc_type in selected_facets.major_doc_type"
                     :key="'country-' + fmajor_doc_type"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="major_doc_type"
                     :data-value="fmajor_doc_type"
                     >Type: {{ fmajor_doc_type }}
@@ -524,7 +568,12 @@
                   <span
                     v-for="fcorpus in selected_facets.corpus"
                     :key="'country-' + fcorpus"
-                    class="badge badge-default wb-badge-close remove-filter active-facets"
+                    class="
+                      badge badge-default
+                      wb-badge-close
+                      remove-filter
+                      active-facets
+                    "
                     data-type="corpus"
                     :data-value="fcorpus"
                     >Source: {{ fcorpus }}
@@ -618,6 +667,8 @@ export default {
   mounted() {
     // window.vm = this;
     // this.flowSideBar();
+    this.prevent_route_change_search = false;
+    this.prevent_default = false;
 
     this.routeChangeSearch();
   },
@@ -649,8 +700,10 @@ export default {
       if (this.selected_facets.max_year) {
         params.append("max_year", this.selected_facets.max_year);
       }
-      if (this.selected_facets.country) {
-        this.selected_facets.country.map((v) => params.append("country", v));
+      if (this.selected_facets.der_country) {
+        this.selected_facets.der_country.map((v) =>
+          params.append("der_country", v)
+        );
       }
       if (this.selected_facets.der_country_groups) {
         this.selected_facets.der_country_groups.map((v) =>
@@ -672,9 +725,9 @@ export default {
           params.append("major_doc_type", v)
         );
       }
-      if (this.selected_facets.geo_region) {
-        this.selected_facets.geo_region.map((v) =>
-          params.append("geo_region", v)
+      if (this.selected_facets.der_regions) {
+        this.selected_facets.der_regions.map((v) =>
+          params.append("der_regions", v)
         );
       }
 
@@ -740,10 +793,13 @@ export default {
 
       facets: null,
       selected_facets: {},
-      // country: [],
+
+      valid_countries: null,
+
+      // der_country: [],
       // corpus: [],
       // major_doc_type: [],
-      // geo_region: [],
+      // der_regions: [],
 
       api_link: "",
 
@@ -810,7 +866,7 @@ export default {
       }
     },
     getFacetOptions(facet_name) {
-      // const for_sorting = ["country", "der_country_groups", "geo_region"]
+      // const for_sorting = ["der_country", "der_country_groups", "der_regions"]
       if (!this.facets) {
         return [];
       }
@@ -828,7 +884,15 @@ export default {
         };
       });
 
-      return options.sort((a, b) => a.text.localeCompare(b.text));
+      options = options.sort((a, b) => a.text.localeCompare(b.text));
+
+      if (facet_name === "der_country" && this.valid_countries) {
+        options = options.filter((o) => {
+          return this.valid_countries.includes(o.value);
+        });
+      }
+
+      return options;
     },
 
     // SEARCH METHODS
@@ -842,30 +906,27 @@ export default {
       this.selected_facets.max_year = null;
     },
 
-    resetCountry(country) {
-      this.selected_facets.country = this.selected_facets.country.filter(
-        (o) => o !== country
-      );
+    resetCountry(der_country) {
+      this.selected_facets.der_country =
+        this.selected_facets.der_country.filter((o) => o !== der_country);
     },
     resetDerCountryGroups(der_country_groups) {
-      this.selected_facets.der_country_groups = this.selected_facets.der_country_groups.filter(
-        (o) => o !== der_country_groups
-      );
+      this.selected_facets.der_country_groups =
+        this.selected_facets.der_country_groups.filter(
+          (o) => o !== der_country_groups
+        );
     },
     resetDerJDCTags(der_jdc_tags) {
-      this.selected_facets.der_jdc_tags = this.selected_facets.der_jdc_tags.filter(
-        (o) => o !== der_jdc_tags
-      );
+      this.selected_facets.der_jdc_tags =
+        this.selected_facets.der_jdc_tags.filter((o) => o !== der_jdc_tags);
     },
     resetMajorDocType(major_doc_type) {
-      this.selected_facets.major_doc_type = this.selected_facets.major_doc_type.filter(
-        (o) => o !== major_doc_type
-      );
+      this.selected_facets.major_doc_type =
+        this.selected_facets.major_doc_type.filter((o) => o !== major_doc_type);
     },
-    resetGeoRegion(geo_region) {
-      this.selected_facets.geo_region = this.selected_facets.geo_region.filter(
-        (o) => o !== geo_region
-      );
+    resetGeoRegion(der_regions) {
+      this.selected_facets.der_regions =
+        this.selected_facets.der_regions.filter((o) => o !== der_regions);
     },
     resetCorpus(corpus) {
       this.selected_facets.corpus = this.selected_facets.corpus.filter(
@@ -889,12 +950,12 @@ export default {
     },
     keywordSearchBody() {
       const body = {};
-      body["country"] = this.selected_facets.country;
+      body["der_country"] = this.selected_facets.der_country;
       body["der_country_groups"] = this.selected_facets.der_country_groups;
       body["der_jdc_tags"] = this.selected_facets.der_jdc_tags;
       body["corpus"] = this.selected_facets.corpus;
       body["major_doc_type"] = this.selected_facets.major_doc_type;
-      body["geo_region"] = this.selected_facets.geo_region;
+      body["der_regions"] = this.selected_facets.der_regions;
 
       return body;
     },
@@ -909,6 +970,8 @@ export default {
     clearSearchInput() {
       this.query_cache = "";
       this.removeFile();
+      this.suggestions = [];
+      this.checkUpdateRoute();
 
       this.prevent_default = false;
       this.defaultKeywordSearch();
@@ -969,6 +1032,18 @@ export default {
         this.$route.query.search_type !== this.search_type
       );
     },
+    checkUpdateRoute() {
+      if (this.updateRoute()) {
+        this.$router.replace({
+          name: "search",
+          query: {
+            search_text: this.query,
+            search_type: this.search_type,
+            // page: this.curr_page_num,
+          },
+        });
+      }
+    },
     sendSearch: function (page_num = 1) {
       this.prevent_route_change_search = true;
       this.prevent_default = false;
@@ -995,16 +1070,7 @@ export default {
         return;
       }
 
-      if (this.updateRoute()) {
-        this.$router.replace({
-          name: "search",
-          query: {
-            search_text: this.query,
-            search_type: this.search_type,
-            // page: this.curr_page_num,
-          },
-        });
-      }
+      this.checkUpdateRoute();
     },
     sendKeywordSearch: function (from = 0) {
       if (from > this.total.value) {
@@ -1151,6 +1217,7 @@ export default {
             this.highlights = cached.highlights;
             this.facets = cached.facets;
             // this.selected_facets = cached.filters;
+            this.valid_countries = cached.valid_countries;
           }
 
           this.next = this.curr_page_num + 1;
@@ -1210,6 +1277,7 @@ export default {
               this.highlights = response.data.highlights;
               this.facets = response.data.facets;
               // this.selected_facets = response.data.filters;
+              this.valid_countries = response.data.valid_countries;
             }
 
             this.search_cache[search_cache_key] = {
@@ -1225,6 +1293,8 @@ export default {
               this.search_cache[search_cache_key].facets = response.data.facets;
               this.search_cache[search_cache_key].filters =
                 response.data.filters;
+              this.search_cache[search_cache_key].valid_countries =
+                response.data.valid_countries;
             }
 
             this.next = this.curr_page_num + 1;
@@ -1271,6 +1341,8 @@ export default {
               this.search_cache[search_cache_key].facets = response.data.facets;
               this.search_cache[search_cache_key].filters =
                 response.data.filters;
+              this.search_cache[search_cache_key].valid_countries =
+                response.data.valid_countries;
             }
           }
         })

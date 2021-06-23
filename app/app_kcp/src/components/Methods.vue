@@ -111,6 +111,7 @@
                   >Visualizations</router-link
                 >
               </li>
+              <!--
               <li>
                 <router-link
                   to="/methods/cataloguing"
@@ -121,6 +122,7 @@
                   >Cataloguing</router-link
                 >
               </li>
+              -->
 
               <li>
                 <router-link to="/methods/training-materials"

@@ -1,5 +1,5 @@
 from wb_nlp.interfaces import elasticsearch
-from wb_nlp.types.metadata_enums import MajorDocTypes
+from wb_cleaning.types.metadata_enums import MajorDocTypes
 # Refugee topic for mallet model: 6fd8b418cbe4af7a1b3d24debfafa1ee
 # TOPIC_MODEL_ID = "4472e70cc0a0c2263622b4cbe3aa4644"
 TOPIC_MODEL_ID = "6fd8b418cbe4af7a1b3d24debfafa1ee"
@@ -8,7 +8,7 @@ TOPIC_PERCENTAGE = 0.01
 
 TOPIC_THRESHOLD = 0.01
 AT_LEAST_NUM_TAGS = 2
-DOC_TYPE = [MajorDocTypes.publications_and_research,
+DOC_TYPE = [MajorDocTypes.publications_and_reports,
             MajorDocTypes.project_documents]
 
 topic_percentage = {TOPIC_ID: TOPIC_PERCENTAGE}

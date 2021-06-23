@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="text-justify">
     <h1>{{ page_title }}</h1>
     <div>
       <br />
@@ -102,7 +102,7 @@
       </div>
 
       <a id="gc-race-chart"></a>
-      <p v-if="countries_volume" class="lead">
+      <p v-if="countries_volume">
         We also show a race chart of the cumulative country mentions in
         documents. This animated chart provides a glimpse on how countries'
         popularity, as measured by the total frequency of mentions, evolve over
@@ -128,27 +128,21 @@
         <br />
       </div>
 
-      <p class="lead">
-        The World Bank corpus contains metadata on the administrative and
-        geographic regions that is relevant to documents. The charts below use
-        these metadata to show insights on the relative popularity of regions
-        over time within the World Bank corpus.
+      <p>
+        We also get the regions corresponding to the countries mentioned in the
+        documents. This information allows us to see the trends in the volume of
+        documents by region. Note that a document may be associated to multiple
+        regions, in which case, the document is counted multiple times (once per
+        region). The effect of this can be observed in the "share" view. This
+        view is normalized by the total number of unique documents in a given
+        year. But since documents are counted as many times as the number of
+        regions extracted, the resulting values show more than 100%.
       </p>
-      <br />
-      <VolumeChart
-        v-if="adm_region"
-        :data="adm_region"
-        :field="adm_region.field"
-        field_name="admin regions"
-      />
-      <br />
       <br />
 
       <VolumeChart
-        v-if="geo_region"
-        :grid_top="120"
-        :data="geo_region"
-        :field="geo_region.field"
+        ref="geoRegionChart"
+        :loading="loading"
         field_name="geographic regions"
       />
       <br />
@@ -188,16 +182,12 @@ export default {
 
       doc_type_options: [
         { value: "Full corpus", text: "Full corpus" },
-        { value: "WB - Board Documents", text: "WB - Board Documents" },
+        { value: "Board Documents", text: "Board Documents" },
+
+        { value: "Project Documents", text: "Project Documents" },
         {
-          value: "WB - Economic and Sector Work",
-          text: "WB - Economic and Sector Work",
-        },
-        { value: "WB - Project Documents", text: "WB - Project Documents" },
-        { value: "WB - Publications", text: "WB - Publications" },
-        {
-          value: "WB - Publications and Research",
-          text: "WB - Publications and Research",
+          value: "Publications and Reports",
+          text: "Publications and Reports",
         },
       ],
       doc_type_filter: "Full corpus",
@@ -209,9 +199,6 @@ export default {
       corpus_size: 200000,
       org_count: 14,
       total_tokens: 1029000000,
-
-      adm_region: null,
-      geo_region: null,
 
       countries_volume: null,
       countries_share: null,
@@ -239,8 +226,7 @@ export default {
       this.loading = true;
 
       const params = new URLSearchParams();
-      params.append("fields", "adm_region");
-      params.append("fields", "geo_region");
+      params.append("fields", "der_regions");
 
       this.$http
         .get(this.$config.corpus_url + "/get_corpus_volume_by", {
@@ -249,8 +235,7 @@ export default {
         .then((response) => {
           let data = response.data;
 
-          this.adm_region = data.adm_region;
-          this.geo_region = data.geo_region;
+          this.$refs.geoRegionChart.setData(data.der_regions);
 
           this.loading = false;
         })
@@ -609,13 +594,15 @@ export default {
         if (this.$refs.countryVolumeMap) {
           this.$refs.countryVolumeMap.clearQueue();
 
-          this.$refs.countryVolumeMap.timeseriesCountryData = this.timeseriesCountryDataVolume;
+          this.$refs.countryVolumeMap.timeseriesCountryData =
+            this.timeseriesCountryDataVolume;
         }
 
         if (this.$refs.countryShareMap) {
           this.$refs.countryShareMap.clearQueue();
 
-          this.$refs.countryShareMap.timeseriesCountryData = this.timeseriesCountryDataShare;
+          this.$refs.countryShareMap.timeseriesCountryData =
+            this.timeseriesCountryDataShare;
         }
         // this.$refs.countryVolumeMap.startAnimation();
         // this.$refs.countryShareMap.startAnimation();

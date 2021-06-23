@@ -26,8 +26,8 @@
                 params: { doc_id: result.id, metadata: result },
               }"
             > -->
-              <!-- <router-link :to="document_link" :title="result.title"> -->
-              {{ result.title }}</router-link
+              <!-- <router-link :to="document_link" :title="normalizeTitle(result.title)"> -->
+              {{ normalizeTitle(result.title) }}</router-link
             >
           </h5>
 
@@ -56,8 +56,9 @@
             <div class="small ml-md-3 mt-2 mt-md-0"> -->
 
             <div class="small mt-2 mt-md-0">
-              Corpus: {{ result.corpus
-              }}<span v-if="match && match.rank">, Rank: {{ match.rank }}</span>
+              Source:
+              <a :href="result.url_pdf" target="_blank">{{ result.corpus }}</a
+              ><span v-if="match && match.rank">, Rank: {{ match.rank }}</span>
               <!-- <span v-if="match && match.score"
                 >, Score: {{ truncate(match.score, 4) }}</span
               > -->
@@ -88,7 +89,7 @@
             </div>
             <b-modal
               :id="'modal-scoped-meta-' + random_id() + '-' + result.id"
-              :title="result.title"
+              :title="normalizeTitle(result.title)"
               size="lg"
             >
               <DocumentMetadata :metadata="result" />
@@ -106,7 +107,7 @@
             </div>
             <b-modal
               :id="'modal-scoped-' + random_id() + '-' + result.id"
-              :title="result.title"
+              :title="normalizeTitle(result.title)"
               size="lg"
             >
               <DocumentTopic :doc_id="result.id" />
@@ -117,7 +118,7 @@
               <span class="study-by">{{
                 result.major_doc_type[0].replace(
                   "Publications and Research",
-                  "Document and Research"
+                  "Publications and Reports"
                 )
               }}</span>
             </div>
@@ -214,6 +215,12 @@ export default {
     },
   },
   methods: {
+    normalizeTitle(title) {
+      if (title.endsWith(".pdf")) {
+        title = title.slice(0, title.length - 4);
+      }
+      return title;
+    },
     truncate(value, size) {
       return (value.toFixed(size) * 100 + "").slice(0, size + 1);
     },

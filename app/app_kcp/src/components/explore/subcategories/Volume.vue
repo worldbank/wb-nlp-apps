@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="text-justify">
     <h1>{{ page_title }}</h1>
     <div>
       <br />
@@ -8,36 +8,31 @@
         or the length of content in a document. In this page, we show some
         summary statistics regarding the breakdown of document count and total
         number of tokens present in the corpus by source over time. Furthermore,
-        we show some World Bank specific breakdowns below.
+        we also show the breakdown of the corpus by document type.
       </p>
 
       <br />
 
-      <VolumeChart
-        v-if="corpus"
-        :data="corpus"
-        :field="corpus.field"
-        field_name="source"
-      />
+      <VolumeChart ref="corpusChart" :loading="loading" field_name="source" />
       <br />
       <br />
 
       <p>
-        The World Bank corpus, via its API, contains standardized data on
-        document types and topics. We use these standardized metadata to further
-        breakdown the World Bank corpus to also show trends of document count
-        and token composition by document type and topics.
+        We classified documents from the different sources into two main groups:
+        <span style="font-weight: bold"> Project Documents</span> and
+        <span style="font-weight: bold">Publications and Reports</span>. The
+        charts below show the trend of the volume and token counts of published
+        documents under each of these document types.
       </p>
       <br />
       <br />
 
       <VolumeChart
-        v-if="major_doc_type"
-        :data="major_doc_type"
-        :field="major_doc_type.field"
-        field_name="document type (WB)"
+        ref="majorDocTypeChart"
+        :loading="loading"
+        field_name="document type"
       />
-      <br />
+      <!-- <br />
       <br />
       <p>
         As documents may be tagged with multiple topics, we see that the
@@ -49,11 +44,10 @@
       <br />
       <br />
       <VolumeChart
-        v-if="topics_src"
-        :data="topics_src"
-        :field="topics_src.field"
-        field_name="topic (WB)"
-      />
+        ref="topicsSrcChart"
+        :loading="loading"
+        field_name="topic"
+      /> -->
     </div>
   </div>
 </template>
@@ -191,7 +185,7 @@ export default {
       const params = new URLSearchParams();
       params.append("fields", "corpus");
       params.append("fields", "major_doc_type");
-      params.append("fields", "topics_src");
+      // params.append("fields", "topics_src");
 
       this.$http
         .get(this.$config.corpus_url + "/get_corpus_volume_by", {
@@ -200,9 +194,9 @@ export default {
         .then((response) => {
           let data = response.data;
 
-          this.corpus = data.corpus;
-          this.major_doc_type = data.major_doc_type;
-          this.topics_src = data.topics_src;
+          this.$refs.corpusChart.setData(data.corpus);
+          this.$refs.majorDocTypeChart.setData(data.major_doc_type);
+          // this.$refs.topicsSrcChart.setData(data.topics_src);
 
           this.loading = false;
         })

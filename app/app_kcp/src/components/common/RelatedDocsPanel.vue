@@ -49,18 +49,18 @@
                   }"
                 >
                   <div class="truncated-title">
-                    {{ result.metadata.title }}
+                    {{ normalizeTitle(result.metadata.title) }}
                   </div></router-link
                 >
 
                 <!--
                 <a
                   :href="result.metadata.url_pdf"
-                  :title="result.metadata.title"
+                  :title="normalizeTitle(result.metadata.title)"
                   target="_blank"
                 >
                   <div class="truncated-title">
-                    {{ result.metadata.title }}
+                    {{ normalizeTitle(result.metadata.title) }}
                   </div>
                 </a> -->
               </span>
@@ -155,6 +155,12 @@ export default {
     };
   },
   methods: {
+    normalizeTitle(title) {
+      if (title.endsWith(".pdf")) {
+        title = title.slice(0, title.length - 4);
+      }
+      return title;
+    },
     getDate: function (date) {
       date = new Date(date).toDateString();
       date = date.split(" ");

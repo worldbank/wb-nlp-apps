@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="text-justify">
     <h1>{{ page_title }}</h1>
     <div>
       <br />
@@ -26,9 +26,25 @@
         organization's published content. We tried to extract and curate as much
         of the metadata found on each source's page.
       </p>
-      <br />
+      <p>
+        We also augment the corpus with documents from other external
+        publication sources such as
+        <a
+          href="https://isi-iass.org/home/services/the-survey-statistician"
+          target="_blank"
+          >The Survey Statistician</a
+        >
+        (International Association of Survey Statisticians),
+        <a href="https://www.jstatsoft.org" target="_blank"
+          >Journal of Statistical Software</a
+        >, and the text descriptions of
+        <a href="https://unstats.un.org/sdgs/metadata/" target="_blank"
+          >SDG indicators</a
+        >.<br />
+      </p>
+
       <h3>List of data sources</h3>
-      <div class="table-container">
+      <div class="table-container text-left">
         <b-table :fields="fields" :items="items">
           <template #cell(name)="data">
             <!-- `data.value` is the value after formatted by the Formatter -->
@@ -47,9 +63,10 @@ export default {
     page_title: String,
   },
   mounted() {
-    this.$http.get("/static/data/corpus_details.json").then((response) => {
-      this.items = response.data;
-    });
+    this.items = this.$config.corpus_details;
+    // this.$http.get("/static/data/corpus_details.json").then((response) => {
+    //   this.items = response.data;
+    // });
   },
   data: function () {
     return {
