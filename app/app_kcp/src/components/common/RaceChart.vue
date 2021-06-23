@@ -131,7 +131,7 @@ export default {
       return this.years[this.startIndex];
     },
     isReady() {
-      return this.data_loaded && this.flags;
+      return this.data_loaded && this.flags && this.countryRegionColors;
     },
     option() {
       let vm = this;
@@ -140,10 +140,10 @@ export default {
           text: vm.title,
         },
         grid: {
-          top: 40,
-          bottom: 30,
-          left: 150,
-          right: 80,
+          top: 25,
+          bottom: 25,
+          left: 200,
+          right: 75,
         },
         xAxis: {
           max: "dataMax",
@@ -169,10 +169,7 @@ export default {
             },
             formatter: function (value) {
               return (
-                vm.getCountryCodeDetails(value).name +
-                "{flag|" +
-                vm.getFlag(value) +
-                "}"
+                vm.getCountryName(value) + "{flag|" + vm.getFlag(value) + "}"
               );
             },
             rich: {
@@ -344,6 +341,19 @@ export default {
     getCountryCodeDetails(code) {
       return this.iso3map[code] || {};
     },
+    getCountryName(code) {
+      const name_length = 20;
+      var name = "";
+      var detail = this.getCountryCodeDetails(code);
+
+      if (detail.name) {
+        name = "" + detail.name;
+        if (name && name.length > name_length) {
+          name = name.slice(0, name_length) + "...";
+        }
+      }
+      return name;
+    },
     loadInputData() {
       var start_year = "1960-01-01";
       this.data_loaded = false;
@@ -384,12 +394,7 @@ export default {
             val = countryLastValue[code];
           }
 
-          this.data.push([
-            val,
-            this.getCountryCodeDetails(code).name,
-            year,
-            code,
-          ]);
+          this.data.push([val, this.getCountryName(code), year, code]);
           //   console.log(this.data[this.data.length - 1]);
         }
       }
