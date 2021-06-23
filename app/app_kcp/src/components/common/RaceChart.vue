@@ -193,7 +193,8 @@ export default {
             itemStyle: {
               color: function (param) {
                 return (
-                  vm.countryColors[param.value[3]] || "hsl(204.1, 58.7%, 59.2%)"
+                  vm.countryRegionColors[param.value[3]] ||
+                  "hsl(204.1, 58.7%, 59.2%)"
                 );
               },
             },
@@ -259,6 +260,7 @@ export default {
         "United Kingdom": "#00247d",
         "United States": "#b22234",
       },
+      countryRegionColors: null,
       data: null,
       flags: null,
       years: null,
@@ -429,6 +431,12 @@ export default {
       this.$http.get("/static/data/emoji-flags.json").then((response) => {
         this.flags = response.data;
       });
+
+      this.$http
+        .get("/nlp/static/geo/get_country_region_colors")
+        .then((response) => {
+          this.countryRegionColors = response.data.country_region_colors;
+        });
     },
     clearQueue() {
       this.queue.forEach((panel) => clearTimeout(panel));

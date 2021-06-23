@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from wb_nlp import dir_manager
 from wb_nlp.interfaces import mongodb
 from wb_nlp.types.models import ModelTypes, IndicatorTypes
-from .routers import cleaner, models, corpus, search
+from .routers import cleaner, models, corpus, search, geo
 from .routers.subrouters import lda, mallet, word2vec, wdi, indicators, microdata
 from .common.utils import get_validated_model
 
@@ -78,6 +78,11 @@ app.include_router(
 app.include_router(
     microdata.router,
     prefix="/nlp/extra",
+    responses={404: {"description": "Not found"}},
+)
+app.include_router(
+    geo.router,
+    prefix="/nlp/static",
     responses={404: {"description": "Not found"}},
 )
 
