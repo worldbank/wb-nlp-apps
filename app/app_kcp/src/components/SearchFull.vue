@@ -289,11 +289,23 @@
                   <b-form-group v-slot="{ ariaDescribedby }">
                     <b-form-checkbox-group
                       v-model="selected_facets.der_country_groups"
-                      :options="getFacetOptions('der_country_groups')"
                       :aria-describedby="ariaDescribedby"
                       name="der_country_groups"
                       stacked
-                    ></b-form-checkbox-group>
+                    >
+                      <b-form-checkbox
+                        v-for="opt in getFacetOptions('der_country_groups')"
+                        :key="'cg-' + opt.value"
+                        :value="opt.value"
+                        ><span :id="'id-' + opt.value"> {{ opt.text }}</span>
+                        <b-tooltip
+                          :target="'id-' + opt.value"
+                          placement="topright"
+                        >
+                          {{ country_groups_names[opt.value] }}
+                        </b-tooltip>
+                      </b-form-checkbox>
+                    </b-form-checkbox-group>
                   </b-form-group>
                 </b-card>
               </b-collapse>
@@ -616,10 +628,11 @@ export default {
   },
   mixins: [saveState],
   mounted() {
-    // window.vm = this;
+    window.vm = this;
     // this.flowSideBar();
     this.prevent_route_change_search = false;
     this.prevent_default = false;
+    this.getCountryGroupsNames();
 
     this.routeChangeSearch();
   },
@@ -739,6 +752,7 @@ export default {
       selected_facets: {},
 
       valid_countries: null,
+      country_groups_names: null,
 
       // der_country: [],
       // corpus: [],
@@ -1284,6 +1298,13 @@ export default {
       if (!this.loading && !this.prevent_default) {
         this.sendKeywordSearch(0);
       }
+    },
+    getCountryGroupsNames() {
+      this.$http
+        .get("/nlp/search/get_country_groups_names")
+        .then((response) => {
+          this.country_groups_names = response.data.country_groups_names;
+        });
     },
   },
   watch: {
