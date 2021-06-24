@@ -4,11 +4,11 @@
     <div>
       <br />
       <p>
-        Knowledge produced may be measured by the volume of documents published
-        or the length of content in a document. In this page, we show some
-        summary statistics regarding the breakdown of document count and total
-        number of tokens present in the corpus by source over time. Furthermore,
-        we also show the breakdown of the corpus by document type.
+        We provide here some summary statistics on the document count and on the
+        number of tokens (useful words) by source, over time, and by document
+        type (2 categories) in the corpus used for our catalog (not the training
+        corpus, which includes more sources). The corpus is currently composed
+        in majority of documents from the World Bank.
       </p>
 
       <br />

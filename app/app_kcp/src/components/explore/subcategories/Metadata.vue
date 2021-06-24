@@ -4,17 +4,21 @@
     <div>
       <br />
       <p>
-        Information on each document is collected at the stage of web scraping.
-        This includes the source, title, author, abstract if available, URL.
-        Some website provide more information than others. The WB for example
-        provides topic tagging, region, document type, link to projects, and
-        much more. This information is not available, and cannot be deducted,
-        for other sources. Therefore, not all metadata are available for all
-        documents. We augment these metadata by running data extraction scripts
-        (such as country counts,…) or NLP models. All metadata are stored in a
-        MongoDB database (content available in CSVs here or via API here). This
-        meta-database is maintained on a daily basis, using a Nifi-based
-        automation process.
+        Metadata on each document is collected at the stage of web scraping. The
+        metadata typically include the source, title, author, abstract if
+        available, and the link to the PDF document. Some websites provide more
+        information than others. Documents from the World Bank Documents and
+        Reports provide significantly more metadata, accessible via API,
+        including topic tagging (based on the World Bank’s specific taxonomy of
+        topics, different from the topics we extract from LDA models),
+        geographic coverage, document type and sub-type, and more. We cannot
+        extract or generate similar information from other sources. We therefore
+        limit the metadata elements to a core list. We augment these metadata
+        elements by running data extraction scripts or NLP models. These
+        metadata are processed, normalized, and stored in a MongoDB database.
+        The metadata contained in the MongoDB database are then augmented and
+        stored into Elasticsearch. Below is the list of available metadata
+        fields.
       </p>
       <div class="meta-schema">
         <div class="sc-hKwCoD kOJmuK">
@@ -1754,6 +1758,12 @@
           </div>
         </div>
       </div>
+
+      <p>
+        A separate Elasticsearch index is used to store the generated LDA topics for each document. We also use Milvus, a vector index, to store the vectors produced for each document by the different LDA topic models and word2vec models. All indexes use unique identifiers that can be used to connect to the metadata.
+      </p><p>
+An automated pipeline is implemented to automate the processing and generation of metadata and vectors for new documents.
+</p>
     </div>
   </div>
 </template>

@@ -190,7 +190,6 @@ export default {
 
       doc_type_options: [
         { value: "Full corpus", text: "Full corpus" },
-        { value: "Board Documents", text: "Board Documents" },
 
         { value: "Project Documents", text: "Project Documents" },
         {
