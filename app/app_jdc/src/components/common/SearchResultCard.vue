@@ -45,8 +45,30 @@
             ></read-more>
           </div>
 
-          <div v-if="result.country" class="study-country">
-            {{ result.country[0] }}, {{ result.year }}
+          <div v-if="result.der_country" class="study-country">
+            {{ result.der_country[0]
+            }}<span :id="'c-' + result.id" v-if="result.der_country.length > 1">
+              +{{ result.der_country.length - 1 }} other<span
+                v-if="result.der_country.length > 2"
+                >s</span
+              ></span
+            >, {{ result.year }}
+
+            <b-tooltip
+              :target="'c-' + result.id"
+              triggers="hover"
+              placement="rightbottom"
+            >
+              <div style="max-height: 150px; overflow-y: scroll">
+                <div
+                  v-for="dc in result.der_country.slice(1)"
+                  :key="'dc-' + dc + '-' + result.id"
+                >
+                  <span>{{ dc }}</span
+                  ><br />
+                </div>
+              </div>
+            </b-tooltip>
           </div>
 
           <div class="study-id d-md-flex mt-2">

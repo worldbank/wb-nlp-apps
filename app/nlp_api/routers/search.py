@@ -27,13 +27,6 @@ router = APIRouter(
 )
 
 
-@ router.get("/get_country_groups_names")
-async def get_country_groups_names():
-    """This returns the mapping of country groups to their expanded names.
-    """
-    return dict(country_groups_names=country_extractor.country_groups_names)
-
-
 @ router.get("/keyword")
 async def keyword_search(
     query: str,

@@ -1301,7 +1301,7 @@ export default {
     },
     getCountryGroupsNames() {
       this.$http
-        .get("/nlp/search/get_country_groups_names")
+        .get("/nlp/static/geo/get_country_groups_names")
         .then((response) => {
           this.country_groups_names = response.data.country_groups_names;
         });
