@@ -19,11 +19,19 @@
         each country is mentioned in each document. This count is a simple word
         search based on a lookup list of country names (which includes multiple
         ways a country name can be spelled out; script and lookup file available
-        <a href="#">here</a>). The counts are added to each document’s metadata.
-        Combined with the information on the documents’ publication date and
-        origin, this information allows us to generate aggregated counts by
-        country and year (available <a href="#">here</a>), displayed in the
-        following map.
+        <a
+          href="https://github.com/worldbank/wb-nlp-tools/blob/main/src/wb_cleaning/extraction/country_extractor.py"
+          target="_blank"
+          >here</a
+        >). The counts are added to each document’s metadata. Combined with the
+        information on the documents’ publication date and origin, this
+        information allows us to generate aggregated counts by country and year
+        (available
+        <a
+          href="/nlp/corpus/get_extracted_countries_stats?major_doc_type="
+          target="_blank"
+          >here</a
+        >), displayed in the following map.
       </p>
 
       <h4>Extracted countries timeseries</h4>
