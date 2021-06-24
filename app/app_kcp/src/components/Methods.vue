@@ -14,6 +14,7 @@
         <div class="col-12">
           <i class="fas fa-search fa-2x" aria-hidden="true"></i>
           <h1>Methods &amp; Tools</h1>
+          <!--
           <p>
             Describes the sources and coverage of our corpus, provides
             interactive visualizations of topic composition (extracted from LDA
@@ -21,6 +22,7 @@
             composition. Also provides access to word embedding models,
             similarity measures, and others.
           </p>
+           -->
         </div>
       </div>
     </header>
