@@ -45,35 +45,39 @@
             ></read-more>
           </div>
 
-          <div v-if="result.der_country" class="study-country">
+          <div
+            v-if="result.der_country"
+            class="study-country"
+            :id="'c-' + result.id"
+          >
             {{ result.der_country[0]
             }}<span v-if="result.der_country.length > 1">
-              &nbsp;<span
-                style="border-bottom: 1px dotted #009fda"
-                :id="'c-' + result.id"
+              &nbsp;<span style="border-bottom: 1px dotted #009fda"
                 >+{{ result.der_country.length - 1 }} other<span
                   v-if="result.der_country.length > 2"
                   >s</span
                 ></span
               ></span
             >, {{ result.year }}
-
-            <b-tooltip
-              :target="'c-' + result.id"
-              triggers="hover focus click"
-              placement="rightbottom"
-            >
-              <div style="max-height: 150px; overflow-y: scroll">
-                <div
-                  v-for="dc in result.der_country.slice(1)"
-                  :key="'dc-' + dc + '-' + result.id"
-                >
-                  <span>{{ dc }}</span
-                  ><br />
-                </div>
-              </div>
-            </b-tooltip>
           </div>
+
+          <b-tooltip
+            v-if="result.der_country"
+            :target="'c-' + result.id"
+            triggers="hover focus click blur"
+            placement="leftbottom"
+            :delay="100"
+          >
+            <div style="max-height: 150px; overflow-y: scroll">
+              <div
+                v-for="dc in result.der_country.slice(1)"
+                :key="'dc-' + dc + '-' + result.id"
+              >
+                <span>{{ dc }}</span
+                ><br />
+              </div>
+            </div>
+          </b-tooltip>
 
           <div class="study-id d-md-flex mt-2">
             <!-- <span class="badge badge-pill badge-secondary"
