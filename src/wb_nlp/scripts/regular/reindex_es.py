@@ -4,9 +4,11 @@ from wb_nlp.interfaces import elasticsearch, mongodb
 
 def reindex_es(ignore_existing=False, en_txt_only=True, remove_doc_whitespaces=True, delete_index=False):
     if delete_index:
+        print("Deleting index...")
         i = Index(name=elasticsearch.DOC_INDEX,
                   using=elasticsearch.get_client())
         i.delete()
+        elasticsearch.NLPDoc.init()
 
     docs_metadata_coll = mongodb.get_collection(
         db_name="test_nlp", collection_name="docs_metadata")
@@ -24,5 +26,28 @@ def main(ignore_existing=False, en_txt_only=True, remove_doc_whitespaces=True, d
 
 
 if __name__ == "__main__":
+    import argparse
 
-    main()
+    def boolean_string(s):
+        if s not in {'False', 'True'}:
+            raise ValueError('Not a valid boolean string')
+        return s == 'True'
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--ignore-existing', dest='ignore_existing',
+                        type=boolean_string, default=False)
+
+    parser.add_argument('--en-txt-only', dest='en_txt_only',
+                        type=boolean_string, default=True)
+
+    parser.add_argument('--remove-doc-whitespaces', dest='remove_doc_whitespaces',
+                        type=boolean_string, default=True)
+
+    parser.add_argument('--delete-index', dest='delete_index',
+                        type=boolean_string, default=False)
+
+    args = parser.parse_args()
+    print(args)
+
+    main(**vars(args))

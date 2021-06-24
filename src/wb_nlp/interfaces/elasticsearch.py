@@ -15,9 +15,11 @@ from elasticsearch_dsl import Search
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet, DateHistogramFacet, NestedFacet
 from elasticsearch_dsl.query import MultiMatch, Match, Term
-from wb_cleaning.extraction import country_extractor, jdc_tags_extractor
+from wb_cleaning.extraction import country_extractor, jdc_tags_extractor, acronyms
+from wb_cleaning.types.metadata_enums import MajorDocTypes
 
 from wb_nlp.dir_manager import get_path_from_root
+from wb_nlp.interfaces import mongodb
 
 connections.create_connection(hosts=['es01'])
 
@@ -50,6 +52,7 @@ class NLPDoc(Document):
     country = Keyword()
     corpus = Keyword()
     date_published = Date()
+    der_acronyms = Object()
     der_countries = Object()
     der_country = Keyword()
     der_country_counts = Object()
@@ -101,7 +104,7 @@ class NLPDoc(Document):
         country_groups = set()
         country_names = []
 
-        if self.der_country_counts is not None:
+        if self.der_country_counts:
             sorted_country_codes = sorted(
                 self.der_country_counts, key=lambda x: self.der_country_counts[x], reverse=True)
             for code in sorted_country_codes:
@@ -128,6 +131,16 @@ class NLPDoc(Document):
 
         self.der_regions = country_extractor.get_country_counts_regions(
             country_counts)
+
+        self.der_acronyms = acronyms.extract_acronyms_array(self.body)
+
+        doc_meta = self.to_dict()
+        if "body" in doc_meta:
+            del doc_meta["body"]
+        doc_meta["_id"] = doc_meta["id"]
+
+        mongodb.get_es_nlp_doc_metadata_collection().update_one({"_id": doc_meta["_id"]}, {
+            "$set": doc_meta}, upsert=True)
 
         return super(NLPDoc, self).save(**kwargs)
 
@@ -278,7 +291,7 @@ class NLPDocFacetedSearch(FacetedSearch):
         'country': TermsFacet(field='country', size=100),
         'der_country': TermsFacet(field='der_country', size=100),
         'der_country_groups': TermsFacet(field='der_country_groups', size=100),
-        'der_country_details_region': NestedFacet("der_country_details", TermsFacet(field='der_country_details.region', size=100, metric=A("value_count", field='id'))),
+        # 'der_country_details_region': NestedFacet("der_country_details", TermsFacet(field='der_country_details.region', size=100, metric=A("value_count", field='id'))),
         'der_jdc_tags': TermsFacet(field='der_jdc_tags', size=100),
         'corpus': TermsFacet(field='corpus', size=100),
         'major_doc_type': TermsFacet(field='major_doc_type', size=100),
@@ -299,62 +312,62 @@ class NLPDocFacetedSearch(FacetedSearch):
 
         return search
 
-    def build_search(self):
-        """
-        Construct the ``Search`` object.
-        """
-        s = self.search()
-        s = self.query(s, self._query)
-        s = self.filter(s)
-        if self.fields:
-            s = self.highlight(s)
-        s = self.sort(s)
-        self.aggregate(s)
+    # def build_search(self):
+    #     """
+    #     Construct the ``Search`` object.
+    #     """
+    #     s = self.search()
+    #     s = self.query(s, self._query)
+    #     s = self.filter(s)
+    #     if self.fields:
+    #         s = self.highlight(s)
+    #     s = self.sort(s)
+    #     self.aggregate(s)
 
-        # # Region aggregation from nested field
-        d = {
-            "query": {
-                "match_all": {}
-            },
-            "aggs": {
-                "der_country_details": {
-                    "nested": {
-                        "path": "der_country_details"
-                    },
-                    "aggs": {
-                        "top_regions": {
-                            "terms": {
-                                "field": "der_country_details.region"
-                            },
-                            "aggs": {
-                                "region_to_doc": {
-                                    "reverse_nested": {},
-                                    "aggs": {
-                                        "doc_count_per_region": {
-                                            "value_count": {
-                                                "field": "id"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    #     # # Region aggregation from nested field
+    #     d = {
+    #         "query": {
+    #             "match_all": {}
+    #         },
+    #         "aggs": {
+    #             "der_country_details": {
+    #                 "nested": {
+    #                     "path": "der_country_details"
+    #                 },
+    #                 "aggs": {
+    #                     "top_regions": {
+    #                         "terms": {
+    #                             "field": "der_country_details.region"
+    #                         },
+    #                         "aggs": {
+    #                             "region_to_doc": {
+    #                                 "reverse_nested": {},
+    #                                 "aggs": {
+    #                                     "doc_count_per_region": {
+    #                                         "value_count": {
+    #                                             "field": "id"
+    #                                         }
+    #                                     }
+    #                                 }
+    #                             }
+    #                         }
+    #                     }
+    #                 }
+    #             }
+    #         }
+    #     }
 
-        query = s.to_dict()
-        query['aggs']['_filter_der_country_details_region']['aggs'] = d['aggs']
+    #     query = s.to_dict()
+    #     query['aggs']['_filter_der_country_details_region']['aggs'] = d['aggs']
 
-        # `from_dict` will not have the index and doc_type properties so it will search for all the indices available.
-        # Since we are just interested in updating the aggregation, we can just create a new search object from the dict
-        # and override the aggs attribute of the original search object that actually index- and doc_type-aware.
+    #     # `from_dict` will not have the index and doc_type properties so it will search for all the indices available.
+    #     # Since we are just interested in updating the aggregation, we can just create a new search object from the dict
+    #     # and override the aggs attribute of the original search object that actually index- and doc_type-aware.
 
-        search = Search.from_dict(query)
-        s.aggs = search.aggs
+    #     search = Search.from_dict(query)
+    #     s.aggs = search.aggs
 
-        return s
+    #     return s
 
 
 class JDCNLPDocFacetedSearch(FacetedSearch):
@@ -578,6 +591,13 @@ def make_nlp_docs_from_docs_metadata(docs_metadata, ignore_existing=True, en_txt
 
         if not doc_path.exists():
             continue
+
+        # Process major document type here so that we don't need to run a
+        # separate processing later.
+        major_doc_types = data.get("major_doc_type")
+        if major_doc_types:
+            data["major_doc_type"] = [MajorDocTypes(
+                mdt).value for mdt in major_doc_types]
 
         # create and save and article
         nlp_doc = NLPDoc(meta={'id': data["_id"]}, **data)
