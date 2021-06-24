@@ -47,16 +47,20 @@
 
           <div v-if="result.der_country" class="study-country">
             {{ result.der_country[0]
-            }}<span :id="'c-' + result.id" v-if="result.der_country.length > 1">
-              +{{ result.der_country.length - 1 }} other<span
-                v-if="result.der_country.length > 2"
-                >s</span
+            }}<span v-if="result.der_country.length > 1">
+              &nbsp;<span
+                style="border-bottom: 1px dotted #009fda"
+                :id="'c-' + result.id"
+                >+{{ result.der_country.length - 1 }} other<span
+                  v-if="result.der_country.length > 2"
+                  >s</span
+                ></span
               ></span
             >, {{ result.year }}
 
             <b-tooltip
               :target="'c-' + result.id"
-              triggers="hover"
+              triggers="hover click blur"
               placement="rightbottom"
             >
               <div style="max-height: 150px; overflow-y: scroll">
