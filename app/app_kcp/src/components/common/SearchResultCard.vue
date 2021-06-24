@@ -60,7 +60,7 @@
 
             <b-tooltip
               :target="'c-' + result.id"
-              triggers="hover click blur"
+              triggers="hover focus click"
               placement="rightbottom"
             >
               <div style="max-height: 150px; overflow-y: scroll">
