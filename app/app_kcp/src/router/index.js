@@ -40,6 +40,7 @@ import TopicClassification from '../components/methods/TopicClassification.vue'
 import Cataloguing from '../components/methods/Cataloguing.vue'
 import SearchEngine from '../components/methods/SearchEngine.vue'
 import Visualizations from '../components/methods/Visualizations.vue'
+import Github from '../components/methods/Github.vue'
 import TrainingMaterials from '../components/methods/TrainingMaterials.vue'
 
 // COMMON
@@ -267,6 +268,12 @@ const methods_routes = [
         name: "methods_visualizations",
         component: Visualizations,
         props: { page_title: "Visualizations" },
+    },
+    {
+        path: "github",
+        name: "methods_github",
+        component: Github,
+        props: { page_title: "Github" },
     },
     {
         path: "training-materials",

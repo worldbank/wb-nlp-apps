@@ -4,10 +4,16 @@
     <div>
       <br />
       <p>
-        We derive the topic composition of or corpus (and sub-corpuses) by
-        running Latent Dirichlet Allocation (LDA) models. LDA (Blei, 2003) is an
-        unsupervised machine learning approach, which does not require any
-        pre-defined topic taxonomy. The main parameter to be provided to the
+        We derive the topic composition of our corpus (and sub-corpuses) by
+        running
+        <router-link to="/methods/lda"
+          >Latent Dirichlet Allocation (LDA) models</router-link
+        >. LDA (<a
+          href="https://www.jmlr.org/papers/volume3/blei03a/blei03a.pdf"
+          target="_blank"
+          >Blei, 2003</a
+        >) is an unsupervised machine learning approach, which does not require
+        any pre-defined topic taxonomy. The main parameter to be provided to the
         model is the number of topics we assume are contained in the corpus. The
         LDA model will derive these topics and return them in the form of a list
         of keywords (each keyword with a “weight” indicating its importance). We

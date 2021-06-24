@@ -113,6 +113,16 @@
                   >Visualizations</router-link
                 >
               </li>
+              <li>
+                <router-link
+                  to="/methods/github"
+                  class="wbg_sidebar second-level"
+                  :class="{
+                    active: $route.name === 'methods_github',
+                  }"
+                  >Github</router-link
+                >
+              </li>
               <!--
               <li>
                 <router-link
