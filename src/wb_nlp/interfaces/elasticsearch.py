@@ -99,26 +99,28 @@ class NLPDoc(Document):
         self.der_country_counts = country_counts
 
         country_groups = set()
-        country_names = set()
+        country_names = []
 
         if self.der_country_counts is not None:
-            for code in self.der_country_counts:
+            sorted_country_codes = sorted(
+                self.der_country_counts, key=lambda x: self.der_country_counts[x], reverse=True)
+            for code in sorted_country_codes:
                 g = country_extractor.country_code_country_group_map.get(code)
                 if g:
                     country_groups.update(g)
 
                 n = country_extractor.get_country_name_from_code(code)
                 if n:
-                    country_names.add(n)
+                    if n not in country_names:
+                        country_names.append(n)
 
-            top_code = max(self.der_country_counts,
-                           key=lambda x: self.der_country_counts[x])
+            top_code = sorted_country_codes[0]
             self.der_top_country = country_extractor.get_country_name_from_code(
                 top_code)
             self.der_top_region = country_extractor.get_region_from_country_code(
                 top_code)
 
-        self.der_country = sorted(country_names)
+        self.der_country = country_names  # Don't sort!
         self.der_country_groups = sorted(country_groups)
 
         self.der_country_details = country_extractor.get_country_count_details(
