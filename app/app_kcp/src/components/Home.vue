@@ -145,16 +145,23 @@
           <p class="mt-4 text-center">
             The Document Explorer puts Natural Language Processing (NLP) at the
             service of knowledge discovery. We compiled and maintain a
-            <a href="/#">corpus of research</a>, project and other documents
-            from development agencies. Topic and word embeddings models, and
-            other methods are applied to provide information discovery solutions
-            including <a href="/#">lexical and semantic search</a>, filtering by
-            topic composition, and others. A <a href="/#">meta-database</a> is
-            created, which provides a detailed description of all documents and
-            can be used as input to analysis of knowledge on development. All
-            solutions implemented in this project rely on publicly-available
-            documents and on <a href="/#">open source tools</a>. Our solutions
-            are openly accessible in our <a href="/#">GitHub repository</a>.
+            <router-link to="/explore/corpus/">corpus of research</router-link>,
+            project and other documents from development agencies. Topic and
+            word embeddings models, and other methods are applied to provide
+            information discovery solutions including
+            <router-link to="/search">lexical and semantic search</router-link>,
+            filtering by topic composition, and others. A
+            <router-link to="/explore/subcategories/metadata/"
+              >meta-database</router-link
+            >
+            is created, which provides a detailed description of all documents
+            and can be used as input to analysis of knowledge on development.
+            All solutions implemented in this project rely on publicly-available
+            documents and on
+
+            <router-link to="/methods">open source tools</router-link>. Our
+            solutions are openly accessible in our
+            <router-link to="/methods/github">GitHub repository</router-link>.
           </p>
 
           <p class="mt-4 text-center">
@@ -235,11 +242,7 @@
               <i class="fab fa-github fa-lg" aria-hidden="true"></i>
             </div>
             <h3>
-              <a
-                href="https://github.com/worldbank/wb-nlp-tools"
-                target="_blank"
-                >Github</a
-              >
+              <router-link to="/methods/github"> Github</router-link>
             </h3>
             <p>Review the code at our Github repo</p>
           </div>
