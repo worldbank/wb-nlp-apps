@@ -106,6 +106,7 @@ class BaseModel:
 
         self.doc_topic_meta_fields = [
             "adm_region", "country", "corpus", "date_published",
+            "der_acronyms", "der_country", "der_jdc_tags", "der_regions",
             "doc_type", "geo_region", "major_doc_type", "topics_src", "year"]
 
     def log(self, message):
@@ -148,20 +149,16 @@ class BaseModel:
 
     def get_doc_id_from_int_id(self, int_id):
         return live_cache.DOCS_INT_ID_TO_ID[int_id]
-        # # docs_metadata_collection = mongodb.get_docs_metadata_collection()
-        # docs_metadata_collection = mongodb.get_collection(
-        #     db_name="test_nlp", collection_name="docs_metadata")
+        # # es_nlp_doc_metadata_collection = mongodb.get_es_nlp_doc_metadata_collection()
 
-        # res = docs_metadata_collection.find_one(
+        # res = es_nlp_doc_metadata_collection.find_one(
         #     {"int_id": int_id}, projection=["id"])
         # return res["id"]
 
     def get_int_id_from_doc_id(self, doc_id):
-        # docs_metadata_collection = mongodb.get_docs_metadata_collection()
-        docs_metadata_collection = mongodb.get_collection(
-            db_name="test_nlp", collection_name="docs_metadata")
+        es_nlp_doc_metadata_collection = mongodb.get_es_nlp_doc_metadata_collection()
 
-        res = docs_metadata_collection.find_one(
+        res = es_nlp_doc_metadata_collection.find_one(
             {"id": doc_id}, projection=["int_id"])
         return res["int_id"]
 
@@ -710,9 +707,7 @@ class BaseModel:
         # - id (some hash value (max of 15-hex value) - we will convert this to its decimal equivalent)
         self.check_model()
 
-        # docs_metadata_collection = mongodb.get_docs_metadata_collection()
-        docs_metadata_collection = mongodb.get_collection(
-            db_name="test_nlp", collection_name="docs_metadata")
+        es_nlp_doc_metadata_collection = mongodb.get_es_nlp_doc_metadata_collection()
 
         milvus_client = get_milvus_client()
         collection_name = self.model_collection_id
@@ -730,7 +725,7 @@ class BaseModel:
         cleaned_ids = [i.stem for i in self.cleaned_docs_dir.glob("*/*.txt")]
 
         docs_metadata_df = pd.DataFrame(
-            list(docs_metadata_collection.find(projection=projection)), columns=projection)
+            list(es_nlp_doc_metadata_collection.find(projection=projection)), columns=projection)
 
         docs_for_processing = docs_metadata_df[
             (~docs_metadata_df['int_id'].isin(collection_doc_ids)) & docs_metadata_df["id"].isin(cleaned_ids)]
