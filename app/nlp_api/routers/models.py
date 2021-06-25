@@ -190,10 +190,8 @@ async def get_similar_docs_by_doc_id(model_name: ModelTypes, transform_params: S
         metric_type=transform_params.metric_type.value)
 
     if return_metadata:
-        # docs_metadata = mongodb.get_docs_metadata_collection()
-        docs_metadata = mongodb.get_collection(
-            db_name="test_nlp", collection_name="docs_metadata")
-        metadata_map = {d["id"]: d for d in docs_metadata.find(
+        es_nlp_doc_metadata = mongodb.get_es_nlp_doc_metadata_collection()
+        metadata_map = {d["id"]: d for d in es_nlp_doc_metadata.find(
             {"id": {"$in": [r["id"] for r in result]}})}
 
         for r in result:
