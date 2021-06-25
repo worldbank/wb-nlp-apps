@@ -176,7 +176,7 @@
             @filterChanged="setFilters"
           /> -->
 
-          <div>
+          <div v-if="search_type !== 'semantic'">
             <div
               id="filter-by-access"
               class="

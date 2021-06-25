@@ -64,16 +64,19 @@
           <b-tooltip
             v-if="result.der_country"
             :target="'c-' + result.id"
-            triggers="hover focus click blur"
+            triggers="hover click blur"
             placement="leftbottom"
             :delay="100"
           >
-            <div style="max-height: 150px; overflow-y: scroll">
+            <div
+              class="text-left"
+              style="max-height: 200px; overflow-y: scroll"
+            >
               <div
-                v-for="dc in result.der_country.slice(1)"
-                :key="'dc-' + dc + '-' + result.id"
+                v-for="dc in result.der_country_details"
+                :key="'dc-' + dc.name + '-' + result.id"
               >
-                <span>{{ dc }}</span
+                <span>{{ dc.name ? dc.name : dc.code }} [{{ dc.count }}]</span
                 ><br />
               </div>
             </div>
