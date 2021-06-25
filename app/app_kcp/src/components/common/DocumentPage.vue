@@ -114,7 +114,7 @@
               <a :href="metadata.url_pdf" target="_blank">{{
                 metadata.url_pdf
               }}</a>
-              <div class="mt-2">
+              <div v-if="metadata.corpus != 'IADB'" class="mt-2">
                 <iframe
                   ref="iframe"
                   width="100%"
