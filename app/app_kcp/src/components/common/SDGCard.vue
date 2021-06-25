@@ -4,7 +4,11 @@
     <div class="row justify-content-center sdg-group">
       <div class="col-12 sdg-name">
         <p class="lead">
-          <a :href="result.url_data" target="_blank">{{ result.name }}</a>
+          <a
+            :href="result.url_data.replace('seriesCode=SDG_', 'seriesCode=')"
+            target="_blank"
+            >{{ result.name }}</a
+          >
         </p>
       </div>
 
