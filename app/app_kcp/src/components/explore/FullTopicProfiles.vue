@@ -41,9 +41,50 @@
               </b-form-group>
             </b-col>
           </b-row>
-          <br />
+          <!-- <br /> -->
 
-          <div>
+          <h4 class="mt-4">Filter data</h4>
+          <b-row class="text-left">
+            <b-col>
+              by source
+              <b-form-select
+                v-model="corpus_filter"
+                :options="corpus_options"
+              ></b-form-select>
+            </b-col>
+            <b-col>
+              by document type
+              <b-form-select
+                v-model="major_doc_type_filter"
+                :options="major_doc_type_options"
+              ></b-form-select>
+            </b-col>
+          </b-row>
+
+          <div class="mt-5">
+            <h4>Topic profile by source</h4>
+            <b-form-radio-group
+              v-model="corpus_value"
+              value-field="item"
+              text-field="name"
+              :options="group_value_options"
+            />
+            <br />
+
+            <b-row>
+              <b-col>
+                <v-chart
+                  class="chart"
+                  ref="graphChartCorpusRegion"
+                  :option="defaultOptions"
+                  :autoresize="true"
+                  :loading="loading"
+                />
+              </b-col>
+            </b-row>
+          </div>
+
+          <div class="mt-5">
             <h4>Topic profile by document type</h4>
             <b-form-radio-group
               v-model="major_doc_type_value"
@@ -69,7 +110,7 @@
             <br />
           </div>
 
-          <div v-if="der_regions_data">
+          <div class="mt-5">
             <h4>Topic profile by geographic region</h4>
             <b-form-radio-group
               v-model="der_regions_value"
@@ -154,6 +195,7 @@ export default {
 
       full_profile_ready: false,
 
+      corpus_value: "volume",
       major_doc_type_value: "volume",
       der_regions_value: "volume",
 
@@ -162,6 +204,21 @@ export default {
         { item: "share", name: "By share" },
       ],
 
+      corpus_ids: null,
+
+      major_doc_type_filter: "",
+      major_doc_type_options: [
+        { value: "", text: "All documents" },
+        { value: "Project Documents", text: "Project Documents" },
+        {
+          value: "Publications and Reports",
+          text: "Publications and Reports",
+        },
+      ],
+
+      corpus_filter: "",
+
+      corpus_data: null,
       der_regions_data: null,
       major_doc_type_data: null,
 
@@ -172,13 +229,25 @@ export default {
     };
   },
   computed: {
+    corpus_options() {
+      var corpus_options = [{ value: "", text: "All sources" }];
+
+      if (this.corpus_ids) {
+        corpus_options = corpus_options.concat(
+          this.corpus_ids.map((o) => {
+            return { value: o, text: o };
+          })
+        );
+      }
+
+      return corpus_options;
+    },
     searchParams() {
       const params = new URLSearchParams();
       params.append("model_id", this.model_run_info_id);
       params.append("topn_words", 10);
       return params;
     },
-
     topicChanged: function () {
       return this.prev_topic_id != this.topic_id;
     },
@@ -407,6 +476,9 @@ export default {
       params.append("model_id", this.model_run_info_id);
       params.append("topic_id", this.topic_id);
       params.append("year_start", 1960);
+      params.append("major_doc_type", this.major_doc_type_filter);
+      params.append("corpus", this.corpus_filter);
+
       params.append("type", "line");
 
       this.$http
@@ -415,7 +487,10 @@ export default {
           let data = response.data;
 
           this.der_regions_data = data.der_regions;
+          this.corpus_data = data.corpus;
           this.major_doc_type_data = data.major_doc_type;
+
+          this.corpus_ids = data.corpus.volume.legend;
 
           if ("topic_words" in data) {
             this.topic_words = data.topic_words;
@@ -430,6 +505,8 @@ export default {
     },
     plotVolumeTopicProfiles() {},
     updateCharts() {
+      this.$refs.graphChartMajorDocType.clear();
+
       this.$refs.graphChartMajorDocType.setOption(
         this.updateOption(
           this.major_doc_type_data,
@@ -438,31 +515,46 @@ export default {
         )
       );
 
-      if (this.der_regions_data) {
-        this.$refs.graphChartDerRegions.setOption(
-          this.updateOption(
-            this.der_regions_data,
-            this.der_regions_value,
-            "Geographic region"
-          )
-        );
-      }
+      this.$refs.graphChartCorpusRegion.clear();
+
+      this.$refs.graphChartCorpusRegion.setOption(
+        this.updateOption(this.corpus_data, this.corpus_value, "Source")
+      );
+
+      this.$refs.graphChartDerRegions.clear();
+
+      this.$refs.graphChartDerRegions.setOption(
+        this.updateOption(
+          this.der_regions_data,
+          this.der_regions_value,
+          "Geographic region"
+        )
+      );
     },
   },
   watch: {
     topic_id() {
       this.getFullTopicProfiles();
     },
+    major_doc_type_filter() {
+      this.getFullTopicProfiles();
+    },
+    corpus_filter() {
+      this.getFullTopicProfiles();
+    },
+    corpus_value() {
+      this.$refs.graphChartCorpusRegion.setOption(
+        this.updateOption(this.corpus_data, this.corpus_value, "Source")
+      );
+    },
     der_regions_value() {
-      if (this.der_regions_data) {
-        this.$refs.graphChartDerRegions.setOption(
-          this.updateOption(
-            this.der_regions_data,
-            this.der_regions_value,
-            "Geographic region"
-          )
-        );
-      }
+      this.$refs.graphChartDerRegions.setOption(
+        this.updateOption(
+          this.der_regions_data,
+          this.der_regions_value,
+          "Geographic region"
+        )
+      );
     },
     major_doc_type_value() {
       this.$refs.graphChartMajorDocType.setOption(

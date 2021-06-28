@@ -828,6 +828,7 @@ class DocTopicAggregations:
 
     def get_topic_aggregation(self, field, topic, filters=None, return_ids=False):
         search = self.doc_class.search().filter("term", model_run_info_id=self.model_id)
+        search = search.exclude("term", major_doc_type="Board Documents")
 
         if filters:
             for f in filters:
