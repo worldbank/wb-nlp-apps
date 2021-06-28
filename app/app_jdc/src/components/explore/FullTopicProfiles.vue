@@ -477,7 +477,7 @@ export default {
     },
     plotVolumeTopicProfiles() {},
     updateCharts() {
-      this.$refs.graphChartMajorDocType.setOption(this.defaultOptions);
+      this.$refs.graphChartMajorDocType.clear();
 
       this.$refs.graphChartMajorDocType.setOption(
         this.updateOption(
@@ -487,7 +487,7 @@ export default {
         )
       );
 
-      this.$refs.graphChartCorpusRegion.setOption(this.defaultOptions);
+      this.$refs.graphChartCorpusRegion.clear();
 
       this.$refs.graphChartCorpusRegion.setOption(
         this.updateOption(this.corpus_data, this.corpus_value, "Source")

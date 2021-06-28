@@ -69,10 +69,10 @@
             <br />
           </div>
 
-          <div v-if="adm_region_data">
-            <h4>Topic profile by admin regions</h4>
+          <div v-if="der_regions_data">
+            <h4>Topic profile by geographic region</h4>
             <b-form-radio-group
-              v-model="adm_region_value"
+              v-model="der_regions_value"
               value-field="item"
               text-field="name"
               :options="group_value_options"
@@ -83,7 +83,7 @@
               <b-col>
                 <v-chart
                   class="chart"
-                  ref="graphChartAdminRegion"
+                  ref="graphChartDerRegions"
                   :option="defaultOptions"
                   :autoresize="true"
                   :loading="loading"
@@ -155,14 +155,14 @@ export default {
       full_profile_ready: false,
 
       major_doc_type_value: "volume",
-      adm_region_value: "volume",
+      der_regions_value: "volume",
 
       group_value_options: [
         { item: "volume", name: "By volume" },
         { item: "share", name: "By share" },
       ],
 
-      adm_region_data: null,
+      der_regions_data: null,
       major_doc_type_data: null,
 
       prev_topic_id: -1,
@@ -414,7 +414,7 @@ export default {
         .then((response) => {
           let data = response.data;
 
-          this.adm_region_data = data.adm_region;
+          this.der_regions_data = data.der_regions;
           this.major_doc_type_data = data.major_doc_type;
 
           if ("topic_words" in data) {
@@ -438,11 +438,11 @@ export default {
         )
       );
 
-      if (this.adm_region_data) {
-        this.$refs.graphChartAdminRegion.setOption(
+      if (this.der_regions_data) {
+        this.$refs.graphChartDerRegions.setOption(
           this.updateOption(
-            this.adm_region_data,
-            this.adm_region_value,
+            this.der_regions_data,
+            this.der_regions_value,
             "Geographic region"
           )
         );
@@ -453,12 +453,12 @@ export default {
     topic_id() {
       this.getFullTopicProfiles();
     },
-    adm_region_value() {
-      if (this.adm_region_data) {
-        this.$refs.graphChartAdminRegion.setOption(
+    der_regions_value() {
+      if (this.der_regions_data) {
+        this.$refs.graphChartDerRegions.setOption(
           this.updateOption(
-            this.adm_region_data,
-            this.adm_region_value,
+            this.der_regions_data,
+            this.der_regions_value,
             "Geographic region"
           )
         );
