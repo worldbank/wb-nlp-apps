@@ -18,6 +18,10 @@ An environment economist is tasked to write a report on the impact of climate ch
 
 ![search-by-topic-composition](/docs/_static/img/search-by-topic-composition.png) -->
 
+## Architecture diagram
+
+![architecture-diagram](reports/figures/KCP%20App%20Architecture%20Diagram.svg)
+
 ## Project components
 
 The project is broken down into the following components:
