@@ -12,7 +12,7 @@
     "@avsolatorio/vue-map-chart": "^0.0.3",
     "@highcharts/map-collection": "^1.1.3",
     "@vue/composition-api": "^1.0.0-rc.3",
-    "axios": "^0.21.1",
+    "axios": ">=0.21.1",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.17.3",
     "core-js": "^3.6.5",
