@@ -1,0 +1,256 @@
+ISO_Codes,Names,Rules
+RUS,Russian Federation,"Do not use ""Russia"""
+CHN,China,None
+BTN,Bhutan,None
+KOR,"Korea, Republic of","Always have ""Republic of"" before ""Korea"""
+PRK,"Korea, Democratic People's Republic of","Always have ""Democratic People's Republic of"" before ""Korea"""
+ZWE,Zimbabwe,None
+ZMB,Zambia,None
+VAT,Vatican City,None
+URY,Uruguay,None
+USA,Navassa Island (US),Name in italic
+UGA,Uganda,None
+TGO,Togo,None
+TCD,Chad,None
+SXM,Sint Maarten (Neth.),Name in italic
+SWZ,Swaziland,None
+SVN,Slovenia,None
+SVK,Slovak Republic,Don't use Slovakia
+GUY,Suriname,None
+SRB,Serbia,None
+SOM,Somalia,None
+SMR,San Marino,None
+SLV,El Salvador,None
+SEN,Senegal,None
+RWA,Rwanda,None
+ROU,Romania,None
+QAT,Qatar,None
+PRY,Paraguay,None
+POL,Poland,None
+PER,Peru,None
+NRU,Nauru,None
+NPL,Nepal,None
+NOR,Norway,None
+BES,Bonaire (Neth.),Name in italic
+BES,Sint Eustatius (Neth.),Name in italic
+BES,Saba (Neth.),Name in italic
+NIU,Niue (NZ),Name in italic
+NGA,Nigeria,None
+NFK,Norfolk Island (Aus.),Name in italic
+NER,Niger,None
+NAM,Namibia,None
+MSR,Montserrat (UK),Name in italic
+MNG,Mongolia,None
+MNE,Montenegro,None
+MLI,Mali,None
+MKD,"Macedonia, FYR","Always have ""FYR"" before ""Macedonia"""
+MDA,Moldova,None
+MCO,Monaco,None
+MAR,Morocco,None
+MAF,Saint-Martin (Fr.),Name in italic
+LVA,Latvia,None
+LUX,Luxembourg,None
+LSO,Lesotho,None
+LIE,Liechtenstein,None
+LCA,Saint Lucia,None
+LBY,Libya,None
+LBR,Liberia,None
+LBN,Lebanon,None
+LAO,Lao People's Democratic Republic,"Always have ""People's Democratic Republic"" after ""Lao"""
+KOS,Kosovo,None
+JOR,Jordan,None
+JEY,Jersey (UK),Name in italic
+JAM,Jamaica,None
+IRQ,Iraq,None
+CXR,Christmas Island (Aus.),Name in italic
+HUN,Hungary,None
+GUM,Guam (US),Name in italic
+GTM,Guatemala,None
+GMB,"Gambia, The","Always have ""The"" before ""Gambia"""
+GIN,Guinea,None
+GIB,Gibraltar (UK),Name in italic
+GHA,Ghana,None
+GEO,Georgia,None
+ETH,Ethiopia,None
+DZA,Algeria,None
+DMA,Dominica,None
+DJI,Djibouti,None
+CZE,Czech Republic,None
+CUW,Curaçao (Neth.),Name in italic
+COG,"Congo, Rep. of",
+CMR,Cameroon,None
+FRA,Clipperton Island (Fr.),Name in italic
+CHE,Switzerland,None
+CAF,Central African Republic,None
+BWA,Botswana,None
+BRB,Barbados,None
+BOL,Bolivia,None
+BMU,Bermuda (UK),Name in italic
+BLR,Belarus,None
+BLM,Saint-Barthélemy (Fr.),Name in italic
+BIH,Bosnia and Herzegovina,None
+BHR,Bahrain,None
+BGR,Bulgaria,None
+BFA,Burkina Faso,None
+BEN,Benin,None
+BEL,Belgium,None
+BDI,Burundi,None
+AUT,Austria,None
+AND,Andorra,None
+ALB,Albania,None
+AFG,Afghanistan,None
+ABW,Aruba (Neth.),None
+SYR,Syrian Arab Republic,"Always ""Syrian Arab Republic"" not just ""Syria"""
+ISR,Israel,None
+SSD,South Sudan,None
+SHN,"Saint Helena, Ascension and Tristan da Cunha (UK)",Name in italic
+UMI,Wake Island (US),Name in italic
+UMI,Palmyra Atoll (US),Name in italic
+UMI,Howland Island (US),Name in italic
+UMI,Jarvis Island (US),Name in italic
+UMI,Baker Island (US),Name in italic
+SGP,Singapore,None
+MAC,"Macau (SAR, China)",Name it as a regular Chinese province
+HKG,"Hong Kong (SAR, China)",Name it as a regular Chinese province
+FRA,France,None
+NZL,New Zealand,None
+TKL,Tokelau (NZ),Name in italic
+UMI,Midway Islands (US),Name in italic
+UMI,Johnston Atoll (US),Name in italic
+ATF,French Southern and Antarctic Lands (Fr.),Name in italic
+ZAF,South Africa,None
+AUS,Australia,None
+SDN,Sudan,None
+SGS,South Georgia and South Sandwich Islands (UK),Name in italic
+CCK,Cocos (Keeling) Islands (Aus.),Name in italic
+KEN,Kenya,None
+IND,India,Stops South of Kashmir Line of Control with Pakistan
+PAK,Pakistan,Stops North of Kashmir Line of Control with India
+PSE,West Bank and Gaza,Name in italic
+KAZ,Kazakhstan,None
+CYP,Cyprus,None
+NLD,Netherlands,
+AGO,Angola,None
+AIA,Anguilla (UK),Name in italic
+FIN,Finland,None
+ARE,United Arab Emirates,None
+ARG,Argentina,None
+ARM,Armenia,None
+ASM,American Samoa (US),Name in italic
+ATG,Antigua and Barbuda,None
+AZE,Azerbaijan,None
+BGD,Bangladesh,None
+BHS,"Bahamas, The",None
+BLZ,Belize,None
+BRA,Brazil,None
+BRN,Brunei Darussalam,None
+CAN,Canada,None
+CHL,Chile,None
+CIV,Côte d'Ivoire,"Don't use Ivory Coast; With circumflex over ""o"""
+COD,"Congo, Democratic Republic of","Always have ""Democratic Republic of"" before ""Congo"""
+COK,Cook Islands (NZ),Name in italic
+COL,Colombia,None
+COM,Comoros,None
+CPV,Cabo Verde,None
+CRI,Costa Rica,None
+CUB,Cuba,Not part of LCR region
+CYM,Cayman Islands (UK),Name in italic
+DEU,Germany,None
+DNK,Denmark,None
+DOM,Dominican Republic,None
+ECU,Ecuador,None
+EGY,"Egypt, Arab Republic of","Always have ""Arab Republic of"" before ""Egypt"""
+ERI,Eritrea,None
+ESP,Spain,None
+EST,Estonia,None
+FJI,Fiji,None
+FLK,Falkland Islands (UK)/Islas Malvinas,Name in italic; Always color grey
+FRO,Faroe Islands (Den.),Name in italic
+FSM,"Micronesia, Federated States of",None
+GAB,Gabon,None
+GBR,United Kingdom,None
+GGY,Guernsey (UK),Name in italic
+GNB,Guinea-Bissau,None
+GNQ,Equatorial Guinea,None
+GRC,Greece,None
+GRD,Grenada,None
+GRL,Greenland (Den.),Name in italic
+GUY,Guyana,None
+HMD,Heard Island and McDonald Islands (Aus.),Name in italic
+HND,Honduras,None
+HRV,Croatia,None
+HTI,Haiti,None
+IDN,Indonesia,None
+IMN,Isle of Man (UK),Name in italic
+IOT,British Indian Ocean Territory (UK),Name in italic
+IRL,Ireland,None
+IRN,"Iran, Islamic Republic of","Always have ""Islamic Republic of"" before ""Iran"""
+ISL,Iceland,None
+ITA,Italy,None
+JPN,Japan,None
+KGZ,Kyrgyz Republic,Don't use Kyrgyzstan
+KHM,Cambodia,None
+KIR,Kiribati,None
+KNA,Saint Kitts and Nevis,None
+KWT,Kuwait,None
+LKA,Sri Lanka,None
+LTU,Lithuania,None
+MDG,Madagascar,None
+MDV,Maldives,None
+MEX,Mexico,None
+MHL,Marshall Islands,None
+MLT,Malta,None
+MMR,Myanmar,Don't use Burma
+MNP,Northern Mariana Islands (US),Name in italic
+MOZ,Mozambique,None
+MRT,Mauritania,None
+MUS,Mauritius,None
+MWI,Malawi,None
+MYS,Malaysia,None
+NCL,New Caledonia (Fr.),Name in italic
+NIC,Nicaragua,None
+OMN,Oman,None
+PAN,Panama,None
+PCN,Pitcairn Islands (UK),Name in italic
+PHL,Philippines,None
+PLW,Palau,None
+PNG,Papua New Guinea,None
+PRI,Puerto Rico (US),Name in italic
+PRT,Portugal,None
+PYF,French Polynesia (Fr.),Name in italic
+SAU,Saudi Arabia,None
+SLB,Solomon Islands,None
+SLE,Sierra Leone,None
+SPM,Saint-Pierre-et-Miquelon (Fr.),Name in italic
+STP,São Tomé and Príncipe,"Accents on a, e, and i"
+SWE,Sweden,None
+SYC,Seychelles,None
+TCA,Turks and Caicos Islands (UK),Name in italic
+THA,Thailand,None
+TJK,Tajikistan,None
+TKM,Turkmenistan,None
+TLS,Timor-Leste,Don't use East Timor
+TON,Tonga,None
+TTO,Trinidad and Tobago,None
+TUN,Tunisia,None
+TUR,Turkey,None
+TUV,Tuvalu,None
+TZA,Tanzania,Don't use United Republic of Tanzania
+UKR,Ukraine,None
+USA,United States of America,None
+USA,Guantanamo Bay (US),None
+UZB,Uzbekistan,None
+VCT,Saint Vincent and the Grenadines,None
+VEN,"Venezuela, Republica Bolivariana de","Always have ""R.B. de"" before ""Venezuela"""
+VGB,British Virgin Islands (UK),Name in italic
+VIR,U.S. Virgin Islands (US),Name in italic
+VNM,Vietnam,Name in one word
+VUT,Vanuatu,None
+WLF,Wallis-et-Futuna (Fr.),Name in italic
+WSM,Samoa,None
+YEM,"Yemen, Republic of","Always have ""Republic of"" before ""Yemen"""
+XXX,Arunachal Pradesh,Fill color should be halfway between India & China
+XXX,Demchok,Fill color should be halfway between India & China
+XXX,Aksai Chin,Fill color should be halfway between India & China
+XXX,Abyei,Name in italic; Fill color should be halfway between Sudan and South Sudan
+ESH,Western Sahara,"Name in italic; Always fill color as ""No Data"""
