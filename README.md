@@ -20,7 +20,7 @@ An environment economist is tasked to write a report on the impact of climate ch
 
 ## Architecture diagram
 
-![architecture-diagram](reports/figures/KCP%20App%20Architecture%20Diagram.png)
+![architecture-diagram](reports/figures/KCP%20App%20Architecture%20Diagram.svg)
 
 ## Project components
 
